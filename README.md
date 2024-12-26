@@ -53,4 +53,4 @@ src/
 |   |-- Routes/
 ```
 
-For this project we're going to use this architecture due to the Modularity, Flexibility and Easy to Learn pros.
+For this project we're going to use this architecture due to the Modularity, Flexibility and Easy to Learn pros. And our Domain Entities Will be surveys, variables, componentes and students info.
