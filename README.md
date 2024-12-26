@@ -52,3 +52,5 @@ src/
 |   |-- Views/
 |   |-- Routes/
 ```
+
+For this project we're going to use this architecture due to the Modularity, Flexibility and Easy to Learn pros.
