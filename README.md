@@ -16,20 +16,7 @@
 
 # Onion Architecture
 
-![image](https://github.com/user-attachments/assets/14e243c2-9001-4264-be08-df63e398a661)
-
-
-It is an architecture variant of Clean Architecture that focuses on organizing code into concentric layers, where the core of the system is at the center and the outer layers represent different levels of abstraction and implementation details.
-
-One of the key differences between Onion Architecture and Clean Architecture is how they approach the dependency management problem.
-
-In Onion Architecture, dependencies flow from the outer layers toward the innermost core layer. This means the core layer is entirely decoupled from the outside world and can be tested independently of other components.
-
-Clean Architecture places a particular emphasis on using interfaces to decouple components, allowing components to be easily swapped out or replaced.
-
-Onion Architecture explicitly separates technical concerns from business logic by placing them in the outer layers of the application.
-
-![image](https://github.com/user-attachments/assets/02716456-9eba-4ae0-a050-2ef3906ad95a)
+For this project Onion architecture is going to use this architecture due to the Modularity, Flexibility and Easy to Learn pros. And our Domain Entities Will be surveys, variables, componentes and students info. For more info about the architecture https://github.com/JU-DEV-Bootcamps/ERAS/wiki/Hexagonal-and-Onion-Architecture
 
 ### Onion example folder structure
 
@@ -52,5 +39,3 @@ src/
 |   |-- Views/
 |   |-- Routes/
 ```
-
-For this project we're going to use this architecture due to the Modularity, Flexibility and Easy to Learn pros. And our Domain Entities Will be surveys, variables, componentes and students info.
