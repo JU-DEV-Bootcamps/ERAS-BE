@@ -50,3 +50,7 @@ Run the project from the command line
 
 > [!NOTE]
 > If you are using Visual Studio you can use the Run and Debug feature to run the project. Set as startup project the same path `src/Presentation`.
+
+
+# Project ORM
+For data access and data modeling Entity Framework Core will be used with the "Code First" approach
