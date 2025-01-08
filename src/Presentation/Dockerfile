@@ -26,6 +26,11 @@ RUN dotnet publish "./Presentation.csproj" -c $BUILD_CONFIGURATION -o /app/publi
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
+
+# Install PostgreSQL client in the final image (if needed in production)
+USER root
+RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+
 COPY --from=publish /app/publish .
 RUN ls -la /app
 ENTRYPOINT ["dotnet", "/app/Presentation.dll"]
