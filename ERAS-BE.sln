@@ -33,6 +33,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "External", "src\Infraestruc
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{255FDE2E-A305-407A-AFDF-92BE6C2493D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERAS-BE_TEST", "..\ERAS-BE_TEST\ERAS-BE_TEST.csproj", "{2943C094-D942-454B-B495-72DC0ECD5DDB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4A629D34-C31A-402D-984D-24F580C369B5} = {4A629D34-C31A-402D-984D-24F580C369B5}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +88,10 @@ Global
 		{255FDE2E-A305-407A-AFDF-92BE6C2493D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{255FDE2E-A305-407A-AFDF-92BE6C2493D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{255FDE2E-A305-407A-AFDF-92BE6C2493D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2943C094-D942-454B-B495-72DC0ECD5DDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2943C094-D942-454B-B495-72DC0ECD5DDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2943C094-D942-454B-B495-72DC0ECD5DDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2943C094-D942-454B-B495-72DC0ECD5DDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
