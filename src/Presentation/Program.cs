@@ -1,4 +1,4 @@
-using DB;
+using Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
