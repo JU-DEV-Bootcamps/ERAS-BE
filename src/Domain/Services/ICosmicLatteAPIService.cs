@@ -1,4 +1,4 @@
-namespace Domain.Services
+namespace Services
 {
     public interface ICosmicLatteAPIService<T>
     {

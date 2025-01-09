@@ -1,7 +1,6 @@
-
-using Domain.Services;
+using CosmicLatteClient;
 using Entities;
-using Infraestructure.CosmicLatteClient;
+using Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

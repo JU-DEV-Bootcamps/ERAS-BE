@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UseCases", "src\Application\UseCases\UseCases.csproj", "{EF594B5A-BAED-4795-9F98-5896149E50C7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infraestructure", "Infraestructure", "{487BFEF4-3273-4B3F-AC94-ADDB19F60C2B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{487BFEF4-3273-4B3F-AC94-ADDB19F60C2B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistence", "src\Infraestructure\Persistence\Persistence.csproj", "{41AEAA4E-0EED-4CB3-A566-1D6558D60F39}"
 EndProject
@@ -30,8 +30,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Services", "src\Infraestructure\Services\Services.csproj", "{60FF859D-F017-4369-ADD8-5B9119CDEB55}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "External", "src\Infraestructure\External\External.csproj", "{7D076B67-C9CB-4197-B28B-4434B03B9B3F}"
-EndProject
-Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{255FDE2E-A305-407A-AFDF-92BE6C2493D6}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ERAS-BE_TEST", "..\ERAS-BE_TEST\ERAS-BE_TEST.csproj", "{2943C094-D942-454B-B495-72DC0ECD5DDB}"
 	ProjectSection(ProjectDependencies) = postProject
