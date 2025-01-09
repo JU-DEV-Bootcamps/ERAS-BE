@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence.PostgreSQL
 {
@@ -15,18 +10,17 @@ namespace Infrastructure.Persistence.PostgreSQL
         public int Id { get; set; }
 
         [StringLength(50)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         public int ReportId { get; set; }
 
         [ForeignKey("ReportId")]
-        public virtual Report Report { get; set; }
+        public virtual Report Report { get; set; } = default!;
 
         public int? ComponentVariableId { get; set; }
 
         [ForeignKey("ComponentVariableId")]
-        public virtual ComponentVariable ComponentVariable { get; set; }
-
+        public virtual ComponentVariable ComponentVariable { get; set; } = default!;
         [DataType(DataType.DateTime)]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 

@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence.PostgreSQL
 {
@@ -17,7 +12,7 @@ namespace Infrastructure.Persistence.PostgreSQL
         public int StudentId { get; set; }
 
         [StringLength(100)]
-        public string StudentName { get; set; }
+        public string StudentName { get; set; } = string.Empty;
 
         public int EnrolledCourses { get; set; }
 
@@ -38,7 +33,7 @@ namespace Infrastructure.Persistence.PostgreSQL
         public decimal Score { get; set; }
 
         [StringLength(2)]
-        public string Grade { get; set; }
+        public string Grade { get; set; } = string.Empty;
 
         [DataType(DataType.DateTime)]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;

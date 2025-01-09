@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence.PostgreSQL
 {
@@ -19,17 +14,17 @@ namespace Infrastructure.Persistence.PostgreSQL
         public int PollId { get; set; }
 
         [ForeignKey("PollId")]
-        public virtual Polls Poll { get; set; }
+        public virtual Polls Poll { get; set; } = default!;
 
         public int ComponentVariableId { get; set; }
 
         [ForeignKey("ComponentVariableId")]
-        public virtual ComponentVariable ComponentVariable { get; set; }
+        public virtual ComponentVariable ComponentVariable { get; set; } = default!;
 
         public int StudentId { get; set; }
 
         [ForeignKey("StudentId")]
-        public virtual Students Student { get; set; }
+        public virtual Students Student { get; set; } = default!;
 
         [DataType(DataType.DateTime)]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;

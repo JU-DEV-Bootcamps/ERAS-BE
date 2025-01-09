@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Persistence.PostgreSQL
 {
@@ -19,16 +14,16 @@ namespace Infrastructure.Persistence.PostgreSQL
         public int RiskLevel { get; set; }
 
         [StringLength(50)]
-        public string VariableName { get; set; }
+        public string VariableName { get; set; } = string.Empty;
 
         [StringLength(50)]
-        public string ComponentName { get; set; }
+        public string ComponentName { get; set; } = string.Empty;
 
         [StringLength(50)]
-        public string PollName { get; set; }
+        public string PollName { get; set; } = string.Empty;
 
         [StringLength(50)]
-        public string StudentName { get; set; }
+        public string StudentName { get; set; } = string.Empty;
 
         public int StudentId { get; set; }
 
