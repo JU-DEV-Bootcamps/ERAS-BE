@@ -1,4 +1,5 @@
-﻿using Entities;
+﻿using Domain.Services;
+using Entities;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -7,9 +8,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Services
+namespace Infraestructure.CosmicLatteClient
 {
-    public class CosmicLatteAPIServiceImp : ICosmicLatteAPIService
+    public class CosmicLatteAPIServiceImp : ICosmicLatteAPIService<CosmicLatteStatus>
     {
         // private List<Entities.Evaluation> _evals;
         private const string _PATH_EVALUATION = "evaluations";

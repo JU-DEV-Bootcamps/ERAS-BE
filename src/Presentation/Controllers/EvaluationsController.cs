@@ -1,6 +1,6 @@
-﻿using Entities;
+﻿using Domain.Services;
+using Entities;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 
 namespace Presentation.Controllers
 {
@@ -8,9 +8,9 @@ namespace Presentation.Controllers
     [Route("api/[controller]")]
     public class EvaluationsController : ControllerBase
     {
-        private readonly ICosmicLatteAPIService _cosmicLatteService;
+        private readonly ICosmicLatteAPIService<CosmicLatteStatus> _cosmicLatteService;
 
-        public EvaluationsController(ICosmicLatteAPIService cosmicLatteService)
+        public EvaluationsController(ICosmicLatteAPIService<CosmicLatteStatus> cosmicLatteService)
         {
             _cosmicLatteService = cosmicLatteService;
         }
