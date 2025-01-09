@@ -8,7 +8,8 @@ builder.Services.AddCors(o =>
 {
     o.AddPolicy("CORSPolicy", policy =>
     {
-        policy.WithOrigins(builder.Configuration["AllowedHosts"] ?? "*")
+        string allowedHosts = builder.Configuration["AllowedHosts"] ?? "*";
+        policy.WithOrigins(allowedHosts)
                   .AllowAnyHeader()
                   .AllowAnyMethod();
     });
