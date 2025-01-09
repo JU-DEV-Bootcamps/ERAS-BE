@@ -6,7 +6,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(o =>
 {
-    o.AddPolicy("MyPolicy", policy =>
+    o.AddPolicy("CORSPolicy", policy =>
     {
         policy.WithOrigins(builder.Configuration["AllowedHosts"] ?? "*")
                   .AllowAnyHeader()
@@ -15,7 +15,7 @@ builder.Services.AddCors(o =>
 });
 var app = builder.Build();
 
-app.UseCors("MyPolicy");
+app.UseCors("CORSPolicy");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
