@@ -4,21 +4,33 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection")));
 
+builder.Services.AddCors(o =>
+{
+    o.AddPolicy("CORSPolicy", policy =>
+    {
+        policy.WithOrigins(builder.Configuration["AllowedHosts"] ?? "*")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
+// Apply database migrations
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate(); 
+    dbContext.Database.Migrate();
 }
+
+// Enable CORS
+app.UseCors("CORSPolicy");
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -48,7 +60,6 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi();
-// app.MapControllers();
 
 app.Run();
 
