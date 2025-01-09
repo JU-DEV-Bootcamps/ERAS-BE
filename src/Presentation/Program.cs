@@ -1,3 +1,4 @@
+
 using Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +9,7 @@ var httpClient = new HttpClient();
 httpClient.BaseAddress = new Uri("https://staging.cosmic-latte.com/api/1.0/"); // configuration["CosmicLatte:URL"];
 builder.Services.AddSingleton(httpClient);
 
-builder.Services.AddSingleton<ICosmicLatteService, CosmicLatteService>();
+builder.Services.AddSingleton<ICosmicLatteAPIService, CosmicLatteAPIServiceImp>();
 
 
 builder.Services.AddControllers();

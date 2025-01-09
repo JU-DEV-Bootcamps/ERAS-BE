@@ -8,9 +8,9 @@ namespace Presentation.Controllers
     [Route("api/[controller]")]
     public class EvaluationsController : ControllerBase
     {
-        private readonly ICosmicLatteService _cosmicLatteService;
+        private readonly ICosmicLatteAPIService _cosmicLatteService;
 
-        public EvaluationsController(ICosmicLatteService cosmicLatteService)
+        public EvaluationsController(ICosmicLatteAPIService cosmicLatteService)
         {
             _cosmicLatteService = cosmicLatteService;
         }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Services
 {
-    public interface ICosmicLatteService
+    public interface ICosmicLatteAPIService
     {
         Task<CosmicLatteStatus> CosmicApiIsHealthy();
         /*
