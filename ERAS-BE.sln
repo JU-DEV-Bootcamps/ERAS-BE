@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mappers", "src\Application\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CosmicLatteClient", "src\Infrastructure\CosmicLatteClient\CosmicLatteClient.csproj", "{2D9713E5-D4AD-4A47-A466-26C57D0F67FB}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Persistence", "Persistence", "{8A450D7F-D258-44B7-A0F5-7BA686A907FF}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgreSQL", "src\Infrastructure\Persistence\PostgreSQL\PostgreSQL.csproj", "{CEC0C04B-A2DE-4E3A-8F9C-26E871E91178}"
 EndProject
 Global
@@ -67,12 +69,10 @@ Global
 		{2D9713E5-D4AD-4A47-A466-26C57D0F67FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D9713E5-D4AD-4A47-A466-26C57D0F67FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D9713E5-D4AD-4A47-A466-26C57D0F67FB}.Release|Any CPU.Build.0 = Release|Any CPU
-=======
 		{CEC0C04B-A2DE-4E3A-8F9C-26E871E91178}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CEC0C04B-A2DE-4E3A-8F9C-26E871E91178}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CEC0C04B-A2DE-4E3A-8F9C-26E871E91178}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CEC0C04B-A2DE-4E3A-8F9C-26E871E91178}.Release|Any CPU.Build.0 = Release|Any CPU
->>>>>>> main
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
