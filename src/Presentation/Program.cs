@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 var httpClient = new HttpClient();
-httpClient.BaseAddress = new Uri("https://staging.cosmic-latte.com/api/1.0/"); // configuration["CosmicLatte:URL"];
+httpClient.BaseAddress = new Uri("https://staging.cosmic-latte.com/api/1.0/"); 
 builder.Services.AddSingleton(httpClient);
 
 builder.Services.AddSingleton<ICosmicLatteAPIService<CosmicLatteStatus>, CosmicLatteAPIService>();
