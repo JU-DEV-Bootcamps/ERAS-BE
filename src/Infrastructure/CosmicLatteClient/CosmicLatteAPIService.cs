@@ -8,9 +8,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CosmicLatteClient
+namespace Infrastructure.CosmicLatteClient.CosmicLatteClient
 {
-    public class CosmicLatteAPIServiceImp : ICosmicLatteAPIService<CosmicLatteStatus>
+    public class CosmicLatteAPIService : ICosmicLatteAPIService<CosmicLatteStatus>
     {
         // private List<Entities.Evaluation> _evals;
         private const string _PATH_EVALUATION = "evaluations";
@@ -20,7 +20,7 @@ namespace CosmicLatteClient
 
         private readonly HttpClient _httpClient;
 
-        public CosmicLatteAPIServiceImp(IConfiguration configuration, HttpClient httpClient)
+        public CosmicLatteAPIService(IConfiguration configuration, HttpClient httpClient)
         {
             _API_KEY = configuration["CosmicLatte:ApiKey"];
             _API_URL = configuration["CosmicLatte:URL"];

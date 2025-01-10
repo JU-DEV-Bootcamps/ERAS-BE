@@ -15,7 +15,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Entities\Entities.csproj" />
     <ProjectReference Include="..\Domain\Services\Services.csproj" />
-    <ProjectReference Include="..\Infraestructure\CosmicLatteClient\CosmicLatteClient.csproj" />
+    <ProjectReference Include="..\Infrastructure\CosmicLatteClient\CosmicLatteClient.csproj" />
   </ItemGroup>
 
 </Project>
