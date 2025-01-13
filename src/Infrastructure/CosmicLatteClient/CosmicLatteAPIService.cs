@@ -6,24 +6,24 @@ namespace Infrastructure.CosmicLatteClient.CosmicLatteClient
 {
     public class CosmicLatteAPIService : ICosmicLatteAPIService<CosmicLatteStatus>
     {
-        private const string _PATH_EVALUATION = "evaluations";
-        private const string _HEADER_API_KEY = "x-apikey";
-        private string _API_KEY;
-        private string _API_URL;
+        private const string _PathEvalaution = "evaluations";
+        private const string _HeaderApiKey = "x-apikey";
+        private string _apiKey;
+        private string _apiUrl;
 
         private readonly HttpClient _httpClient;
 
         public CosmicLatteAPIService(IConfiguration configuration, HttpClient httpClient)
         {
-            _API_KEY = configuration["CosmicLatte:ApiKey"];
-            _API_URL = configuration["CosmicLatte:URL"];
+            _apiKey = configuration["CosmicLatte:ApiKey"];
+            _apiUrl = configuration["CosmicLatte:URL"];
             _httpClient = httpClient;
         }
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
         {
-            string path = _API_URL + _PATH_EVALUATION;
+            string path = _apiUrl + _PathEvalaution;
             var request = new HttpRequestMessage(HttpMethod.Get, path + "?$filter=contains(name,' ')");
-            request.Headers.Add(_HEADER_API_KEY, _API_KEY);
+            request.Headers.Add(_HeaderApiKey, _apiKey);
 
             try
             {
