@@ -16,7 +16,7 @@ namespace Infrastructure.CosmicLatteClient.CosmicLatteClient
         public CosmicLatteAPIService(IConfiguration configuration, HttpClient httpClient)
         {
             _apiKey = configuration["CosmicLatte:ApiKey"];
-            _apiUrl = configuration["CosmicLatte:URL"];
+            _apiUrl = configuration.GetSection("CosmicLatteUrl").Value;
             _httpClient = httpClient;
         }
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
