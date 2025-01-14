@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>ffe46591-ad42-41e3-b879-aeb00dcb40ce</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Domain\Entities\Entities.csproj" />
+    <ProjectReference Include="..\Domain\Services\Services.csproj" />
+    <ProjectReference Include="..\Infrastructure\CosmicLatteClient\CosmicLatteClient.csproj" />
     <ProjectReference Include="..\Infrastructure\Persistence\PostgreSQL\PostgreSQL.csproj" />
   </ItemGroup>
 
