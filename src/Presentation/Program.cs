@@ -1,9 +1,8 @@
 using Entities;
 using Infrastructure.CosmicLatteClient.CosmicLatteClient;
-using Services;
 using Infrastructure.Persistence.PostgreSQL;
 using Infrastructure.Persistence.PostgreSQL.Migrations;
-using Infrastructure.Services;
+using Services;
 using Keycloak.AuthServices.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
