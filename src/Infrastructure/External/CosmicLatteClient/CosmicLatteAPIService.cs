@@ -13,11 +13,12 @@ namespace ERAS.Infrastructure.External.CosmicLatteClient
 
         private readonly HttpClient _httpClient;
 
-        public CosmicLatteAPIService(IConfiguration configuration, HttpClient httpClient)
+        public CosmicLatteAPIService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _apiKey = configuration["CosmicLatte:ApiKey"];
             _apiUrl = configuration.GetSection("CosmicLatteUrl").Value;
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient();
+            _httpClient.BaseAddress = new Uri(_apiUrl);
         }
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
         {
