@@ -15,11 +15,14 @@ namespace ERAS.Infrastructure.External.CosmicLatteClient
 
         public CosmicLatteAPIService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
-            _apiKey = configuration["CosmicLatte:ApiKey"];
-            _apiUrl = configuration.GetSection("CosmicLatteUrl").Value;
+            _apiKey = configuration["CosmicLatte:ApiKey"] 
+                ?? throw new InvalidOperationException("Couldn't find ApiKey configuration.");
+            _apiUrl = configuration.GetSection("CosmicLatteUrl").Value 
+                ?? throw new InvalidOperationException("Couldn't find CosmicLatteUrl configuration.");
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(_apiUrl);
         }
+
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
         {
             string path = _apiUrl + PathEvalaution;
