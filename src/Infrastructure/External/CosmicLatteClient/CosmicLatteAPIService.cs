@@ -1,10 +1,10 @@
-﻿using Entities;
+﻿using ERAS.Application.Services;
+using ERAS.Domain.Entities;
 using Microsoft.Extensions.Configuration;
-using Services;
 
-namespace Infrastructure.CosmicLatteClient.CosmicLatteClient
+namespace ERAS.Infrastructure.External.CosmicLatteClient
 {
-    public class CosmicLatteAPIService : ICosmicLatteAPIService<CosmicLatteStatus>
+    public class CosmicLatteAPIService : ICosmicLatteAPIService
     {
         private const string PathEvalaution = "evaluations";
         private const string HeaderApiKey = "x-apikey";

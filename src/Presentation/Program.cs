@@ -1,7 +1,6 @@
-using Entities;
-using Infrastructure.CosmicLatteClient.CosmicLatteClient;
-using Services;
-using Infrastructure.Persistence.PostgreSQL;
+using ERAS.Application.Services;
+using ERAS.Infrastructure.External.CosmicLatteClient;
+using ERAS.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +13,7 @@ string cosmicUrl = builder.Configuration.GetSection("CosmicLatteUrl").Value;
 httpClient.BaseAddress = new Uri(cosmicUrl); 
 builder.Services.AddSingleton(httpClient);
 
-builder.Services.AddSingleton<ICosmicLatteAPIService<CosmicLatteStatus>, CosmicLatteAPIService>();
+builder.Services.AddSingleton<ICosmicLatteAPIService, CosmicLatteAPIService>();
 
 
 builder.Services.AddControllers();
