@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Infrastructure.Persistence.PostgreSQL.Migrations
+namespace ERAS.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     /// <inheritdoc />
     public partial class FixDatabase : Migration

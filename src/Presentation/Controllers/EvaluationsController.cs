@@ -1,16 +1,16 @@
-﻿using Entities;
+﻿using ERAS.Application.Services;
+using ERAS.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
-using Services;
 
-namespace Presentation.Controllers
+namespace ERAS.Presentation.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class EvaluationsController : ControllerBase
     {
-        private readonly ICosmicLatteAPIService<CosmicLatteStatus> _cosmicLatteService;
+        private readonly ICosmicLatteAPIService _cosmicLatteService;
 
-        public EvaluationsController(ICosmicLatteAPIService<CosmicLatteStatus> cosmicLatteService)
+        public EvaluationsController(ICosmicLatteAPIService cosmicLatteService)
         {
             _cosmicLatteService = cosmicLatteService;
         }

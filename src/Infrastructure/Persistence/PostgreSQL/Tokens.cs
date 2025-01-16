@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace Infrastructure.Persistence.PostgreSQL
+namespace ERAS.Infrastructure.Persistence.PostgreSQL
 {
     public class Tokens
     {

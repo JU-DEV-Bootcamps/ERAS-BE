@@ -1,4 +1,4 @@
-﻿namespace Entities
+﻿namespace ERAS.Domain.Entities
 {
     public class CosmicLatteStatus
     {

@@ -1,10 +1,10 @@
-﻿using Entities;
+﻿using ERAS.Application.Services;
+using ERAS.Domain.Entities;
 using Microsoft.Extensions.Configuration;
-using Services;
 
-namespace Infrastructure.CosmicLatteClient.CosmicLatteClient
+namespace ERAS.Infrastructure.External.CosmicLatteClient
 {
-    public class CosmicLatteAPIService : ICosmicLatteAPIService<CosmicLatteStatus>
+    public class CosmicLatteAPIService : ICosmicLatteAPIService
     {
         private const string PathEvalaution = "evaluations";
         private const string HeaderApiKey = "x-apikey";
@@ -13,12 +13,16 @@ namespace Infrastructure.CosmicLatteClient.CosmicLatteClient
 
         private readonly HttpClient _httpClient;
 
-        public CosmicLatteAPIService(IConfiguration configuration, HttpClient httpClient)
+        public CosmicLatteAPIService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
-            _apiKey = configuration["CosmicLatte:ApiKey"];
-            _apiUrl = configuration.GetSection("CosmicLatteUrl").Value;
-            _httpClient = httpClient;
+            _apiKey = configuration["CosmicLatte:ApiKey"] 
+                ?? throw new InvalidOperationException("Couldn't find ApiKey configuration.");
+            _apiUrl = configuration.GetSection("CosmicLatteUrl").Value 
+                ?? throw new InvalidOperationException("Couldn't find CosmicLatteUrl configuration.");
+            _httpClient = httpClientFactory.CreateClient();
+            _httpClient.BaseAddress = new Uri(_apiUrl);
         }
+
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
         {
             string path = _apiUrl + PathEvalaution;
