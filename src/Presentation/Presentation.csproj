@@ -21,7 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Entities\Entities.csproj" />
     <ProjectReference Include="..\Domain\Services\Services.csproj" />
-    <ProjectReference Include="..\Infrastructure\CosmicLatteClient\CosmicLatteClient.csproj" />
+    <ProjectReference Include="..\Infrastructure\External\CosmicLatteClient\CosmicLatteClient.csproj" />
     <ProjectReference Include="..\Infrastructure\Persistence\PostgreSQL\PostgreSQL.csproj" />
   </ItemGroup>
 
