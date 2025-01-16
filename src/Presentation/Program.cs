@@ -1,5 +1,7 @@
 using ERAS.Infrastructure.External.CosmicLatteClient;
+using ERAS.Infrastructure.External.KeycloakAuthService;
 using ERAS.Infrastructure.Persistence.PostgreSQL;
+using Keycloak.AuthServices.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
