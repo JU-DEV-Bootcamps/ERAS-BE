@@ -1,8 +1,9 @@
-using ERAS.Application.Services;
 using ERAS.Infrastructure.External.CosmicLatteClient;
 using ERAS.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,10 +11,46 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICosmicLatteAPIService, CosmicLatteAPIService>();
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = $"{builder.Configuration["Keycloak:BaseUrl"]}/realms/{builder.Configuration["Keycloak:Realm"]}",
+
+        ValidateAudience = true,
+        ValidAudience = "account",
+
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = false,
+
+        IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+        {
+            var client = new HttpClient();
+            var keyUri = $"{parameters.ValidIssuer}/protocol/openid-connect/certs";
+            var response = client.GetAsync(keyUri).Result;
+            var keys = new JsonWebKeySet(response.Content.ReadAsStringAsync().Result);
+
+            return keys.GetSigningKeys();
+        }
+    };
+
+    options.RequireHttpsMetadata = false; // Only in develop environment
+    options.SaveToken = true;
+});
+
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<KeycloakAuthService>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection")));
 
@@ -34,7 +71,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate(); 
+    //dbContext.Database.Migrate();
 }
 
 // Enable CORS
@@ -48,5 +85,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 app.Run();
