@@ -24,8 +24,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain\Entities\Entities.csproj" />
     <ProjectReference Include="..\Infrastructure\External\CosmicLatteClient\CosmicLatteClient.csproj" />
+    <ProjectReference Include="..\Application\Services\Services.csproj" />
     <ProjectReference Include="..\Infrastructure\Persistence\PostgreSQL\PostgreSQL.csproj" />
-    <ProjectReference Include="..\Infrastructure\Services\Services.csproj" />
+    <ProjectReference Include="..\Infrastructure\External\KeycloakClient\KeycloakClient.csproj" />
   </ItemGroup>
 
 </Project>

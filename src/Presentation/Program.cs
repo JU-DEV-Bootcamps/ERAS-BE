@@ -1,10 +1,9 @@
+using ERAS.Application.Services;
 using ERAS.Infrastructure.External.CosmicLatteClient;
-using ERAS.Infrastructure.External.KeycloakAuthService;
+using ERAS.Infrastructure.External.KeycloakClient;
 using ERAS.Infrastructure.Persistence.PostgreSQL;
-using Keycloak.AuthServices.Authentication;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
