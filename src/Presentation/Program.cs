@@ -9,7 +9,6 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Add services to the container.
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<ICosmicLatteAPIService, CosmicLatteAPIService>();
