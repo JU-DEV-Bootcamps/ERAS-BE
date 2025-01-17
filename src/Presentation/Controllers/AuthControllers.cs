@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
 using ERAS.Infrastructure.External.KeycloakClient;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Presentation.Controllers
+namespace ERAS.Presentation.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -16,7 +15,7 @@ namespace Presentation.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request)
         {
             try
             {
@@ -28,32 +27,5 @@ namespace Presentation.Controllers
                 return Unauthorized(ex.Message);
             }
         }
-    }
-
-    public class LoginRequest
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-    }
-    [Route("api/[controller]")]
-    [ApiController]
-    public class ValuesController : ControllerBase
-    {
-        [HttpGet]
-        [Authorize(Roles = "admin")]
-        [Route("get-admin")]
-
-        public IActionResult teste()
-        {
-            return Ok("You are admin.");
-        }
-
-        [HttpGet]
-        [Authorize(Roles = "general")]
-        [Route("get-general")]
-        public IActionResult GetGeneral()
-        {
-            return Ok("You are general.");
-        }
-    }
+    }    
 }

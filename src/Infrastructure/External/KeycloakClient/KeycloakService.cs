@@ -1,6 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Microsoft.Extensions.Configuration;
 using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 
 namespace ERAS.Infrastructure.External.KeycloakClient
 {
@@ -9,24 +8,27 @@ namespace ERAS.Infrastructure.External.KeycloakClient
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
 
-        public KeycloakAuthService(HttpClient httpClient, IConfiguration configuration)
+        public KeycloakAuthService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient();
             _configuration = configuration;
         }
 
         public async Task<TokenResponse> LoginAsync(string username, string password)
         {
-            var tokenEndpoint = $"{_configuration["Keycloak:BaseUrl"]}/realms/{_configuration["Keycloak:Realm"]}/protocol/openid-connect/token";
+            var baseUrl = _configuration["Keycloak:BaseUrl"];
+            var realm = _configuration["Keycloak:Realm"];
+            var clientId =  _configuration["Keycloak:ClientId"];
+            var clientSecret = _configuration["Keycloak:ClientSecret"];
+            var tokenEndpoint = $"{baseUrl}/realms/{realm}/protocol/openid-connect/token";
 
-            var requestBody = new Dictionary<string, string>
-        {
-            { "grant_type", "password" },
-            { "client_id", _configuration["Keycloak:ClientId"] },
-            { "client_secret", _configuration["Keycloak:ClientSecret"] },
-            { "username", username },
-            { "password", password }
-        };
+            var requestBody = new Dictionary<string, string>{
+                { "grant_type", "password" },
+                { "client_id",  clientId},
+                { "client_secret", clientSecret },
+                { "username", username },
+                { "password", password }
+            };
 
             var content = new FormUrlEncodedContent(requestBody);
 
@@ -42,17 +44,5 @@ namespace ERAS.Infrastructure.External.KeycloakClient
 
             throw new Exception("failed");
         }
-    }
-
-    public class TokenResponse
-    {
-        [JsonPropertyName("access_token")]
-        public string AccessToken { get; set; }
-
-        [JsonPropertyName("expires_in")]
-        public int ExpiresIn { get; set; }
-
-        [JsonPropertyName("refresh_token")]
-        public string RefreshToken { get; set; }
     }
 }
