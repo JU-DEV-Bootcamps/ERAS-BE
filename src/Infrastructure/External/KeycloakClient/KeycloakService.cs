@@ -2,11 +2,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 
-<<<<<<< HEAD:src/Infrastructure/External/KeycloakClient/KeycloakService.cs
 namespace ERAS.Infrastructure.External.KeycloakClient
-=======
-namespace Services
->>>>>>> 6ae2007 (Fixed Services project dependencies for Presentation):src/Infrastructure/Services/KeycloakService.cs
 {
     public class KeycloakAuthService
     {

@@ -1,5 +1,5 @@
-using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
+using ERAS.Infrastructure.External.KeycloakClient;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Presentation.Controllers
