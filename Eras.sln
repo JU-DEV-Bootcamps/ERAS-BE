@@ -7,13 +7,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{95F06521-889
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{30F15F93-44C3-4DCD-A55E-EC9DE9AAB206}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eras.Domain", "src\Eras.Domain\Eras.Domain.csproj", "{D04B6F9B-C542-4971-A62A-46473F5FBD74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eras.Domain", "src\Eras.Domain\Eras.Domain.csproj", "{D04B6F9B-C542-4971-A62A-46473F5FBD74}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eras.Application", "src\Eras.Application\Eras.Application.csproj", "{A0690FF5-4AD6-4DE7-92FE-6E58FA451556}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eras.Application", "src\Eras.Application\Eras.Application.csproj", "{A0690FF5-4AD6-4DE7-92FE-6E58FA451556}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eras.Infrastructure", "src\Eras.Infrastructure\Eras.Infrastructure.csproj", "{C7AB8C12-21EA-4810-8F4A-C33C4AD7A424}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eras.Infrastructure", "src\Eras.Infrastructure\Eras.Infrastructure.csproj", "{C7AB8C12-21EA-4810-8F4A-C33C4AD7A424}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eras.Api", "src\Eras.Api\Eras.Api.csproj", "{8D3C2724-3D9E-4FEB-BAC5-58AB725CCD32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eras.Api", "src\Eras.Api\Eras.Api.csproj", "{8D3C2724-3D9E-4FEB-BAC5-58AB725CCD32}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eras.Domain.Tests", "test\Eras.Domain.Tests\Eras.Domain.Tests.csproj", "{4ABD6080-CD4E-4037-BE9A-F2682B39013E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eras.Application.Tests", "test\Eras.Application.Tests\Eras.Application.Tests.csproj", "{EAEA38B9-BF42-43A2-ACA2-7359FF1CD23D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eras.Infrastructure.Tests", "test\Eras.Infrastructure.Tests\Eras.Infrastructure.Tests.csproj", "{B3979431-B5C8-4314-8C7D-3E0B8C22568F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Eras.Api.Tests", "test\Eras.Api.Tests\Eras.Api.Tests.csproj", "{1A14FFCC-D0F9-4FAB-A2EE-90469815212B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +45,22 @@ Global
 		{8D3C2724-3D9E-4FEB-BAC5-58AB725CCD32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D3C2724-3D9E-4FEB-BAC5-58AB725CCD32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D3C2724-3D9E-4FEB-BAC5-58AB725CCD32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4ABD6080-CD4E-4037-BE9A-F2682B39013E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4ABD6080-CD4E-4037-BE9A-F2682B39013E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4ABD6080-CD4E-4037-BE9A-F2682B39013E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4ABD6080-CD4E-4037-BE9A-F2682B39013E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAEA38B9-BF42-43A2-ACA2-7359FF1CD23D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAEA38B9-BF42-43A2-ACA2-7359FF1CD23D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAEA38B9-BF42-43A2-ACA2-7359FF1CD23D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAEA38B9-BF42-43A2-ACA2-7359FF1CD23D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3979431-B5C8-4314-8C7D-3E0B8C22568F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3979431-B5C8-4314-8C7D-3E0B8C22568F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3979431-B5C8-4314-8C7D-3E0B8C22568F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3979431-B5C8-4314-8C7D-3E0B8C22568F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A14FFCC-D0F9-4FAB-A2EE-90469815212B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A14FFCC-D0F9-4FAB-A2EE-90469815212B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A14FFCC-D0F9-4FAB-A2EE-90469815212B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A14FFCC-D0F9-4FAB-A2EE-90469815212B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +70,10 @@ Global
 		{A0690FF5-4AD6-4DE7-92FE-6E58FA451556} = {95F06521-8895-4911-B580-DCCE6E21E075}
 		{C7AB8C12-21EA-4810-8F4A-C33C4AD7A424} = {95F06521-8895-4911-B580-DCCE6E21E075}
 		{8D3C2724-3D9E-4FEB-BAC5-58AB725CCD32} = {95F06521-8895-4911-B580-DCCE6E21E075}
+		{4ABD6080-CD4E-4037-BE9A-F2682B39013E} = {30F15F93-44C3-4DCD-A55E-EC9DE9AAB206}
+		{EAEA38B9-BF42-43A2-ACA2-7359FF1CD23D} = {30F15F93-44C3-4DCD-A55E-EC9DE9AAB206}
+		{B3979431-B5C8-4314-8C7D-3E0B8C22568F} = {30F15F93-44C3-4DCD-A55E-EC9DE9AAB206}
+		{1A14FFCC-D0F9-4FAB-A2EE-90469815212B} = {30F15F93-44C3-4DCD-A55E-EC9DE9AAB206}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CC6C768A-368B-48A9-BD8D-57A40C809C21}
