@@ -13,7 +13,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["src/Eras.Api/Eras.Api.csproj", "src/Eras.Api/"]
-# COPY ["src/Infrastructure/Persistence/PostgreSQL/PostgreSQL.csproj", "src/Infrastructure/Persistence/PostgreSQL/"]
 RUN dotnet restore "./src/Eras.Api/Eras.Api.csproj"
 COPY . .
 WORKDIR "/src/src/Eras.Api"
