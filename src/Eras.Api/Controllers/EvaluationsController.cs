@@ -2,7 +2,7 @@
 using Eras.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Eras.Presentation.Controllers
+namespace Eras.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

@@ -1,7 +1,7 @@
 using Eras.Infrastructure.External.KeycloakClient;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Eras.Presentation.Controllers
+namespace Eras.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
