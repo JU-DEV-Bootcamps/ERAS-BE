@@ -42,7 +42,7 @@ namespace ERAS.Infrastructure.External.KeycloakClient
                 return tokenResult!;
             }
 
-            throw new Exception("failed");
+            throw new Exception($"Authentication failed {response.StatusCode}: \n{response.Content}");
         }
     }
 }
