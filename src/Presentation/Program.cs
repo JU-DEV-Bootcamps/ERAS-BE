@@ -48,7 +48,6 @@ builder.Services.AddAuthentication(o =>
     options.SaveToken = true;
 });
 
-builder.Services.AddHttpClient();
 builder.Services.AddScoped<KeycloakAuthService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
