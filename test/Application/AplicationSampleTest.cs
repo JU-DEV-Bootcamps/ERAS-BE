@@ -2,7 +2,7 @@
 
 namespace ERAS.Application.Tests
 {
-    public class SampleTest
+    public class AplicationSampleTest
     {
 
         [Fact]
@@ -19,7 +19,7 @@ namespace ERAS.Application.Tests
             };
 
             // Act: Simulate mapping
-            var userDto = new UserDto
+            var userDto = new UserDtoSample
             {
                 Name = user.Name,
                 Email = user.Email
@@ -30,11 +30,5 @@ namespace ERAS.Application.Tests
             Assert.Equal(user.Email, userDto.Email);
         }
 
-    }
-
-    internal class UserDto
-    {
-        public string Name { get; set; }
-        public string Email { get; set; }
     }
 }

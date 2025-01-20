@@ -6,7 +6,7 @@ using Services;
 
 namespace ERAS.Presentation.Tests
 {
-    public class SampleTest
+    public class PresentationSampleTest
     {
         [Fact]
         public async Task CosmicApiIsHealthy_ShouldReturnOkResultWithExpectedStatus()

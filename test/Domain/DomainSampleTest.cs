@@ -3,13 +3,13 @@ using Moq;
 
 namespace ERAS.Domain.Tests
 {
-    public class SampleTest
+    public class DomainSampleTest
     {
         [Fact]
         public async Task GetAllPollsAsync_ShouldReturnListOfPolls()
         {
             // Arrange
-            var mockRepo = new Mock<IPollRepository>();
+            var mockRepo = new Mock<IPollRepositorySample>();
             //-DB Data example
             var expectedPolls = new List<Polls>
             {
@@ -25,10 +25,5 @@ namespace ERAS.Domain.Tests
             // Assert
             Assert.Equal(expectedPolls, actualPolls);
         }
-    }
-
-    public interface IPollRepository
-    {
-        Task<List<Polls>> GetAllPollsAsync();
     }
 }

@@ -1,13 +1,13 @@
 ﻿namespace ERAS.Infrastructure.Tests
 {
 
-    public class SampleTest
+    public class InfrastructureSampleTest
     {
         [Fact]
         public async Task AuthenticateAsync_WithValidToken_ShouldReturnAuthenticatedUserId()
         {
             // Arrange
-            var service = new ExternalService();
+            var service = new ExternalServiceSample();
             var token = "valid_token";
 
             // Act
@@ -15,18 +15,6 @@
 
             // Assert
             Assert.Equal("Authenticated User ID: 12345", result);
-        }
-    }
-    public class ExternalService
-    {
-        public Task<string> AuthenticateAsync(string token)
-        {
-            if (token == "valid_token")
-            {
-                return Task.FromResult("Authenticated User ID: 12345");
-            }
-
-            return Task.FromResult("Invalid Token");
         }
     }
 }
