@@ -1,6 +1,0 @@
-services:
-  presentation:
-    image: ${DOCKER_REGISTRY-}presentation
-    build:
-      context: .
-      dockerfile: src/Presentation/Dockerfile
