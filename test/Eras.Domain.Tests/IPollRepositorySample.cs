@@ -1,5 +1,6 @@
-﻿using ERAS.Infrastructure.Persistence.PostgreSQL;
-namespace ERAS.Domain.Tests
+﻿using Eras.Infrastructure.Persistence.PostgreSQL;
+
+namespace Eras.Domain.Tests
 {
     public interface IPollRepositorySample
     {

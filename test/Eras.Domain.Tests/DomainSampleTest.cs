@@ -1,7 +1,7 @@
-﻿using ERAS.Infrastructure.Persistence.PostgreSQL;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL;
 using Moq;
 
-namespace ERAS.Domain.Tests
+namespace Eras.Domain.Tests
 {
     public class DomainSampleTest
     {

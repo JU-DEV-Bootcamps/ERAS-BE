@@ -1,12 +1,12 @@
-﻿using ERAS.Domain.Entities;
-using ERAS.Application.Services;
-using ERAS.Presentation.Controllers;
+﻿using Eras.Api.Controllers;
+using Eras.Application.Services;
+using Eras.Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
-namespace ERAS.Presentation.Tests
+namespace Eras.Api.Tests
 {
-    public class PresentationSampleTest
+    public class ApiSampleTest
     {
         [Fact]
         public async Task CosmicApiIsHealthy_ShouldReturnOkResultWithExpectedStatus()

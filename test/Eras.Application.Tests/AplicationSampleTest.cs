@@ -1,6 +1,6 @@
-﻿using ERAS.Infrastructure.Persistence.PostgreSQL;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL;
 
-namespace ERAS.Application.Tests
+namespace Eras.Application.Tests
 {
     public class AplicationSampleTest
     {

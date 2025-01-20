@@ -1,4 +1,4 @@
-﻿namespace ERAS.Infrastructure.Tests
+﻿namespace Eras.Infrastructure.Tests
 {
 
     public class InfrastructureSampleTest
