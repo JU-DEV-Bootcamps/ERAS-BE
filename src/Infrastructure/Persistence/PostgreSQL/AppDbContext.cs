@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistence.PostgreSQL
+namespace ERAS.Infrastructure.Persistence.PostgreSQL
 {
     public class AppDbContext : DbContext
     {

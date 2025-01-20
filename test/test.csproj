@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\Domain\Services\Services.csproj" />
+    <ProjectReference Include="..\src\Application\Services\Services.csproj" />
     <ProjectReference Include="..\src\Infrastructure\Persistence\PostgreSQL\PostgreSQL.csproj" />
     <ProjectReference Include="..\src\Presentation\Presentation.csproj" />
   </ItemGroup>

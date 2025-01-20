@@ -1,8 +1,8 @@
-﻿using Entities;
+﻿using ERAS.Domain.Entities;
+using ERAS.Application.Services;
+using ERAS.Presentation.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Presentation.Controllers;
-using Services;
 
 namespace ERAS.Presentation.Tests
 {
@@ -11,13 +11,14 @@ namespace ERAS.Presentation.Tests
         [Fact]
         public async Task CosmicApiIsHealthy_ShouldReturnOkResultWithExpectedStatus()
         {
-            // Arrange
-            var mockService = new Mock<ICosmicLatteAPIService<CosmicLatteStatus>>();
+            //Arrange
+
+            var mockService = new Mock<ICosmicLatteAPIService>();
             var expectedStatus = new CosmicLatteStatus(true);
 
             mockService.Setup(service => service.CosmicApiIsHealthy())
                 .ReturnsAsync(expectedStatus);
-            
+
 
             var controller = new EvaluationsController(mockService.Object);
 

@@ -1,4 +1,4 @@
-﻿using Infrastructure.Persistence.PostgreSQL;
+﻿using ERAS.Infrastructure.Persistence.PostgreSQL;
 using Moq;
 
 namespace ERAS.Domain.Tests

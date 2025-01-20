@@ -1,25 +1,55 @@
-using Entities;
-using Infrastructure.CosmicLatteClient.CosmicLatteClient;
-using Services;
-using Infrastructure.Persistence.PostgreSQL;
+using ERAS.Application.Services;
+using ERAS.Infrastructure.External.CosmicLatteClient;
+using ERAS.Infrastructure.External.KeycloakClient;
+using ERAS.Infrastructure.Persistence.PostgreSQL;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 // Add services to the container.
-var httpClient = new HttpClient();
-string cosmicUrl = builder.Configuration.GetSection("CosmicLatteUrl").Value;
-
-httpClient.BaseAddress = new Uri(cosmicUrl); 
-builder.Services.AddSingleton(httpClient);
-
-builder.Services.AddSingleton<ICosmicLatteAPIService<CosmicLatteStatus>, CosmicLatteAPIService>();
-
-
+builder.Services.AddHttpClient();
+builder.Services.AddSingleton<ICosmicLatteAPIService, CosmicLatteAPIService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(o =>
+{
+    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = $"{builder.Configuration["Keycloak:BaseUrl"]}/realms/{builder.Configuration["Keycloak:Realm"]}",
+
+        ValidateAudience = true,
+        ValidAudience = "account",
+
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = false,
+
+        IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+        {
+            var client = new HttpClient();
+            var keyUri = $"{parameters.ValidIssuer}/protocol/openid-connect/certs";
+            var response = client.GetAsync(keyUri).Result;
+            var keys = new JsonWebKeySet(response.Content.ReadAsStringAsync().Result);
+
+            return keys.GetSigningKeys();
+        }
+    };
+
+    options.RequireHttpsMetadata = false; // Only in develop environment
+    options.SaveToken = true;
+});
+
+builder.Services.AddScoped<KeycloakAuthService>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection")));
 
@@ -54,5 +84,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 app.Run();
