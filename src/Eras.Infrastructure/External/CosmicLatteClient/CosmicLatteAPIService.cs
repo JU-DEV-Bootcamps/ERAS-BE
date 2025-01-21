@@ -10,15 +10,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private const string HeaderApiKey = "x-apikey";
         private string _apiKey;
         private string _apiUrl;
-
         private readonly HttpClient _httpClient;
 
         public CosmicLatteAPIService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
-            // _apiKey = configuration["CosmicLatte:ApiKey"] 
-            //     ?? throw new InvalidOperationException("Couldn't find ApiKey configuration.");
-            _apiUrl = configuration.GetSection("CosmicLatteUrl").Value 
-                ?? throw new InvalidOperationException("Couldn't find CosmicLatteUrl configuration.");
+            _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value;
+            _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value;
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(_apiUrl);
         }
@@ -27,7 +24,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         {
             string path = _apiUrl + PathEvalaution;
             var request = new HttpRequestMessage(HttpMethod.Get, path + "?$filter=contains(name,' ')");
-            //request.Headers.Add(HeaderApiKey, _apiKey);
+            request.Headers.Add(HeaderApiKey, _apiKey);
 
             try
             {
