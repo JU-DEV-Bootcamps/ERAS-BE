@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Eras.Domain.Entities
+namespace Eras.Infrastructure.Persistence.DTOs
 {
-    public class Student : IBaseEntityData
+    public class StudentDTO
     {
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }
@@ -14,19 +14,15 @@ namespace Eras.Domain.Entities
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? Uuid { get; set; }
-
-        public Student()
-        {
-        }
-
-        public Student(int id, DateTime createdDate, DateTime modifiedDate, string name, string email, string uuid)
+        public StudentDTO(int id, DateTime CreatedDate, DateTime ModifiedDate, string name, string Email, string Uuid)
         {
             this.Id = id;
-            this.CreatedDate = createdDate;
-            this.ModifiedDate = modifiedDate;
+            this.CreatedDate = CreatedDate;
+            this.ModifiedDate = ModifiedDate;
             this.Name = name;
-            this.Email = email;
-            this.Uuid = uuid;
+            this.Email = Email;
+            this.Uuid = Uuid;
+
         }
     }
 }
