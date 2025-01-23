@@ -17,7 +17,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public DbSet<ComponentVariable> ComponentVariables { get; set; }
         public DbSet<Polls> Polls { get; set; }
         public DbSet<Answers> Answers { get; set; }
-        public DbSet<Students> Students { get; set; }
+        public DbSet<StudentEntity> Students { get; set; }
         public DbSet<StudentDetails> StudentDetails { get; set; }
         public DbSet<Rules> Rules { get; set; }
         public DbSet<RiskVariables> RiskVariables { get; set; }

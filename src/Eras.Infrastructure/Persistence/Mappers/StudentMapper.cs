@@ -1,39 +1,23 @@
 ﻿using Eras.Domain.Entities;
-using Eras.Infrastructure.Persistence.DTOs;
-using System;
+using Eras.Infrastructure.Persistence.PostgreSQL;
 
 namespace Eras.Infrastructure.Persistence.Mappers
 {
     public static class StudentMapper
     {
-        public static StudentDTO ToStudentDTO(Student student)
+        public static StudentEntity ToStudentEntity(this Student student)
         {
             if (student == null)
                 throw new ArgumentNullException(nameof(student));
 
-            return new StudentDTO(
-                student.Id,
-                student.CreatedDate,
-                student.ModifiedDate,
-                student.Name,
-                student.Email,
-                student.Uuid
-            );
-        }
-
-        public static Student ToStudent(StudentDTO studentDTO)
-        {
-            if (studentDTO == null)
-                throw new ArgumentNullException(nameof(studentDTO));
-
-            return new Student
+            return new StudentEntity
             {
-                Id = studentDTO.Id,
-                CreatedDate = studentDTO.CreatedDate,
-                ModifiedDate = studentDTO.ModifiedDate,
-                Name = studentDTO.Name,
-                Email = studentDTO.Email,
-                Uuid = studentDTO.Uuid
+                Id = student.Id,
+                CreatedDate = student.CreatedDate,
+                ModifiedDate = student.ModifiedDate,
+                Name = student.Name,
+                Email = student.Email,
+                Uuid = student.Uuid
             };
         }
     }

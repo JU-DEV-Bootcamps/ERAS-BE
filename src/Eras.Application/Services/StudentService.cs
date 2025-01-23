@@ -1,26 +1,33 @@
 ﻿using Eras.Domain.Entities;
 using Eras.Domain.Repositories;
 using Eras.Domain.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Services
 {
     public class StudentService : IStudentService
     {
-        private readonly IStudentRepository _studentRepository;
+
+        private readonly IStudentRepository<Student> _studentRepository; 
+
         public Student CreateStudent(Student student)
         {
             Console.WriteLine("------ Creando student ------");
             Console.WriteLine(student.Email);
             Console.WriteLine(student.Name);
             Console.WriteLine(student.CreatedDate);
-      
-            ///agreagar bd
+            /* 
+            Aqui deberia unirme con manuel..
+            Llamar a interfaz de persistencia, 
+                buscar por email,si existe retornar student
+                sino crear nuevo
+                {
+                    ValidateNewStudent(student); // verificar logica de negocio, email no repetido, tamaño etc
+                    GuardarStudent..
+                    Retornar student guardado
+                }
+            */
             _studentRepository.Add(student);
+
             return student;
         }
 

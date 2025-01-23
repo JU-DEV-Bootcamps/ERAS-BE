@@ -24,7 +24,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public int StudentId { get; set; }
 
         [ForeignKey("StudentId")]
-        public virtual Students Student { get; set; } = default!;
+        public virtual StudentEntity Student { get; set; } = default!;
 
         [DataType(DataType.DateTime)]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;

@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
-    public class Students
+    [Table("Students")]    
+    public class StudentEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
