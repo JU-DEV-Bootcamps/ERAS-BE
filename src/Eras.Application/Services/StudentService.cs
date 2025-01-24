@@ -27,7 +27,6 @@ namespace Eras.Application.Services
 
                 foreach (var dto in studentsDto)
                 {
-                    // Attempt to parse decimal fields with commas
                     if (!decimal.TryParse(dto.PuntuacionMedia, NumberStyles.Number, culture, out var avgScore))
                         avgScore = 0;
 
@@ -37,13 +36,11 @@ namespace Eras.Application.Services
                     if (!decimal.TryParse(dto.DiferenciaDeLaPuntuacionEstandarizada, NumberStyles.Number, culture, out var standardScoreDiff))
                         standardScoreDiff = 0;
 
-                    // Check if student already exists in domain
                     var existingStudent = await _studentRepository
                         .GetByUuidAsync(dto.IdentificacionDeSISDelUsuario);
 
                     if (existingStudent == null)
                     {
-                        // Create new domain entity
                         existingStudent = new Student
                         {
                             Uuid = dto.IdentificacionDeSISDelUsuario,
@@ -64,7 +61,6 @@ namespace Eras.Application.Services
                     }
                     else
                     {
-                        // Update domain entity
                         existingStudent.Name = dto.Nombre;
                         existingStudent.Email = dto.CorreoElectronico;
 
@@ -80,8 +76,6 @@ namespace Eras.Application.Services
                         existingStudent.StudentDetail.StandardScoreDiff = standardScoreDiff;
                         existingStudent.StudentDetail.LastAccessDays = dto.DiasDesdeElUltimoAcceso;
                     }
-
-                    // Now save
                     await _studentRepository.SaveAsync(existingStudent);
                 }
 
