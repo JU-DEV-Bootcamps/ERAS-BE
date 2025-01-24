@@ -24,5 +24,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
 
         [DataType(DataType.DateTime)]
         public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+
+        public virtual StudentDetails? StudentDetails { get; set; }
+
     }
 }
