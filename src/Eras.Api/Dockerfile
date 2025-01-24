@@ -12,7 +12,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/Eras.Api/Eras.Api.csproj", "src/Eras.Api/"]
+COPY ["./src/Eras.Api/Eras.Api.csproj", "src/Eras.Api/"]
 RUN dotnet restore "./src/Eras.Api/Eras.Api.csproj"
 COPY . .
 WORKDIR "/src/src/Eras.Api"
