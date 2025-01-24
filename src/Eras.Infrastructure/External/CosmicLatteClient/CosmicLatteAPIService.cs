@@ -22,17 +22,21 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
         private CosmicLatteMapper cosmicLatteMapper = new CosmicLatteMapper();
 
-        private IStudentService _studentService = new StudentService();
         private IPollService _pollService = new PollService();
         private IComponentVariableService _componentVariableService = new ComponentVariableService();
         private IAnswerService _answerService = new AnswerService();
+        private readonly IStudentService _studentService;
 
-        public CosmicLatteAPIService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        public CosmicLatteAPIService(
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            IStudentService studentService)
         {
             _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value;
             _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value;
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(_apiUrl);
+            _studentService = studentService;
         }
 
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()

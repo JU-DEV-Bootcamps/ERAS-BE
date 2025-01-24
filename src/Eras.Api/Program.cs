@@ -5,12 +5,17 @@ using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Eras.Infrastructure.Persistence.Repositories;
+using Eras.Domain.Entities;
+using Eras.Domain.Repositories;
+using Eras.Domain.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpClient();
-builder.Services.AddSingleton<ICosmicLatteAPIService, CosmicLatteAPIService>();
+builder.Services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -48,7 +53,7 @@ builder.Services.AddAuthentication(o =>
     options.SaveToken = true;
 });
 
-builder.Services.AddScoped<KeycloakAuthService>();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection")));
@@ -63,6 +68,10 @@ builder.Services.AddCors(o =>
                   .AllowAnyMethod();
     });
 });
+
+builder.Services.AddScoped<KeycloakAuthService>();
+builder.Services.AddScoped<IStudentRepository<Student>, StudentRepository>();
+builder.Services.AddScoped<IStudentService, StudentService>();
 
 var app = builder.Build();
 

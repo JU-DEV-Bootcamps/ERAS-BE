@@ -7,8 +7,11 @@ namespace Eras.Application.Services
     public class StudentService : IStudentService
     {
 
-        private readonly IStudentRepository<Student> _studentRepository; 
-
+        private readonly IStudentRepository<Student> _studentRepository;
+        public StudentService(IStudentRepository<Student> studentRepository)
+        {
+            _studentRepository = studentRepository;
+        }
         public Student CreateStudent(Student student)
         {
             Console.WriteLine("------ Creando student ------");
@@ -26,7 +29,15 @@ namespace Eras.Application.Services
                     Retornar student guardado
                 }
             */
-            _studentRepository.Add(student);
+            try
+            {
+                _studentRepository.Add(student);
+            } catch (Exception e)
+            {
+
+            }
+           
+
 
             return student;
         }
