@@ -21,9 +21,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public string? Uuid { get; set; }
 
         [DataType(DataType.DateTime)]
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedDate { get; set; } = DateTime.UtcNow;
 
         [DataType(DataType.DateTime)]
-        public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset ModifiedDate { get; set; } = DateTime.UtcNow;
     }
 }

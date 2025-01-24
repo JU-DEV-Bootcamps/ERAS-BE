@@ -13,8 +13,8 @@ namespace Eras.Infrastructure.Persistence.Mappers
             return new StudentEntity
             {
                 Id = student.Id,
-                CreatedDate = student.CreatedDate.UtcDateTime,
-                ModifiedDate = student.ModifiedDate.UtcDateTime,
+                CreatedDate = student.CreatedDate.ToUniversalTime(),
+                ModifiedDate = student.ModifiedDate.ToUniversalTime(),
                 Name = student.Name,
                 Email = student.Email,
                 Uuid = student.Uuid

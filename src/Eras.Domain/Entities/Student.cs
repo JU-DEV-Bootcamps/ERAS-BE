@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Eras.Domain.Entities
+﻿namespace Eras.Domain.Entities
 {
-    public class Student //TODO: Fix this interface : IBaseEntityData
+    public class Student
     {
         public int Id { get; set; }
-        public DateTimeOffset  CreatedDate { get; set; }
-        public DateTimeOffset ModifiedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
+        public DateTime ModifiedDate { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? Uuid { get; set; }
