@@ -92,11 +92,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     {
                         // In the first one, Create poll, validate if it is already created before mapping.. but it shouldn`t
                         Poll poll = _pollService.CreatePoll(cosmicLatteMapper.CLtoPoll(cosmicLattePollList[i]));
-                        CreateVariablesByPollResponseId(cosmicLattePollList[i]._id, poll); // get, create and save variables requesting endpoint CL
+                        await CreateVariablesByPollResponseId(cosmicLattePollList[i]._id, poll); // get, create and save variables requesting endpoint CL
                     }
                     // Obtengo lista de de respuestas a dicho poll y la paso a metodo que llame para obtener info
                     // , deberia pasar un ID + lista de answer y question textuales
-                    ImportPollById(cosmicLattePollList[i]._id, cosmicLattePollList[i].score);
+                    await ImportPollById(cosmicLattePollList[i]._id, cosmicLattePollList[i].score);
                 }
 
 
@@ -153,7 +153,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody);
 
                 // Create student, save and return  (or find )
-                Student student = _studentService.CreateStudent(cosmicLatteMapper.CLtoStudent(apiResponse));
+                Student student = await _studentService.CreateStudent(cosmicLatteMapper.CLtoStudent(apiResponse));
 
                 // Create answer for each answer from CL
                 foreach(var item in apiResponse.Data.Answers)

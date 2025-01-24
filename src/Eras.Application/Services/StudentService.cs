@@ -12,7 +12,7 @@ namespace Eras.Application.Services
         {
             _studentRepository = studentRepository;
         }
-        public Student CreateStudent(Student student)
+        public async Task<Student> CreateStudent(Student student)
         {
             Console.WriteLine("------ Creando student ------");
             Console.WriteLine(student.Email);
@@ -31,7 +31,7 @@ namespace Eras.Application.Services
             */
             try
             {
-                _studentRepository.Add(student);
+                await  _studentRepository.Add(student);
             } catch (Exception e)
             {
 

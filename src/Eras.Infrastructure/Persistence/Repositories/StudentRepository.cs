@@ -2,25 +2,23 @@
 using Eras.Domain.Repositories;
 using Eras.Infrastructure.Persistence.Mappers;
 using Eras.Infrastructure.Persistence.PostgreSQL;
-using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.Repositories
 {
     public class StudentRepository : IStudentRepository<Student>
     {
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        private readonly AppDbContext _context;
 
-        public StudentRepository(IDbContextFactory<AppDbContext> context)
+        public StudentRepository(AppDbContext context)
         {
-            _contextFactory = context;
+            _context = context;
         }
 
         public async Task Add(Student student)
         {
-            var context = _contextFactory.CreateDbContext();
             var studentEntity = student.ToStudentEntity();
-            context.Students.Add(studentEntity);
-            await context.SaveChangesAsync();
+            _context.Students.Add(studentEntity);
+            await _context.SaveChangesAsync();
         }
     }
 }

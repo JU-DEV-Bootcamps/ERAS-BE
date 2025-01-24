@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Eras.Domain.Entities
 {
-    public class Student : IBaseEntityData
+    public class Student //TODO: Fix this interface : IBaseEntityData
     {
         public int Id { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime ModifiedDate { get; set; }
+        public DateTimeOffset  CreatedDate { get; set; }
+        public DateTimeOffset ModifiedDate { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? Uuid { get; set; }
