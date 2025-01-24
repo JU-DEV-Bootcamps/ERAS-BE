@@ -48,6 +48,6 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          context: .src/Eras.Api
+          context: ./src/Eras.Api
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-dev
