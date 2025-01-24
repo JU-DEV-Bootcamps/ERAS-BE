@@ -4,7 +4,7 @@ on:
       - feature/ERAS-45/ci_cd
   workflow_dispatch:
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     steps:
