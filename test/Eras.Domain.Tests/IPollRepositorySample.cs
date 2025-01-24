@@ -4,6 +4,6 @@ namespace Eras.Domain.Tests
 {
     public interface IPollRepositorySample
     {
-        Task<List<Polls>> GetAllPollsAsync();
+        Task<List<PollsEntity>> GetAllPollsAsync();
     }
 }

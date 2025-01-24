@@ -1,4 +1,5 @@
 ﻿using Eras.Domain.Entities;
+using Eras.Domain.Repositories;
 using Eras.Domain.Services;
 using System;
 using System.Collections.Generic;
@@ -10,22 +11,26 @@ namespace Eras.Application.Services
 {
     public class PollService : IPollService
     {
-        public Poll CreatePoll(Poll poll)
+
+        private readonly IPollRepository<Poll> _pollRepository;
+        public PollService(IPollRepository<Poll> pollRepository)
+        {
+            _pollRepository = pollRepository;
+        }
+        public async Task<Poll> CreatePoll(Poll poll)
         {
             Console.WriteLine("------ Creando poll ------");
             Console.WriteLine(poll.Id);
             Console.WriteLine(poll.PollName);
-            /* 
-            Aqui deberia unirme con manuel..
-            Llamar a interfaz de persistencia, 
-                buscar por ID DE CL,si existe retornar poll
-                sino crear nueva poll
-                {
-                    ValidateNewPoll(poll); // Hay algo que validar? Nombre?
-                    Guardar Poll..
-                    Retornar poll guardada
-                }
-            */
+            try
+            {
+                await _pollRepository.Add(poll);
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}");
+            }
             return poll;
         }
 

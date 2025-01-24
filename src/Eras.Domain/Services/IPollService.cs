@@ -9,6 +9,6 @@ namespace Eras.Domain.Services
 {
     public interface IPollService
     {
-        public Poll CreatePoll(Poll poll);
+        public Task<Poll> CreatePoll(Poll poll);
     }
 }

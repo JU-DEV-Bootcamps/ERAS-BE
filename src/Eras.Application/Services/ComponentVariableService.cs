@@ -1,5 +1,7 @@
 ﻿using Eras.Application.Dtos;
+using Eras.Application.Services;
 using Eras.Domain.Entities;
+using Eras.Domain.Repositories;
 using Eras.Domain.Services;
 using System;
 using System.Collections.Generic;
@@ -11,7 +13,13 @@ namespace Eras.Application.Services
 {
     public class ComponentVariableService : IComponentVariableService
     {
-        public ComponentVariable CreateVariable(ComponentVariable componentVariable)
+
+        private readonly IComponentVariableRepository<ComponentVariable> _componentVariableRepository;
+        public ComponentVariableService(IComponentVariableRepository<ComponentVariable> componentVariable)
+        {
+            _componentVariableRepository = componentVariable;
+        }
+        public async Task<ComponentVariable> CreateVariable(ComponentVariable componentVariable)
         {
 
             // Create relation between variable and poll
@@ -21,11 +29,14 @@ namespace Eras.Application.Services
             Console.WriteLine("Variable id: " + componentVariable.Id);
             Console.WriteLine("Variable Name: " + componentVariable.Name);
             Console.WriteLine("Variable Position: " + componentVariable.Position);
-            /* 
-            Aqui deberia unirme con manuel..
-            Llamar a interfaz de persistencia, guardar variable y retornarla
-            */
-
+            try
+            {
+                await _componentVariableRepository.Add(componentVariable);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}");
+            }
             return componentVariable;
 
         }

@@ -9,6 +9,6 @@ namespace Eras.Domain.Services
 {
     public interface IComponentVariableService
     {
-        ComponentVariable CreateVariable(ComponentVariable componentVariable);
+        Task<ComponentVariable> CreateVariable(ComponentVariable componentVariable);
     }
 }

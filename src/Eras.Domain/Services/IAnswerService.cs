@@ -9,6 +9,6 @@ namespace Eras.Domain.Services
 {
     public interface IAnswerService
     {
-        Answer CreateAnswer(Answer answer, Student student);
+        Task<Answer> CreateAnswer(Answer answer, Student student);
     }
 }

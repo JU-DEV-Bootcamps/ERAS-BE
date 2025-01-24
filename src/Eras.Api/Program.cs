@@ -73,13 +73,26 @@ builder.Services.AddScoped<KeycloakAuthService>();
 builder.Services.AddScoped<IStudentRepository<Student>, StudentRepository>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 
+
+builder.Services.AddScoped<IPollRepository<Poll>, PollRepository>();
+builder.Services.AddScoped<IPollService, PollService>();
+
+
+builder.Services.AddScoped<IComponentVariableRepository<ComponentVariable>, ComponentVariableRepository>();
+builder.Services.AddScoped<IComponentVariableService, ComponentVariableService>();
+
+builder.Services.AddScoped<IAnswerRepository<Answer>, AnswerRepository>();
+builder.Services.AddScoped<IAnswerService, AnswerService>();
+
+
+
 var app = builder.Build();
 
 // Apply database migrations
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    // dbContext.Database.Migrate();
+    dbContext.Database.Migrate();
 }
 
 // Enable CORS

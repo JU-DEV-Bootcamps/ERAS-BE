@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
     public class StudentDetails
-    {
+    {/*
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -35,6 +35,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
 
         [DataType(DataType.DateTime)]
         public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+        */
 
     }
 }

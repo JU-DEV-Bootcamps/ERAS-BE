@@ -31,8 +31,9 @@ namespace Eras.Application.Mappers
             string Question = answer.Question.Body.GetValueOrDefault("es"); //  this is because we have language option (spanish or english)
             int Position = answer.Position;
             double Score = answer.Score;
-
-            return new Answer( AnswerText, Question, Position, Score, Id, CreatedDate, ModifiedDate);
+            int componentVariableId = 1 ; // This should come from relation with componentVariable
+            Console.WriteLine(AnswerText);
+            return new Answer( AnswerText, Question, Position, Score, Id, componentVariableId, CreatedDate, ModifiedDate);
         }
 
         public ComponentVariable CLtoVariable(Answers answer, int pollId)

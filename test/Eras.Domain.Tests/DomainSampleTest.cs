@@ -11,10 +11,10 @@ namespace Eras.Domain.Tests
             // Arrange
             var mockRepo = new Mock<IPollRepositorySample>();
             //-DB Data example
-            var expectedPolls = new List<Polls>
+            var expectedPolls = new List<PollsEntity>
             {
-                new Polls { Id = 1, Name = "Poll 1", CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow },
-                new Polls { Id = 2, Name = "Poll 2", CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow }
+                new PollsEntity { Id = 1, Name = "Poll 1", CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow },
+                new PollsEntity { Id = 2, Name = "Poll 2", CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow }
             };
 
             mockRepo.Setup(repo => repo.GetAllPollsAsync()).ReturnsAsync(expectedPolls);
