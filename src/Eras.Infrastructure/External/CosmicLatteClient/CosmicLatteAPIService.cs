@@ -14,8 +14,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
         public CosmicLatteAPIService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
-            _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value;
-            _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value;
+            _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found");
+            _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found");
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(_apiUrl);
         }
