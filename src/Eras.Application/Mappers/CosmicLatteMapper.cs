@@ -44,6 +44,11 @@ namespace Eras.Application.Mappers
             // todo
             int componentVariableId = 1; // This should come from relation with componentVariable
 
+            //este campo deberiamos sacarlo, porque tenemos el texto en componentVariableId y en tabla de anser.. no tiene sentido
+            // hablar esto con ramiro
+
+            string Question = answer.Question.Body.GetValueOrDefault("es") ?? "No question found"; //  this is because we have language option (spanish or english)
+
 
 
 
@@ -58,7 +63,6 @@ namespace Eras.Application.Mappers
                 sbQuestions.Append(item);
             }
             string AnswerText = sbQuestions.ToString();
-            string Question = answer.Question.Body.GetValueOrDefault("es") ?? "No question found"; //  this is because we have language option (spanish or english)
             int Position = answer.Position;
             int RiskLevel = (int) answer.Score;
             return new Answer( AnswerText, Question, Position, RiskLevel, Id, componentVariableId, CreatedDate, ModifiedDate);

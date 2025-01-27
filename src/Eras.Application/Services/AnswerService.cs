@@ -21,18 +21,11 @@ namespace Eras.Application.Services
         {
             try
             {
-                /*
+                // WE NEED TO CHECK DB TO SAVE A ANSWERS,
+                // WE COULD CREATE ANOTHER TABLE TO HAS A LIST UNION MANY STUDENTS TO A SPECIFIC QUESTION?
+                // AVOID DUPLICATED ANWSERS..
 
-                Console.WriteLine("------ Creating answer ------");
-                Console.WriteLine(student.Email);
-                Console.WriteLine(answer.Id);
-                Console.WriteLine(answer.AnswerText);
-                Console.WriteLine(answer.Position);
-                Console.WriteLine(answer.Question);
-                Console.WriteLine(answer.RiskLevel);
-                Console.WriteLine(answer.ModifiedDate);
-                Console.WriteLine("------ Creating answer ------");
-                */
+
                 return await _answerRepository.Add(answer);
             }
             catch (Exception e)

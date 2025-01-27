@@ -29,6 +29,10 @@ namespace Eras.Application.Services
                 throw new NotImplementedException("Error creating poll: "+e.Message);
             }
         }
+        public async Task<Poll> GetPollById(int pollId)
+        {
+            return await _pollRepository.GetPollById(pollId);
+        }
 
         public void ValidateNewPoll(Poll poll)
         {

@@ -30,5 +30,10 @@ namespace Eras.Application.Services
                 throw new NotImplementedException("Error creating variable: " + e.Message);
             }
         }
+
+        public async Task<List<ComponentVariable>> GetAllVariables(int pollId)
+        {
+            return await _componentVariableRepository.GetAll(pollId);
+        }
     }
 }

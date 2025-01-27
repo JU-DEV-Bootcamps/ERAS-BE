@@ -18,5 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
 
         [DataType(DataType.DateTime)]
         public DateTimeOffset ModifiedDate { get; set; } = DateTime.UtcNow;
+
+        public ICollection<ComponentVariableEntity> ComponentVariables { get; set; }
     }
 }

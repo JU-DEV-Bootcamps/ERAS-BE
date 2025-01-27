@@ -85,17 +85,20 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody)?? throw new Exception("Unable to deserialize response from cosmic latte");
 
                 List<DataItem> cosmicLattePollList = apiResponse.data;
-
+                int pollId = 0;
                 for(int i = 0; i < cosmicLattePollList.Count; i++)
                 {
                     if (i == 0)
                     {
-                        // In the first one, Create poll, validate if it is already created before mapping.. but it shouldn`t
                         Poll poll = _pollService.CreatePoll(CosmicLatteMapper.ToPoll(cosmicLattePollList[i])).Result;
+                        pollId = poll.Id;
                         await CreateVariablesByPollResponseId(cosmicLattePollList[i]._id, poll); // get, create and save variables requesting endpoint CL
                     }
                     await ImportPollById(cosmicLattePollList[i]._id, cosmicLattePollList[i].score);
                 }
+
+                List<ComponentVariable> createdVariables = _componentVariableService.GetAllVariables(pollId).Result;
+
                 return "";
             }
             catch (Exception e)
@@ -118,9 +121,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
-                // For each answer, create a variable, save and set relation. It includes 
                 foreach (var item in apiResponse.Data.Answers)
                 {
+                    // TODO check: partent Id, how we are going to handle this?
                     ComponentVariable variable = _componentVariableService.CreateVariable(CosmicLatteMapper.ToVariable(item.Value, poll.Id)).Result;
                 }
             }
@@ -145,7 +148,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
-                // Create student, save and return  (or find )
                 Student student = await _studentService.CreateStudent(CosmicLatteMapper.ToStudent(apiResponse));
 
                 // Create answer for each answer from CL

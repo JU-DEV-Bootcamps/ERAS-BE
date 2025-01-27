@@ -13,7 +13,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
 
         [StringLength(250)]
         public string Name { get; set; } = string.Empty;
+
         public int PollId { get; set; }
+
+        [ForeignKey("PollId")]
+        public PollsEntity Poll { get; set; }
+
+
         public int Position { get; set; }
 
         public int? ParentId { get; set; }

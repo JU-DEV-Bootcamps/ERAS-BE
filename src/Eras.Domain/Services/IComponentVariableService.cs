@@ -10,5 +10,6 @@ namespace Eras.Domain.Services
     public interface IComponentVariableService
     {
         Task<ComponentVariable> CreateVariable(ComponentVariable componentVariable);
+        Task<List<ComponentVariable>> GetAllVariables(int pollId);
     }
 }

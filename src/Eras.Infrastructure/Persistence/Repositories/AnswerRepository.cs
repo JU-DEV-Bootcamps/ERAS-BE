@@ -2,6 +2,7 @@
 using Eras.Domain.Repositories;
 using Eras.Infrastructure.Persistence.Mappers;
 using Eras.Infrastructure.Persistence.PostgreSQL;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;

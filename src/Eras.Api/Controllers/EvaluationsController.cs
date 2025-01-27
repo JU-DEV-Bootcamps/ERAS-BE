@@ -22,7 +22,6 @@ namespace Eras.Api.Controllers
         }
 
 
-
         [HttpGet]
         public async Task<ActionResult<List<string>>> GetPolls(
         [FromQuery] string name = "",
