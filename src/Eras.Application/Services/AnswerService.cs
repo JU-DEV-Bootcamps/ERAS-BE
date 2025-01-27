@@ -39,7 +39,6 @@ namespace Eras.Application.Services
             {
                 throw new NotImplementedException("Error creating answer: " + e.Message);
             }
-            return answer;
         }
     }
 }

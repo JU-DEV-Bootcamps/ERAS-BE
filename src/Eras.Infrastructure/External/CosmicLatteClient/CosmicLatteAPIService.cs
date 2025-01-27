@@ -66,12 +66,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         public async Task<string?> ImportAllPolls(string name, string startDate, string endDate)
         {
             string path = _apiUrl + PathEvalaution;
-            if (name != null || startDate != null || endDate != null)
+            if (name != "" || startDate != "" || endDate != "")
             {
                 path += "?$filter=";
-                if (name != null) path += $"contains(name,'{name}')";
-                if (startDate != null) path += $" and startedAt ge {ConvertStringToIsoExtendedDate(startDate)}";
-                if (endDate != null) path += $" and startedAt le {ConvertStringToIsoExtendedDate(endDate)}";
+                if (name != "") path += $"contains(name,'{name}')"; // TODO check exist a scenario where no name is sent?
+                if (startDate != "") path += $" and startedAt ge {ConvertStringToIsoExtendedDate(startDate)}";
+                if (endDate != "") path += $" and startedAt le {ConvertStringToIsoExtendedDate(endDate)}";
             }
             try
             {
@@ -165,7 +165,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
         private double GetScoreByPositionAndAnswer(int position, Score scoreItem)
         {
-            ByPosition byPositionItem = scoreItem.byPosition.Find(ans => ans.position == position);
+            ByPosition? byPositionItem = scoreItem.byPosition.Find(ans => ans.position == position);
             if (byPositionItem != null) return byPositionItem.score;
             return 0;
         }

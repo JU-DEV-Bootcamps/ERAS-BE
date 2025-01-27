@@ -29,8 +29,6 @@ namespace Eras.Application.Services
             {
                 throw new NotImplementedException("Error creating variable: " + e.Message);
             }
-            return componentVariable;
-
         }
     }
 }

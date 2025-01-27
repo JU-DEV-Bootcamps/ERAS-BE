@@ -25,9 +25,9 @@ namespace Eras.Api.Controllers
 
         [HttpGet]
         public async Task<ActionResult<List<string>>> GetPolls(
-        [FromQuery] string name = null,
-        [FromQuery] string startDate = null, // yyyy or yyyy-mm or yyyy-mm-dd
-        [FromQuery] string endDate = null // yyyy or yyyy-mm or yyyy-mm-dd
+        [FromQuery] string name = "",
+        [FromQuery] string startDate = "", // yyyy or yyyy-mm or yyyy-mm-dd
+        [FromQuery] string endDate = "" // yyyy or yyyy-mm or yyyy-mm-dd
         )
         {
             return Ok(await _cosmicLatteService.ImportAllPolls(name, startDate, endDate));

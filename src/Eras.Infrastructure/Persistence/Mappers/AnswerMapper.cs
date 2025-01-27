@@ -30,8 +30,8 @@ namespace Eras.Infrastructure.Persistence.Mappers
         {
             if (answerEntity == null) throw new ArgumentNullException(nameof(answerEntity));
             return new Answer (
-                answerEntity.AnswerText,
-                answerEntity.Question,
+                answerEntity.AnswerText ?? "Answer not found",
+                answerEntity.Question ?? "Question not found",
                 answerEntity.Position,
                 answerEntity.RiskLevel,
                 answerEntity.Id,

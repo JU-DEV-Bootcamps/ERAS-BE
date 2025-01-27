@@ -26,7 +26,7 @@ namespace Eras.Application.Mappers
          */
         public static Student ToStudent(CLResponseModelForPollDTO CLPoll)
         {
-            if (CLPoll == null) throw new ArgumentNullException(nameof(CLPoll));
+            ArgumentNullException.ThrowIfNull(nameof(CLPoll)); // if (CLPoll == null) throw new ArgumentNullException(nameof(CLPoll)); 
             int Id = 0;
             DateTime CreatedDate = DateTime.Now;
             DateTime ModifiedDate = DateTime.Now;
@@ -38,25 +38,37 @@ namespace Eras.Application.Mappers
 
         public static Answer ToAnswer(Answers answer)
         {
+            // todo
+            // todo
+            // todo
+            // todo
+            int componentVariableId = 1; // This should come from relation with componentVariable
+
+
+
+
             if (answer == null) throw new ArgumentNullException(nameof(answer));
             int Id = 0;
             DateTime CreatedDate = DateTime.Now;
             DateTime ModifiedDate = DateTime.Now;
-            string AnswerText = answer.AnswersList.FirstOrDefault(); // this has a list of answers, for questions that has multiple
-            string Question = answer.Question.Body.GetValueOrDefault("es"); //  this is because we have language option (spanish or english)
+
+            StringBuilder sbQuestions = new StringBuilder();
+            foreach (var item in answer.AnswersList)
+            {
+                sbQuestions.Append(item);
+            }
+            string AnswerText = sbQuestions.ToString();
+            string Question = answer.Question.Body.GetValueOrDefault("es") ?? "No question found"; //  this is because we have language option (spanish or english)
             int Position = answer.Position;
             int RiskLevel = (int) answer.Score;
-            int componentVariableId = 1 ; // This should come from relation with componentVariable
-            Console.WriteLine(AnswerText);
             return new Answer( AnswerText, Question, Position, RiskLevel, Id, componentVariableId, CreatedDate, ModifiedDate);
         }
 
         public static ComponentVariable ToVariable(Answers answer, int pollId)
         {
-            if (answer == null || pollId == null) throw new ArgumentNullException(nameof(answer));
+            if (answer == null) throw new ArgumentNullException(nameof(answer));
             int id = 0;
-            string name = answer.Question.Body.GetValueOrDefault("es"); // question name?
-
+            string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //  this is because we have language option (spanish or english)
             int position = answer.Position;
             int? parentId = null; // this is component id, later we should check this
             DateTime createdDate = DateTime.Now;
