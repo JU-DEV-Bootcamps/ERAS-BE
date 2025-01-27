@@ -2,6 +2,6 @@
 {
     public interface IStudentRepository<T>
     {
-        Task Add(T student);
+        Task<T> Add(T student);
     }
 }

@@ -23,5 +23,17 @@ namespace Eras.Infrastructure.Persistence.Mappers
                 ModifiedDate = poll.ModifiedDate.ToUniversalTime()
             };
         }
+        public static Poll ToPoll(this PollsEntity pollEntity)
+        {
+            if (pollEntity == null) throw new ArgumentNullException(nameof(pollEntity));
+            
+            return new Poll(
+                pollEntity.Id, 
+                "CosmicLatteId", 
+                pollEntity.CreatedDate.DateTime, 
+                pollEntity.ModifiedDate.DateTime, 
+                pollEntity.Name
+                );
+        }
     }
 }

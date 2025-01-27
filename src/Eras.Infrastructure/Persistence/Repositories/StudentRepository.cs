@@ -14,11 +14,12 @@ namespace Eras.Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public async Task Add(Student student)
+        public async Task<Student> Add(Student student)
         {
             var studentEntity = student.ToStudentEntity();
             _context.Students.Add(studentEntity);
             await _context.SaveChangesAsync();
+            return studentEntity.ToStudent();
         }
     }
 }

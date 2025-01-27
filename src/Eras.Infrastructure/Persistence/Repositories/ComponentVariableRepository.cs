@@ -19,11 +19,12 @@ namespace Eras.Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public async Task Add(ComponentVariable componentVariable)
+        public async Task<ComponentVariable> Add(ComponentVariable componentVariable)
         {
             var componentVariableEntity = componentVariable.ToComponentVariableEntity();
             _context.ComponentVariables.Add(componentVariableEntity);
             await _context.SaveChangesAsync();
+            return componentVariableEntity.ToComponentVariable();
         }
     }
 }

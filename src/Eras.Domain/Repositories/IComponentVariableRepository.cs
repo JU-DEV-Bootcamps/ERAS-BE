@@ -8,6 +8,6 @@ namespace Eras.Domain.Repositories
 {
     public interface IComponentVariableRepository<T>
     {
-        Task Add(T componentVariable);
+        Task<T> Add (T componentVariable);
     }
 }

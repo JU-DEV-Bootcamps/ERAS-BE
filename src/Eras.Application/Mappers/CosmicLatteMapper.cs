@@ -9,10 +9,24 @@ using System.Xml.Linq;
 
 namespace Eras.Application.Mappers
 {
-    public class CosmicLatteMapper
+    public static class CosmicLatteMapper
     {
-        public Student CLtoStudent(CLResponseModelForPollDTO CLPoll)
+        /*
+        public static PollsEntity ToPoll(this PollsEntity pollEntity)
         {
+            if (pollEntity == null) throw new ArgumentNullException(nameof(pollEntity));
+            return new PollsEntity
+            {
+                Id = pollEntity.Id,
+                Name = pollEntity.Name,
+                CreatedDate = pollEntity.CreatedDate.ToUniversalTime(),
+                ModifiedDate = pollEntity.ModifiedDate.ToUniversalTime()
+            };
+        }
+         */
+        public static Student ToStudent(CLResponseModelForPollDTO CLPoll)
+        {
+            if (CLPoll == null) throw new ArgumentNullException(nameof(CLPoll));
             int Id = 0;
             DateTime CreatedDate = DateTime.Now;
             DateTime ModifiedDate = DateTime.Now;
@@ -22,22 +36,24 @@ namespace Eras.Application.Mappers
             return new Student(Id, CreatedDate, ModifiedDate, Name, Email, Uuid);
         }
 
-        public Answer CLtoAnswer(Answers answer)
+        public static Answer ToAnswer(Answers answer)
         {
+            if (answer == null) throw new ArgumentNullException(nameof(answer));
             int Id = 0;
             DateTime CreatedDate = DateTime.Now;
             DateTime ModifiedDate = DateTime.Now;
             string AnswerText = answer.AnswersList.FirstOrDefault(); // this has a list of answers, for questions that has multiple
             string Question = answer.Question.Body.GetValueOrDefault("es"); //  this is because we have language option (spanish or english)
             int Position = answer.Position;
-            double Score = answer.Score;
+            int RiskLevel = (int) answer.Score;
             int componentVariableId = 1 ; // This should come from relation with componentVariable
             Console.WriteLine(AnswerText);
-            return new Answer( AnswerText, Question, Position, Score, Id, componentVariableId, CreatedDate, ModifiedDate);
+            return new Answer( AnswerText, Question, Position, RiskLevel, Id, componentVariableId, CreatedDate, ModifiedDate);
         }
 
-        public ComponentVariable CLtoVariable(Answers answer, int pollId)
+        public static ComponentVariable ToVariable(Answers answer, int pollId)
         {
+            if (answer == null || pollId == null) throw new ArgumentNullException(nameof(answer));
             int id = 0;
             string name = answer.Question.Body.GetValueOrDefault("es"); // question name?
 
@@ -49,8 +65,9 @@ namespace Eras.Application.Mappers
             return new ComponentVariable(id, name, pollId, position, parentId, createdDate, modifiedDate);
         }
 
-        public Poll CLtoPoll (DataItem CLPol)
+        public static Poll ToPoll (DataItem CLPol)
         {
+            if (CLPol == null) throw new ArgumentNullException(nameof(CLPol));
             int Id = 0;
             string CosmicId = CLPol.inventoryId;
             DateTime CreatedDate = DateTime.Now;
@@ -59,8 +76,9 @@ namespace Eras.Application.Mappers
             return new Poll(Id, CosmicId, CreatedDate, ModifiedDate, PollName);
         }
 
-        public PollDTO CLDataItemToPollDTO(DataItem cosmicLattePoll)
+        public static PollDTO ToPollDTO(DataItem cosmicLattePoll)
         {
+            if (cosmicLattePoll == null) throw new ArgumentNullException(nameof(cosmicLattePoll));
             return new PollDTO(0, cosmicLattePoll._id, DateTime.Now, DateTime.Now, cosmicLattePoll.name);
         }
 

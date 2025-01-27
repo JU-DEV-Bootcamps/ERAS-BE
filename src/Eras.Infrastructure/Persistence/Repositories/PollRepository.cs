@@ -19,11 +19,12 @@ namespace Eras.Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public async Task Add(Poll poll)
+        public async Task<Poll> Add(Poll poll)
         {
             var polltEntity = poll.ToPollEntity();
             _context.Polls.Add(polltEntity);
             await _context.SaveChangesAsync();
+            return polltEntity.ToPoll();
         }
     }
 }

@@ -18,13 +18,26 @@ namespace Eras.Infrastructure.Persistence.Mappers
             {
                 Id = answer.Id,
                 ComponentVariableId = answer.ComponentVariableId,
-                Score = answer.Score,
+                Score = (int) answer.RiskLevel,
                 Question = answer.Question,
                 AnswerText = answer.AnswerText,
                 Position = answer.Position,
-                CreatedDate = answer.CreatedDate,
-                ModifiedDate = answer.ModifiedDate
+                CreatedDate = answer.CreatedDate.ToUniversalTime(),
+                ModifiedDate = answer.ModifiedDate.ToUniversalTime()
             };
+        }
+        public static Answer toAnswer(this AnswersEntity answerEntity)
+        {
+            if (answerEntity == null) throw new ArgumentNullException(nameof(answerEntity));
+            return new Answer (
+                answerEntity.AnswerText,
+                answerEntity.Question,
+                answerEntity.Position,
+                answerEntity.RiskLevel,
+                answerEntity.Id,
+                answerEntity.ComponentVariableId,
+                answerEntity.CreatedDate.DateTime,
+                answerEntity.ModifiedDate.DateTime);
         }
     }
 }

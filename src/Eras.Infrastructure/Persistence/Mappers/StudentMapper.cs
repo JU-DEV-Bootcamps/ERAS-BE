@@ -20,5 +20,20 @@ namespace Eras.Infrastructure.Persistence.Mappers
                 Uuid = student.Uuid
             };
         }
+        public static Student ToStudent(this StudentEntity studentEntity)
+        {
+            if (studentEntity == null)
+                throw new ArgumentNullException(nameof(studentEntity));
+            return new Student
+            {
+                Id = studentEntity.Id,
+                CreatedDate = studentEntity.CreatedDate.DateTime,
+                ModifiedDate = studentEntity.ModifiedDate.DateTime,
+                Name = studentEntity.Name,
+                Email = studentEntity.Email,
+                Uuid = studentEntity.Uuid
+            };
+        }
+        
     }
 }

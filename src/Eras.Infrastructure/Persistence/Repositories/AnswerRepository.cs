@@ -19,11 +19,12 @@ namespace Eras.Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public async Task Add(Answer answer)
+        public async Task<Answer> Add(Answer answer)
         {
             var answerEntity = answer.ToAnswerEntity();
             _context.Answers.Add(answerEntity);
             await _context.SaveChangesAsync();
+            return answerEntity.toAnswer();
         }
     }
 }

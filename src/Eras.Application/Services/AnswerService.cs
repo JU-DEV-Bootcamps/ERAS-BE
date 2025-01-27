@@ -19,23 +19,25 @@ namespace Eras.Application.Services
         }
         public async Task<Answer> CreateAnswer(Answer answer, Student student)
         {
-            Console.WriteLine("------ Creando answer ------");
-            Console.WriteLine(student.Email); // Davidcst2991 @gmail.com
-            Console.WriteLine(answer.Id); // 1
-            Console.WriteLine(answer.AnswerText);// Davidcst2991 @gmail.com
-            Console.WriteLine(answer.Position); // 1
-            Console.WriteLine(answer.Question); // Escribe email
-            Console.WriteLine(answer.Score); // 0
-            Console.WriteLine(answer.ModifiedDate); //1/24/2025 4:47:11 PM
-            Console.WriteLine("------ Creando answer ------");
-
             try
             {
-               // await _answerRepository.Add(answer);
+                /*
+
+                Console.WriteLine("------ Creating answer ------");
+                Console.WriteLine(student.Email);
+                Console.WriteLine(answer.Id);
+                Console.WriteLine(answer.AnswerText);
+                Console.WriteLine(answer.Position);
+                Console.WriteLine(answer.Question);
+                Console.WriteLine(answer.RiskLevel);
+                Console.WriteLine(answer.ModifiedDate);
+                Console.WriteLine("------ Creating answer ------");
+                */
+                return await _answerRepository.Add(answer);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.Message}");
+                throw new NotImplementedException("Error creating answer: " + e.Message);
             }
             return answer;
         }

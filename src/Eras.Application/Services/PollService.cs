@@ -19,24 +19,19 @@ namespace Eras.Application.Services
         }
         public async Task<Poll> CreatePoll(Poll poll)
         {
-            Console.WriteLine("------ Creando poll ------");
-            Console.WriteLine(poll.Id);
-            Console.WriteLine(poll.PollName);
             try
             {
-                await _pollRepository.Add(poll);
+               return  await _pollRepository.Add(poll);
 
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.Message}");
+                throw new NotImplementedException("Error creating poll: "+e.Message);
             }
-            return poll;
         }
 
         public void ValidateNewPoll(Poll poll)
         {
-            Console.WriteLine("Validando que nombre es correcto");
             throw new NotImplementedException();
         }
     }

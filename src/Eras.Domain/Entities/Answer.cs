@@ -15,15 +15,15 @@ namespace Eras.Domain.Entities
         public string AnswerText { get; set; }
         public string Question { get; set; }
         public int Position { get; set; }
-        public double Score { get; set; }
+        public int? RiskLevel { get; set; }
 
 
-        public Answer(string answerText, string question, int position, double score, int id, int componentVariableId, DateTime createdDate, DateTime modifiedDate)
+        public Answer(string AnswerText, string question, int position, int riskLevel, int id, int componentVariableId, DateTime createdDate, DateTime modifiedDate)
         {
-            this.AnswerText = answerText;
+            this.AnswerText = AnswerText;
             this.Question = question;
             this.Position = position;
-            this.Score = score;
+            this.RiskLevel = riskLevel;
             this.Id = id;
             this.ComponentVariableId = componentVariableId;   
             this.CreatedDate = createdDate;

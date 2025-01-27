@@ -8,6 +8,6 @@ namespace Eras.Domain.Repositories
 {
     public interface IAnswerRepository<T>
     {
-        Task Add(T answer);
+        Task<T> Add(T answer);
     }
 }

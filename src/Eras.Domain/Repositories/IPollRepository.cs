@@ -8,6 +8,6 @@ namespace Eras.Domain.Repositories
 {
     public interface IPollRepository<T>
     {
-        Task Add(T poll);
+        Task<T> Add(T poll);
     }
 }

@@ -11,8 +11,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public int Id { get; set; }
         public int ComponentVariableId { get; set; }
         public int RiskLevel { get; set; } // Console.WriteLine(answer.Score);
-        public string Question { get; set; } 
-        public string AnswerText { get; set; }
+        public string? Question { get; set; } 
+        public string? AnswerText { get; set; }
         public int Position { get; set; }
 
 

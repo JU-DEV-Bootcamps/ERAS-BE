@@ -21,21 +21,13 @@ namespace Eras.Application.Services
         }
         public async Task<ComponentVariable> CreateVariable(ComponentVariable componentVariable)
         {
-
-            // Create relation between variable and poll
-
-            Console.WriteLine("------ Creando Variable ------");
-            Console.WriteLine("Poll id: "+componentVariable.PollId);
-            Console.WriteLine("Variable id: " + componentVariable.Id);
-            Console.WriteLine("Variable Name: " + componentVariable.Name);
-            Console.WriteLine("Variable Position: " + componentVariable.Position);
             try
             {
-                await _componentVariableRepository.Add(componentVariable);
+                return await _componentVariableRepository.Add(componentVariable);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{e.Message}");
+                throw new NotImplementedException("Error creating variable: " + e.Message);
             }
             return componentVariable;
 
