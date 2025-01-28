@@ -17,96 +17,96 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<Student?> GetByIdAsync(int id)
         {
-            var efStudent = await _context.Students
+            var studentEntity = await _context.Students
                 .Include(s => s.StudentDetails)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
-            if (efStudent == null)
+            if (studentEntity == null)
                 return null;
 
-            return MapToDomain(efStudent);
+            return MapToDomain(studentEntity);
         }
 
         public async Task<Student?> GetByUuidAsync(string uuid)
         {
-            var efStudent = await _context.Students
+            var studentEntity = await _context.Students
                 .Include(s => s.StudentDetails)
                 .FirstOrDefaultAsync(s => s.Uuid == uuid);
 
-            if (efStudent == null)
+            if (studentEntity == null)
                 return null;
 
-            return MapToDomain(efStudent);
+            return MapToDomain(studentEntity);
         }
 
         public async Task SaveAsync(Student domainStudent)
         {
-            var efStudent = await _context.Students
+            var studentEntity = await _context.Students
                 .Include(s => s.StudentDetails)
                 .FirstOrDefaultAsync(s => s.Uuid == domainStudent.Uuid);
 
-            if (efStudent == null)
+            if (studentEntity == null)
             {
-                efStudent = new Students();
-                _context.Students.Add(efStudent);
+                studentEntity = new Students();
+                _context.Students.Add(studentEntity);
             }
-            efStudent.Uuid = domainStudent.Uuid;
-            efStudent.Name = domainStudent.Name;
-            efStudent.Email = domainStudent.Email;
-            efStudent.ModifiedDate = System.DateTime.UtcNow;
+            studentEntity.Uuid = domainStudent.Uuid;
+            studentEntity.Name = domainStudent.Name;
+            studentEntity.Email = domainStudent.Email;
+            studentEntity.ModifiedDate = System.DateTime.UtcNow;
 
-            if (efStudent.StudentDetails == null)
+            if (studentEntity.StudentDetails == null)
             {
-                efStudent.StudentDetails = new StudentDetails();
+                studentEntity.StudentDetails = new StudentDetails();
             }
             
             if (domainStudent.StudentDetail != null)
             {
-                efStudent.StudentDetails.EnrolledCourses = domainStudent.StudentDetail.EnrolledCourses;
-                efStudent.StudentDetails.GradedCourses = domainStudent.StudentDetail.GradedCourses;
-                efStudent.StudentDetails.TimeDeliveryRate = domainStudent.StudentDetail.TimeDeliveryRate;
-                efStudent.StudentDetails.AvgScore = domainStudent.StudentDetail.AvgScore;
-                efStudent.StudentDetails.CoursesUnderAvg = domainStudent.StudentDetail.CoursesUnderAvg;
-                efStudent.StudentDetails.PureScoreDiff = domainStudent.StudentDetail.PureScoreDiff;
-                efStudent.StudentDetails.StandardScoreDiff = domainStudent.StudentDetail.StandardScoreDiff;
-                efStudent.StudentDetails.LastAccessDays = domainStudent.StudentDetail.LastAccessDays;
-                efStudent.StudentDetails.ModifiedDate = System.DateTime.UtcNow;
+                studentEntity.StudentDetails.EnrolledCourses = domainStudent.StudentDetail.EnrolledCourses;
+                studentEntity.StudentDetails.GradedCourses = domainStudent.StudentDetail.GradedCourses;
+                studentEntity.StudentDetails.TimeDeliveryRate = domainStudent.StudentDetail.TimeDeliveryRate;
+                studentEntity.StudentDetails.AvgScore = domainStudent.StudentDetail.AvgScore;
+                studentEntity.StudentDetails.CoursesUnderAvg = domainStudent.StudentDetail.CoursesUnderAvg;
+                studentEntity.StudentDetails.PureScoreDiff = domainStudent.StudentDetail.PureScoreDiff;
+                studentEntity.StudentDetails.StandardScoreDiff = domainStudent.StudentDetail.StandardScoreDiff;
+                studentEntity.StudentDetails.LastAccessDays = domainStudent.StudentDetail.LastAccessDays;
+                studentEntity.StudentDetails.ModifiedDate = System.DateTime.UtcNow;
             }
             await _context.SaveChangesAsync();
         }
 
         public async Task DeleteAsync(string uuid)
         {
-            var efStudent = await _context.Students
+            var studentEntity = await _context.Students
                 .FirstOrDefaultAsync(s => s.Uuid == uuid);
-            if (efStudent != null)
+            if (studentEntity != null)
             {
-                _context.Students.Remove(efStudent);
+                _context.Students.Remove(studentEntity);
                 await _context.SaveChangesAsync();
             }
         }
 
-        private Student MapToDomain(Students efStudent)
+        private Student MapToDomain(Students studentEntity)
         {
             var domainStudent = new Student
             {
-                Uuid = efStudent.Uuid ?? string.Empty,
-                Name = efStudent.Name,
-                Email = efStudent.Email
+                Uuid = studentEntity.Uuid ?? string.Empty,
+                Name = studentEntity.Name,
+                Email = studentEntity.Email
             };
 
-            if (efStudent.StudentDetails != null)
+            if (studentEntity.StudentDetails != null)
             {
                 domainStudent.StudentDetail = new StudentDetail
                 {
-                    EnrolledCourses = efStudent.StudentDetails.EnrolledCourses,
-                    GradedCourses = efStudent.StudentDetails.GradedCourses,
-                    TimeDeliveryRate = efStudent.StudentDetails.TimeDeliveryRate,
-                    AvgScore = efStudent.StudentDetails.AvgScore,
-                    CoursesUnderAvg = efStudent.StudentDetails.CoursesUnderAvg,
-                    PureScoreDiff = efStudent.StudentDetails.PureScoreDiff,
-                    StandardScoreDiff = efStudent.StudentDetails.StandardScoreDiff,
-                    LastAccessDays = efStudent.StudentDetails.LastAccessDays
+                    EnrolledCourses = studentEntity.StudentDetails.EnrolledCourses,
+                    GradedCourses = studentEntity.StudentDetails.GradedCourses,
+                    TimeDeliveryRate = studentEntity.StudentDetails.TimeDeliveryRate,
+                    AvgScore = studentEntity.StudentDetails.AvgScore,
+                    CoursesUnderAvg = studentEntity.StudentDetails.CoursesUnderAvg,
+                    PureScoreDiff = studentEntity.StudentDetails.PureScoreDiff,
+                    StandardScoreDiff = studentEntity.StudentDetails.StandardScoreDiff,
+                    LastAccessDays = studentEntity.StudentDetails.LastAccessDays
                 };
             }
 
