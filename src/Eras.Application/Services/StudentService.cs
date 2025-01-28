@@ -27,54 +27,54 @@ namespace Eras.Application.Services
 
                 foreach (var dto in studentsDto)
                 {
-                    if (!decimal.TryParse(dto.PuntuacionMedia, NumberStyles.Number, culture, out var avgScore))
+                    if (!decimal.TryParse(dto.AverageScore.ToString(), NumberStyles.Number, culture, out var avgScore))
                         avgScore = 0;
 
-                    if (!decimal.TryParse(dto.DiferenciaDeLaPuntuacionPura, NumberStyles.Number, culture, out var pureScoreDiff))
+                    if (!decimal.TryParse(dto.RawScoreDifference.ToString(), NumberStyles.Number, culture, out var pureScoreDiff))
                         pureScoreDiff = 0;
 
-                    if (!decimal.TryParse(dto.DiferenciaDeLaPuntuacionEstandarizada, NumberStyles.Number, culture, out var standardScoreDiff))
+                    if (!decimal.TryParse(dto.StandardScoreDifference.ToString(), NumberStyles.Number, culture, out var standardScoreDiff))
                         standardScoreDiff = 0;
 
                     var existingStudent = await _studentRepository
-                        .GetByUuidAsync(dto.IdentificacionDeSISDelUsuario);
+                        .GetByUuidAsync(dto.SISId);
 
                     if (existingStudent == null)
                     {
                         existingStudent = new Student
                         {
-                            Uuid = dto.IdentificacionDeSISDelUsuario,
-                            Name = dto.Nombre,
-                            Email = dto.CorreoElectronico,
+                            Uuid = dto.SISId,
+                            Name = dto.Name,
+                            Email = dto.Email,
                             StudentDetail = new StudentDetail
                             {
-                                EnrolledCourses = dto.CursosInscritos,
-                                GradedCourses = dto.CursosConNota,
-                                TimeDeliveryRate = dto.EntregasATiempoEnComparacionConTodas,
+                                EnrolledCourses = dto.EnrolledCourses,
+                                GradedCourses = dto.GradedCourses,
+                                TimeDeliveryRate = dto.TimelySubmissions,
                                 AvgScore = avgScore,
-                                CoursesUnderAvg = dto.CursosConUnaNotaMediaPorDebajoDe,
+                                CoursesUnderAvg = dto.CoursesBelowAverage,
                                 PureScoreDiff = pureScoreDiff,
                                 StandardScoreDiff = standardScoreDiff,
-                                LastAccessDays = dto.DiasDesdeElUltimoAcceso
+                                LastAccessDays = dto.DaysSinceLastAccess
                             }
                         };
                     }
                     else
                     {
-                        existingStudent.Name = dto.Nombre;
-                        existingStudent.Email = dto.CorreoElectronico;
+                        existingStudent.Name = dto.Name;
+                        existingStudent.Email = dto.Email;
 
                         if (existingStudent.StudentDetail == null)
                             existingStudent.StudentDetail = new StudentDetail();
 
-                        existingStudent.StudentDetail.EnrolledCourses = dto.CursosInscritos;
-                        existingStudent.StudentDetail.GradedCourses = dto.CursosConNota;
-                        existingStudent.StudentDetail.TimeDeliveryRate = dto.EntregasATiempoEnComparacionConTodas;
+                        existingStudent.StudentDetail.EnrolledCourses = dto.EnrolledCourses;
+                        existingStudent.StudentDetail.GradedCourses = dto.GradedCourses;
+                        existingStudent.StudentDetail.TimeDeliveryRate = dto.TimelySubmissions;
                         existingStudent.StudentDetail.AvgScore = avgScore;
-                        existingStudent.StudentDetail.CoursesUnderAvg = dto.CursosConUnaNotaMediaPorDebajoDe;
+                        existingStudent.StudentDetail.CoursesUnderAvg = dto.CoursesBelowAverage;
                         existingStudent.StudentDetail.PureScoreDiff = pureScoreDiff;
                         existingStudent.StudentDetail.StandardScoreDiff = standardScoreDiff;
-                        existingStudent.StudentDetail.LastAccessDays = dto.DiasDesdeElUltimoAcceso;
+                        existingStudent.StudentDetail.LastAccessDays = dto.DaysSinceLastAccess;
                     }
                     await _studentRepository.SaveAsync(existingStudent);
                 }
