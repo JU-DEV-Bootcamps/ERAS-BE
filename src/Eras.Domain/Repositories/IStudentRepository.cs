@@ -7,7 +7,6 @@ namespace Eras.Domain.Repositories
     {
         Task<Student?> GetByIdAsync(int id);
 
-        // For SIS/UUID
         Task<Student?> GetByUuidAsync(string uuid);
 
         Task SaveAsync(Student student);
