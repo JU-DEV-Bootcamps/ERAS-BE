@@ -62,7 +62,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 
 // Add the StudentService to the dependency injection container
-builder.Services.AddScoped<StudentService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
 
 builder.Services.AddCors(o =>
 {
