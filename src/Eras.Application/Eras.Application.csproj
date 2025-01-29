@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Resources/StudentJsonMappings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Eras.Domain\Eras.Domain.csproj" />
   </ItemGroup>
 

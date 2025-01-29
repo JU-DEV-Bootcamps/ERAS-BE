@@ -1,40 +1,41 @@
 using System.Text.Json.Serialization;
+using Eras.Application.Utils;
 
 namespace Eras.Application.DTOs
 {
     public class StudentImportDto
     {
-        [JsonPropertyName("Nombre")]
+        [JsonPropertyName(nameof(Name))]
         public required string Name { get; set; }
 
-        [JsonPropertyName("Correo electronico")]
+        [JsonPropertyName(nameof(Email))]
         public required string Email { get; set; }
 
-        [JsonPropertyName("Identificación de SIS del usuario")]
+        [JsonPropertyName(nameof(SISId))]
         public required string SISId { get; set; }
 
-        [JsonPropertyName("Cursos inscritos")]
+        [JsonPropertyName(nameof(EnrolledCourses))]
         public int EnrolledCourses { get; set; }
 
-        [JsonPropertyName("Cursos con nota")]
+        [JsonPropertyName(nameof(GradedCourses))]
         public int GradedCourses { get; set; }
 
-        [JsonPropertyName("Entregas a tiempo en comparación con todas")]
+        [JsonPropertyName(nameof(TimelySubmissions))]
         public int TimelySubmissions { get; set; }
 
-        [JsonPropertyName("Puntuación media")]
+        [JsonPropertyName(nameof(AverageScore))]
         public decimal AverageScore { get; set; }
 
-        [JsonPropertyName("Cursos con una nota media por debajo de")]
+        [JsonPropertyName(nameof(CoursesBelowAverage))]
         public int CoursesBelowAverage { get; set; }
 
-        [JsonPropertyName("Diferencia de la puntuación pura")]
+        [JsonPropertyName(nameof(RawScoreDifference))]
         public decimal RawScoreDifference { get; set; }
 
-        [JsonPropertyName("Diferencia de la puntuación estandarizada")]
+        [JsonPropertyName(nameof(StandardScoreDifference))]
         public decimal StandardScoreDifference { get; set; }
 
-        [JsonPropertyName("Días desde el último acceso")]
+        [JsonPropertyName(nameof(DaysSinceLastAccess))]
         public int DaysSinceLastAccess { get; set; }
     }
 }
