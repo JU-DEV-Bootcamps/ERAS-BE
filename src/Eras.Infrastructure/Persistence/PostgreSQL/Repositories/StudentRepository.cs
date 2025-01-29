@@ -1,5 +1,6 @@
 using Eras.Domain.Entities;
 using Eras.Domain.Repositories;
+using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
