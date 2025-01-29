@@ -31,7 +31,8 @@ namespace Eras.Application.Services
                         continue;
                     }
 
-                    var student = await GetOrCreateStudentAsync(dto);
+                    var student = MapToDomain(dto);
+
                     await _studentRepository.SaveAsync(student);
                 }
 
@@ -51,23 +52,10 @@ namespace Eras.Application.Services
                    !string.IsNullOrWhiteSpace(dto.SISId);
         }
 
-        private async Task<Student> GetOrCreateStudentAsync(StudentImportDto dto)
+        private Student MapToDomain(StudentImportDto dto)
         {
-            var existingStudent = await _studentRepository.GetByUuidAsync(dto.SISId);
+            var culture = CultureInfo.GetCultureInfo("es-ES");
 
-            if (existingStudent == null)
-            {
-                return MapToNewStudent(dto);
-            }
-            else
-            {
-                UpdateExistingStudent(existingStudent, dto);
-                return existingStudent;
-            }
-        }
-
-        private Student MapToNewStudent(StudentImportDto dto)
-        {
             return new Student
             {
                 Uuid = dto.SISId,
@@ -78,36 +66,17 @@ namespace Eras.Application.Services
                     EnrolledCourses = dto.EnrolledCourses,
                     GradedCourses = dto.GradedCourses,
                     TimeDeliveryRate = dto.TimelySubmissions,
-                    AvgScore = ParseDecimal(dto.AverageScore),
+                    AvgScore = ParseDecimal(dto.AverageScore, culture),
                     CoursesUnderAvg = dto.CoursesBelowAverage,
-                    PureScoreDiff = ParseDecimal(dto.RawScoreDifference),
-                    StandardScoreDiff = ParseDecimal(dto.StandardScoreDifference),
+                    PureScoreDiff = ParseDecimal(dto.RawScoreDifference, culture),
+                    StandardScoreDiff = ParseDecimal(dto.StandardScoreDifference, culture),
                     LastAccessDays = dto.DaysSinceLastAccess
                 }
             };
         }
 
-        private void UpdateExistingStudent(Student existingStudent, StudentImportDto dto)
+        private decimal ParseDecimal(decimal value, CultureInfo culture)
         {
-            existingStudent.Name = dto.Name;
-            existingStudent.Email = dto.Email;
-
-            if (existingStudent.StudentDetail == null)
-                existingStudent.StudentDetail = new StudentDetail();
-
-            existingStudent.StudentDetail.EnrolledCourses = dto.EnrolledCourses;
-            existingStudent.StudentDetail.GradedCourses = dto.GradedCourses;
-            existingStudent.StudentDetail.TimeDeliveryRate = dto.TimelySubmissions;
-            existingStudent.StudentDetail.AvgScore = ParseDecimal(dto.AverageScore);
-            existingStudent.StudentDetail.CoursesUnderAvg = dto.CoursesBelowAverage;
-            existingStudent.StudentDetail.PureScoreDiff = ParseDecimal(dto.RawScoreDifference);
-            existingStudent.StudentDetail.StandardScoreDiff = ParseDecimal(dto.StandardScoreDifference);
-            existingStudent.StudentDetail.LastAccessDays = dto.DaysSinceLastAccess;
-        }
-
-        private decimal ParseDecimal(decimal value)
-        {
-            var culture = CultureInfo.GetCultureInfo("es-ES");
             return decimal.TryParse(value.ToString(culture), NumberStyles.Number, culture, out var result) ? result : 0;
         }
     }

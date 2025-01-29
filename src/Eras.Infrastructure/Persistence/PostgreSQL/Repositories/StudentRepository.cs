@@ -2,7 +2,6 @@ using Eras.Domain.Entities;
 using Eras.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using System.Linq;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
@@ -21,10 +20,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Include(s => s.StudentDetails)
                 .FirstOrDefaultAsync(s => s.Id == id);
 
-            if (studentEntity == null)
-                return null;
-
-            return MapToDomain(studentEntity);
+            return studentEntity == null ? null : MapToDomain(studentEntity);
         }
 
         public async Task<Student?> GetByUuidAsync(string uuid)
@@ -33,10 +29,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Include(s => s.StudentDetails)
                 .FirstOrDefaultAsync(s => s.Uuid == uuid);
 
-            if (studentEntity == null)
-                return null;
-
-            return MapToDomain(studentEntity);
+            return studentEntity == null ? null : MapToDomain(studentEntity);
         }
 
         public async Task SaveAsync(Student domainStudent)
@@ -50,6 +43,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 studentEntity = new Students();
                 _context.Students.Add(studentEntity);
             }
+
             studentEntity.Uuid = domainStudent.Uuid;
             studentEntity.Name = domainStudent.Name;
             studentEntity.Email = domainStudent.Email;
@@ -59,19 +53,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             {
                 studentEntity.StudentDetails = new StudentDetails();
             }
-            
-            if (domainStudent.StudentDetail != null)
-            {
-                studentEntity.StudentDetails.EnrolledCourses = domainStudent.StudentDetail.EnrolledCourses;
-                studentEntity.StudentDetails.GradedCourses = domainStudent.StudentDetail.GradedCourses;
-                studentEntity.StudentDetails.TimeDeliveryRate = domainStudent.StudentDetail.TimeDeliveryRate;
-                studentEntity.StudentDetails.AvgScore = domainStudent.StudentDetail.AvgScore;
-                studentEntity.StudentDetails.CoursesUnderAvg = domainStudent.StudentDetail.CoursesUnderAvg;
-                studentEntity.StudentDetails.PureScoreDiff = domainStudent.StudentDetail.PureScoreDiff;
-                studentEntity.StudentDetails.StandardScoreDiff = domainStudent.StudentDetail.StandardScoreDiff;
-                studentEntity.StudentDetails.LastAccessDays = domainStudent.StudentDetail.LastAccessDays;
-                studentEntity.StudentDetails.ModifiedDate = System.DateTime.UtcNow;
-            }
+
+            studentEntity.StudentDetails.EnrolledCourses = domainStudent.StudentDetail.EnrolledCourses;
+            studentEntity.StudentDetails.GradedCourses = domainStudent.StudentDetail.GradedCourses;
+            studentEntity.StudentDetails.TimeDeliveryRate = domainStudent.StudentDetail.TimeDeliveryRate;
+            studentEntity.StudentDetails.AvgScore = domainStudent.StudentDetail.AvgScore;
+            studentEntity.StudentDetails.CoursesUnderAvg = domainStudent.StudentDetail.CoursesUnderAvg;
+            studentEntity.StudentDetails.PureScoreDiff = domainStudent.StudentDetail.PureScoreDiff;
+            studentEntity.StudentDetails.StandardScoreDiff = domainStudent.StudentDetail.StandardScoreDiff;
+            studentEntity.StudentDetails.LastAccessDays = domainStudent.StudentDetail.LastAccessDays;
+            studentEntity.StudentDetails.ModifiedDate = System.DateTime.UtcNow;
+
             await _context.SaveChangesAsync();
         }
 
@@ -79,6 +71,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var studentEntity = await _context.Students
                 .FirstOrDefaultAsync(s => s.Uuid == uuid);
+
             if (studentEntity != null)
             {
                 _context.Students.Remove(studentEntity);

@@ -5,13 +5,13 @@ namespace Eras.Application.DTOs
     public class StudentImportDto
     {
         [JsonPropertyName("Nombre")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [JsonPropertyName("Correo electronico")]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [JsonPropertyName("Identificación de SIS del usuario")]
-        public string SISId { get; set; }
+        public required string SISId { get; set; }
 
         [JsonPropertyName("Cursos inscritos")]
         public int EnrolledCourses { get; set; }
