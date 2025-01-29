@@ -32,11 +32,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return studentEntity == null ? null : MapToDomain(studentEntity);
         }
 
-        public async Task SaveAsync(Student domainStudent)
+        public async Task SaveAsync(Student student)
         {
             var studentEntity = await _context.Students
                 .Include(s => s.StudentDetails)
-                .FirstOrDefaultAsync(s => s.Uuid == domainStudent.Uuid);
+                .FirstOrDefaultAsync(s => s.Uuid == student.Uuid);
 
             if (studentEntity == null)
             {
@@ -44,9 +44,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 _context.Students.Add(studentEntity);
             }
 
-            studentEntity.Uuid = domainStudent.Uuid;
-            studentEntity.Name = domainStudent.Name;
-            studentEntity.Email = domainStudent.Email;
+            studentEntity.Uuid = student.Uuid;
+            studentEntity.Name = student.Name;
+            studentEntity.Email = student.Email;
             studentEntity.ModifiedDate = System.DateTime.UtcNow;
 
             if (studentEntity.StudentDetails == null)
@@ -54,14 +54,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 studentEntity.StudentDetails = new StudentDetails();
             }
 
-            studentEntity.StudentDetails.EnrolledCourses = domainStudent.StudentDetail.EnrolledCourses;
-            studentEntity.StudentDetails.GradedCourses = domainStudent.StudentDetail.GradedCourses;
-            studentEntity.StudentDetails.TimeDeliveryRate = domainStudent.StudentDetail.TimeDeliveryRate;
-            studentEntity.StudentDetails.AvgScore = domainStudent.StudentDetail.AvgScore;
-            studentEntity.StudentDetails.CoursesUnderAvg = domainStudent.StudentDetail.CoursesUnderAvg;
-            studentEntity.StudentDetails.PureScoreDiff = domainStudent.StudentDetail.PureScoreDiff;
-            studentEntity.StudentDetails.StandardScoreDiff = domainStudent.StudentDetail.StandardScoreDiff;
-            studentEntity.StudentDetails.LastAccessDays = domainStudent.StudentDetail.LastAccessDays;
+            studentEntity.StudentDetails.EnrolledCourses = student.StudentDetail.EnrolledCourses;
+            studentEntity.StudentDetails.GradedCourses = student.StudentDetail.GradedCourses;
+            studentEntity.StudentDetails.TimeDeliveryRate = student.StudentDetail.TimeDeliveryRate;
+            studentEntity.StudentDetails.AvgScore = student.StudentDetail.AvgScore;
+            studentEntity.StudentDetails.CoursesUnderAvg = student.StudentDetail.CoursesUnderAvg;
+            studentEntity.StudentDetails.PureScoreDiff = student.StudentDetail.PureScoreDiff;
+            studentEntity.StudentDetails.StandardScoreDiff = student.StudentDetail.StandardScoreDiff;
+            studentEntity.StudentDetails.LastAccessDays = student.StudentDetail.LastAccessDays;
             studentEntity.StudentDetails.ModifiedDate = System.DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
