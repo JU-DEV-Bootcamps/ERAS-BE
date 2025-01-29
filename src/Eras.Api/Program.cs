@@ -55,8 +55,7 @@ builder.Services.AddScoped<KeycloakAuthService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection"))
-            .ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection"));
 });
 
 
