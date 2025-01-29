@@ -21,15 +21,17 @@ namespace Eras.Application.Services
         {
             try
             {
+                // TODO
                 // WE NEED TO CHECK DB TO SAVE A ANSWERS,
-                // WE COULD CREATE ANOTHER TABLE TO HAS A LIST UNION MANY STUDENTS TO A SPECIFIC QUESTION?
-                // AVOID DUPLICATED ANWSERS..
+                // WE COULD CREATE ANOTHER TABLE TO HAS A LIST UNION MANY STUDENTS TO A SPECIFIC QUESTION? TO AVOID DUPLICATED ANWSERS..
 
+                // we need to check bussiness logic to validate before save
 
                 return await _answerRepository.Add(answer);
             }
             catch (Exception e)
             {
+                // todo pending custom exepcion? disscuss with team
                 throw new NotImplementedException("Error creating answer: " + e.Message);
             }
         }

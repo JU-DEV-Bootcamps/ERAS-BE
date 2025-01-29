@@ -16,17 +16,14 @@ namespace Eras.Application.Services
         {
             try
             {
+                // we need to check bussiness logic to validate before save
                 return await  _studentRepository.Add(student);
             }
             catch (Exception e)
             {
+                // todo pending custom exepcion? disscuss with team
                 throw new NotImplementedException("Error creating student: " + e.Message);
             }
-        }
-
-        public void ValidateNewStudent(Student student)
-        {
-            throw new NotImplementedException();
         }
     }
 }

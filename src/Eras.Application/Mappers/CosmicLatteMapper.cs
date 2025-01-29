@@ -11,22 +11,9 @@ namespace Eras.Application.Mappers
 {
     public static class CosmicLatteMapper
     {
-        /*
-        public static PollsEntity ToPoll(this PollsEntity pollEntity)
-        {
-            if (pollEntity == null) throw new ArgumentNullException(nameof(pollEntity));
-            return new PollsEntity
-            {
-                Id = pollEntity.Id,
-                Name = pollEntity.Name,
-                CreatedDate = pollEntity.CreatedDate.ToUniversalTime(),
-                ModifiedDate = pollEntity.ModifiedDate.ToUniversalTime()
-            };
-        }
-         */
         public static Student ToStudent(CLResponseModelForPollDTO CLPoll)
         {
-            ArgumentNullException.ThrowIfNull(nameof(CLPoll)); // if (CLPoll == null) throw new ArgumentNullException(nameof(CLPoll)); 
+            ArgumentNullException.ThrowIfNull(nameof(CLPoll)); 
             int Id = 0;
             DateTime CreatedDate = DateTime.Now;
             DateTime ModifiedDate = DateTime.Now;
@@ -38,19 +25,12 @@ namespace Eras.Application.Mappers
 
         public static Answer ToAnswer(Answers answer)
         {
-            // todo
-            // todo
-            // todo
-            // todo
+            // todo pending finish
             int componentVariableId = 1; // This should come from relation with componentVariable
 
-            //este campo deberiamos sacarlo, porque tenemos el texto en componentVariableId y en tabla de anser.. no tiene sentido
-            // hablar esto con ramiro
+            // We should remove this field, because we have the text in componentVariableId and in the anser table... it doesn't make sense. talk to ramiro
 
             string Question = answer.Question.Body.GetValueOrDefault("es") ?? "No question found"; //  this is because we have language option (spanish or english)
-
-
-
 
             if (answer == null) throw new ArgumentNullException(nameof(answer));
             int Id = 0;

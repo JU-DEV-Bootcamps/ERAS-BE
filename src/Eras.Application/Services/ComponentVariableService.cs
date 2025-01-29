@@ -23,10 +23,12 @@ namespace Eras.Application.Services
         {
             try
             {
+                // we need to check bussiness logic to validate before save
                 return await _componentVariableRepository.Add(componentVariable);
             }
             catch (Exception e)
             {
+                // todo pending custom exepcion? disscuss with team
                 throw new NotImplementedException("Error creating variable: " + e.Message);
             }
         }

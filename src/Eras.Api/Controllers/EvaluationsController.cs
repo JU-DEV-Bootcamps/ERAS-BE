@@ -15,6 +15,7 @@ namespace Eras.Api.Controllers
             _cosmicLatteService = cosmicLatteService;
         }
 
+        // this should be placed in a health controller with status of other external services?
         [HttpOptions("/cosmic-latte/status")]
         public async Task<ActionResult<CosmicLatteStatus>> CosmicApiIsHealthy()
         {
@@ -25,8 +26,8 @@ namespace Eras.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<string>>> GetPolls(
         [FromQuery] string name = "",
-        [FromQuery] string startDate = "", // yyyy or yyyy-mm or yyyy-mm-dd
-        [FromQuery] string endDate = "" // yyyy or yyyy-mm or yyyy-mm-dd
+        [FromQuery] string startDate = "",
+        [FromQuery] string endDate = ""
         )
         {
             return Ok(await _cosmicLatteService.ImportAllPolls(name, startDate, endDate));

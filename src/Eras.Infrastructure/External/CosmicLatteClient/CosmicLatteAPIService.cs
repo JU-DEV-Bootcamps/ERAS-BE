@@ -34,8 +34,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             IComponentVariableService componentVariableService,
             IAnswerService answerService)
         {
-            _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found");
-            _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found");
+            _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found"); // this should be move to .env
+            _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found"); // this should be move to .env
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(_apiUrl);
             _studentService = studentService;
@@ -57,7 +57,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error : {e.Message}");
                 throw new Exception($"There was an error with the request");
             }
         }
@@ -99,7 +98,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 List<ComponentVariable> createdVariables = _componentVariableService.GetAllVariables(pollId).Result;
 
-                return "";
+                return "Here we should return an entity with registers added and other details";
             }
             catch (Exception e)
             {

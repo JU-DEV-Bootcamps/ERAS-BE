@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Dtos
 {
+    // this is a class only to serialize from Cosmic latte
     public class CLResponseModelForPollDTO
     {
         [JsonPropertyName("@data")]
