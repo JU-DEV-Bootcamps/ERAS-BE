@@ -3,8 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
-    [Table("Students")]    
-    public class StudentEntity
+    public class Students
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -21,9 +20,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public string? Uuid { get; set; }
 
         [DataType(DataType.DateTime)]
-        public DateTimeOffset CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         [DataType(DataType.DateTime)]
-        public DateTimeOffset ModifiedDate { get; set; } = DateTime.UtcNow;
+        public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+
+        public virtual StudentDetails? StudentDetails { get; set; }
+
     }
 }

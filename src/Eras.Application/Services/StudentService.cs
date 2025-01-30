@@ -1,29 +1,52 @@
-﻿using Eras.Domain.Entities;
+using Eras.Application.DTOs;
+using Eras.Application.Mappers;
 using Eras.Domain.Repositories;
-using Eras.Domain.Services;
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Services
 {
     public class StudentService : IStudentService
     {
+        private readonly IStudentRepository _studentRepository;
+        private readonly ILogger<StudentService> _logger;
 
-        private readonly IStudentRepository<Student> _studentRepository;
-        public StudentService(IStudentRepository<Student> studentRepository)
+        public StudentService(IStudentRepository studentRepository, ILogger<StudentService> logger)
         {
             _studentRepository = studentRepository;
+            _logger = logger;
         }
-        public async Task<Student> CreateStudent(Student student)
+
+        public async Task<bool> ImportStudentsAsync(StudentImportDto[] studentsDto)
         {
             try
             {
-                // we need to check bussiness logic to validate before save
-                return await  _studentRepository.Add(student);
+                foreach (var dto in studentsDto)
+                {
+                    if (!ValidateStudentDto(dto))
+                    {
+                        _logger.LogWarning("Invalid student data: {SISId}", dto.SISId);
+                        continue;
+                    }
+
+                    var student = dto.ToDomain();
+
+                    await _studentRepository.SaveAsync(student);
+                }
+
+                return true;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                // todo pending custom exepcion? disscuss with team
-                throw new NotImplementedException("Error creating student: " + e.Message);
+                _logger.LogError(ex, "An error occurred during the import process");
+                return false;
             }
+        }
+
+        private bool ValidateStudentDto(StudentImportDto dto)
+        {
+            return !string.IsNullOrWhiteSpace(dto.Name) 
+                && !string.IsNullOrWhiteSpace(dto.Email) 
+                && !string.IsNullOrWhiteSpace(dto.SISId);
         }
     }
 }

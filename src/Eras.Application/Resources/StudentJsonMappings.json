@@ -1,0 +1,13 @@
+{
+    "Name": "Nombre",
+    "Email": "Correo electronico",
+    "SISId": "Identificación de SIS del usuario",
+    "EnrolledCourses": "Cursos inscritos",
+    "GradedCourses": "Cursos con nota",
+    "TimelySubmissions": "Entregas a tiempo en comparación con todas",
+    "AverageScore": "Puntuación media",
+    "CoursesBelowAverage": "Cursos con una nota media por debajo de",
+    "RawScoreDifference": "Diferencia de la puntuación pura",
+    "StandardScoreDifference": "Diferencia de la puntuación estandarizada",
+    "DaysSinceLastAccess": "Días desde el último acceso"
+}
