@@ -10,7 +10,13 @@ namespace Eras.Application.Utils
 
         static JsonKeyMapper()
         {
-            var jsonFilePath = Path.Combine(Directory.GetCurrentDirectory(), "src", "Eras.Application", "Resources", "JsonMappings.json");
+            var jsonFilePath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "src",
+                "Eras.Application",
+                "Resources",
+                "JsonMappings.json"
+            );
             if (File.Exists(jsonFilePath))
             {
                 var json = File.ReadAllText(jsonFilePath);

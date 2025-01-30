@@ -28,7 +28,7 @@ namespace Eras.Application.Services
                         continue;
                     }
 
-                    var student = dto.MapToDomain();
+                    var student = dto.ToDomain();
 
                     await _studentRepository.SaveAsync(student);
                 }
@@ -44,9 +44,9 @@ namespace Eras.Application.Services
 
         private bool ValidateStudentDto(StudentImportDto dto)
         {
-            return !string.IsNullOrWhiteSpace(dto.Name) &&
-                   !string.IsNullOrWhiteSpace(dto.Email) &&
-                   !string.IsNullOrWhiteSpace(dto.SISId);
+            return !string.IsNullOrWhiteSpace(dto.Name) 
+                && !string.IsNullOrWhiteSpace(dto.Email) 
+                && !string.IsNullOrWhiteSpace(dto.SISId);
         }
     }
 }

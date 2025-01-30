@@ -6,7 +6,7 @@ namespace Eras.Application.Mappers;
 
 public static class StudentMapper
 {
-    public static Student MapToDomain(this StudentImportDto dto)
+    public static Student ToDomain(this StudentImportDto dto)
     {
         var culture = CultureInfo.GetCultureInfo("es-ES");
 
@@ -31,6 +31,10 @@ public static class StudentMapper
 
     private static decimal ParseDecimal(decimal value, CultureInfo culture)
     {
-        return decimal.TryParse(value.ToString(culture), NumberStyles.Number, culture, out var result) ? result : 0;
+        return decimal.TryParse(
+            value.ToString(culture),
+            NumberStyles.Number,
+            culture, out var result
+        ) ? result : 0;
     }
 }
