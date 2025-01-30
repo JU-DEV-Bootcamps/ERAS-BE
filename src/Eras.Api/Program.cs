@@ -8,12 +8,17 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
+using Eras.Infrastructure.Persistence.Repositories;
+using Eras.Domain.Entities;
+using Eras.Domain.Repositories;
+using Eras.Domain.Services;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpClient();
-builder.Services.AddSingleton<ICosmicLatteAPIService, CosmicLatteAPIService>();
+builder.Services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -51,11 +56,13 @@ builder.Services.AddAuthentication(o =>
     options.SaveToken = true;
 });
 
-builder.Services.AddScoped<KeycloakAuthService>();
+
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection"));
+    options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+
 });
 
 
@@ -74,6 +81,23 @@ builder.Services.AddCors(o =>
                   .AllowAnyMethod();
     });
 });
+
+builder.Services.AddScoped<KeycloakAuthService>();
+//builder.Services.AddScoped<IStudentRepository<Student>, StudentRepository>();
+//builder.Services.AddScoped<IStudentService, StudentService>();
+
+
+builder.Services.AddScoped<IPollRepository<Poll>, PollRepository>();
+builder.Services.AddScoped<IPollService, PollService>();
+
+
+builder.Services.AddScoped<IComponentVariableRepository<ComponentVariable>, ComponentVariableRepository>();
+builder.Services.AddScoped<IComponentVariableService, ComponentVariableService>();
+
+builder.Services.AddScoped<IAnswerRepository<Answer>, AnswerRepository>();
+builder.Services.AddScoped<IAnswerService, AnswerService>();
+
+
 
 var app = builder.Build();
 

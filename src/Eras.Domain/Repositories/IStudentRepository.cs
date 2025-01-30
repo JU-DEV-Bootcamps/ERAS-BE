@@ -7,7 +7,7 @@ namespace Eras.Domain.Repositories
     {
         Task<Student?> GetByIdAsync(int id);
         Task<Student?> GetByUuidAsync(string uuid);
-        Task SaveAsync(Student student);
+        Task<Student> SaveAsync(Student student);
         Task DeleteAsync(string uuid);
     }
 }

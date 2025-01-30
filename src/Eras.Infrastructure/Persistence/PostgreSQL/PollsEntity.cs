@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
-    public class Polls
+    public class PollsEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -12,10 +12,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        [DataType(DataType.DateTime)]
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         [DataType(DataType.DateTime)]
-        public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedDate { get; set; } = DateTime.UtcNow;
+
+        [DataType(DataType.DateTime)]
+        public DateTimeOffset ModifiedDate { get; set; } = DateTime.UtcNow;
+
+        public ICollection<ComponentVariableEntity> ComponentVariables { get; set; }
     }
 }

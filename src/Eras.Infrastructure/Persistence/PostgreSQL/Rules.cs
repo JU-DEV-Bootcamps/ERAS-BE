@@ -5,6 +5,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
     public class Rules
     {
+        /*
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
@@ -17,14 +18,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         [ForeignKey("ReportId")]
         public virtual Report Report { get; set; } = default!;
 
-        public int? ComponentVariableId { get; set; }
+        // public int? ComponentVariableId { get; set; }
 
-        [ForeignKey("ComponentVariableId")]
-        public virtual ComponentVariable ComponentVariable { get; set; } = default!;
+        // [ForeignKey("ComponentVariableId")]
+       // public virtual ComponentVariableEntity ComponentVariable { get; set; } = default!;
         [DataType(DataType.DateTime)]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         [DataType(DataType.DateTime)]
         public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+        */
     }
 }

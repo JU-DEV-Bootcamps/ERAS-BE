@@ -3,24 +3,29 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
-    public class ComponentVariable
+    public class StudentEntity
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
-        [StringLength(50)]
+        [StringLength(100)]
         public string Name { get; set; } = string.Empty;
 
-        public int? ParentId { get; set; }
+        [StringLength(50)]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
 
-        [ForeignKey("ParentId")]
-        public virtual ComponentVariable Parent { get; set; } = default!;
+        [StringLength(100)]
+        public string? Uuid { get; set; }
 
         [DataType(DataType.DateTime)]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         [DataType(DataType.DateTime)]
         public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+
+        public virtual StudentDetails? StudentDetails { get; set; }
+
     }
 }

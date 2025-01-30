@@ -2,6 +2,7 @@ namespace Eras.Domain.Entities
 {
     public class StudentDetail
     {
+        public int Id { get; set; }
         public int EnrolledCourses { get; set; }
         public int GradedCourses { get; set; }
         public int TimeDeliveryRate { get; set; }

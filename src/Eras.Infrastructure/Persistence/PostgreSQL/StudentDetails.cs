@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Eras.Domain.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
@@ -28,13 +29,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public int? StudentId { get; set; }
 
         [ForeignKey("StudentId")]
-        public virtual Students Student { get; set; } = default!;
+        public virtual Student Student { get; set; } = default!;
 
         [DataType(DataType.DateTime)]
         public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
 
         [DataType(DataType.DateTime)]
         public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;
+
 
     }
 }

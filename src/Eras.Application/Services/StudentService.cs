@@ -1,5 +1,6 @@
 using Eras.Application.DTOs;
 using Eras.Application.Mappers;
+using Eras.Domain.Entities;
 using Eras.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
@@ -14,6 +15,11 @@ namespace Eras.Application.Services
         {
             _studentRepository = studentRepository;
             _logger = logger;
+        }
+
+        public async Task<Student> CreateStudent(Student student)
+        {
+            return await _studentRepository.SaveAsync(student);
         }
 
         public async Task<bool> ImportStudentsAsync(StudentImportDto[] studentsDto)
