@@ -1,9 +1,12 @@
+using Eras.Domain.Repositories;
+using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Application.Services;
 using Eras.Infrastructure.External.CosmicLatteClient;
 using Eras.Infrastructure.External.KeycloakClient;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -51,7 +54,15 @@ builder.Services.AddAuthentication(o =>
 builder.Services.AddScoped<KeycloakAuthService>();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection")));
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection"));
+});
+
+
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+
+// Add the StudentService to the dependency injection container
+builder.Services.AddScoped<IStudentService, StudentService>();
 
 builder.Services.AddCors(o =>
 {
