@@ -2,8 +2,8 @@
 
 namespace Eras.Domain.Services
 {
-    public interface IStudentService
-    {
-        public Task<Student> CreateStudent(Student student);
-    }
+    //public interface IStudentService
+    //{
+    //    public Task<Student> CreateStudent(Student student);
+    //}
 }

@@ -61,6 +61,8 @@ builder.Services.AddAuthentication(o =>
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection"));
+    options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+
 });
 
 
@@ -81,8 +83,8 @@ builder.Services.AddCors(o =>
 });
 
 builder.Services.AddScoped<KeycloakAuthService>();
-builder.Services.AddScoped<IStudentRepository<Student>, StudentRepository>();
-builder.Services.AddScoped<IStudentService, StudentService>();
+//builder.Services.AddScoped<IStudentRepository<Student>, StudentRepository>();
+//builder.Services.AddScoped<IStudentService, StudentService>();
 
 
 builder.Services.AddScoped<IPollRepository<Poll>, PollRepository>();

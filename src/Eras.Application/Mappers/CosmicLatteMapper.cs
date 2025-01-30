@@ -20,7 +20,7 @@ namespace Eras.Application.Mappers
             string Email = CLPoll.Data.Answers.ElementAt(0).Value.AnswersList[0];
             string Name = CLPoll.Data.Answers.ElementAt(1).Value.AnswersList[0];
             string? Uuid = "null";
-            return new Student(Id, CreatedDate, ModifiedDate, Name, Email, Uuid);
+            return new Student() { Uuid = Uuid, Email = Email, Name = Name, StudentDetail = new StudentDetail() };
         }
 
         public static Answer ToAnswer(Answers answer)

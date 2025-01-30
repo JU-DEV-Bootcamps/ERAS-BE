@@ -12,9 +12,8 @@ namespace Eras.Infrastructure.Persistence.Mappers
 
             return new StudentEntity
             {
-                Id = student.Id,
-                CreatedDate = student.CreatedDate.ToUniversalTime(),
-                ModifiedDate = student.ModifiedDate.ToUniversalTime(),
+                //CreatedDate = student.CreatedDate.ToUniversalTime(),
+                //ModifiedDate = student.ModifiedDate.ToUniversalTime(),
                 Name = student.Name,
                 Email = student.Email,
                 Uuid = student.Uuid
@@ -26,9 +25,8 @@ namespace Eras.Infrastructure.Persistence.Mappers
                 throw new ArgumentNullException(nameof(studentEntity));
             return new Student
             {
-                Id = studentEntity.Id,
-                CreatedDate = studentEntity.CreatedDate.DateTime,
-                ModifiedDate = studentEntity.ModifiedDate.DateTime,
+                //CreatedDate = studentEntity.CreatedDate.DateTime,
+                //ModifiedDate = studentEntity.ModifiedDate.DateTime,
                 Name = studentEntity.Name,
                 Email = studentEntity.Email,
                 Uuid = studentEntity.Uuid
