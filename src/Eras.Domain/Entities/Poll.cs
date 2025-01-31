@@ -1,26 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Eras.Domain.Common;
 
 namespace Eras.Domain.Entities
 {
-    public class Poll : IBaseEntityData
+    [Table("poll")]
+    public class Poll : BaseEntity, IAuditInfo
     {
-        public int Id { get; set; }
-        public string CosmicLatteId { get; set; }
-        public DateTime CreatedDate { get; set; } = DateTime.UtcNow; // in our db
-        public DateTime ModifiedDate { get; set; } = DateTime.UtcNow;// in our db
-        public string PollName { get; set; }
+        [Column("name")]
+        public string Name { get; set; } = string.Empty;
+        [Column("version")]
+        public string Version { get; set; } = string.Empty;
+        [Column("uuid")]
+        public string Uuid { get; set; } = string.Empty;
+        [Column("created_by")]
+        public string CreatedBy { get; set; } = string.Empty;
+        [Column("modified_by")]
+        public string ModifiedBy { get; set; } = string.Empty;
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; }
+        [Column("modified_at")]
+        public DateTime? ModifiedAt { get; set; }
 
-        public Poll(int id, string cosmicLatteId, DateTime createdDate, DateTime modifiedDate, string pollName)
-        {
-            this.Id = id;
-            this.CosmicLatteId = cosmicLatteId;
-            this.CreatedDate = createdDate;
-            this.ModifiedDate = modifiedDate;
-            this.PollName = pollName;
-        }
     }
 }
