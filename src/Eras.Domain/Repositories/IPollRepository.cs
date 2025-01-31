@@ -4,6 +4,6 @@ namespace Eras.Domain.Repositories
 {
     public interface IPollRepository
     {
-        Task<Poll> GetTaskByName(string name);
+        Task<Poll?> GetByNameAsync(string name);
     }
 }

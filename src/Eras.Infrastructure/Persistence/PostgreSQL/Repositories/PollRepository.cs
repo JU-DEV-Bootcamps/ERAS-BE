@@ -1,47 +1,21 @@
 using Eras.Domain.Entities;
 using Eras.Domain.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public class PollRepository : IRepository<Poll>, IPollRepository
+    public class PollRepository : BaseRepository<Poll>, IPollRepository
     {
-        private readonly AppDbContext _context;
-
-        public PollRepository(AppDbContext context)
+        public PollRepository(AppDbContext context) : base(context)
         {
-            _context = context;
         }
 
-        public async Task<Poll> Add(Poll entity)
+        public async Task<Poll?> GetByNameAsync(string name)
         {
-            await _context.Polls.AddAsync(entity);
+            var poll = await _context.Polls
+                .FirstOrDefaultAsync(poll => poll.Name == name);
             
-            return entity;
-        }
-
-        public Task<Poll> Delete(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Poll> GetById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Poll> GetTaskByName(string name)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Poll> GetPaged(int page, int pageSize)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<Poll> Update(Poll entity)
-        {
-            throw new NotImplementedException();
+            return poll;
         }
     }
 }
