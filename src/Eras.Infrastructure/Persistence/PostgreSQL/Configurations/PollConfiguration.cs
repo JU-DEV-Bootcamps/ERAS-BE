@@ -10,8 +10,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
         {
             builder.ToTable("polls");
 
-            builder.HasKey(poll => poll.Id);
+            ConfigureColumns(builder);
+            ConfigureRelationShips(builder);
+            AuditConfiguration.Configure(builder);
+        }
 
+        private static void ConfigureColumns(EntityTypeBuilder<Poll> builder)
+        {
+            builder.HasKey(poll => poll.Id);
             builder.Property(poll => poll.Name)
                 .HasColumnName("name")
                 .IsRequired();
@@ -21,17 +27,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             builder.Property(poll => poll.Uuid)
                 .HasColumnName("uuid")
                 .IsRequired();
-            
-            builder.OwnsOne(poll => poll.Audit, audit =>
-            {
-                audit.Property(a => a.CreatedAt)
-                    .HasColumnName("created_at")
-                    .IsRequired();
-                audit.Property(a => a.ModifiedAt)
-                    .HasColumnName("updated_at")
-                    .IsRequired(false);
-            });
+        }
 
+        private static void ConfigureRelationShips(EntityTypeBuilder<Poll> builder)
+        {
             builder.HasMany(poll => poll.Variables)
                 .WithMany(variable => variable.Polls)
                 .UsingEntity<Dictionary<string, object>>(

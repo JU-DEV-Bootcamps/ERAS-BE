@@ -2,7 +2,7 @@
 
 namespace Eras.Domain.Entities
 {
-    public class Poll : BaseEntity
+    public class Poll : BaseEntity, IAuditableEntity
     {
         public string Name { get; set; } = string.Empty;
         public string Version { get; set; } = string.Empty;
