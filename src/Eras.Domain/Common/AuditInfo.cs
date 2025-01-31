@@ -1,9 +1,9 @@
 namespace Eras.Domain.Common
 {
-    public interface IAuditInfo
+    public class AuditInfo
     {
-        public string CreatedBy { get; set; }
-        public string ModifiedBy { get; set; }
+        public string CreatedBy { get; set; } = string.Empty;
+        public string ModifiedBy { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
     }
