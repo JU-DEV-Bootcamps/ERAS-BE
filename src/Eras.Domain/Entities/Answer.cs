@@ -9,6 +9,5 @@ namespace Eras.Domain.Entities
         public int PollInstanceId { get; set; }
         public PollInstance PollInstance { get; set; } = default!;
         public AuditInfo Audit { get; set; } = default!;
-
     }
 }
