@@ -1,11 +1,9 @@
-﻿using Eras.Application.Dtos;
+﻿using Eras.Application.Contracts;
+using Eras.Application.Dtos;
 using Eras.Application.Mappers;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
-using Eras.Domain.Services;
-using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.Extensions.Configuration;
-using System.Data;
 using System.Text;
 using System.Text.Json;
 using Answers = Eras.Application.Dtos.Answers;

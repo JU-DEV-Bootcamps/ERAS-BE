@@ -2,7 +2,7 @@
 
 namespace Eras.Domain.Repositories
 {
-    public interface IPollRepository
+    public interface IPollRepository : IBaseRepository<Poll>
     {
         Task<Poll?> GetByNameAsync(string name);
     }

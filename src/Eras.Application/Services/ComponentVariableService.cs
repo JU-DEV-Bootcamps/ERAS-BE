@@ -1,13 +1,6 @@
-﻿using Eras.Application.Dtos;
-using Eras.Application.Services;
+﻿using Eras.Application.Contracts;
 using Eras.Domain.Entities;
 using Eras.Domain.Repositories;
-using Eras.Domain.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Services
 {

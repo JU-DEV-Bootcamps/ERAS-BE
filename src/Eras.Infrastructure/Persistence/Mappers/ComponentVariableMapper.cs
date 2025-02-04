@@ -1,12 +1,6 @@
-﻿using Eras.Application.Dtos;
+﻿using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Eras.Infrastructure.Persistence.Mappers
 {
@@ -21,20 +15,24 @@ namespace Eras.Infrastructure.Persistence.Mappers
                 PollId = componentVariable.PollId,
                 Position = componentVariable.Position,
                 ParentId = componentVariable.ParentId,
-                CreatedDate = componentVariable.CreatedDate.ToUniversalTime(), 
-                ModifiedDate = componentVariable.ModifiedDate.ToUniversalTime() 
+                CreatedDate = componentVariable.Audit.CreatedAt.ToUniversalTime(), 
+                ModifiedDate = componentVariable.Audit.ModifiedAt.Value.ToUniversalTime()
             };
         }
         public static ComponentVariable ToComponentVariable(this ComponentVariableEntity componentVariableEntity)
         {
             if (componentVariableEntity == null) throw new ArgumentNullException(nameof(componentVariableEntity));
-            return new ComponentVariable(componentVariableEntity.Id,
-                componentVariableEntity.Name,
-                componentVariableEntity.PollId,
-                componentVariableEntity.Position,
-                componentVariableEntity.ParentId,
-                componentVariableEntity.CreatedDate.DateTime,
-                componentVariableEntity.ModifiedDate.DateTime);
+            return new ComponentVariable {
+                Id = componentVariableEntity.Id,
+                Name = componentVariableEntity.Name,
+                PollId = componentVariableEntity.PollId,
+                Position = componentVariableEntity.Position,
+                ParentId = componentVariableEntity.ParentId,
+                Audit = new AuditInfo {
+                    CreatedAt = componentVariableEntity.CreatedDate.DateTime,
+                    ModifiedAt = componentVariableEntity.ModifiedDate.DateTime
+                }
+            };
         }
     }
 }

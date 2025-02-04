@@ -1,18 +1,13 @@
 using Eras.Domain.Entities;
 using Eras.Domain.Repositories;
-using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public class StudentRepository : IStudentRepository
+    public class StudentRepository : BaseRepository<Student>, IStudentRepository
     {
-        private readonly AppDbContext _context;
-
-        public StudentRepository(AppDbContext context)
+        public StudentRepository(AppDbContext context) : base(context)
         {
-            _context = context;
         }
 
         public async Task<Student?> GetByIdAsync(int id)

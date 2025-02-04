@@ -1,7 +1,9 @@
+
+using Eras.Domain.Entities;
+
 namespace Eras.Domain.Repositories
 {
-    public interface IComponentRepository
+    public interface IComponentRepository : IBaseRepository<Component>
     {
-        
     }
 }
