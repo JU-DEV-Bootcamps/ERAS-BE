@@ -58,7 +58,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 });
 
-PersistenceServiceRegistration.AddServices(builder.Services);
+builder.Services.AddPersistenceServices();
 
 builder.Services.AddCors(o =>
 {

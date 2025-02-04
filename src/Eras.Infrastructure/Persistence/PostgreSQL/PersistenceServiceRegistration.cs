@@ -6,7 +6,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
     public static class PersistenceServiceRegistration
     {
-        public static IServiceCollection AddServices(this IServiceCollection services)
+        public static IServiceCollection AddPersistenceServices(this IServiceCollection services)
         {
             services.AddDbContext<AppDbContext>();
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
