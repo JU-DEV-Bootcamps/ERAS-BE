@@ -20,7 +20,7 @@ namespace Eras.Application.Services
 
         public async Task<Student> CreateStudent(Student student)
         {
-            return await _studentRepository.SaveAsync(student);
+            return await _studentRepository.AddAsync(student);
         }
 
         public async Task<bool> ImportStudentsAsync(StudentImportDto[] studentsDto)
@@ -37,7 +37,7 @@ namespace Eras.Application.Services
 
                     var student = dto.ToDomain();
 
-                    await _studentRepository.SaveAsync(student);
+                    await _studentRepository.AddAsync(student);
                 }
 
                 return true;
