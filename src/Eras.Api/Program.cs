@@ -78,7 +78,6 @@ builder.Services.AddScoped<KeycloakAuthService>();
 // Add the StudentService to the dependency injection container
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IPollService, PollService>();
-builder.Services.AddScoped<IVariableService, VariableService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 
 
