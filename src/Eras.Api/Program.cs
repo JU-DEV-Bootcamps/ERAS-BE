@@ -72,13 +72,9 @@ builder.Services.AddCors(o =>
 });
 
 builder.Services.AddScoped<KeycloakAuthService>();
-//builder.Services.AddScoped<IStudentRepository<Student>, StudentRepository>();
-//builder.Services.AddScoped<IStudentService, StudentService>();
 
-// Add the StudentService to the dependency injection container
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IPollService, PollService>();
-//builder.Services.AddScoped<IComponentVariableService, ComponentVariableService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 
 
