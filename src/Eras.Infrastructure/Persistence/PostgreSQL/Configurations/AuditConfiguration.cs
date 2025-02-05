@@ -11,6 +11,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
         {
             builder.OwnsOne(entity => entity.Audit, audit =>
             {
+                audit.Property(a => a.CreatedBy)
+                    .HasColumnName("created_by")
+                    .IsRequired();
+                
+                audit.Property(a => a.ModifiedBy)
+                    .HasColumnName("modified_by")
+                    .IsRequired(false);
+
                 audit.Property(a => a.CreatedAt)
                     .HasColumnName("created_at")
                     .HasConversion(

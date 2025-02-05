@@ -18,9 +18,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
         private static void ConfigureColumns(EntityTypeBuilder<PollInstance> builder)
         {
             builder.HasKey(pollInstance => pollInstance.Id);
-            builder.Property(pollInstance => pollInstance.Student)
-                .HasColumnName("student_id")
-                .IsRequired();
             builder.Property(pollInstance => pollInstance.Uuid)
                 .HasColumnName("uuid")
                 .IsRequired();
@@ -31,6 +28,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             builder.HasMany(pollInstance => pollInstance.Answers)
                 .WithOne(answer => answer.PollInstance)
                 .HasForeignKey(answer => answer.PollInstanceId);
+            
+            builder.HasOne(pollInstance => pollInstance.Student)
+                .WithMany(student => student.PollInstances)
+                .HasForeignKey(pollInstance => pollInstance.StudentId);
         }
     }
 }
