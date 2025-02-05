@@ -22,9 +22,9 @@ namespace Eras.Application.Mappers
         public static Answer ToAnswer(Answers answer)
         {
             // todo pending finish
-            int componentVariableId = 1; // This should come from relation with componentVariable
+            int VariableId = 1; // This should come from relation with Variable
 
-            // We should remove this field, because we have the text in componentVariableId and in the anser table... it doesn't make sense. talk to ramiro
+            // We should remove this field, because we have the text in VariableId and in the anser table... it doesn't make sense. talk to ramiro
 
             string question = answer.Question.Body.GetValueOrDefault("es") ?? "No question found"; //  this is because we have language option (spanish or english)
 
@@ -47,7 +47,7 @@ namespace Eras.Application.Mappers
                 //Position = position, 
                 RiskLevel = riskLevel, 
                 Id = id, 
-                //componentVariableId, 
+                //VariableId, 
                 Audit = new AuditInfo() { 
                     CreatedAt = createdDate,
                     ModifiedAt = modifiedDate 
@@ -55,7 +55,7 @@ namespace Eras.Application.Mappers
             };
         }
 
-        public static ComponentVariable ToVariable(Answers answer, int pollId)
+        public static Variable ToVariable(Answers answer, int pollId)
         {
             if (answer == null) throw new ArgumentNullException(nameof(answer));
             
@@ -66,13 +66,13 @@ namespace Eras.Application.Mappers
             DateTime createdDate = DateTime.Now;
             DateTime modifiedDate = DateTime.Now;
 
-            return new ComponentVariable
+            return new Variable
             {
                 Id = id,
                 Name = name,
-                PollId = pollId,
-                Position = position,
-                ParentId = parentId,
+                //PollId = pollId,
+                //Position = position,
+                //ParentId = parentId,
                 // CreatedDate = createdDate,
                 // ModifiedDate = modifiedDate
             };

@@ -1,4 +1,4 @@
-using Eras.Domain.Repositories;
+using Eras.Application.Contracts.Persistence;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 
