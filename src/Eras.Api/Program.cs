@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
+using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -80,7 +82,7 @@ builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IPollService, PollService>();
 builder.Services.AddScoped<IVariableService, VariableService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
-
+builder.Services.AddApplicationServices();
 
 
 var app = builder.Build();

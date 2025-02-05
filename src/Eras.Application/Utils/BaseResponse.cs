@@ -8,9 +8,13 @@ namespace Eras.Application.Utils
 {
     public class BaseResponse
     {
-        public BaseResponse()
+        public bool Success { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public List<string>? ValidationErrors { get; set; }
+
+        public BaseResponse(bool status)
         {
-            Success = true;
+            Success = status;
         }
 
         public BaseResponse(string message)
@@ -24,10 +28,6 @@ namespace Eras.Application.Utils
             Success = success;
             Message = message;
         }
-
-        public bool Success { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public List<string>? ValidationErrors { get; set; }
 
     }
 }
