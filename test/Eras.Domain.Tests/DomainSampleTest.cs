@@ -1,4 +1,5 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL;
+﻿using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL;
 using Moq;
 
 namespace Eras.Domain.Tests
@@ -11,10 +12,10 @@ namespace Eras.Domain.Tests
             // Arrange
             var mockRepo = new Mock<IPollRepositorySample>();
             //-DB Data example
-            var expectedPolls = new List<PollsEntity>
+            var expectedPolls = new List<Poll>
             {
-                new PollsEntity { Id = 1, Name = "Poll 1", CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow },
-                new PollsEntity { Id = 2, Name = "Poll 2", CreatedDate = DateTime.UtcNow, ModifiedDate = DateTime.UtcNow }
+                new Poll { Id = 1, Name = "Poll 1"},
+                new Poll { Id = 2, Name = "Poll 2"}
             };
 
             mockRepo.Setup(repo => repo.GetAllPollsAsync()).ReturnsAsync(expectedPolls);

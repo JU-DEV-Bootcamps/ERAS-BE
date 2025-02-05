@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Dtos
 {
-    public class PollDTO : IBaseEntityData
+    public class PollDTO
     {
         public int Id { get; set; }
         public string CosmicLatteId { get; set; }

@@ -1,19 +1,13 @@
-﻿using Eras.Application.Dtos;
+﻿using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
-using Eras.Domain.Repositories;
-using Eras.Domain.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Services
 {
     public class AnswerService : IAnswerService
     {
-        private readonly IAnswerRepository<Answer> _answerRepository;
-        public AnswerService(IAnswerRepository<Answer> answerRepository)
+        private readonly IAnswerRepository _answerRepository;
+        public AnswerService(IAnswerRepository answerRepository)
         {
             _answerRepository = answerRepository;
         }
@@ -27,7 +21,7 @@ namespace Eras.Application.Services
 
                 // we need to check bussiness logic to validate before save
 
-                return await _answerRepository.Add(answer);
+                return await _answerRepository.AddAsync(answer);
             }
             catch (Exception e)
             {

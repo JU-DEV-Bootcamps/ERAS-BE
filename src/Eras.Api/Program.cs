@@ -1,5 +1,3 @@
-using Eras.Domain.Repositories;
-using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Application.Services;
 using Eras.Infrastructure.External.CosmicLatteClient;
 using Eras.Infrastructure.External.KeycloakClient;
@@ -8,10 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
-using Eras.Infrastructure.Persistence.Repositories;
-using Eras.Domain.Entities;
-using Eras.Domain.Repositories;
-using Eras.Domain.Services;
+using Eras.Application.Contracts.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -56,8 +51,6 @@ builder.Services.AddAuthentication(o =>
     options.SaveToken = true;
 });
 
-
-
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection"));
@@ -65,11 +58,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 });
 
-
-builder.Services.AddScoped<IStudentRepository, StudentRepository>();
-
-// Add the StudentService to the dependency injection container
-builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddPersistenceServices();
 
 builder.Services.AddCors(o =>
 {
@@ -86,15 +75,10 @@ builder.Services.AddScoped<KeycloakAuthService>();
 //builder.Services.AddScoped<IStudentRepository<Student>, StudentRepository>();
 //builder.Services.AddScoped<IStudentService, StudentService>();
 
-
-builder.Services.AddScoped<IPollRepository<Poll>, PollRepository>();
+// Add the StudentService to the dependency injection container
+builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IPollService, PollService>();
-
-
-builder.Services.AddScoped<IComponentVariableRepository<ComponentVariable>, ComponentVariableRepository>();
-builder.Services.AddScoped<IComponentVariableService, ComponentVariableService>();
-
-builder.Services.AddScoped<IAnswerRepository<Answer>, AnswerRepository>();
+builder.Services.AddScoped<IVariableService, VariableService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
 
 

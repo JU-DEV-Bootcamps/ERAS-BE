@@ -1,19 +1,14 @@
-﻿using Eras.Domain.Entities;
-using Eras.Domain.Repositories;
-using Eras.Domain.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
+using Eras.Domain.Entities;
 
 namespace Eras.Application.Services
 {
     public class PollService : IPollService
     {
 
-        private readonly IPollRepository<Poll> _pollRepository;
-        public PollService(IPollRepository<Poll> pollRepository)
+        private readonly IPollRepository _pollRepository;
+        public PollService(IPollRepository pollRepository)
         {
             _pollRepository = pollRepository;
         }
@@ -22,7 +17,7 @@ namespace Eras.Application.Services
             try
             {
                 // we need to check bussiness logic to validate before save
-                return await _pollRepository.Add(poll);
+                return await _pollRepository.AddAsync(poll);
 
             }
             catch (Exception e)
@@ -31,9 +26,9 @@ namespace Eras.Application.Services
                 throw new NotImplementedException("Error creating poll: "+e.Message);
             }
         }
-        public async Task<Poll> GetPollById(int pollId)
+        public async Task<Poll?> GetPollById(int pollId)
         {
-            return await _pollRepository.GetPollById(pollId);
+            return await _pollRepository.GetByIdAsync(pollId);
         }
     }
 }
