@@ -28,16 +28,17 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 
         public async Task<BaseResponse> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
         {
+            var student = request.student.ToDomain();
+
             try
             {
-                var student = request.student.ToDomain();
-                await _studentRepository.AddAsync(student);
+                var result = await _studentRepository.AddAsync(student);
                 return new BaseResponse(true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred importing student: "+request.student.SISId);
-                return new BaseResponse(false);
+                _logger.LogError($"An error occurred importing student with SISId {request.student.SISId}: {ex.Message}");
+                return new BaseResponse(ex.Message,false);
             }
         }
     }
