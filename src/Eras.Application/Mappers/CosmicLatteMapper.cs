@@ -1,11 +1,7 @@
 ﻿using Eras.Application.Dtos;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace Eras.Application.Mappers
 {
@@ -30,46 +26,79 @@ namespace Eras.Application.Mappers
 
             // We should remove this field, because we have the text in componentVariableId and in the anser table... it doesn't make sense. talk to ramiro
 
-            string Question = answer.Question.Body.GetValueOrDefault("es") ?? "No question found"; //  this is because we have language option (spanish or english)
+            string question = answer.Question.Body.GetValueOrDefault("es") ?? "No question found"; //  this is because we have language option (spanish or english)
 
             if (answer == null) throw new ArgumentNullException(nameof(answer));
-            int Id = 0;
-            DateTime CreatedDate = DateTime.Now;
-            DateTime ModifiedDate = DateTime.Now;
+            int id = 0;
+            DateTime createdDate = DateTime.Now;
+            DateTime modifiedDate = DateTime.Now;
 
             StringBuilder sbQuestions = new StringBuilder();
             foreach (var item in answer.AnswersList)
             {
                 sbQuestions.Append(item);
             }
-            string AnswerText = sbQuestions.ToString();
-            int Position = answer.Position;
-            int RiskLevel = (int) answer.Score;
-            return new Answer( AnswerText, Question, Position, RiskLevel, Id, componentVariableId, CreatedDate, ModifiedDate);
-        }
-
-        public static ComponentVariable ToVariable(Answers answer, int pollId)
-        {
-            if (answer == null) throw new ArgumentNullException(nameof(answer));
-            int id = 0;
-            string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //  this is because we have language option (spanish or english)
+            string answerText = sbQuestions.ToString();
             int position = answer.Position;
-            int? parentId = null; // this is component id, later we should check this
-            DateTime createdDate = DateTime.Now;
-            DateTime modifiedDate = DateTime.Now;
-
-            return new ComponentVariable(id, name, pollId, position, parentId, createdDate, modifiedDate);
+            int riskLevel = (int) answer.Score;
+            return new Answer { 
+                AnswerText = answerText, 
+                //Question = question, 
+                //Position = position, 
+                RiskLevel = riskLevel, 
+                Id = id, 
+                //componentVariableId, 
+                Audit = new AuditInfo() { 
+                    CreatedAt = createdDate,
+                    ModifiedAt = modifiedDate 
+                }
+            };
         }
+
+        // public static ComponentVariable ToVariable(Answers answer, int pollId)
+        // {
+        //     if (answer == null) throw new ArgumentNullException(nameof(answer));
+            
+        //     int id = 0;
+        //     string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //  this is because we have language option (spanish or english)
+        //     int position = answer.Position;
+        //     int? parentId = null; // this is component id, later we should check this
+        //     DateTime createdDate = DateTime.Now;
+        //     DateTime modifiedDate = DateTime.Now;
+
+        //     return new ComponentVariable
+        //     {
+        //         Id = id,
+        //         Name = name,
+        //         PollId = pollId,
+        //         Position = position,
+        //         ParentId = parentId,
+        //         // CreatedDate = createdDate,
+        //         // ModifiedDate = modifiedDate
+        //     };
+        // }
 
         public static Poll ToPoll (DataItem CLPol)
         {
             if (CLPol == null) throw new ArgumentNullException(nameof(CLPol));
-            int Id = 0;
-            string CosmicId = CLPol.inventoryId;
-            DateTime CreatedDate = DateTime.Now;
-            DateTime ModifiedDate = DateTime.Now;
-            string PollName = CLPol.name;
-            return new Poll(Id, CosmicId, CreatedDate, ModifiedDate, PollName);
+            
+            int id = 0;
+            string cosmicId = CLPol.inventoryId;
+            DateTime createdDate = DateTime.Now;
+            DateTime modifiedDate = DateTime.Now;
+            string pollName = CLPol.name;
+            return new Poll
+            {
+                Id = id,
+                //CosmicId = cosmicId,
+                // CreatedDate = CreatedDate,
+                // ModifiedDate = ModifiedDate,
+                Audit = new AuditInfo{ 
+                    CreatedAt = createdDate,
+                    ModifiedAt = modifiedDate
+                },
+                Name = pollName
+            };
         }
 
         public static PollDTO ToPollDTO(DataItem cosmicLattePoll)

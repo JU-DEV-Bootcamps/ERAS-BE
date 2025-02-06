@@ -1,15 +1,12 @@
-﻿using Eras.Application.Dtos;
+﻿using Eras.Application.Contracts;
+using Eras.Application.Dtos;
 using Eras.Application.Mappers;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
-using Eras.Domain.Services;
-using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.Extensions.Configuration;
-using System.Data;
 using System.Text;
 using System.Text.Json;
 using Answers = Eras.Application.Dtos.Answers;
-using ComponentVariable = Eras.Domain.Entities.ComponentVariable;
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
 {
@@ -22,7 +19,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private readonly HttpClient _httpClient;
 
         private readonly IStudentService _studentService;
-        private IComponentVariableService _componentVariableService;
+        //private IComponentVariableService _componentVariableService;
         private IPollService _pollService;
         private IAnswerService _answerService;
 
@@ -31,7 +28,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             IHttpClientFactory httpClientFactory,
             IStudentService studentService,
             IPollService pollService,
-            IComponentVariableService componentVariableService,
+            //IComponentVariableService componentVariableService,
             IAnswerService answerService)
         {
             _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found"); // this should be move to .env
@@ -41,7 +38,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             _httpClient.BaseAddress = new Uri(_apiUrl);
             _studentService = studentService;
             _pollService = pollService;
-            _componentVariableService = componentVariableService;
+            //_componentVariableService = componentVariableService;
             _answerService = answerService;
         }
 
@@ -97,7 +94,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     await ImportPollById(cosmicLattePollList[i]._id, cosmicLattePollList[i].score);
                 }
 
-                List<ComponentVariable> createdVariables = _componentVariableService.GetAllVariables(pollId).Result;
+                //List<ComponentVariable> createdVariables = _componentVariableService.GetAllVariables(pollId).Result;
 
                 return "Here we should return an entity with registers added and other details";
             }
@@ -124,7 +121,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 foreach (var item in apiResponse.Data.Answers)
                 {
                     // TODO check: partent Id, how we are going to handle this?
-                    ComponentVariable variable = _componentVariableService.CreateVariable(CosmicLatteMapper.ToVariable(item.Value, poll.Id)).Result;
+                    //ComponentVariable variable = _componentVariableService.CreateVariable(CosmicLatteMapper.ToVariable(item.Value, poll.Id)).Result;
                 }
             }
             catch (HttpRequestException e)

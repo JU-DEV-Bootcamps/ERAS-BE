@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Eras.Domain.Entities;
 
 namespace Eras.Domain.Repositories
 {
-    public interface IAnswerRepository<T>
+    public interface IAnswerRepository : IBaseRepository<Answer>
     {
-        Task<T> Add(T answer);
     }
 }

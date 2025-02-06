@@ -1,9 +1,9 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL;
+﻿using Eras.Domain.Entities;
 
 namespace Eras.Domain.Tests
 {
     public interface IPollRepositorySample
     {
-        Task<List<PollsEntity>> GetAllPollsAsync();
+        Task<List<Poll>> GetAllPollsAsync();
     }
 }

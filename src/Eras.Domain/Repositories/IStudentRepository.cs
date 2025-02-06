@@ -1,13 +1,11 @@
-using Eras.Domain.Entities;
-using System.Threading.Tasks;
+﻿﻿using Eras.Domain.Entities;
 
 namespace Eras.Domain.Repositories
 {
-    public interface IStudentRepository
+    public interface IStudentRepository : IBaseRepository<Student>
     {
-        Task<Student?> GetByIdAsync(int id);
+        Task<Student?> GetByNameAsync(string name);
         Task<Student?> GetByUuidAsync(string uuid);
-        Task<Student> SaveAsync(Student student);
-        Task DeleteAsync(string uuid);
+        Task<Student?> GetByEmailAsync(string email);
     }
 }
