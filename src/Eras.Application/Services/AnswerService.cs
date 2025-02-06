@@ -21,6 +21,18 @@ namespace Eras.Application.Services
 
                 // we need to check bussiness logic to validate before save
 
+
+                /*
+                 MessageText: insert or update on table "answers" violates foreign key constraint "FK_answers_poll_instances_PollInstanceId"
+                */
+
+                /*
+                    public string AnswerText { get; set; } = string.Empty;
+                    public int RiskLevel { get; set; }
+                    public int PollInstanceId { get; set; }
+                    public PollInstance PollInstance { get; set; } = default!;
+                    public AuditInfo Audit { get; set; } = default!;
+                 */
                 return await _answerRepository.AddAsync(answer);
             }
             catch (Exception e)

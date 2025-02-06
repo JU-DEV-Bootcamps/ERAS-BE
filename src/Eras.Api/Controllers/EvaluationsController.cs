@@ -1,4 +1,5 @@
-﻿using Eras.Application.Services;
+﻿using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Services;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,13 +32,21 @@ namespace Eras.Api.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<List<string>>> GetPolls(
+        public async Task<IActionResult> GetPolls(
         [FromQuery] string name = "",
         [FromQuery] string startDate = "",
         [FromQuery] string endDate = ""
         )
         {
-            return Ok(await _cosmicLatteService.ImportAllPolls(name, startDate, endDate));
+            var success = await _cosmicLatteService.ImportAllPolls(name, startDate, endDate);
+            if (success > 0)
+            {
+                return Ok(new { status = "successful", message = $"{success} Students imported successfully" });
+            }
+            else
+            {
+                return StatusCode(500, new { status = "error", message = "An error occurred during the import process" });
+            }
         }
 
 

@@ -1,5 +1,7 @@
 using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace Eras.Application.Mappers;

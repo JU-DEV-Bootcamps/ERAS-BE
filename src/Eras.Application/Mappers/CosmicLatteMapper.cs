@@ -1,7 +1,10 @@
 ﻿using Eras.Application.Dtos;
+using Eras.Application.DTOs;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Eras.Application.Mappers;
 
@@ -10,17 +13,45 @@ namespace Eras.Application.Mappers;
         public static Student ToStudent(CLResponseModelForPollDTO CLPoll)
         {
             ArgumentNullException.ThrowIfNull(nameof(CLPoll)); 
-            int Id = 0;
+
             DateTime CreatedDate = DateTime.Now;
             DateTime ModifiedDate = DateTime.Now;
-            string Email = CLPoll.Data.Answers.ElementAt(0).Value.AnswersList[0];
-            string Name = CLPoll.Data.Answers.ElementAt(1).Value.AnswersList[0];
-            string? Uuid = "null";
-            return new Student() { Uuid = Uuid, Email = Email, Name = Name, StudentDetail = new StudentDetail() };
+            return new Student
+            {
+                Uuid = "null",
+                Name = CLPoll.Data.Answers.ElementAt(1).Value.AnswersList[0],
+                Email = CLPoll.Data.Answers.ElementAt(0).Value.AnswersList[0],
+                StudentDetail = new StudentDetail // It is wrong, only for demo
+                {
+                    EnrolledCourses = 0, 
+                    GradedCourses = 0,
+                    TimeDeliveryRate = 0,
+                    AvgScore = 0,
+                    CoursesUnderAvg = 0,
+                    PureScoreDiff = 0,
+                    StandardScoreDiff = 0,
+                    LastAccessDays = 0,
+                    Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
+                },
+                PollInstances = [],  // It is wrong, only for demo
+                Cohorts = [],  // It is wrong, only for demo
+                Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
+            };
         }
 
         public static Answer ToAnswer(Answers answer)
         {
+
+            /*
+                public string AnswerText { get; set; } = string.Empty;
+                public int RiskLevel { get; set; }
+                public int PollInstanceId { get; set; }
+                public PollInstance PollInstance { get; set; } = default!;
+                public AuditInfo Audit { get; set; } = default!;
+             */
+
+
+
             // todo pending finish
             int VariableId = 1; // This should come from relation with Variable
 
@@ -55,6 +86,61 @@ namespace Eras.Application.Mappers;
             };
         }
 
+
+        public static Variable ToVariable(Answers answer, int pollId)
+        {
+            /*
+                    [JsonPropertyName("answer")]
+        public string[] AnswersList { get; set; }
+
+        [JsonPropertyName("question")]
+        public Question Question { get; set; }
+
+        [JsonPropertyName("position")]
+        public int Position { get; set; }
+
+        [JsonPropertyName("score")]
+        public double Score { get; set; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+
+        [JsonPropertyName("customSettings")]
+        public List<string> CustomSettings { get; set; } = new List<string>();
+            */
+
+
+
+            if (answer == null) throw new ArgumentNullException(nameof(answer));
+
+            int id = 0;
+            string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //this is because we have language option(spanish or english)
+            int position = answer.Position;
+            int? parentId = null; // this is component id, later we should check this
+            DateTime createdDate = DateTime.Now;
+            DateTime modifiedDate = DateTime.Now;
+
+            return new Variable
+            {
+/*
+public string Name { get; set; } = string.Empty;
+public int ComponentId { get; set; }
+public Component Component { get; set; } = default!;
+public ICollection<Poll> Polls { get; set; } = [];
+public ICollection<Cohort> Cohorts { get; set; } = [];
+public AuditInfo Audit { get; set; } = default!;
+*/
+/*
+                Id = id,
+                Name = name,
+                PollId = pollId,
+                Position = position,
+                ParentId = parentId,
+                */
+                // CreatedDate = createdDate,
+                //cModifiedDate = modifiedDate
+            };
+        }
         public static Answer DtoToAnswer(AnswerDTO answerDto)
         {
             string question = answerDto.Question;

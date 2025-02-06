@@ -6,7 +6,7 @@ namespace Eras.Application.Services
     public interface ICosmicLatteAPIService
     {
         Task<CosmicLatteStatus> CosmicApiIsHealthy();
-        Task<string?> ImportAllPolls(string name, string startDate, string endDate);
+        Task<int> ImportAllPolls(string name, string startDate, string endDate);
 
         // This should be used only for preview feat, now we are getting and saving data in one step
         // Task<string> GetPollById(string id); 

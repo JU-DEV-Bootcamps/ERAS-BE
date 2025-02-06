@@ -4,6 +4,7 @@ using Eras.Application.Mappers;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using System.Text;
 using System.Text.Json;
 using Answers = Eras.Application.Dtos.Answers;
@@ -20,17 +21,20 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private readonly HttpClient _httpClient;
 
         private readonly IStudentService _studentService;
-        //private IComponentVariableService _componentVariableService;
+        // private IVariableService _variableService;
         private IPollService _pollService;
         private IAnswerService _answerService;
+
+        private readonly ILogger<CosmicLatteAPIService> _logger;
 
         public CosmicLatteAPIService(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             IStudentService studentService,
             IPollService pollService,
-            //IComponentVariableService componentVariableService,
-            IAnswerService answerService)
+            // IVariableService variableService,
+            IAnswerService answerService,
+            ILogger<CosmicLatteAPIService> logger)
         {
             _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found"); // this should be move to .env
             _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found"); // this should be move to .env
@@ -39,8 +43,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             _httpClient.BaseAddress = new Uri(_apiUrl);
             _studentService = studentService;
             _pollService = pollService;
-            //_componentVariableService = componentVariableService;
+            // _variableService = variableService;
             _answerService = answerService;
+            _logger = logger;
         }
 
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
@@ -61,7 +66,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
 
 
-        public async Task<string?> ImportAllPolls(string name, string startDate, string endDate)
+        public async Task<int> ImportAllPolls(string name, string startDate, string endDate)
         {
             string path = _apiUrl + PathEvalaution;
             if (name != "" || startDate != "" || endDate != "")
@@ -71,13 +76,14 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 if (startDate != "") path += $" and startedAt ge {ConvertStringToIsoExtendedDate(startDate)}";
                 if (endDate != "") path += $" and startedAt le {ConvertStringToIsoExtendedDate(endDate)}";
             }
+            int newRegisters = 0;
             try
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, path);
                 request.Headers.Add(HeaderApiKey, _apiKey);
 
                 var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode) return null;
+                if (!response.IsSuccessStatusCode) return 0;
 
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody)?? throw new Exception("Unable to deserialize response from cosmic latte");
@@ -88,8 +94,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 {
                     if (i == 0)
                     {
+                        // 1. Crear polls
                         Poll poll = _pollService.CreatePoll(CosmicLatteMapper.ToPoll(cosmicLattePollList[i])).Result;
                         pollId = poll.Id;
+
+                        // 2. Crear variables
                         await CreateVariablesByPollResponseId(cosmicLattePollList[i]._id, poll); // get, create and save variables requesting endpoint CL
                     }
                     await ImportPollById(cosmicLattePollList[i]._id, cosmicLattePollList[i].score);
@@ -97,7 +106,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 //List<ComponentVariable> createdVariables = _componentVariableService.GetAllVariables(pollId).Result;
 
-                return "Here we should return an entity with registers added and other details";
+                return newRegisters;
             }
             catch (Exception e)
             {
@@ -119,10 +128,29 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
+
+                /*
+                1. Crear polls
+                2. Crear variables
+                3. Crear poll-variable
+                4. Crear students
+                5. Crear poll_instance
+                7. Crear answers
+                */
+
                 foreach (var item in apiResponse.Data.Answers)
                 {
                     // TODO check: partent Id, how we are going to handle this?
-                    //ComponentVariable variable = _componentVariableService.CreateVariable(CosmicLatteMapper.ToVariable(item.Value, poll.Id)).Result;
+                    // Variable variable = _variableService.CreateVariable(CosmicLatteMapper.ToVariable(item.Value, poll.Id)).Result;
+
+                    /*
+                        public string Name { get; set; } = string.Empty;
+                        public int ComponentId { get; set; }
+                        public Component Component { get; set; } = default!;
+                        public ICollection<Poll> Polls { get; set; } = [];
+                        public ICollection<Cohort> Cohorts { get; set; } = [];
+                        public AuditInfo Audit { get; set; } = default!;
+                     */
                 }
             }
             catch (HttpRequestException e)
@@ -146,7 +174,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
-                Student student = await _studentService.CreateStudent(CosmicLatteMapper.ToStudent(apiResponse));
+                Student student = await _studentService.CreateStudent(CosmicLatteMapper.ToStudent(apiResponse)); // aqui necesito pasar un DTO
 
                 // Create answer for each answer from CL
                 // We should create something like this: await _answerService.CreateAnswersForStudent(apiResponse.Data.Answers, student, scoreItem);
@@ -155,11 +183,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 {
                     Answers answersCl = item.Value;
                     answersCl.Score = GetScoreByPositionAndAnswer(answersCl.Position, scoreItem);
-                    Answer answer = await _answerService.CreateAnswer(CosmicLatteMapper.ToAnswer(answersCl), student);
+                    await _answerService.CreateAnswer(CosmicLatteMapper.ToAnswer(answersCl), student);
                 }
             }
             catch (HttpRequestException e)
             {
+                _logger.LogError(e, "An error occurred during the import process");
                 throw new Exception($"Cosmic latte server error: {e.Message}");
             }
         }
