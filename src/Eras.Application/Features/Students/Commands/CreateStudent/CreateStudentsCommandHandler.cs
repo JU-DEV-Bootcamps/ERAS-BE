@@ -29,14 +29,16 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
         {
             try
             {
+                int count=0;
                 _logger.LogInformation("Importing students");
                 foreach (var dto in request.students)
                 {
                     CreateStudentCommand createStudentCommand = new CreateStudentCommand() { student = dto };
                     await _mediator.Send(createStudentCommand);
+                    count++;
                 }
 
-                return new BaseResponse(true);
+                return new BaseResponse($"{count} Students imported successfully",true);
             }
             catch (Exception ex)
             {

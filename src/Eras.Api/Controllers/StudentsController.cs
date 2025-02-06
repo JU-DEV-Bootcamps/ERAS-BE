@@ -27,7 +27,7 @@ public class StudentsController : ControllerBase
 
         if (response.Success.Equals(true))
         {
-            return Ok(new { status = "successful", message = $"{response.Success} Students imported successfully" });
+            return Ok(new { status = "successful", message = response.Message });
         }
         else
         {
