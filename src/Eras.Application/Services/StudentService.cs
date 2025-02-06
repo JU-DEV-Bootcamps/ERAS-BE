@@ -10,12 +10,12 @@ namespace Eras.Application.Services
     public class StudentService : IStudentService
     {
         private readonly IStudentRepository _studentRepository;
-        private readonly ILogger<StudentService> _logger;
+
 
         public StudentService(IStudentRepository studentRepository, ILogger<StudentService> logger)
         {
             _studentRepository = studentRepository;
-            _logger = logger;
+
         }
 
         public async Task<Student> CreateStudent(Student student)
@@ -31,7 +31,6 @@ namespace Eras.Application.Services
                 {
                     if (!ValidateStudentDto(dto))
                     {
-                        _logger.LogWarning("Invalid student data: {SISId}", dto.SISId);
                         continue;
                     }
 
@@ -44,7 +43,6 @@ namespace Eras.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred during the import process");
                 return false;
             }
         }

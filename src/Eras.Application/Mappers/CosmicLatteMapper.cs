@@ -3,8 +3,8 @@ using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using System.Text;
 
-namespace Eras.Application.Mappers
-{
+namespace Eras.Application.Mappers;
+
     public static class CosmicLatteMapper
     {
         public static Student ToStudent(CLResponseModelForPollDTO CLPoll)
@@ -55,30 +55,52 @@ namespace Eras.Application.Mappers
             };
         }
 
-        // public static ComponentVariable ToVariable(Answers answer, int pollId)
-        // {
-        //     if (answer == null) throw new ArgumentNullException(nameof(answer));
-            
-        //     int id = 0;
-        //     string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //  this is because we have language option (spanish or english)
-        //     int position = answer.Position;
-        //     int? parentId = null; // this is component id, later we should check this
-        //     DateTime createdDate = DateTime.Now;
-        //     DateTime modifiedDate = DateTime.Now;
+        public static Answer DtoToAnswer(AnswerDTO answerDto)
+        {
+            string question = answerDto.Question;
+            int id = 0;
+            DateTime createdDate = DateTime.Now;
+            DateTime modifiedDate = DateTime.Now;
+            string answerText = answerDto.Answer;
+            int position = answerDto.Position;
+            int riskLevel = (int) answerDto.Score;
+            return new Answer
+            {
+                AnswerText = answerText,
+                RiskLevel = riskLevel,
+                Id = id,
+                Audit = new AuditInfo()
+                {
+                    CreatedAt = createdDate,
+                    ModifiedAt = modifiedDate
+                }
+            };
+        }
 
-        //     return new ComponentVariable
-        //     {
-        //         Id = id,
-        //         Name = name,
-        //         PollId = pollId,
-        //         Position = position,
-        //         ParentId = parentId,
-        //         // CreatedDate = createdDate,
-        //         // ModifiedDate = modifiedDate
-        //     };
-        // }
+    // public static ComponentVariable ToVariable(Answers answer, int pollId)
+    // {
+    //     if (answer == null) throw new ArgumentNullException(nameof(answer));
 
-        public static Poll ToPoll (DataItem CLPol)
+    //     int id = 0;
+    //     string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //  this is because we have language option (spanish or english)
+    //     int position = answer.Position;
+    //     int? parentId = null; // this is component id, later we should check this
+    //     DateTime createdDate = DateTime.Now;
+    //     DateTime modifiedDate = DateTime.Now;
+
+    //     return new ComponentVariable
+    //     {
+    //         Id = id,
+    //         Name = name,
+    //         PollId = pollId,
+    //         Position = position,
+    //         ParentId = parentId,
+    //         // CreatedDate = createdDate,
+    //         // ModifiedDate = modifiedDate
+    //     };
+    // }
+
+    public static Poll ToPoll (DataItem CLPol)
         {
             if (CLPol == null) throw new ArgumentNullException(nameof(CLPol));
             
@@ -101,6 +123,23 @@ namespace Eras.Application.Mappers
             };
         }
 
+        public static Poll DtoToPoll (PollDTO pollDTO)
+        {
+            int id = pollDTO.Id;
+            string cosmicLatteId = pollDTO.CosmicLatteId;
+            string pollName = pollDTO.PollName;
+            DateTime createdDate = pollDTO.CreatedDate;
+            DateTime modifiedDate = pollDTO.ModifiedDate;
+
+            return new Poll
+            {
+                Id = id,
+                Audit = new AuditInfo { CreatedAt = createdDate, ModifiedAt = modifiedDate },
+                Name = pollName,
+                Uuid = cosmicLatteId
+            };
+        }
+
         public static PollDTO ToPollDTO(DataItem cosmicLattePoll)
         {
             if (cosmicLattePoll == null) throw new ArgumentNullException(nameof(cosmicLattePoll));
@@ -108,4 +147,3 @@ namespace Eras.Application.Mappers
         }
 
     }
-}

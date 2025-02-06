@@ -17,6 +17,20 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+	<PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Features\Answers\Commands\DeleteAnswer\" />
+    <Folder Include="Features\Answers\Commands\UpdateAnswer\" />
+    <Folder Include="Features\Answers\Queries\" />
+    <Folder Include="Features\Polls\Commands\DeletePoll\" />
+    <Folder Include="Features\Polls\Commands\UpdatePoll\" />
+    <Folder Include="Features\Students\Commands\DeleteStudent\" />
+    <Folder Include="Features\Students\Commands\UpdateStudent\" />
+    <Folder Include="Features\Students\Queries\GetStudentDetails\" />
+    <Folder Include="Features\Students\Queries\GetStudentsList\" />
+    <Folder Include="Features\Polls\Queries\" />
   </ItemGroup>
 
 </Project>
