@@ -33,11 +33,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
         {
             builder.HasOne(student => student.StudentDetail)
                 .WithOne(studentDetail => studentDetail.Student)
-                .HasForeignKey<Student>(e => e.StudentDetail);
+                .HasForeignKey<StudentDetail>(studentDetail => studentDetail.StudentId);
 
             builder.HasMany(student => student.PollInstances)
                 .WithOne(pollInstance => pollInstance.Student)
-                .HasForeignKey(pollInstance => pollInstance.Student);
+                .HasForeignKey(pollInstance => pollInstance.StudentId);
 
             builder.HasMany(student => student.Cohorts)
                 .WithMany(cohort => cohort.Students)

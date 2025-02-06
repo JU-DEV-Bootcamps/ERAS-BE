@@ -55,28 +55,28 @@ namespace Eras.Application.Mappers
             };
         }
 
-        public static Variable ToVariable(Answers answer, int pollId)
-        {
-            if (answer == null) throw new ArgumentNullException(nameof(answer));
+        // public static ComponentVariable ToVariable(Answers answer, int pollId)
+        // {
+        //     if (answer == null) throw new ArgumentNullException(nameof(answer));
             
-            int id = 0;
-            string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //  this is because we have language option (spanish or english)
-            int position = answer.Position;
-            int? parentId = null; // this is component id, later we should check this
-            DateTime createdDate = DateTime.Now;
-            DateTime modifiedDate = DateTime.Now;
+        //     int id = 0;
+        //     string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //  this is because we have language option (spanish or english)
+        //     int position = answer.Position;
+        //     int? parentId = null; // this is component id, later we should check this
+        //     DateTime createdDate = DateTime.Now;
+        //     DateTime modifiedDate = DateTime.Now;
 
-            return new Variable
-            {
-                Id = id,
-                Name = name,
-                //PollId = pollId,
-                //Position = position,
-                //ParentId = parentId,
-                // CreatedDate = createdDate,
-                // ModifiedDate = modifiedDate
-            };
-        }
+        //     return new ComponentVariable
+        //     {
+        //         Id = id,
+        //         Name = name,
+        //         PollId = pollId,
+        //         Position = position,
+        //         ParentId = parentId,
+        //         // CreatedDate = createdDate,
+        //         // ModifiedDate = modifiedDate
+        //     };
+        // }
 
         public static Poll ToPoll (DataItem CLPol)
         {
