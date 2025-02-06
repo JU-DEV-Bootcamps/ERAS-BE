@@ -34,7 +34,6 @@ namespace Eras.Application.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred during the student creation");
                 return null;
             }
         }
@@ -55,14 +54,10 @@ namespace Eras.Application.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "An error occurred during the import process");
+                    //_logger.LogError(ex, "An error occurred during the import process");
                 }
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                return false;
+                return newRecors;
             }
             return newRecors;
         }
