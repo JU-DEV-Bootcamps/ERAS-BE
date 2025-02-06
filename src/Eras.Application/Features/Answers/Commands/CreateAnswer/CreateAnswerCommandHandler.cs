@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Mappers;
 using Eras.Application.Utils;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -25,13 +26,13 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswer
         {
             try
             {
-                var poll = request.answer.ToAnswer();
-                await _answerRepository.AddAsync(poll);
+                var answer = CosmicLatteMapper.DtoToAnswer(request.answer);
+                await _answerRepository.AddAsync(answer);
                 return new BaseResponse(true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred creating the poll: " + request.answer.GetHashCode);
+                _logger.LogError(ex, "An error occurred creating the Answer: " + request.answer.Answer);
                 return new BaseResponse(false);
             }
         }

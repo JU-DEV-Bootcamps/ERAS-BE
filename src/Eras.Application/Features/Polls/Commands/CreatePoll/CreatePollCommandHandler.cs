@@ -26,7 +26,7 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
         {
             try
             {
-                var poll = request.poll.ToPoll();
+                var poll = CosmicLatteMapper.DtoToPoll(request.poll);
                 await _pollRepository.AddAsync(poll);
                 return new BaseResponse(true);
             }

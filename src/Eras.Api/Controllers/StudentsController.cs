@@ -12,7 +12,7 @@ public class StudentsController : ControllerBase
 {
 
     private readonly IMediator _mediator;
-    public StudentsController(StudentService studentService,IMediator mediator)
+    public StudentsController(IMediator mediator)
     {
         _mediator = mediator;
     }
