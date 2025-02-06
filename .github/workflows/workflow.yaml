@@ -34,9 +34,20 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Set Environment Variables
+      - name: Set Environment Variables from GitHub
         run: |
-          echo "ERAS_DB_CONNECTION=Host=${{ secrets.DATABASE_HOST }};Port=${{ secrets.DATABASE_PORT }};Username=${{ secrets.POSTGRES_USER }};Password=${{ secrets.POSTGRES_PASSWORD }};Database=${{ secrets.POSTGRES_DB }}" >> $GITHUB_ENV
+          echo "POSTGRES_HOST=${{ vars.POSTGRES_HOST }}" >> $GITHUB_ENV
+          echo "POSTGRES_PORT=${{ vars.POSTGRES_PORT }}" >> $GITHUB_ENV
+          echo "POSTGRES_USER=${{ vars.POSTGRES_USER }}" >> $GITHUB_ENV
+          echo "POSTGRES_DB=${{ vars.POSTGRES_DB }}" >> $GITHUB_ENV
+          echo "COSMIC_LATTE_BASE_URL=${{ vars.COSMIC_LATTE_BASE_URL }}" >> $GITHUB_ENV
+          echo "KEYCLOAK_BASE_URL=${{ vars.KEYCLOAK_BASE_URL }}" >> $GITHUB_ENV
+          echo "KEYCLOAK_REALM=${{ vars.KEYCLOAK_REALM }}" >> $GITHUB_ENV
+          echo "KEYCLOAK_CLIENT_ID=${{ vars.KEYCLOAK_CLIENT_ID }}" >> $GITHUB_ENV
+          
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> $GITHUB_ENV
+          echo "COSMIC_LATTE_API_KEY=${{ secrets.COSMIC_LATTE_API_KEY }}" >> $GITHUB_ENV
+          echo "KEYCLOAK_CLIENT_SECRET=${{ secrets.KEYCLOAK_CLIENT_SECRET }}" >> $GITHUB_ENV
           echo "ASPNETCORE_ENVIRONMENT=Development" >> $GITHUB_ENV
       - name: Set variables
         id: set-vars
@@ -59,7 +70,3 @@ jobs:
           file: ./src/Eras.Api/Dockerfile
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-dev
-          build-args: |
-            ERAS_DB_CONNECTION=${{ env.ERAS_DB_CONNECTION }}
-            ASPNETCORE_ENVIRONMENT=${{ env.ASPNETCORE_ENVIRONMENT }}
-
