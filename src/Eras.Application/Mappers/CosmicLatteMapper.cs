@@ -1,7 +1,10 @@
 ﻿using Eras.Application.Dtos;
+using Eras.Application.DTOs;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+using System.Globalization;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Eras.Application.Mappers;
 
@@ -16,11 +19,43 @@ namespace Eras.Application.Mappers;
             string Email = CLPoll.Data.Answers.ElementAt(0).Value.AnswersList[0];
             string Name = CLPoll.Data.Answers.ElementAt(1).Value.AnswersList[0];
             string? Uuid = "null";
-            return new Student() { Uuid = Uuid, Email = Email, Name = Name, StudentDetail = new StudentDetail() };
+            // return new Student() { Uuid = Uuid, Email = Email, Name = Name, StudentDetail = new StudentDetail() };
+            return new Student
+            {
+                Uuid = Uuid,
+                Name = Name,
+                Email = Email,
+                StudentDetail = new StudentDetail // It is wrong, only for demo
+                {
+                    EnrolledCourses = 0, 
+                    GradedCourses = 0,
+                    TimeDeliveryRate = 0,
+                    AvgScore = 0,
+                    CoursesUnderAvg = 0,
+                    PureScoreDiff = 0,
+                    StandardScoreDiff = 0,
+                    LastAccessDays = 0,
+                    Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
+                },
+                PollInstances = [],  // It is wrong, only for demo
+                Cohorts = [],  // It is wrong, only for demo
+                Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
+            };
         }
 
         public static Answer ToAnswer(Answers answer)
         {
+
+            /*
+                public string AnswerText { get; set; } = string.Empty;
+                public int RiskLevel { get; set; }
+                public int PollInstanceId { get; set; }
+                public PollInstance PollInstance { get; set; } = default!;
+                public AuditInfo Audit { get; set; } = default!;
+             */
+
+
+
             // todo pending finish
             int VariableId = 1; // This should come from relation with Variable
 

@@ -1,5 +1,6 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
@@ -20,23 +21,41 @@ namespace Eras.Application.Services
 
         public async Task<Student> CreateStudent(Student student)
         {
-            return await _studentRepository.AddAsync(student);
-        }
-
-        public async Task<bool> ImportStudentsAsync(StudentImportDto[] studentsDto)
-        {
             try
             {
-                foreach (var dto in studentsDto)
+                /*
+                if (!ValidateStudentDto(dto))
+                {
+                    _logger.LogWarning("Invalid student data: {SISId}", dto.SISId);
+                    continue;
+                }
+                */
+                return await _studentRepository.AddAsync(student);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred during the student creation");
+                return null;
+            }
+        }
+
+        public async Task<int> ImportStudentsAsync(StudentImportDto[] studentsDto)
+        {
+            int newRecors = 0;
+            foreach (var dto in studentsDto)
+            {
+                try
                 {
                     if (!ValidateStudentDto(dto))
                     {
                         continue;
                     }
-
-                    var student = dto.ToDomain();
-
-                    await _studentRepository.AddAsync(student);
+                    Student created = await CreateStudent(dto.ToDomain());
+                    if (created != null) newRecors++;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred during the import process");
                 }
 
                 return true;
@@ -45,6 +64,7 @@ namespace Eras.Application.Services
             {
                 return false;
             }
+            return newRecors;
         }
 
         private bool ValidateStudentDto(StudentImportDto dto)

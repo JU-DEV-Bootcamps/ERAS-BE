@@ -1,5 +1,7 @@
 using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
+using System.Collections.Generic;
 using System.Globalization;
 
 namespace Eras.Application.Mappers;
@@ -24,8 +26,12 @@ public static class StudentMapper
                 CoursesUnderAvg = dto.CoursesBelowAverage,
                 PureScoreDiff = ParseDecimal(dto.RawScoreDifference, culture),
                 StandardScoreDiff = ParseDecimal(dto.StandardScoreDifference, culture),
-                LastAccessDays = dto.DaysSinceLastAccess
-            }
+                LastAccessDays = dto.DaysSinceLastAccess,
+                Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
+            },
+            PollInstances = [],  // It is wrong, only for demo
+            Cohorts = [],  // It is wrong, only for demo
+            Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
         };
     }
 
