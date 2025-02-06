@@ -24,7 +24,17 @@ public static class StudentMapper
                 CoursesUnderAvg = dto.CoursesBelowAverage,
                 PureScoreDiff = ParseDecimal(dto.RawScoreDifference, culture),
                 StandardScoreDiff = ParseDecimal(dto.StandardScoreDifference, culture),
-                LastAccessDays = dto.DaysSinceLastAccess
+                LastAccessDays = dto.DaysSinceLastAccess,
+                Audit = new Domain.Common.AuditInfo
+                {
+                    CreatedAt = DateTime.Now,
+                    ModifiedAt = DateTime.Now,
+                }
+            },
+            Audit = new Domain.Common.AuditInfo
+            {
+                CreatedAt = DateTime.Now,
+                ModifiedAt = DateTime.Now,
             }
         };
     }

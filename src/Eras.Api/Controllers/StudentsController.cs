@@ -25,13 +25,13 @@ public class StudentsController : ControllerBase
 ;
         BaseResponse response = await _mediator.Send(createStudentCommand);
 
-        if (response.Success)
+        if (response.Success.Equals(true))
         {
             return Ok(new { status = "successful", message = "Students imported successfully" });
         }
         else
         {
-            return StatusCode(500, new { status = "error", message = "An error occurred during the import process" });
+            return StatusCode(400, new { status = "error", message = "An error occurred during the import process" });
         }
     }
 }
