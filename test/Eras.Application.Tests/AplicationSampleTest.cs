@@ -1,6 +1,6 @@
-﻿using Eras.Application.Services;
+﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Services;
 using Eras.Domain.Entities;
-using Eras.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 using Moq;
 

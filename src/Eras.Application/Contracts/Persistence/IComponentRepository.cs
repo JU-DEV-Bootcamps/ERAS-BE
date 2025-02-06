@@ -1,7 +1,7 @@
 
 using Eras.Domain.Entities;
 
-namespace Eras.Domain.Repositories
+namespace Eras.Application.Contracts.Persistence
 {
     public interface IComponentRepository : IBaseRepository<Component>
     {

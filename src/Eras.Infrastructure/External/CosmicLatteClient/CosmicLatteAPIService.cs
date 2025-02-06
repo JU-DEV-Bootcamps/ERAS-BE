@@ -1,4 +1,4 @@
-﻿using Eras.Application.Contracts;
+﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Dtos;
 using Eras.Application.Mappers;
 using Eras.Application.Services;
@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using System.Text;
 using System.Text.Json;
 using Answers = Eras.Application.Dtos.Answers;
+
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
 {

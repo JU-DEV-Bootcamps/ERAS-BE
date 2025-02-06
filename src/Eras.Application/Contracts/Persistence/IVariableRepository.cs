@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Eras.Domain.Repositories
+namespace Eras.Application.Contracts.Persistence
 {
-    public interface IComponentVariableRepository<T>
+    public interface IVariableRepository<T>
     {
         Task<T> Add (T componentVariable);
         Task<T> GetComponentVariableByName(string name);

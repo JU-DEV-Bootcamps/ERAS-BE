@@ -1,8 +1,8 @@
-﻿using Eras.Application.Contracts;
+﻿using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
-using Eras.Domain.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Services

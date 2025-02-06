@@ -1,6 +1,6 @@
-﻿using Eras.Application.Contracts;
+﻿using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
-using Eras.Domain.Repositories;
 
 namespace Eras.Application.Services
 {

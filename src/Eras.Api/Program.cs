@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
-using Eras.Application.Contracts;
+using Eras.Application.Contracts.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -74,10 +74,14 @@ builder.Services.AddCors(o =>
 });
 
 builder.Services.AddScoped<KeycloakAuthService>();
+//builder.Services.AddScoped<IStudentRepository<Student>, StudentRepository>();
+//builder.Services.AddScoped<IStudentService, StudentService>();
 
+// Add the StudentService to the dependency injection container
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IPollService, PollService>();
 builder.Services.AddScoped<IAnswerService, AnswerService>();
+
 
 
 var app = builder.Build();
