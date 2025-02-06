@@ -13,3 +13,5 @@ namespace Eras.Domain.Entities
         public AuditInfo Audit { get; set; } = default!;
     }
 }
+
+
