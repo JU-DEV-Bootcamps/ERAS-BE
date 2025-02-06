@@ -55,7 +55,9 @@ builder.Services.AddAuthentication(o =>
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("ErasConnection"));
+    var connectionString = Environment.GetEnvironmentVariable("ERAS_DB_CONNECTION") 
+                    ?? builder.Configuration.GetConnectionString("ErasConnection");
+    options.UseNpgsql(connectionString);
     options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
 
 });
