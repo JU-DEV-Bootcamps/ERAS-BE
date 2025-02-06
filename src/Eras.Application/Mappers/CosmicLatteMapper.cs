@@ -13,18 +13,14 @@ namespace Eras.Application.Mappers
         public static Student ToStudent(CLResponseModelForPollDTO CLPoll)
         {
             ArgumentNullException.ThrowIfNull(nameof(CLPoll)); 
-            int Id = 0;
+
             DateTime CreatedDate = DateTime.Now;
             DateTime ModifiedDate = DateTime.Now;
-            string Email = CLPoll.Data.Answers.ElementAt(0).Value.AnswersList[0];
-            string Name = CLPoll.Data.Answers.ElementAt(1).Value.AnswersList[0];
-            string? Uuid = "null";
-            // return new Student() { Uuid = Uuid, Email = Email, Name = Name, StudentDetail = new StudentDetail() };
             return new Student
             {
-                Uuid = Uuid,
-                Name = Name,
-                Email = Email,
+                Uuid = "null",
+                Name = CLPoll.Data.Answers.ElementAt(1).Value.AnswersList[0],
+                Email = CLPoll.Data.Answers.ElementAt(0).Value.AnswersList[0],
                 StudentDetail = new StudentDetail // It is wrong, only for demo
                 {
                     EnrolledCourses = 0, 
@@ -90,28 +86,61 @@ namespace Eras.Application.Mappers
             };
         }
 
-        // public static ComponentVariable ToVariable(Answers answer, int pollId)
-        // {
-        //     if (answer == null) throw new ArgumentNullException(nameof(answer));
-            
-        //     int id = 0;
-        //     string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //  this is because we have language option (spanish or english)
-        //     int position = answer.Position;
-        //     int? parentId = null; // this is component id, later we should check this
-        //     DateTime createdDate = DateTime.Now;
-        //     DateTime modifiedDate = DateTime.Now;
 
-        //     return new ComponentVariable
-        //     {
-        //         Id = id,
-        //         Name = name,
-        //         PollId = pollId,
-        //         Position = position,
-        //         ParentId = parentId,
-        //         // CreatedDate = createdDate,
-        //         // ModifiedDate = modifiedDate
-        //     };
-        // }
+        public static Variable ToVariable(Answers answer, int pollId)
+        {
+            /*
+                    [JsonPropertyName("answer")]
+        public string[] AnswersList { get; set; }
+
+        [JsonPropertyName("question")]
+        public Question Question { get; set; }
+
+        [JsonPropertyName("position")]
+        public int Position { get; set; }
+
+        [JsonPropertyName("score")]
+        public double Score { get; set; }
+
+        [JsonPropertyName("type")]
+        public string Type { get; set; }
+
+        [JsonPropertyName("customSettings")]
+        public List<string> CustomSettings { get; set; } = new List<string>();
+            */
+
+
+
+            if (answer == null) throw new ArgumentNullException(nameof(answer));
+
+            int id = 0;
+            string name = answer.Question.Body.GetValueOrDefault("es") ?? "No question name found"; //this is because we have language option(spanish or english)
+            int position = answer.Position;
+            int? parentId = null; // this is component id, later we should check this
+            DateTime createdDate = DateTime.Now;
+            DateTime modifiedDate = DateTime.Now;
+
+            return new Variable
+            {
+/*
+public string Name { get; set; } = string.Empty;
+public int ComponentId { get; set; }
+public Component Component { get; set; } = default!;
+public ICollection<Poll> Polls { get; set; } = [];
+public ICollection<Cohort> Cohorts { get; set; } = [];
+public AuditInfo Audit { get; set; } = default!;
+*/
+/*
+                Id = id,
+                Name = name,
+                PollId = pollId,
+                Position = position,
+                ParentId = parentId,
+                */
+                // CreatedDate = createdDate,
+                //cModifiedDate = modifiedDate
+            };
+        }
 
         public static Poll ToPoll (DataItem CLPol)
         {
