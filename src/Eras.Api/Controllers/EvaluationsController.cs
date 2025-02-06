@@ -1,6 +1,7 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers
@@ -14,6 +15,12 @@ namespace Eras.Api.Controllers
         public EvaluationsController(ICosmicLatteAPIService cosmicLatteService)
         {
             _cosmicLatteService = cosmicLatteService;
+        }
+
+        private readonly IMediator _mediator;
+        public EvaluationsController(ICosmicLatteAPIService cosmicLatteService, IMediator mediator)
+        {
+            _mediator = mediator;
         }
 
         // this should be placed in a health controller with status of other external services?

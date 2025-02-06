@@ -27,11 +27,17 @@ public static class StudentMapper
                 PureScoreDiff = ParseDecimal(dto.RawScoreDifference, culture),
                 StandardScoreDiff = ParseDecimal(dto.StandardScoreDifference, culture),
                 LastAccessDays = dto.DaysSinceLastAccess,
-                Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
+                Audit = new Domain.Common.AuditInfo
+                {
+                    CreatedAt = DateTime.Now,
+                    ModifiedAt = DateTime.Now,
+                }
             },
-            PollInstances = [],  // It is wrong, only for demo
-            Cohorts = [],  // It is wrong, only for demo
-            Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
+            Audit = new Domain.Common.AuditInfo
+            {
+                CreatedAt = DateTime.Now,
+                ModifiedAt = DateTime.Now,
+            }
         };
     }
 
