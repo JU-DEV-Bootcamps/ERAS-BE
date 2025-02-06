@@ -33,7 +33,6 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             try
             {
                 var result = await _studentRepository.AddAsync(student);
-                _logger.LogInformation($"Status of the creation {result}");
                 return new BaseResponse(true);
             }
             catch (Exception ex)
