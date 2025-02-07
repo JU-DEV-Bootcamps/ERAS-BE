@@ -17,12 +17,6 @@ namespace Eras.Api.Controllers
             _cosmicLatteService = cosmicLatteService;
         }
 
-        private readonly IMediator _mediator;
-        public EvaluationsController(ICosmicLatteAPIService cosmicLatteService, IMediator mediator)
-        {
-            _mediator = mediator;
-        }
-
         // this should be placed in a health controller with status of other external services?
         [HttpOptions("/cosmic-latte/status")]
         public async Task<ActionResult<CosmicLatteStatus>> CosmicApiIsHealthy()
