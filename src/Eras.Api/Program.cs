@@ -13,6 +13,22 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
+var postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
+var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
+var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB");
+
+var cosmicLatteBaseUrl = Environment.GetEnvironmentVariable("COSMIC_LATTE_BASE_URL");
+var cosmicLatteApiKey = Environment.GetEnvironmentVariable("COSMIC_LATTE_API_KEY");
+
+var keycloakBaseUrl = Environment.GetEnvironmentVariable("KEYCLOAK_BASE_URL");
+var keycloakRealm = Environment.GetEnvironmentVariable("KEYCLOAK_REALM");
+var keycloakClientId = Environment.GetEnvironmentVariable("KEYCLOAK_CLIENT_ID");
+var keycloakClientSecret = Environment.GetEnvironmentVariable("KEYCLOAK_CLIENT_SECRET");
+
+var connectionString = $"Host={postgresHost};Port={postgresPort};Username={postgresUser};Password={postgresPassword};Database={postgresDb}";
+
 // Add services to the container.
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
@@ -30,7 +46,7 @@ builder.Services.AddAuthentication(o =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuer = $"{builder.Configuration["Keycloak:BaseUrl"]}/realms/{builder.Configuration["Keycloak:Realm"]}",
+        ValidIssuer = $"{keycloakBaseUrl}/realms/{keycloakRealm}",
 
         ValidateAudience = true,
         ValidAudience = "account",
@@ -55,8 +71,6 @@ builder.Services.AddAuthentication(o =>
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
-    var connectionString = Environment.GetEnvironmentVariable("ERAS_DB_CONNECTION") 
-                    ?? builder.Configuration.GetConnectionString("ErasConnection");
     options.UseNpgsql(connectionString);
     options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
 
