@@ -32,4 +32,7 @@ USER root
 RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
 
 COPY --from=publish /app/publish .
+# Set the ASPNETCORE_ENVIRONMENT to Production by default - Github workflow
+ENV ASPNETCORE_ENVIRONMENT=Production
+
 ENTRYPOINT ["dotnet", "Eras.Api.dll"]
