@@ -7,9 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Eras.Application.Contracts.Infrastructure;
-using Eras.Application.Contracts.Persistence;
-using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
-using System.Security.Cryptography.X509Certificates;
+using Eras.Api.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -124,6 +122,9 @@ app.UseHsts();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// To handle all the exceptions in the API
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.MapControllers();
 app.Run();
