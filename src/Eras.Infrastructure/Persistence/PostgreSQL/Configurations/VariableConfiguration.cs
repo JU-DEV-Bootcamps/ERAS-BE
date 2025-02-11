@@ -29,23 +29,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .WithMany(component => component.Variables)
                 .HasForeignKey(variable => variable.ComponentId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.HasMany(variable => variable.Polls)
-                .WithMany(poll => poll.Variables)
-                .UsingEntity<Dictionary<string, object>>(
-                    "poll_variable",
-                    join => join
-                        .HasOne<Poll>()
-                        .WithMany()
-                        .HasForeignKey("poll_id"),
-                    join => join
-                        .HasOne<Variable>()
-                        .WithMany()
-                        .HasForeignKey("variable_id"),
-                    join =>
-                    {
-                        join.HasKey("poll_id", "variable_id");
-                    }
-                );
         }
     }
 }

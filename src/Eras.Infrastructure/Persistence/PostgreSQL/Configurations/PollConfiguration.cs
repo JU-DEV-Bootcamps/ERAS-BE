@@ -31,23 +31,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 
         private static void ConfigureRelationShips(EntityTypeBuilder<Poll> builder)
         {
-            builder.HasMany(poll => poll.Variables)
-                .WithMany(variable => variable.Polls)
-                .UsingEntity<Dictionary<string, object>>(
-                    "poll_variable",
-                    join => join
-                        .HasOne<Variable>()
-                        .WithMany()
-                        .HasForeignKey("variable_id"),
-                    join => join
-                        .HasOne<Poll>()
-                        .WithMany()
-                        .HasForeignKey("poll_id"),
-                    join =>
-                    {
-                        join.HasKey("poll_id", "variable_id");
-                    }
-                );
+
         }
     }
 }

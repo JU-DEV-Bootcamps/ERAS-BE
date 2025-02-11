@@ -1,12 +1,15 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public class CohortRepository : BaseRepository<Cohort>, ICohortRepository
+    public class CohortRepository : BaseRepository<Cohort, CohortEntity>, ICohortRepository
     {
-        public CohortRepository(AppDbContext context) : base(context)
+        public CohortRepository(AppDbContext context) 
+            : base(context, CohortMapper.ToDomain, CohortMapper.ToPersistence)
         {
         }
 
@@ -15,7 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var cohort = await _context.Cohorts
                 .FirstOrDefaultAsync(cohort => cohort.Name == name);
             
-            return cohort;
+            return cohort?.ToDomain();
         }
 
         public async Task<Cohort?> GetByCourseCodeAsync(string courseCode)
@@ -23,7 +26,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var cohort = await _context.Cohorts
                 .FirstOrDefaultAsync(cohort => cohort.CourseCode == courseCode);
             
-            return cohort;
+            return cohort?.ToDomain();
         }
     }
 }
