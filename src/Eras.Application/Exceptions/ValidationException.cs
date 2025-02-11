@@ -14,10 +14,10 @@ namespace Eras.Application.Exceptions
         public ValidationException(ValidationResult validationResult)
         {
             ValidationErrors = new List<string>();
-            foreach(var validationError in validationResult.Errors)
+            /*foreach(var validationError in validationResult.Errors)
             {
 
-            }
+            }*/
         }
     }
 }
