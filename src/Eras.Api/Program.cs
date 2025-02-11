@@ -111,7 +111,7 @@ builder.WebHost.ConfigureKestrel(serverOptions =>
         if (File.Exists(certPath))
         {
             var certificate = new X509Certificate2(certPath, certPassword);
-            serverOptions.ListenAnyIP(5443, listenOptions =>
+            serverOptions.ListenAnyIP(443, listenOptions =>
             {
                 listenOptions.UseHttps(certificate);
             });
