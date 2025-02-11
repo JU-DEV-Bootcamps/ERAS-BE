@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApiServices(builder.Configuration);
 builder.Services.AddInfrastructureServices();
-builder.Services.AddPersistenceServices();
+builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
 var app = builder.Build();

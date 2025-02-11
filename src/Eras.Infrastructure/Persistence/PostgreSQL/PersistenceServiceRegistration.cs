@@ -2,26 +2,27 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
     public static class PersistenceServiceRegistration
     {
-        private static string GetConnectionString()
+        private static string GetConnectionString(IConfiguration configuration)
         {
-            var postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST");
-            var postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT");
-            var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
-            var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
-            var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB");
+            var postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? configuration["Postgres:Host"];
+            var postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? configuration["Postgres:Port"];
+            var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? configuration["Postgres:Username"];
+            var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? configuration["Postgres:Password"];
+            var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? configuration["Postgres:Database"];
 
             return $"Host={postgresHost};Port={postgresPort};Username={postgresUser};Password={postgresPassword};Database={postgresDb}";
         }
 
-        public static void AddDbContextPostgreSql(IServiceCollection services)
+        public static void AddDbContextPostgreSql(IServiceCollection services, IConfiguration configuration)
         {
-            var connectionString = GetConnectionString();
+            var connectionString = GetConnectionString(configuration);
 
             services.AddDbContext<AppDbContext>(options =>
             {
@@ -30,9 +31,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             });
         }
 
-        public static IServiceCollection AddPersistenceServices(this IServiceCollection services)
+        public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
         {
-            AddDbContextPostgreSql(services);
+            AddDbContextPostgreSql(services, configuration);
             services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IAnswerRepository, AnswerRepository>();
             services.AddScoped<IComponentRepository, ComponentRepository>();
