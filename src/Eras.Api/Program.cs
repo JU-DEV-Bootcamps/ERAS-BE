@@ -7,8 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.IdentityModel.Tokens;
 using Eras.Application.Contracts.Infrastructure;
-using Eras.Application.Contracts.Persistence;
-using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Api.Middleware;
 
 
@@ -125,7 +123,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 // To handle all the exceptions in the API
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.MapControllers();
 app.Run();
