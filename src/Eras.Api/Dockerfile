@@ -33,6 +33,5 @@ RUN apt-get update && apt-get install -y postgresql-client && mkdir -p /https &&
 COPY --from=publish /app/publish .
 USER $APP_UID
 # Set the ASPNETCORE_ENVIRONMENT to Production by default - Github workflow
-ENV ASPNETCORE_ENVIRONMENT=Production
 
 ENTRYPOINT ["dotnet", "Eras.Api.dll"]
