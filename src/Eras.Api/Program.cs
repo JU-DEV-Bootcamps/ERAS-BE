@@ -101,24 +101,6 @@ builder.Services.AddScoped<IAnswerService, AnswerService>();
 builder.Services.AddApplicationServices();
 
 
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    var config = builder.Configuration.GetSection("Kestrel:Endpoints:Https:Certificate");
-    if (config.Exists())
-    {
-        var certPath = config["Path"];
-        var certPassword = config["Password"];
-        if (File.Exists(certPath))
-        {
-            var certificate = new X509Certificate2(certPath, certPassword);
-            serverOptions.ListenAnyIP(443, listenOptions =>
-            {
-                listenOptions.UseHttps(certificate);
-            });
-        }
-    }
-});
-
 var app = builder.Build();
 
 // Apply database migrations
