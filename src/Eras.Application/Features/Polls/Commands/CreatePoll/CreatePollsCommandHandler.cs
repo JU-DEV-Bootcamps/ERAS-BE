@@ -23,6 +23,8 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
         }
         public async Task<BaseResponse> Handle(CreatePollsCommand request, CancellationToken cancellationToken)
         {
+            var polls = request.polls;
+            _logger.LogInformation("Creating Poll");
             return new BaseResponse(true);
         }
     }
