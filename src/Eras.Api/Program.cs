@@ -8,7 +8,7 @@ using Eras.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddApiServices(builder.Configuration);
-builder.Services.AddInfrastructureServices();
+builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 

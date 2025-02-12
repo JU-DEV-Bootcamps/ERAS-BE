@@ -3,6 +3,7 @@ using Eras.Application.Services;
 using Eras.Infrastructure.External.CosmicLatteClient;
 using Eras.Infrastructure.External.KeycloakClient;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,29 +11,33 @@ namespace Eras.Infrastructure
 {
     public static class InfrastructureServiceRegistration
     {
-        public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
+        public static IServiceCollection AddInfrastructureServices(
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
             services.AddScoped<IKeycloakAuthService<TokenResponse>, KeycloakAuthService>();
             services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
             
-            AddAuthentication(services);
+            AddAuthentication(services, configuration);
 
             return services;
         }
 
         private static void GetKeycloakConfiguration(
-            out string keycloakBaseUrl,
-            out string keycloakRealm)
+            IConfiguration configuration,
+            out string? keycloakBaseUrl,
+            out string? keycloakRealm)
         {
-            keycloakBaseUrl = Environment.GetEnvironmentVariable("KEYCLOAK_BASE_URL");
-            keycloakRealm = Environment.GetEnvironmentVariable("KEYCLOAK_REALM");
+            keycloakBaseUrl = Environment.GetEnvironmentVariable("KEYCLOAK_BASE_URL") ?? configuration["Keycloak:BaseUrl"];
+            keycloakRealm = Environment.GetEnvironmentVariable("KEYCLOAK_REALM") ?? configuration["Keycloak:Realm"];
         }
 
-         private static void AddAuthentication(IServiceCollection services)
+         private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
         {
             GetKeycloakConfiguration(
-                out string keycloakBaseUrl,
-                out string keycloakRealm);
+                configuration,
+                out string? keycloakBaseUrl,
+                out string? keycloakRealm);
 
             services.AddAuthorization();
             services.AddAuthentication(options =>
