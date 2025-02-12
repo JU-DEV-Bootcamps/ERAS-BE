@@ -8,8 +8,6 @@ namespace Eras.Domain.Entities
         public string Name { get; set; } = default!;
         public string Email { get; set; } = default!;
         public StudentDetail? StudentDetail { get; set; }
-        public ICollection<PollInstance> PollInstances { get; set; } = [];
-        public ICollection<Cohort> Cohorts { get; set; } = [];
         public AuditInfo Audit { get; set; } = default!;
     }
 }

@@ -1,12 +1,15 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public class StudentRepository : BaseRepository<Student>, IStudentRepository
+    public class StudentRepository : BaseRepository<Student, StudentEntity>, IStudentRepository
     {
-        public StudentRepository(AppDbContext context) : base(context)
+        public StudentRepository(AppDbContext context) 
+            : base(context, StudentMapper.ToDomain, StudentMapper.ToPersistence)
         {
         }
 
@@ -15,7 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var student = await _context.Students
                 .FirstOrDefaultAsync(student => student.Name == name);
             
-            return student;
+            return student?.ToDomain();
         }
 
         public async Task<Student?> GetByUuidAsync(string uuid)
@@ -23,7 +26,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var student = await _context.Students
                 .FirstOrDefaultAsync(student => student.Uuid == uuid);
             
-            return student;
+            return student?.ToDomain();
         }
 
         public async Task<Student?> GetByEmailAsync(string email)
@@ -31,7 +34,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var student = await _context.Students
                 .FirstOrDefaultAsync(student => student.Email == email);
             
-            return student;
+            return student?.ToDomain();
         }
     }
 }

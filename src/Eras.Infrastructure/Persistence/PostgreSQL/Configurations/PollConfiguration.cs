@@ -1,12 +1,12 @@
-using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
-    public class PollConfiguration : IEntityTypeConfiguration<Poll>
+    public class PollConfiguration : IEntityTypeConfiguration<PollEntity>
     {
-        public void Configure(EntityTypeBuilder<Poll> builder)
+        public void Configure(EntityTypeBuilder<PollEntity> builder)
         {
             builder.ToTable("polls");
 
@@ -15,7 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             AuditConfiguration.Configure(builder);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<Poll> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<PollEntity> builder)
         {
             builder.HasKey(poll => poll.Id);
             builder.Property(poll => poll.Name)
@@ -29,25 +29,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<Poll> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<PollEntity> builder)
         {
-            builder.HasMany(poll => poll.Variables)
-                .WithMany(variable => variable.Polls)
-                .UsingEntity<Dictionary<string, object>>(
-                    "poll_variable",
-                    join => join
-                        .HasOne<Variable>()
-                        .WithMany()
-                        .HasForeignKey("variable_id"),
-                    join => join
-                        .HasOne<Poll>()
-                        .WithMany()
-                        .HasForeignKey("poll_id"),
-                    join =>
-                    {
-                        join.HasKey("poll_id", "variable_id");
-                    }
-                );
+
         }
     }
 }
