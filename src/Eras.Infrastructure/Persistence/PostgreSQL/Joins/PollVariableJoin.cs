@@ -1,8 +1,9 @@
 using Eras.Domain.Common;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
-namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
+namespace Eras.Infrastructure.Persistence.PostgreSQL.Joins
 {
-	public class PollVariableMapping : BaseEntity
+	public class PollVariableJoin : BaseEntity
 	{
 		public int PollId { get; set; }
 		public PollEntity Poll { get; set; } = default!;

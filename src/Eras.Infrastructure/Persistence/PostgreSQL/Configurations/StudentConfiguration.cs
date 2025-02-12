@@ -38,24 +38,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             builder.HasMany(student => student.PollInstances)
                 .WithOne(pollInstance => pollInstance.Student)
                 .HasForeignKey(pollInstance => pollInstance.StudentId);
-
-            builder.HasMany(student => student.Cohorts)
-                .WithMany(cohort => cohort.Students)
-                .UsingEntity<Dictionary<string, object>>(
-                    "student_cohort",
-                    join => join
-                        .HasOne<CohortEntity>()
-                        .WithMany()
-                        .HasForeignKey("cohort_id"),
-                    join => join
-                        .HasOne<StudentEntity>()
-                        .WithMany()
-                        .HasForeignKey("student_id"),
-                    join =>
-                    {
-                        join.HasKey("student_id", "cohort_id");
-                    }
-                );
         }
     }
 }

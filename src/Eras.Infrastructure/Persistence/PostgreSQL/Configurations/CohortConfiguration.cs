@@ -28,23 +28,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 
         private static void ConfigureRelationShips(EntityTypeBuilder<CohortEntity> builder)
         {
-            builder.HasMany(cohort => cohort.Students)
-                .WithMany(student => student.Cohorts)
-                .UsingEntity<Dictionary<string, object>>(
-                    "student_cohort",
-                    join => join
-                        .HasOne<StudentEntity>()
-                        .WithMany()
-                        .HasForeignKey("student_id"),
-                    join => join
-                        .HasOne<CohortEntity>()
-                        .WithMany()
-                        .HasForeignKey("cohort_id"),
-                    join =>
-                    {
-                        join.HasKey("cohort_id", "student_id");
-                    }
-                );
         }
     }
 }
