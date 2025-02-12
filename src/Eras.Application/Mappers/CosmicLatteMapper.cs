@@ -33,8 +33,6 @@ namespace Eras.Application.Mappers;
                     LastAccessDays = 0,
                     Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
                 },
-                PollInstances = [],  // It is wrong, only for demo
-                Cohorts = [],  // It is wrong, only for demo
                 Audit = new AuditInfo { CreatedBy = "", ModifiedBy = "", CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now } // It is wrong, only for demo
             };
         }
