@@ -26,8 +26,8 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswer
         {
             try
             {
-                var answer = CosmicLatteMapper.DtoToAnswer(request.answer);
-                await _answerRepository.AddAsync(answer);
+                // var answer = CosmicLatteMapper.DtoToAnswer(request.answer);
+                // await _answerRepository.AddAsync(answer);
                 return new BaseResponse(true);
             }
             catch (Exception ex)
