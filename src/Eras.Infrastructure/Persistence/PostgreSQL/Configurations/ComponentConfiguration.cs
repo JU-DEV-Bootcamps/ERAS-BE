@@ -1,12 +1,12 @@
-using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
-    public class ComponentConfiguration : IEntityTypeConfiguration<Component>
+    public class ComponentConfiguration : IEntityTypeConfiguration<ComponentEntity>
     {
-        public void Configure(EntityTypeBuilder<Component> builder)
+        public void Configure(EntityTypeBuilder<ComponentEntity> builder)
         {
             builder.ToTable("components");
 
@@ -15,7 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             AuditConfiguration.Configure(builder);
         }
 
-        private void ConfigureColumns(EntityTypeBuilder<Component> builder)
+        private void ConfigureColumns(EntityTypeBuilder<ComponentEntity> builder)
         {
             builder.HasKey(component => component.Id);
             builder.Property(component => component.Name)
@@ -23,7 +23,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
         }
 
-        private void ConfigureRelationShips(EntityTypeBuilder<Component> builder)
+        private void ConfigureRelationShips(EntityTypeBuilder<ComponentEntity> builder)
         {
             builder.HasMany(component => component.Variables)
                 .WithOne(variable => variable.Component)

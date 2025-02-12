@@ -1,12 +1,12 @@
-using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
-    public class StudentConfiguration : IEntityTypeConfiguration<Student>
+    public class StudentConfiguration : IEntityTypeConfiguration<StudentEntity>
     {
-        public void Configure(EntityTypeBuilder<Student> builder)
+        public void Configure(EntityTypeBuilder<StudentEntity> builder)
         {
             builder.ToTable("students");
 
@@ -15,7 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             AuditConfiguration.Configure(builder);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<Student> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<StudentEntity> builder)
         {
             builder.HasKey(student => student.Id);
             builder.Property(student => student.Name)
@@ -29,11 +29,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<Student> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<StudentEntity> builder)
         {
             builder.HasOne(student => student.StudentDetail)
                 .WithOne(studentDetail => studentDetail.Student)
-                .HasForeignKey<StudentDetail>(studentDetail => studentDetail.StudentId);
+                .HasForeignKey<StudentDetailEntity>(studentDetail => studentDetail.StudentId);
 
             builder.HasMany(student => student.PollInstances)
                 .WithOne(pollInstance => pollInstance.Student)
@@ -44,11 +44,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .UsingEntity<Dictionary<string, object>>(
                     "student_cohort",
                     join => join
-                        .HasOne<Cohort>()
+                        .HasOne<CohortEntity>()
                         .WithMany()
                         .HasForeignKey("cohort_id"),
                     join => join
-                        .HasOne<Student>()
+                        .HasOne<StudentEntity>()
                         .WithMany()
                         .HasForeignKey("student_id"),
                     join =>

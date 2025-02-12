@@ -1,12 +1,12 @@
-using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
-    public class CohortConfiguration : IEntityTypeConfiguration<Cohort>
+    public class CohortConfiguration : IEntityTypeConfiguration<CohortEntity>
     {
-        public void Configure(EntityTypeBuilder<Cohort> builder)
+        public void Configure(EntityTypeBuilder<CohortEntity> builder)
         {
             builder.ToTable("cohorts");
 
@@ -15,7 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             AuditConfiguration.Configure(builder);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<Cohort> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<CohortEntity> builder)
         {
             builder.HasKey(cohort => cohort.Id);
             builder.Property(cohort => cohort.Name)
@@ -26,18 +26,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<Cohort> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<CohortEntity> builder)
         {
             builder.HasMany(cohort => cohort.Students)
                 .WithMany(student => student.Cohorts)
                 .UsingEntity<Dictionary<string, object>>(
                     "student_cohort",
                     join => join
-                        .HasOne<Student>()
+                        .HasOne<StudentEntity>()
                         .WithMany()
                         .HasForeignKey("student_id"),
                     join => join
-                        .HasOne<Cohort>()
+                        .HasOne<CohortEntity>()
                         .WithMany()
                         .HasForeignKey("cohort_id"),
                     join =>

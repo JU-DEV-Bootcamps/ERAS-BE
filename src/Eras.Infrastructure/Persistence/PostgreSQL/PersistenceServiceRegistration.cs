@@ -9,12 +9,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public static IServiceCollection AddPersistenceServices(this IServiceCollection services)
         {
             services.AddDbContext<AppDbContext>();
-            services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IAnswerRepository, AnswerRepository>();
+            services.AddScoped<ICohortRepository, CohortRepository>();
             services.AddScoped<IComponentRepository, ComponentRepository>();
+            services.AddScoped<IPollInstanceRepository, PollInstanceRepository>();
             services.AddScoped<IPollRepository, PollRepository>();
+            services.AddScoped<IStudentDetailRepository, StudentDetailRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
-            
+            services.AddScoped<IVariableRepository, VariableRepository>();
+
             return services;
         }
     }
