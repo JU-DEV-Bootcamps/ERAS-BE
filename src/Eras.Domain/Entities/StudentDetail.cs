@@ -13,7 +13,5 @@ namespace Eras.Domain.Entities
 		public decimal StandardScoreDiff { get; set; }
 		public int LastAccessDays { get; set; }
 		public AuditInfo Audit { get; set; } = default!;
-		public int StudentId { get; set; }
-		public Student Student { get; set; } = default!;
 	}
 }

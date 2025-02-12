@@ -8,6 +8,6 @@ namespace Eras.Domain.Entities
         public string Version { get; set; } = string.Empty;
         public string Uuid { get; set; } = string.Empty;
         public AuditInfo Audit { get; set; } = default!;
-        public ICollection<Variable> Variables { get; set; } = [];
+        public ICollection<Component> Components { get; set; } = [];
     }
 }
