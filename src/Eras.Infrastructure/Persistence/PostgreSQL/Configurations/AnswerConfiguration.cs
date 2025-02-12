@@ -24,6 +24,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             builder.Property(answer => answer.RiskLevel)
                 .HasColumnName("risk_level")
                 .IsRequired();
+            builder.Property(answer => answer.PollInstanceId)
+                .HasColumnName("poll_instance_id")
+                .IsRequired();
+            builder.Property(answer => answer.PollVariableId)
+                .HasColumnName("poll_variable_id")
+                .IsRequired();
         }
 
         private void ConfigureRelationShips(EntityTypeBuilder<AnswerEntity> builder)

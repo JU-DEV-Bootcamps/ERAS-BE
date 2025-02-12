@@ -1,12 +1,14 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public class VariableRepository : BaseRepository<Variable>, IVariableRepository<Variable>
+    public class VariableRepository : BaseRepository<Variable, VariableEntity>, IVariableRepository
     {
         public VariableRepository(AppDbContext context)
-            : base(context)
+            : base(context, VariableMapper.ToDomain, VariableMapper.ToPersistence)
         {
         }
 
@@ -15,7 +17,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<List<Variable>> GetAll(int pollId)
+        public Task<List<Variable>> GetAllAsync(int pollId)
         {
             throw new NotImplementedException();
         }

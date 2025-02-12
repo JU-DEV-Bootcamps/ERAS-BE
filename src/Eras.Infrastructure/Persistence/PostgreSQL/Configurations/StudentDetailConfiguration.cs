@@ -1,12 +1,12 @@
-using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
-    public class StudentDetailConfiguration : IEntityTypeConfiguration<StudentDetail>
+    public class StudentDetailConfiguration : IEntityTypeConfiguration<StudentDetailEntity>
     {
-        public void Configure(EntityTypeBuilder<StudentDetail> builder)
+        public void Configure(EntityTypeBuilder<StudentDetailEntity> builder)
         {
             builder.ToTable("student_details");
             
@@ -15,7 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             AuditConfiguration.Configure(builder);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<StudentDetail> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<StudentDetailEntity> builder)
         {
             builder.HasKey(detail => detail.Id);
             builder.Property(detail => detail.EnrolledCourses)
@@ -44,11 +44,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<StudentDetail> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<StudentDetailEntity> builder)
         {
             builder.HasOne(detail => detail.Student)
                 .WithOne(student => student.StudentDetail)
-                .HasForeignKey<StudentDetail>(detail => detail.StudentId)
+                .HasForeignKey<StudentDetailEntity>(detail => detail.StudentId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -7,8 +7,8 @@ namespace Eras.Application.Services
     public class VariableService : IVariableService
     {
 
-        private readonly IVariableRepository<Variable> _VariableRepository;
-        public VariableService(IVariableRepository<Variable> Variable)
+        private readonly IVariableRepository _VariableRepository;
+        public VariableService(IVariableRepository Variable)
         {
             _VariableRepository = Variable;
         }
@@ -17,7 +17,7 @@ namespace Eras.Application.Services
             try
             {
                 // we need to check bussiness logic to validate before save
-                return await _VariableRepository.Add(Variable);
+                return await _VariableRepository.AddAsync(Variable);
             }
             catch (Exception e)
             {
@@ -28,7 +28,7 @@ namespace Eras.Application.Services
 
         public async Task<List<Variable>> GetAllVariables(int pollId)
         {
-            return await _VariableRepository.GetAll(pollId);
+            return await _VariableRepository.GetAllAsync(pollId);
         }
     }
 }
