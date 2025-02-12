@@ -3,6 +3,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Eras.Api;
 using Eras.Infrastructure;
+using Eras.Api.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +35,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// To handle all the exceptions in the API
+app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.MapControllers();
 app.Run();
