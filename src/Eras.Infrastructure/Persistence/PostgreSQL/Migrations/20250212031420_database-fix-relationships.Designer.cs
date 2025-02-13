@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250212031420_database-fix-relationships")]
+    partial class databasefixrelationships
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,21 +24,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("CohortEntityStudentEntity", b =>
-                {
-                    b.Property<int>("CohortsId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("StudentsId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("CohortsId", "StudentsId");
-
-                    b.HasIndex("StudentsId");
-
-                    b.ToTable("CohortEntityStudentEntity");
-                });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.AnswerEntity", b =>
                 {
@@ -163,6 +151,31 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("poll_instances", (string)null);
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollVariableMapping", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("PollId")
+                        .HasColumnType("integer")
+                        .HasColumnName("poll_id");
+
+                    b.Property<int>("VariableId")
+                        .HasColumnType("integer")
+                        .HasColumnName("variable_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PollId");
+
+                    b.HasIndex("VariableId");
+
+                    b.ToTable("poll_variable", (string)null);
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentDetailEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -266,69 +279,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("variables", (string)null);
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Joins.PollVariableJoin", b =>
+            modelBuilder.Entity("student_cohort", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("student_id")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("PollId")
-                        .HasColumnType("integer")
-                        .HasColumnName("poll_id");
-
-                    b.Property<int>("VariableId")
-                        .HasColumnType("integer")
-                        .HasColumnName("variable_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PollId");
-
-                    b.HasIndex("VariableId");
-
-                    b.ToTable("poll_variable", (string)null);
-                });
-
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Joins.StudentCohortJoin", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("cohort_id")
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.HasKey("student_id", "cohort_id");
 
-                    b.Property<int>("CohortId")
-                        .HasColumnType("integer")
-                        .HasColumnName("cohort_id");
+                    b.HasIndex("cohort_id");
 
-                    b.Property<int>("StudentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("student_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CohortId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("student_cohort", (string)null);
-                });
-
-            modelBuilder.Entity("CohortEntityStudentEntity", b =>
-                {
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.CohortEntity", null)
-                        .WithMany()
-                        .HasForeignKey("CohortsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", null)
-                        .WithMany()
-                        .HasForeignKey("StudentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.ToTable("student_cohort");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.AnswerEntity", b =>
@@ -339,7 +302,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Joins.PollVariableJoin", "PollVariable")
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollVariableMapping", "PollVariable")
                         .WithMany("Answers")
                         .HasForeignKey("PollVariableId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -535,6 +498,25 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollVariableMapping", b =>
+                {
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollEntity", "Poll")
+                        .WithMany("PollVariables")
+                        .HasForeignKey("PollId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.VariableEntity", "Variable")
+                        .WithMany("PollVariables")
+                        .HasForeignKey("VariableId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Poll");
+
+                    b.Navigation("Variable");
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentDetailEntity", b =>
                 {
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
@@ -659,47 +641,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("Component");
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Joins.PollVariableJoin", b =>
+            modelBuilder.Entity("student_cohort", b =>
                 {
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollEntity", "Poll")
-                        .WithMany("PollVariables")
-                        .HasForeignKey("PollId")
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.CohortEntity", null)
+                        .WithMany()
+                        .HasForeignKey("cohort_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.VariableEntity", "Variable")
-                        .WithMany("PollVariables")
-                        .HasForeignKey("VariableId")
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", null)
+                        .WithMany()
+                        .HasForeignKey("student_id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Poll");
-
-                    b.Navigation("Variable");
-                });
-
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Joins.StudentCohortJoin", b =>
-                {
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.CohortEntity", "Cohort")
-                        .WithMany("StudentCohorts")
-                        .HasForeignKey("CohortId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
-                        .WithMany("StudentCohorts")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Cohort");
-
-                    b.Navigation("Student");
-                });
-
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.CohortEntity", b =>
-                {
-                    b.Navigation("StudentCohorts");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ComponentEntity", b =>
@@ -717,11 +671,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("Answers");
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollVariableMapping", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", b =>
                 {
                     b.Navigation("PollInstances");
-
-                    b.Navigation("StudentCohorts");
 
                     b.Navigation("StudentDetail");
                 });
@@ -729,11 +686,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.VariableEntity", b =>
                 {
                     b.Navigation("PollVariables");
-                });
-
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Joins.PollVariableJoin", b =>
-                {
-                    b.Navigation("Answers");
                 });
 #pragma warning restore 612, 618
         }

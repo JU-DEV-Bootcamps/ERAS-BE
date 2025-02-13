@@ -1,12 +1,15 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public class PollInstanceRepository : BaseRepository<PollInstance>, IPollInstanceRepository
+    public class PollInstanceRepository : BaseRepository<PollInstance, PollInstanceEntity>, IPollInstanceRepository
     {
-        public PollInstanceRepository(AppDbContext context) : base(context)
+        public PollInstanceRepository(AppDbContext context) 
+            : base(context, PollInstanceMapper.ToDomain, PollInstanceMapper.ToPersistence)
         {
         }
 
@@ -15,7 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         var pollInstance = await _context.PollInstances 
             .FirstOrDefaultAsync(pollInstance => pollInstance.Uuid == uuid);
         
-        return pollInstance;
+        return pollInstance?.ToDomain();
     }
   }
 }

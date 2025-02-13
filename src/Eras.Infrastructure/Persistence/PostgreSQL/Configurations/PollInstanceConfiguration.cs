@@ -1,12 +1,12 @@
-using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
-    public class PollInstanceConfiguration : IEntityTypeConfiguration<PollInstance>
+    public class PollInstanceConfiguration : IEntityTypeConfiguration<PollInstanceEntity>
     {
-        public void Configure(EntityTypeBuilder<PollInstance> builder)
+        public void Configure(EntityTypeBuilder<PollInstanceEntity> builder)
         {
             builder.ToTable("poll_instances");
 
@@ -15,7 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             AuditConfiguration.Configure(builder);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<PollInstance> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<PollInstanceEntity> builder)
         {
             builder.HasKey(pollInstance => pollInstance.Id);
             builder.Property(pollInstance => pollInstance.Uuid)
@@ -23,7 +23,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<PollInstance> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<PollInstanceEntity> builder)
         {
             builder.HasMany(pollInstance => pollInstance.Answers)
                 .WithOne(answer => answer.PollInstance)
