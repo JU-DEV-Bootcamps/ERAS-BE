@@ -12,6 +12,6 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
 {
     public class CreatePollCommand : IRequest<BaseResponse>
     {
-        public PollDTO poll;
+        public PollDTO Poll = default!;
     }
 }

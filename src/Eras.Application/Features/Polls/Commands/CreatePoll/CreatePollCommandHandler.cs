@@ -8,6 +8,8 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Utils;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Eras.Domain.Entities;
+using Eras.Domain.Common;
 
 namespace Eras.Application.Features.Polls.Commands.CreatePoll
 {
@@ -26,13 +28,17 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
         {
             try
             {
-                // var poll = CosmicLatteMapper.DtoToPoll(request.poll);
-                // await _pollRepository.AddAsync(poll);
+                Poll poll = request.Poll.ToDomain();
+                poll.Audit = new AuditInfo() { 
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
+                Poll response = await _pollRepository.AddAsync(poll);
                 return new BaseResponse(true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred creating the poll: " + request.poll.Id);
+                _logger.LogError(ex, "An error occurred creating the poll: " + request.Poll.Name);
                 return new BaseResponse(false);
             }
         }

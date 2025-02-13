@@ -95,7 +95,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                         Version = version,
                         Components = components,
                     };
-                    CreatePollCommand createPollCommand = new CreatePollCommand() { poll = pollDto };
+                    CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = pollDto };
                     BaseResponse createdPollResponse = await _mediator.Send(createPollCommand);
                 }
                 return newRegisters;
