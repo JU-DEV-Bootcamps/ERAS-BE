@@ -6,7 +6,7 @@ namespace Eras.Domain.Entities
     {
         public string AnswerText { get; set; } = string.Empty;
         public int RiskLevel { get; set; }
-        public Variable? Variable { get; set; }
+        public Variable Variable { get; set; } = default!;
         public AuditInfo Audit { get; set; } = default!;
     }
 }
