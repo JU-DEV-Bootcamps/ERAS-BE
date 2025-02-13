@@ -1,4 +1,5 @@
 using Eras.Domain.Common;
+using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
 {
@@ -10,6 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public StudentDetailEntity? StudentDetail { get; set; }
         public ICollection<PollInstanceEntity> PollInstances { get; set; } = [];
         public ICollection<CohortEntity> Cohorts { get; set; } = [];
+        public ICollection<StudentCohortJoin> StudentCohorts { get; set; } = [];
         public AuditInfo Audit { get; set; } = default!;
     }
 }

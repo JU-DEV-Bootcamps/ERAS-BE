@@ -1,12 +1,12 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
-    public class PollVariableConfiguration : IEntityTypeConfiguration<PollVariableMapping>
+    public class PollVariableConfiguration : IEntityTypeConfiguration<PollVariableJoin>
     {
-        public void Configure(EntityTypeBuilder<PollVariableMapping> builder)
+        public void Configure(EntityTypeBuilder<PollVariableJoin> builder)
         {
             builder.ToTable("poll_variable");
 
@@ -14,7 +14,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             ConfigureRelationShips(builder);
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<PollVariableMapping> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<PollVariableJoin> builder)
         {
             builder.HasOne(pollVariable => pollVariable.Poll)
                 .WithMany(poll => poll.PollVariables)
@@ -26,7 +26,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<PollVariableMapping> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<PollVariableJoin> builder)
         {
             builder.HasKey(pollVariable => pollVariable.Id);
             builder.Property(pollVariable => pollVariable.PollId)

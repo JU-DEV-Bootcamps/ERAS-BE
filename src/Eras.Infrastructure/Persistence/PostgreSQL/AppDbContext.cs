@@ -1,5 +1,5 @@
-﻿using Eras.Domain.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
@@ -11,8 +11,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public DbSet<ComponentEntity> Components { get; set; }
         public DbSet<PollEntity> Polls { get; set; }
         public DbSet<PollInstanceEntity> PollInstances { get; set; }
-        public DbSet<PollVariableMapping> PollVariables { get; set; }
+        public DbSet<PollVariableJoin> PollVariables { get; set; }
         public DbSet<StudentEntity> Students { get; set; }
+        public DbSet<StudentCohortJoin> StudentCohorts { get; set; }
         public DbSet<StudentDetailEntity> StudentDetails { get; set; }
         public DbSet<VariableEntity> Variables { get; set; }
 
