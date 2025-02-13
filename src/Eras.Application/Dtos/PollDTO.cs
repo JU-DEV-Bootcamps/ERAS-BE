@@ -10,16 +10,18 @@ namespace Eras.Application.Dtos
 {
     public class PollDTO
     {
-        private string _id = String.Empty; //inventoryId
+        public int Id { get; set; }
 
-        public string Id
+        private string _idCosmicLatte = String.Empty;
+
+        public string IdCosmicLatte
         {
-            get { return _id; }
-            set { _id = value; }
+            get { return _idCosmicLatte; }
+            set { _idCosmicLatte = value; }
         }
 
-        public string Name { get; set; } = string.Empty; //name
-        public string? Version { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Version { get; set; } = string.Empty;
         public ICollection<ComponentDTO> Components { get; set; } = [];
     }
    }

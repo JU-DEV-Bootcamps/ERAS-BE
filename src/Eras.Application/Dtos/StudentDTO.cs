@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Eras.Application.DTOs;
 
 namespace Eras.Application.Dtos
 {
     public class StudentDTO
     {
         public int Id { get; set; }
+        public string? Uuid { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string? Uuid { get; set; }
+        public StudentDetailDTO? StudentDetail { get; set; }
     }
 }
