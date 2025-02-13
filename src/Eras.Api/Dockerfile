@@ -4,9 +4,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
+EXPOSE 80
+EXPOSE 443
 
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
@@ -29,10 +28,10 @@ WORKDIR /app
 
 # Install PostgreSQL client in the final image (if needed in production)
 USER root
-RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y postgresql-client && mkdir -p /https && chown -R $APP_UID:$APP_UID /https && chmod 755 /https && rm -rf /var/lib/apt/lists/*
 
 COPY --from=publish /app/publish .
+USER $APP_UID
 # Set the ASPNETCORE_ENVIRONMENT to Production by default - Github workflow
-ENV ASPNETCORE_ENVIRONMENT=Production
 
 ENTRYPOINT ["dotnet", "Eras.Api.dll"]
