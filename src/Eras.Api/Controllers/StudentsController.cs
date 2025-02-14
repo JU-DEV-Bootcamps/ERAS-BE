@@ -4,8 +4,8 @@ using Eras.Application.DTOs;
 using System.Threading.Tasks;
 using MediatR;
 using Eras.Application.Features.Students.Commands.CreateStudent;
-using Eras.Application.Utils;
 using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Models;
 
 [ApiController]
 [Route("api/v1/[controller]")]

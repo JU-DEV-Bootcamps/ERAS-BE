@@ -35,7 +35,7 @@ namespace Eras.Api.Controllers
             var success = await _cosmicLatteService.ImportAllPolls(name, startDate, endDate);
             if (success > 0)
             {
-                return Ok(new { status = "successful", message = $"{success} Students imported successfully" });
+                return Ok(new { status = "successful", message = $"{success} poll imported successfully" });
             }
             else
             {

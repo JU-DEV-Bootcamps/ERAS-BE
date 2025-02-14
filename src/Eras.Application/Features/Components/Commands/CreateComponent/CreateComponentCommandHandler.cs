@@ -1,33 +1,46 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Polls.Commands.CreatePoll;
-using Eras.Application.Utils;
+using Eras.Application.Mappers;
+using Eras.Application.Models;
+using Eras.Domain.Common;
+using Eras.Domain.Entities;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Components.Commands.CreateCommand
 {
-    public class CreateComponentCommandHandler
+    public class CreateComponentCommandHandler : IRequestHandler<CreateComponentCommand, CreateComandResponse<Component>>
     {
-        private readonly IComponentRepository _pollRepository;
+        private readonly IComponentRepository _componentRepository;
         private readonly ILogger<CreateComponentCommandHandler> _logger;
 
-        public CreateComponentCommandHandler(IComponentRepository pollRepository, ILogger<CreateComponentCommandHandler> logger)
+
+        public CreateComponentCommandHandler(IComponentRepository componentRepository, ILogger<CreateComponentCommandHandler> logger)
         {
-            _pollRepository = pollRepository;
+            _componentRepository = componentRepository;
             _logger = logger;
         }
 
-        public async Task<BaseResponse> Handle(CreateComponentCommand request, CancellationToken cancellationToken)
+        public async Task<CreateComandResponse<Component>> Handle(CreateComponentCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                // var poll = CosmicLatteMapper.DtoToPoll(request.poll);
-                // await _pollRepository.AddAsync(poll);
-                return new BaseResponse(true);
+                Component? component = request.Component?.ToDomain();
+                if (component == null) return new CreateComandResponse<Component>(null, "Error", false);
+                component.Audit = new AuditInfo()
+                {
+                    CreatedBy = "Cosmic latte import",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
+                Component createdComponent = await _componentRepository.AddAsync(component);
+
+                return new CreateComandResponse<Component>(createdComponent, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred creating the poll: ");
-                return new BaseResponse(false);
+                _logger.LogError(ex, "An error occurred creating the component: ");
+                return new CreateComandResponse<Component>(null, "Error", false);
             }
         }
     }

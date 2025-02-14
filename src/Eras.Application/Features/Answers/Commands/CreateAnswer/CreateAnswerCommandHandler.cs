@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
-using Eras.Application.Utils;
+using Eras.Application.Models;
+using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Answers.Commands.CreateAnswer
 {
-    public class CreateAnswerCommandHandler : IRequestHandler<CreateAnswerCommand, BaseResponse>
+    public class CreateAnswerCommandHandler : IRequestHandler<CreateAnswerCommand, CreateComandResponse<Answer>>
     {
         private readonly IAnswerRepository _answerRepository;
         private readonly ILogger<CreateAnswerCommandHandler> _logger;
@@ -22,18 +23,18 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswer
             _logger = logger;
         }
 
-        public async Task<BaseResponse> Handle(CreateAnswerCommand request, CancellationToken cancellationToken)
+        public async Task<CreateComandResponse<Answer>> Handle(CreateAnswerCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                // var answer = CosmicLatteMapper.DtoToAnswer(request.answer);
-                // await _answerRepository.AddAsync(answer);
-                return new BaseResponse(true);
+                Answer answer = request.answer.ToDomain();
+                Answer createdAnswer = await _answerRepository.AddAsync(answer);
+                return new CreateComandResponse<Answer>(createdAnswer, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the Answer: " + request.answer.Answer);
-                return new BaseResponse(false);
+                return new CreateComandResponse<Answer>(null, "Error", false);
             }
         }
     }

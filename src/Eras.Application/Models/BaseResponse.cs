@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Eras.Application.Utils
+namespace Eras.Application.Models
 {
     public class BaseResponse
     {
@@ -12,6 +12,7 @@ namespace Eras.Application.Utils
         public string Message { get; set; } = string.Empty;
         public List<string>? ValidationErrors { get; set; }
 
+        public BaseResponse() { }
         public BaseResponse(bool status)
         {
             Success = status;

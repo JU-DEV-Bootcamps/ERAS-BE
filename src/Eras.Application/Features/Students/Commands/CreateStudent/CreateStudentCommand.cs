@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eras.Application.DTOs;
-using Eras.Application.Utils;
+using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
-    public class CreateStudentCommand : IRequest<BaseResponse>
+    public class CreateStudentCommand : IRequest<CreateComandResponse<Student>>
     {
-        public StudentImportDto student;
+        public StudentImportDto? student;
         
     }
 }

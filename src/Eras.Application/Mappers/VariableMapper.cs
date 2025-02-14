@@ -10,7 +10,7 @@ namespace Eras.Application.Mappers
             ArgumentNullException.ThrowIfNull(dto);
             return new Variable
             {
-                Name = dto.Name
+                Name = dto.Name,      
             };
         }
         public static VariableDTO ToDto(this Variable domain)

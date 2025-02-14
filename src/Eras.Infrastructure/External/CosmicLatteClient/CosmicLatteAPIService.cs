@@ -3,8 +3,8 @@ using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
 using Eras.Application.Features.Polls.Commands.CreatePoll;
+using Eras.Application.Models;
 using Eras.Application.Services;
-using Eras.Application.Utils;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using MediatR;
@@ -26,20 +26,20 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private readonly HttpClient _httpClient;
 
         private readonly ILogger<CosmicLatteAPIService> _logger;
-        private readonly IMediator _mediator;
+        private readonly PollOrchestratorService _pollOrchestratorService;
 
         public CosmicLatteAPIService(
             IConfiguration configuration,
             IHttpClientFactory httpClientFactory,
             ILogger<CosmicLatteAPIService> logger,
-            IMediator mediator)
+            PollOrchestratorService pollOrchestratorService )
         {
             _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found"); // this should be move to .env
             _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found"); // this should be move to .env
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(_apiUrl);
             _logger = logger;
-            _mediator = mediator;
+            _pollOrchestratorService = pollOrchestratorService;
         }
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
         {
@@ -95,8 +95,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                         Version = version,
                         Components = components,
                     };
-                    CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = pollDto };
-                    BaseResponse createdPollResponse = await _mediator.Send(createPollCommand);
+                    BaseResponse createdPollResponse = await _pollOrchestratorService.CreatePoll(pollDto);
+                    if (createdPollResponse.Success) newRegisters++;
                 }
                 return newRegisters;
             }

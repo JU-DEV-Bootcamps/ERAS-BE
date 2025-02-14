@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using Eras.Application.Mappers;
+using Eras.Application.Models;
 using Eras.Application.Services;
-using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
-    public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand, BaseResponse>
+    public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand, CreateComandResponse<Student>>
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ILogger<CreateStudentCommandHandler> _logger;
@@ -26,19 +26,19 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
         }
 
 
-        public async Task<BaseResponse> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
+        public async Task<CreateComandResponse<Student>> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
         {
-            var student = request.student.ToDomain();
 
             try
             {
-                var result = await _studentRepository.AddAsync(student);
-                return new BaseResponse(true);
+                Student student = request.student.ToDomain();
+                Student studentCreated = await _studentRepository.AddAsync(student);
+                return new CreateComandResponse<Student>(studentCreated, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred importing student with SISId {request.student.SISId}: {ex.Message}");
-                return new BaseResponse(ex.Message,false);
+                return new CreateComandResponse<Student>(null, "Error", false);
             }
         }
     }

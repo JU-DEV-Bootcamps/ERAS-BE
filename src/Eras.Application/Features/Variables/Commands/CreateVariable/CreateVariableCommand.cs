@@ -4,13 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Eras.Application.DTOs;
-using Eras.Application.Utils;
+using Eras.Application.Models;
+using Eras.Domain.Entities;
 using MediatR;
 
 namespace Eras.Application.Features.Variables.Commands.CreateVariable
 {
-    public class CreateVariableCommand : IRequest<BaseResponse>
+    public class CreateVariableCommand : IRequest<CreateComandResponse<Variable>>
     {
-        public VariableDTO? component;
+        public VariableDTO? Variable;
+        public int ComponentId;
+        public int PollId;
     }
 }
