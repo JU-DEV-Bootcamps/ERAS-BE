@@ -1,9 +1,10 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Utils;
+using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Consolidator.Queries.GetByRulesetQuery;
+namespace Eras.Application.Features.Consolidator.Queries.GetByRuleset;
 
 public class GetByRulesetQueryHandler: IRequestHandler<GetByRulesetQuery, BaseResponse>
 {
@@ -20,7 +21,13 @@ public class GetByRulesetQueryHandler: IRequestHandler<GetByRulesetQuery, BaseRe
     {
         try
         {
-            var answers = await _answerRepository.GetByIdAsync(request.RulesetVariablesWeight.FirstOrDefault().Key.Id);
+            foreach (var (AnswerId, Weight) in request.RulesetVariablesWeight)
+            {
+                if(AnswerId != 0){
+                    Answer answer = await _answerRepository.GetByIdAsync(AnswerId);
+                    //TODO: Implement the logic to calculate the risk
+                }
+            }
             return new BaseResponse(true);
         }
         catch (Exception ex)

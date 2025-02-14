@@ -2,10 +2,10 @@ using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using MediatR;
 
-namespace Eras.Application.Features.Consolidator.Queries.GetByRulesetQuery;
+namespace Eras.Application.Features.Consolidator.Queries.GetByRuleset;
 
 public class GetByRulesetQuery: IRequest<BaseResponse>
 {
-    public required Dictionary<Variable, int> RulesetVariablesWeight { get; set; }
+    public required List<(int AnswerId, int Weight)> RulesetVariablesWeight { get; set; }
 
 }
