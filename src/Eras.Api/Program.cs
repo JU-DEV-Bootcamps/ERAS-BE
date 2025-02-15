@@ -17,7 +17,7 @@ builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
 builder.Services.AddHealthChecks()                          
-    .AddCheck<CosmicLatteHealthCheck>("Cosmic Latte API");  
+    .AddCheck<CosmicLatteHealthCheck>("cosmicLatteApi");  
                                                             
 var app = builder.Build();
 
