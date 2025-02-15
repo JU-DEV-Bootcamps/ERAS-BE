@@ -12,6 +12,6 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswer
 {
     public class CreateAnswerCommand : IRequest<CreateComandResponse<Answer>>
     {
-        public AnswerDTO? answer;
+        public AnswerDTO? Answer;
     }
 }

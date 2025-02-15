@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -27,13 +28,19 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswer
         {
             try
             {
-                Answer answer = request.answer.ToDomain();
+                Answer answer = request.Answer.ToDomain();
+                answer.Audit = new AuditInfo()
+                {
+                    CreatedBy = "Cosmic latte import",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
                 Answer createdAnswer = await _answerRepository.AddAsync(answer);
                 return new CreateComandResponse<Answer>(createdAnswer,1, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred creating the Answer: " + request.answer.Answer);
+                _logger.LogError(ex, "An error occurred creating the Answer: " + request.Answer.Answer);
                 return new CreateComandResponse<Answer>(null,0, "Error", false);
             }
         }

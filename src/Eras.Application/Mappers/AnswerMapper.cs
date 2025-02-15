@@ -12,7 +12,9 @@ namespace Eras.Application.Mappers
             {
                 AnswerText = dto.Answer,
                 RiskLevel = (int) dto.Score,
-                Variable = null
+                PollInstanceId = dto.PollInstanceId,
+                PollVariableId = dto.PollVariableId
+
             };
         }
         public static AnswerDTO ToDto(this Answer domain)
@@ -21,7 +23,9 @@ namespace Eras.Application.Mappers
             return new AnswerDTO
             {
                 Answer = domain.AnswerText,
-                Score = domain.RiskLevel
+                Score = domain.RiskLevel,
+                PollInstanceId = domain.PollInstanceId,
+                PollVariableId = domain.PollVariableId
             };
         }
     }
