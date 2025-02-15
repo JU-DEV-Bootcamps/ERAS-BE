@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Eras.Api;
 using Eras.Infrastructure;
 using Eras.Api.Middleware;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using HealthChecks.UI.Client;
+using Eras.Infrastructure.External.CosmicLatteClient;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +16,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
+builder.Services.AddHealthChecks()                          
+    .AddCheck<CosmicLatteHealthCheck>("Cosmic Latte API");  
+                                                            
 var app = builder.Build();
 
 // Apply database migrations
@@ -25,6 +31,10 @@ using (var scope = app.Services.CreateScope())
 // Enable CORS
 app.UseCors("CORSPolicy");
 
+app.MapHealthChecks("/api/v1/health", new HealthCheckOptions()
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
