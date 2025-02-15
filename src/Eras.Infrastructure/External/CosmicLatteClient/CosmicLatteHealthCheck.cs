@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,14 +33,25 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             try
             {
+                var stopwatch = Stopwatch.StartNew();
                 var response = await _httpClient.SendAsync(request);
+                stopwatch.Stop();
+
+                var data = new Dictionary<string, object>
+                    {
+                        { "date", DateTime.UtcNow.ToLocalTime().ToString("dd-MM-yyyy HH:mm") + "hs" },
+                        { "ResponseTime", stopwatch.ElapsedMilliseconds },
+                        { "StatusCode", response.StatusCode },
+                        { "ContentLength", response.Content.Headers.ContentLength ?? 0 }
+                    };
+
                 if (response.IsSuccessStatusCode)
                 {
-                    return HealthCheckResult.Healthy();
+                    return HealthCheckResult.Healthy("Cosmic Latte service is available", data);
                 }
                 else
                 {
-                    return HealthCheckResult.Unhealthy();
+                    return HealthCheckResult.Unhealthy("Cosmic Latte service returned an unsuccessful status code", null, data);
                 }
             }
             catch (Exception e)
@@ -47,26 +59,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 Console.WriteLine($"Error : {e.Message}");
                 throw new Exception($"There was an error with the request");
             }
-
-            /*        
-            var fullUrl = new Uri(_API_URL);
-            string apiUrl = fullUrl.Host;
-            Ping requestServer = new Ping();
-            PingReply serverResponse = requestServer.Send(apiUrl, 10000);
-
-            if (serverResponse.Status == IPStatus.Success)
-            {
-                Console.WriteLine("IP Address: {0}", serverResponse.Address.ToString());
-                Console.WriteLine("RoundTrip time: {0}", serverResponse.RoundtripTime);
-                Console.WriteLine("Time to live: {0}", serverResponse.Options.Ttl);
-                Console.WriteLine("Don't fragment: {0}", serverResponse.Options.DontFragment);
-                Console.WriteLine("Buffer size: {0}", serverResponse.Buffer.Length);
-                return (TStatus)new CosmicLatteStatus(true);
-            }
-            else
-                Console.WriteLine(serverResponse.Status);
-                return (TStatus)new CosmicLatteStatus(false);
-            */
         }
     }
 }
