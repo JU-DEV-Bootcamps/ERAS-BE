@@ -95,7 +95,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                         Version = version,
                         Components = components,
                     };
-                    BaseResponse createdPollResponse = await _pollOrchestratorService.CreatePoll(pollDto);
+                    BaseResponse createdPollResponse = await _pollOrchestratorService.ImportPoll(pollDto);
                     if (createdPollResponse.Success) newRegisters++;
                 }
                 return newRegisters;
