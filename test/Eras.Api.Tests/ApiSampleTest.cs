@@ -20,7 +20,7 @@ namespace Eras.Api.Tests
                 .ReturnsAsync(expectedStatus);
 
 
-            var controller = new EvaluationsController(mockService.Object);
+            var controller = new CosmicLatteController(mockService.Object);
 
             // Act
             var result = await controller.CosmicApiIsHealthy();
