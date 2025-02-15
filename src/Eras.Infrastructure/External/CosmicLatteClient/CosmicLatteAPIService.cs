@@ -1,16 +1,11 @@
-﻿using Eras.Application.Contracts.Infrastructure;
-using Eras.Application.Dtos;
+﻿using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
-using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Models;
 using Eras.Application.Services;
-using Eras.Domain.Common;
 using Eras.Domain.Entities;
-using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
 
@@ -99,6 +94,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     };
                     pollsDtos.Add(pollDto);
                 }
+                // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
+                // We should redesign the next layer so that this transfer of duplicate information is not required.
                 CreateComandResponse<Poll> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
                 return createdPollResponse.SuccessfullImports;
             }
@@ -145,9 +142,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
-
-
-
 
                 StudentDTO studentDTO = CreateStudent(studentName, studentEmail);
 

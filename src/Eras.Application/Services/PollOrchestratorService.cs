@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Services
 {
-    public class PollOrchestratorService // Create interface
+    public class PollOrchestratorService // Create interface or comand
     {
         private readonly IMediator _mediator;
         ILogger<PollOrchestratorService> _logger;
@@ -71,7 +71,10 @@ namespace Eras.Application.Services
         }
         public async Task CreateAnswers(PollDTO pollToCreate, List<Component> createdComponents, CreateComandResponse<PollInstance> createdPollInstance)
         {
-            // ESTO HACE RUIDO, BUSCAR FORMA MAS EFICIENTE
+            // Answer needs to associate the poll_variable id, from the intermediate table that relates poll and variables
+            // since there is no direct relationship, it must iterate again over the elements already created   
+            // This way, the information between the id that corresponds to each poll_variable can be crossed with the corresponding answer
+            // This is weird, surely there is a more efficient way to do this
             foreach (ComponentDTO component in pollToCreate.Components)
             {
                 foreach (VariableDTO variable in component.Variables)
