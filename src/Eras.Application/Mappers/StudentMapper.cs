@@ -34,6 +34,23 @@ public static class StudentMapper
         };
 
     }
+    public static StudentImportDto ToStudentImportDto(this StudentDTO dto)
+    {
+        return new StudentImportDto()
+        {            
+            Name = dto.Name,
+            Email = dto.Email,
+            SISId = dto.Uuid,
+            EnrolledCourses = default,
+            GradedCourses = default,
+            TimelySubmissions = default,
+            AverageScore = default,
+            CoursesBelowAverage = default,
+            RawScoreDifference = default,
+            StandardScoreDifference = default,
+            DaysSinceLastAccess = default,
+        };
+    }
     public static Student ToDomain(this StudentImportDto dto)
     {
         ArgumentNullException.ThrowIfNull(dto);

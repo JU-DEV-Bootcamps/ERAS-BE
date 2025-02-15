@@ -17,7 +17,7 @@ namespace Eras.Application.Mappers
                 Id = dto.Id,
                 Name = dto.Name,
                 Version = dto.Version,
-                Uuid = dto.IdCosmicLatte,
+                Uuid = dto.Uuid,
                 Components = components
             };
         }
@@ -28,6 +28,7 @@ namespace Eras.Application.Mappers
             return new PollDTO {
                 Id = domain.Id,
                 Name = domain.Name,
+                Uuid= domain.Uuid,
                 Version = domain.Version,
                 Components = components
             };

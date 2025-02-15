@@ -9,15 +9,18 @@ namespace Eras.Application.Models
 {
     public class CreateComandResponse<T> : BaseResponse
     {
-        public T entity { get; set; }
+        public T Entity { get; set; }
+        public int SuccessfullImports { get; set; }
 
-        public CreateComandResponse(T createdEntity) 
+        public CreateComandResponse(T createdEntity, int successfullImports) 
         {
-            entity = createdEntity;
+            Entity = createdEntity;
+            SuccessfullImports = successfullImports;
         }
-        public CreateComandResponse(T createdEntity, string message, bool success) : base(message, success)
+        public CreateComandResponse(T createdEntity, int successfullImports, string message, bool success) : base(message, success)
         {
-            entity = createdEntity;            
+            Entity = createdEntity;
+            SuccessfullImports = successfullImports;
         }
 
     }

@@ -12,7 +12,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
     public class CreateStudentCommand : IRequest<CreateComandResponse<Student>>
     {
-        public StudentImportDto? student;
+        public StudentImportDto? StudentDTO;
         
     }
 }

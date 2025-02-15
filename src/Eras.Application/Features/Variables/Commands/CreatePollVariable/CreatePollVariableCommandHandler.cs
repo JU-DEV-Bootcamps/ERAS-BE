@@ -36,13 +36,13 @@ namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
                 createdVariable.IdPoll = request.PollId;
                 createdVariable.Id = request.VariableId;
                 Variable response = await _pollVariableRepository.AddAsync(createdVariable);
-                return new CreateComandResponse<Variable>(response, "Success", true);
+                return new CreateComandResponse<Variable>(response,1, "Success", true);
             }
 
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the variable: ");
-                return new CreateComandResponse<Variable>(null, "Error", false);
+                return new CreateComandResponse<Variable>(null,0, "Error", false);
             }
         }
     }

@@ -38,7 +38,7 @@ namespace Eras.Application.Features.Variables.Commands.CreateVariable
                 {
                     variable.IdComponent = request.ComponentId;
                     variable.IdPoll = request.PollId;
-                    variable.PollVariableId = 0; // id del registro en tabla intermedia, se crea en db
+                    // variable.PollVariableId = 0;
                     variable.Audit = new AuditInfo()
                     {
                         CreatedBy = "Cosmic latte import",
@@ -46,14 +46,14 @@ namespace Eras.Application.Features.Variables.Commands.CreateVariable
                         ModifiedAt = DateTime.UtcNow,
                     };
                     Variable createdVariable = await _variableRepository.AddAsync(variable);
-                    return new CreateComandResponse<Variable>(createdVariable, "Success", true);
+                    return new CreateComandResponse<Variable>(createdVariable, 1, "Success", true);
                 }
-                return new CreateComandResponse<Variable>(null, "Error", false);
+                return new CreateComandResponse<Variable>(null,0, "Error", false);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the variable: ");
-                return new CreateComandResponse<Variable>(null, "Error", false);
+                return new CreateComandResponse<Variable>(null,0, "Error", false);
             }
         }
     }

@@ -35,17 +35,17 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 
                 foreach (var dto in request.students)
                 {
-                    CreateStudentCommand createStudentCommand = new CreateStudentCommand() { student = dto };
+                    CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = dto };
                     Student createdStudent = new Student(); //  await _mediator.Send(createStudentCommand).Result; 
                     createdStudents.Append(createdStudent);
                 }
 
-                return new CreateComandResponse<Student[]>(createdStudents, "Success", true);
+                return new CreateComandResponse<Student[]>(createdStudents,1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the massive import process");
-                return new CreateComandResponse<Student[]>(null, "Error", false);
+                return new CreateComandResponse<Student[]>(null,0, "Error", false);
             }
         }
     }

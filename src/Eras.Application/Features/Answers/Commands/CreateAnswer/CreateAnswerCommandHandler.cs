@@ -29,12 +29,12 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswer
             {
                 Answer answer = request.answer.ToDomain();
                 Answer createdAnswer = await _answerRepository.AddAsync(answer);
-                return new CreateComandResponse<Answer>(createdAnswer, "Success", true);
+                return new CreateComandResponse<Answer>(createdAnswer,1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the Answer: " + request.answer.Answer);
-                return new CreateComandResponse<Answer>(null, "Error", false);
+                return new CreateComandResponse<Answer>(null,0, "Error", false);
             }
         }
     }

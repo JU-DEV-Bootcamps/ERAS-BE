@@ -31,14 +31,14 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 
             try
             {
-                Student student = request.student.ToDomain();
+                Student student = request.StudentDTO.ToDomain();
                 Student studentCreated = await _studentRepository.AddAsync(student);
-                return new CreateComandResponse<Student>(studentCreated, "Success", true);
+                return new CreateComandResponse<Student>(studentCreated,1, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred importing student with SISId {request.student.SISId}: {ex.Message}");
-                return new CreateComandResponse<Student>(null, "Error", false);
+                _logger.LogError($"An error occurred importing student with SISId {request.StudentDTO.SISId}: {ex.Message}");
+                return new CreateComandResponse<Student>(null,0, "Error", false);
             }
         }
     }

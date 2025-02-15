@@ -35,12 +35,12 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
                     ModifiedAt = DateTime.UtcNow,
                 };
                 Poll response = await _pollRepository.AddAsync(poll);
-                return new CreateComandResponse<Poll>(response, "Success", true);
+                return new CreateComandResponse<Poll>(response,1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the poll: " + request.Poll.Name);
-                return new CreateComandResponse<Poll>(null, "Error", false);
+                return new CreateComandResponse<Poll>(null,0, "Error", false);
             }
         }
     }

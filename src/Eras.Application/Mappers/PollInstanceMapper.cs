@@ -17,7 +17,7 @@ namespace Eras.Application.Mappers
             ICollection<Answer> answers = dto.Answers?.Select(ans => ans.ToDomain()).ToList() ?? [];
             return new PollInstance()
             {
-                Uuid = dto.Uuid,
+                Uuid = dto.Uuid,             
                 Student = dto.Student.ToDomain(),
                 Answers = answers,
                 Audit = dto.Audit,

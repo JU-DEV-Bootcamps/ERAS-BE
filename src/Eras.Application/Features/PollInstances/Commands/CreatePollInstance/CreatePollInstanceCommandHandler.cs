@@ -7,12 +7,14 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
+using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
 {
-    public class CreatePollInstanceCommandHandler
+    public class CreatePollInstanceCommandHandler : IRequestHandler<CreatePollInstanceCommand, CreateComandResponse<PollInstance>>
     {
         private readonly IPollInstanceRepository _pollInstanceRepository;
         private readonly ILogger<CreatePollInstanceCommandHandler> _logger;
@@ -28,13 +30,19 @@ namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
             try
             {
                 PollInstance? pollInstance = request.PollInstance.ToDomain();
+                pollInstance.Audit = new AuditInfo()
+                {
+                    CreatedBy = "Cosmic latte import",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
                 PollInstance createdPoll = await _pollInstanceRepository.AddAsync(pollInstance);
-                return new CreateComandResponse<PollInstance>(createdPoll, "Success", true);
+                return new CreateComandResponse<PollInstance>(createdPoll,1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the poll: ");
-                return new CreateComandResponse<PollInstance>(null, "Error", false);
+                return new CreateComandResponse<PollInstance>(null,0, "Error", false);
             }
         }
     }

@@ -26,7 +26,7 @@ namespace Eras.Application.Features.Components.Commands.CreateCommand
             try
             {
                 Component? component = request.Component?.ToDomain();
-                if (component == null) return new CreateComandResponse<Component>(null, "Error", false);
+                if (component == null) return new CreateComandResponse<Component>(null,0, "Error", false);
                 component.Audit = new AuditInfo()
                 {
                     CreatedBy = "Cosmic latte import",
@@ -35,12 +35,12 @@ namespace Eras.Application.Features.Components.Commands.CreateCommand
                 };
                 Component createdComponent = await _componentRepository.AddAsync(component);
 
-                return new CreateComandResponse<Component>(createdComponent, "Success", true);
+                return new CreateComandResponse<Component>(createdComponent, 1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the component: ");
-                return new CreateComandResponse<Component>(null, "Error", false);
+                return new CreateComandResponse<Component>(null,0, "Error", false);
             }
         }
     }
