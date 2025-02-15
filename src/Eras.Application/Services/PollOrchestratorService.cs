@@ -2,10 +2,12 @@
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Answers.Commands.CreateAnswer;
+using Eras.Application.Features.Cohort.Commands.CreateCohort;
 using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
 using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Features.Students.Commands.CreateStudent;
+using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Features.Variables.Commands.CreatePollVariable;
 using Eras.Application.Features.Variables.Commands.CreateVariable;
 using Eras.Application.Mappers;
@@ -50,16 +52,17 @@ namespace Eras.Application.Services
                 foreach (PollDTO pollToCreate in pollsToCreate)
                 {
                     // Create students
-                    // Falta:
-                    // - crear y asociar student detail
-                    // - crear y asociar Cohorts (StudentCohortsJoin)
                     CreateComandResponse<Student> createdStudent = await CreateStudentFromPoll(pollToCreate);
 
                     // Create poll instances
                     CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, pollDTO.Uuid);
 
                     // Create asnswers
-                    await CreateAnswers(pollToCreate, createdComponents, createdPollInstance);
+                    if(createdPollInstance.Success)
+                    {
+                        await CreateAnswers(pollToCreate, createdComponents, createdPollInstance);
+
+                    }
                     createdPollsInstances++;
                 }
                 return new CreateComandResponse<Poll>(null, createdPollsInstances, "Success", true);
@@ -110,16 +113,41 @@ namespace Eras.Application.Services
                 return new CreateComandResponse<PollInstance>(null, 0, "Error", false);
             }
         }
+        public async Task<CreateComandResponse<StudentDetail>> CreateStudentDetail(int studentId)
+        {
+            StudentDetailDTO studentDetailDTO = new StudentDetailDTO() { StudentId = studentId  };
+            CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
+            return await _mediator.Send(createStudentDetailCommand);
+        }
         public async Task<CreateComandResponse<Student>> CreateStudentFromPoll(PollDTO pollToCreate)
         {
             try
             {
                 StudentDTO studentToCreate = (pollToCreate.Components.FirstOrDefault()?.Variables.FirstOrDefault()?.Answer?.Student) 
                     ?? throw new ArgumentNullException("Student information not found");
-
                 studentToCreate.Uuid = Guid.NewGuid().ToString();
                 CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate.ToStudentImportDto() };
-                return await _mediator.Send(createStudentCommand);
+                CreateComandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand); 
+
+                if (createdStudent.Success)
+                {
+                    CreateComandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity.Id);
+
+                    // - crear y asociar Cohorts (StudentCohortsJoin)
+                    CohortDTO cohortDTO = new CohortDTO()
+                    {
+                        /*
+                            public string Name { get; set; } = string.Empty;
+                            public string CourseCode { get; set; } = string.Empty;
+                            public AuditInfo Audit { get; set; } = default!;
+                            public ICollection<StudentDTO> Students { get; set; } = [];
+                        */
+
+                    };
+                    // PENDIENTE=> CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohortDTO };
+
+                }
+                return createdStudent;
             }
             catch (Exception ex)
             {

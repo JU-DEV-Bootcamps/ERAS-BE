@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Contracts.Persistence
 {
-    public interface IPollVariableRepository: IBaseRepository<Variable> // PollVariableJoin?? 
+    public interface IPollVariableRepository: IBaseRepository<Variable>
     {
 
     }

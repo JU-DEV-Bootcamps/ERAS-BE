@@ -9,6 +9,7 @@ namespace Eras.Application.DTOs
 {
     public class StudentDetailDTO
     {
+        public int StudentId { get; set; }
         public int EnrolledCourses { get; set; }
         public int GradedCourses { get; set; }
         public int TimeDeliveryRate { get; set; }

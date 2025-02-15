@@ -10,6 +10,7 @@ namespace Eras.Application.Mappers
             ArgumentNullException.ThrowIfNull(dto);
             return new StudentDetail
             {
+                StudentId = dto.StudentId,
                 EnrolledCourses = dto.EnrolledCourses,
                 GradedCourses = dto.GradedCourses,
                 TimeDeliveryRate = dto.TimeDeliveryRate,
@@ -27,6 +28,7 @@ namespace Eras.Application.Mappers
             ArgumentNullException.ThrowIfNull(domain);
             return new StudentDetailDTO
             {
+                StudentId = domain.StudentId,
                 EnrolledCourses = domain.EnrolledCourses,
                 GradedCourses = domain.GradedCourses,
                 TimeDeliveryRate = domain.TimeDeliveryRate,
