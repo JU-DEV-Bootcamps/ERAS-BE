@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
-using Eras.Application.Services;
-using Eras.Application.Utils;
+using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
-    public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand, BaseResponse>
+    public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand, CreateComandResponse<Student>>
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ILogger<CreateStudentCommandHandler> _logger;
@@ -26,19 +19,22 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
         }
 
 
-        public async Task<BaseResponse> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
+        public async Task<CreateComandResponse<Student>> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
         {
-            var student = request.student.ToDomain();
 
             try
             {
-                var result = await _studentRepository.AddAsync(student);
-                return new BaseResponse(true);
+                Student? studentDB = await _studentRepository.GetByEmailAsync(request.StudentDTO.Email);
+                if (studentDB != null) return new CreateComandResponse<Student>(studentDB, 0, "Success", true);
+
+                Student student = request.StudentDTO.ToDomain();
+                Student studentCreated = await _studentRepository.AddAsync(student);
+                return new CreateComandResponse<Student>(studentCreated,1, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred importing student with SISId {request.student.SISId}: {ex.Message}");
-                return new BaseResponse(ex.Message,false);
+                _logger.LogError($"An error occurred importing student with SISId {request.StudentDTO.SISId}: {ex.Message}");
+                return new CreateComandResponse<Student>(null,0, "Error", false);
             }
         }
     }

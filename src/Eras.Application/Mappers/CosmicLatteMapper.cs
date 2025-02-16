@@ -1,12 +1,13 @@
 ﻿using Eras.Application.Dtos;
+using Eras.Application.DTOs.CL;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using System.Text;
 
 namespace Eras.Application.Mappers;
 
-    public static class CosmicLatteMapper
-    {
+public static class CosmicLatteMapper
+{/*
         public static Student ToStudent(CLResponseModelForPollDTO CLPoll)
         {
             ArgumentNullException.ThrowIfNull(nameof(CLPoll)); 
@@ -37,13 +38,7 @@ namespace Eras.Application.Mappers;
         public static Domain.Entities.Answer ToAnswer(Answers answer)
         {
 
-            /*
-                public string AnswerText { get; set; } = string.Empty;
-                public int RiskLevel { get; set; }
-                public int PollInstanceId { get; set; }
-                public PollInstance PollInstance { get; set; } = default!;
-                public AuditInfo Audit { get; set; } = default!;
-             */
+ 
 
 
 
@@ -82,27 +77,8 @@ namespace Eras.Application.Mappers;
         }
 
 
-        public static Domain.Entities.Variable ToVariable(Answers answer, int pollId)
-        {
-            /*
-                    [JsonPropertyName("answer")]
-        public string[] AnswersList { get; set; }
-
-        [JsonPropertyName("question")]
-        public Question Question { get; set; }
-
-        [JsonPropertyName("position")]
-        public int Position { get; set; }
-
-        [JsonPropertyName("score")]
-        public double Score { get; set; }
-
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
-
-        [JsonPropertyName("customSettings")]
-        public List<string> CustomSettings { get; set; } = new List<string>();
-            */
+        public static Variable ToVariable(Answers answer, int pollId)
+        { 
 
 
 
@@ -117,21 +93,7 @@ namespace Eras.Application.Mappers;
 
             return new Domain.Entities.Variable
             {
-/*
-public string Name { get; set; } = string.Empty;
-public int ComponentId { get; set; }
-public Component Component { get; set; } = default!;
-public ICollection<Poll> Polls { get; set; } = [];
-public ICollection<Cohort> Cohorts { get; set; } = [];
-public AuditInfo Audit { get; set; } = default!;
-*/
-/*
-                Id = id,
-                Name = name,
-                PollId = pollId,
-                Position = position,
-                ParentId = parentId,
-                */
+ 
                 // CreatedDate = createdDate,
                 //cModifiedDate = modifiedDate
             };
@@ -228,3 +190,5 @@ public AuditInfo Audit { get; set; } = default!;
         }
 
     }
+*/
+}

@@ -1,15 +1,59 @@
-using Eras.Application.DTOs;
-using Eras.Domain.Common;
-using Eras.Domain.Entities;
-using System.Collections.Generic;
+using Eras.Application.Dtos;
+using Eras.Application.DTOs; 
+using Eras.Domain.Entities; 
 using System.Globalization;
 
 namespace Eras.Application.Mappers;
 
 public static class StudentMapper
 {
+    public static Student ToDomain(this StudentDTO dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+        return new Student
+        {
+            Id = dto.Id,
+            Uuid = dto.Uuid,
+            Name = dto.Name,
+            Email = dto.Email,
+            StudentDetail = dto.StudentDetail?.ToDomain(),
+            Audit = default
+        };
+
+    }
+    public static StudentDTO ToDto(this Student domain)
+    {
+        ArgumentNullException.ThrowIfNull(domain);
+        return new StudentDTO
+        {
+            Id = domain.Id,
+            Uuid = domain.Uuid,
+            Name = domain.Name,
+            Email = domain.Email,
+            StudentDetail = domain.StudentDetail?.ToDto(),
+        };
+
+    }
+    public static StudentImportDto ToStudentImportDto(this StudentDTO dto)
+    {
+        return new StudentImportDto()
+        {            
+            Name = dto.Name,
+            Email = dto.Email,
+            SISId = dto.Uuid,
+            EnrolledCourses = default,
+            GradedCourses = default,
+            TimelySubmissions = default,
+            AverageScore = default,
+            CoursesBelowAverage = default,
+            RawScoreDifference = default,
+            StandardScoreDifference = default,
+            DaysSinceLastAccess = default,
+        };
+    }
     public static Student ToDomain(this StudentImportDto dto)
     {
+        ArgumentNullException.ThrowIfNull(dto);
         var culture = CultureInfo.GetCultureInfo("es-ES");
 
         return new Student

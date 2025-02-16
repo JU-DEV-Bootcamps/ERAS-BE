@@ -23,10 +23,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<TDomain> AddAsync(TDomain entity)
         {
-            await _context.Set<TPersist>().AddAsync(_toPersistence(entity));
+            var response = await _context.Set<TPersist>().AddAsync(_toPersistence(entity));
             await _context.SaveChangesAsync();
             
-            return entity;
+            return _toDomain(response.Entity);
         }
 
         public async Task DeleteAsync(TDomain entity)

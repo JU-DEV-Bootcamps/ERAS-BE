@@ -10,6 +10,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             return new StudentDetail
             {
                 Id = entity.Id,
+                StudentId = entity.StudentId,
                 EnrolledCourses = entity.EnrolledCourses,
                 GradedCourses = entity.GradedCourses,
                 TimeDeliveryRate = entity.TimeDeliveryRate,
@@ -27,6 +28,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             return new StudentDetailEntity
             {
                 Id = model.Id,
+                StudentId = model.StudentId,
                 EnrolledCourses = model.EnrolledCourses,
                 GradedCourses = model.GradedCourses,
                 TimeDeliveryRate = model.TimeDeliveryRate,

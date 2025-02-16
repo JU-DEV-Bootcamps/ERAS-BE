@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Eras.Application.Dtos
+namespace Eras.Application.DTOs.CL
 {
     // this is a class only to serialize from Cosmic latte
     public class CLResponseModelForPollDTO
@@ -84,11 +85,19 @@ namespace Eras.Application.Dtos
         [JsonPropertyName("name")]
         public string Name { get; set; }
     }
+    /*
     public class Scores
     {
         [JsonPropertyName("default-trait")]
         public DefaultTrait DefaultTrait { get; set; }
     }
+    */
+    public class Scores
+    {
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> Traits { get; set; } = new();
+    }
+
     public class Answers
     {
         [JsonPropertyName("answer")]

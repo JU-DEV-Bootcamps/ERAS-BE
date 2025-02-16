@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Eras.Domain.Common;
+using Eras.Domain.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,17 +10,11 @@ namespace Eras.Application.Dtos
 {
     public class AnswerDTO
     {
-        public string Answer { get; set; }
-        public string Question { get; set; }
-        public int Position { get; set; }
+        public string Answer { get; set; } = String.Empty;
         public double Score { get; set; }
+        public int PollInstanceId { get; set; }
+        public int PollVariableId { get; set; }
 
-        public AnswerDTO(string Answer, string Question, int Position, double Score)
-        {
-            this.Answer = Answer;
-            this.Question = Question;
-            this.Position = Position;
-            this.Score = Score;
-        }
+        public StudentDTO? Student { get; set; }
     }
 }
