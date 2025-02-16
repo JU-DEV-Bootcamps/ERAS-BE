@@ -11,5 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             : base(context, AnswerMapper.ToDomain, AnswerMapper.ToPersistence)
         {
         }
+
+        //Add new method for get heatmap data by all components
     }
 }

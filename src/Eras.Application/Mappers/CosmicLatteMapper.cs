@@ -1,10 +1,7 @@
 ﻿using Eras.Application.Dtos;
-using Eras.Application.DTOs;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
-using System.Globalization;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace Eras.Application.Mappers;
 
@@ -37,7 +34,7 @@ namespace Eras.Application.Mappers;
             };
         }
 
-        public static Answer ToAnswer(Answers answer)
+        public static Domain.Entities.Answer ToAnswer(Answers answer)
         {
 
             /*
@@ -70,7 +67,7 @@ namespace Eras.Application.Mappers;
             string answerText = sbQuestions.ToString();
             int position = answer.Position;
             int riskLevel = (int) answer.Score;
-            return new Answer { 
+            return new Domain.Entities.Answer { 
                 AnswerText = answerText, 
                 //Question = question, 
                 //Position = position, 
@@ -85,7 +82,7 @@ namespace Eras.Application.Mappers;
         }
 
 
-        public static Variable ToVariable(Answers answer, int pollId)
+        public static Domain.Entities.Variable ToVariable(Answers answer, int pollId)
         {
             /*
                     [JsonPropertyName("answer")]
@@ -118,7 +115,7 @@ namespace Eras.Application.Mappers;
             DateTime createdDate = DateTime.Now;
             DateTime modifiedDate = DateTime.Now;
 
-            return new Variable
+            return new Domain.Entities.Variable
             {
 /*
 public string Name { get; set; } = string.Empty;
@@ -139,7 +136,7 @@ public AuditInfo Audit { get; set; } = default!;
                 //cModifiedDate = modifiedDate
             };
         }
-        public static Answer DtoToAnswer(AnswerDTO answerDto)
+        public static Domain.Entities.Answer DtoToAnswer(AnswerDTO answerDto)
         {
             string question = answerDto.Question;
             int id = 0;
@@ -148,7 +145,7 @@ public AuditInfo Audit { get; set; } = default!;
             string answerText = answerDto.Answer;
             int position = answerDto.Position;
             int riskLevel = (int) answerDto.Score;
-            return new Answer
+            return new Domain.Entities.Answer
             {
                 AnswerText = answerText,
                 RiskLevel = riskLevel,
