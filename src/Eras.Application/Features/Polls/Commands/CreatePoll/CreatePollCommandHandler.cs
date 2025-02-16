@@ -28,6 +28,9 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
         {
             try
             {
+                Poll? pollInDB = await _pollRepository.GetByNameAsync(request.Poll.Name);
+                if (pollInDB != null) return new CreateComandResponse<Poll>(pollInDB, 0, "Success", true);
+
                 Poll poll = request.Poll.ToDomain();
                 poll.Audit = new AuditInfo() { 
                     CreatedBy = "Cosmic latte import",

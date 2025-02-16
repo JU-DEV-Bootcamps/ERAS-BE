@@ -55,6 +55,10 @@ namespace Eras.Application.Services
                     CreateComandResponse<Student> createdStudent = await CreateStudentFromPoll(pollToCreate);
 
                     // Create poll instances
+                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
+                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
+                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
+                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
                     CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, pollDTO.Uuid);
 
                     // Create asnswers
@@ -119,6 +123,21 @@ namespace Eras.Application.Services
             CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
             return await _mediator.Send(createStudentDetailCommand);
         }
+        public async Task<CreateComandResponse<Cohort>> CreateCohort( )
+        {
+            CohortDTO cohortDTO = new CohortDTO()
+            {
+                /*
+                    public string Name { get; set; } = string.Empty;
+                    public string CourseCode { get; set; } = string.Empty;
+                    public AuditInfo Audit { get; set; } = default!;
+                    public ICollection<StudentDTO> Students { get; set; } = [];
+                */
+
+            };
+            CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohortDTO }; 
+            return await _mediator.Send(createCohortCommand);
+        }
         public async Task<CreateComandResponse<Student>> CreateStudentFromPoll(PollDTO pollToCreate)
         {
             try
@@ -132,20 +151,7 @@ namespace Eras.Application.Services
                 if (createdStudent.Success)
                 {
                     CreateComandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity.Id);
-
-                    // - crear y asociar Cohorts (StudentCohortsJoin)
-                    CohortDTO cohortDTO = new CohortDTO()
-                    {
-                        /*
-                            public string Name { get; set; } = string.Empty;
-                            public string CourseCode { get; set; } = string.Empty;
-                            public AuditInfo Audit { get; set; } = default!;
-                            public ICollection<StudentDTO> Students { get; set; } = [];
-                        */
-
-                    };
-                    // PENDIENTE=> CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohortDTO };
-
+                    CreateComandResponse<Cohort> createdCohort = await CreateCohort();
                 }
                 return createdStudent;
             }

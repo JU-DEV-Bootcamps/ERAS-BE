@@ -24,6 +24,9 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 
             try
             {
+                Student? studentDB = await _studentRepository.GetByEmailAsync(request.StudentDTO.Email);
+                if (studentDB != null) return new CreateComandResponse<Student>(studentDB, 0, "Success", true);
+
                 Student student = request.StudentDTO.ToDomain();
                 Student studentCreated = await _studentRepository.AddAsync(student);
                 return new CreateComandResponse<Student>(studentCreated,1, "Success", true);

@@ -2,6 +2,7 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
@@ -13,6 +14,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
         }
 
+        public async Task<Variable?> GetByNameAsync(string name)
+        {
+            var variable = await _context.Variables
+                .FirstOrDefaultAsync(variable => variable.Name == name);
+
+            return variable?.ToDomain();
+        }
         public async Task<Variable> AddAsync(Variable variable)
         {
 

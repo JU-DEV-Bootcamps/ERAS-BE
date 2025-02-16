@@ -25,8 +25,12 @@ namespace Eras.Application.Features.Components.Commands.CreateCommand
         {
             try
             {
+                Component? componentnDB = await _componentRepository.GetByNameAsync(request.Component.Name);
+                if (componentnDB != null) return new CreateComandResponse<Component>(componentnDB, 0, "Success", true);
+
                 Component? component = request.Component?.ToDomain();
                 if (component == null) return new CreateComandResponse<Component>(null,0, "Error", false);
+
                 component.Audit = new AuditInfo()
                 {
                     CreatedBy = "Cosmic latte import",

@@ -33,6 +33,10 @@ namespace Eras.Application.Features.Variables.Commands.CreateVariable
         {
             try
             {
+                Variable? variableDB = await _variableRepository.GetByNameAsync(request.Variable.Name);
+                if (variableDB != null) return new CreateComandResponse<Variable>(variableDB, 0, "Success", true);
+
+
                 Variable? variable = request.Variable?.ToDomain(); 
                 if (variable!= null)
                 {
