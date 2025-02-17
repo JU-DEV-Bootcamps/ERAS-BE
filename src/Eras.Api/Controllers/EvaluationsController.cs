@@ -11,17 +11,26 @@ namespace Eras.Api.Controllers
     public class EvaluationsController : ControllerBase
     {
         private readonly ICosmicLatteAPIService _cosmicLatteService;
+        private readonly ILogger<EvaluationsController> _logger;
 
-        public EvaluationsController(ICosmicLatteAPIService cosmicLatteService)
+        public EvaluationsController(
+            ICosmicLatteAPIService cosmicLatteService, 
+            ILogger<EvaluationsController> logger)
         {
             _cosmicLatteService = cosmicLatteService;
+            _logger = logger;
         }
 
         // this should be placed in a health controller with status of other external services?
         [HttpOptions("/cosmic-latte/status")]
         public async Task<ActionResult<CosmicLatteStatus>> CosmicApiIsHealthy()
         {
-            return Ok(await _cosmicLatteService.CosmicApiIsHealthy());
+            _logger.LogInformation("Checking CosmicLatte API health...");
+
+            var status = await _cosmicLatteService.CosmicApiIsHealthy();
+
+            _logger.LogInformation("CosmicLatte API health status: {Status}", status);
+            return Ok(status);
         }
 
 
@@ -32,14 +41,30 @@ namespace Eras.Api.Controllers
         [FromQuery] string endDate = ""
         )
         {
+            _logger.LogInformation(
+                "GET /api/Evaluations called with name={Name}, startDate={StartDate}, endDate={EndDate}",
+                name, startDate, endDate
+            );
             var success = await _cosmicLatteService.ImportAllPolls(name, startDate, endDate);
             if (success > 0)
             {
-                return Ok(new { status = "successful", message = $"{success} Students imported successfully" });
+                _logger.LogInformation("{SuccessCount} polls (or students) imported successfully", success);
+                return Ok(new 
+                { 
+                    status = "successful", 
+                    message = $"{success} Students imported successfully" 
+                });
             }
             else
             {
-                return StatusCode(500, new { status = "error", message = "An error occurred during the import process" });
+                _logger.LogWarning(
+                    "No polls were imported or an error occurred."
+                );
+                return StatusCode(500, new 
+                { 
+                    status = "error", 
+                    message = "An error occurred during the import process" 
+                });
             }
         }
 
