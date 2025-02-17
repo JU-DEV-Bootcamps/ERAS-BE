@@ -21,6 +21,8 @@ var logger = new LoggerConfiguration()
     )
     .CreateLogger();
 
+builder.Host.UseSerilog(logger);
+
 builder.Services.AddApiServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
