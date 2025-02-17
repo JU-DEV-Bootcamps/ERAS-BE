@@ -18,7 +18,7 @@ public static class StudentMapper
             Name = dto.Name,
             Email = dto.Email,
             Cohort = cohort,
-            CohortId = cohort.Id,
+            CohortId = cohort!=null ? cohort.Id : 0,
             StudentDetail = dto.StudentDetail?.ToDomain(),
             Audit = default
         };

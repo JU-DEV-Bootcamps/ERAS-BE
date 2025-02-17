@@ -124,16 +124,15 @@ namespace Eras.Application.Services
             CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
             return await _mediator.Send(createStudentDetailCommand);
         }
-        public async Task<CreateComandResponse<Cohort>> CreateAndSetStudentCohort(StudentDTO studentDto)
+        public async Task<CreateComandResponse<Cohort>> CreateAndSetStudentCohort(StudentDTO studentDto,CohortDTO cohort)
         {
-            CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = studentDto.Cohort };
-            CreateComandResponse < Cohort > createdCohort = await _mediator.Send(createCohortCommand);
+            CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohort };
+            CreateComandResponse <Cohort> createdCohort = await _mediator.Send(createCohortCommand);
 
             if (createdCohort.Success)
             {
                 CreateStudentCohortCommand createStudentCohortCommand = new CreateStudentCohortCommand() { CohortId = createdCohort.Entity.Id, StudentId = studentDto.Id };
                 CreateComandResponse<Student> createdStudentCohort = await _mediator.Send(createStudentCohortCommand);
-                Console.WriteLine("");
             }
 
             return createdCohort;
@@ -151,7 +150,10 @@ namespace Eras.Application.Services
                 if (createdStudent.Success)
                 {
                     CreateComandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity.Id);
-                    CreateComandResponse<Cohort> createdCohort = await CreateAndSetStudentCohort(createdStudent.Entity.ToDto());
+                    CohortDTO cohortToCreate = studentToCreate.Cohort;
+                    createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
+                    CreateComandResponse<Cohort> createdCohort = await CreateAndSetStudentCohort(createdStudent.Entity.ToDto(), cohortToCreate);
+                    createdStudent.Entity.Cohort = createdCohort.Entity; 
                 }
                 return createdStudent;
             }

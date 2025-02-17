@@ -31,14 +31,17 @@ namespace Eras.Application.Features.Cohort.Commands.CreateCohort
 
             try
             {
-                Domain.Entities.Cohort cohort = request.CohortDto.ToDomain();
-                cohort.Audit = new AuditInfo()
+                Domain.Entities.Cohort cohort = await _cohortRepository.GetByNameAsync(request.CohortDto.Name);
+                if (cohort != null)
+                    return new CreateComandResponse<Domain.Entities.Cohort>(cohort, 0, "Success", true);
+                Domain.Entities.Cohort cohortToCreate = request.CohortDto.ToDomain();
+                cohortToCreate.Audit = new AuditInfo()
                 {
                     CreatedBy = "Cosmic latte import",
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                 };
-                Domain.Entities.Cohort cohortCreated = await _cohortRepository.AddAsync(cohort);               
+                Domain.Entities.Cohort cohortCreated = await _cohortRepository.AddAsync(cohortToCreate);               
                 return new CreateComandResponse<Domain.Entities.Cohort>(cohortCreated, 1, "Success", true);
             }
             catch (Exception ex)

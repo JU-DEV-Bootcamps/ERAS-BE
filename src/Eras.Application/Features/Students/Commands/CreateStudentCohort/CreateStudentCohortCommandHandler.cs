@@ -31,6 +31,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
             {
                 Student studentCohortToCreate = new Student();
                 studentCohortToCreate.CohortId = request.CohortId;
+                studentCohortToCreate.Id = request.StudentId;
 
                 Student createdStudentCohort = await _studentCohortRepository.AddAsync(studentCohortToCreate);
 

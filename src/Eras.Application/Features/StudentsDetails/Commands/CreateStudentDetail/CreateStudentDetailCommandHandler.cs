@@ -31,6 +31,9 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
 
             try
             {
+                StudentDetail response = await _studentDetailRepository.GetByStudentId(request.StudentDetailDto.StudentId);
+                if (response != null)
+                    return new CreateComandResponse<StudentDetail>(response, 0, "Success", true);
                 StudentDetail studentDetail = request.StudentDetailDto.ToDomain();
                 studentDetail.Audit = new AuditInfo()
                 {

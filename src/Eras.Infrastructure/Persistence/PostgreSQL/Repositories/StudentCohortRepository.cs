@@ -13,7 +13,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     public class StudentCohortRepository : BaseRepository<Student, StudentCohortJoin>, IStudentCohortRepository
     {
         public StudentCohortRepository(AppDbContext context)
-            : base(context, StudentCohortMapper.ToDomain, StudentCohortMapper.ToPersistenceVariable)
+            : base(context, StudentCohortMapper.ToDomain, StudentCohortMapper.ToPersistenceCohort)
         {
 
         }
