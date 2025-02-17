@@ -56,10 +56,6 @@ namespace Eras.Application.Services
                     CreateComandResponse<Student> createdStudent = await CreateStudentFromPoll(pollToCreate);
 
                     // Create poll instances
-                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
-                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
-                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
-                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
                     CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, pollDTO.Uuid);
 
                     // Create asnswers

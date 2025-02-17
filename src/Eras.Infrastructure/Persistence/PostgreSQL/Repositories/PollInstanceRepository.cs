@@ -20,5 +20,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         
         return pollInstance?.ToDomain();
     }
-  }
+
+    public async Task<PollInstance?> GetByUuidAndStudentIdAsync(string uuid, int studentId)
+        {
+            var pollInstance = await _context.PollInstances
+                .FirstOrDefaultAsync(pollInstance => pollInstance.Uuid == uuid && pollInstance.StudentId == studentId);
+
+            return pollInstance?.ToDomain();
+        }
+
+    }
 }

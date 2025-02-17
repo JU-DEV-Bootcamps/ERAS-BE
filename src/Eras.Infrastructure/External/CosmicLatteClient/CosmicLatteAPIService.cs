@@ -78,21 +78,24 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 List<PollDTO> pollsDtos = new List<PollDTO>();
                 foreach (var responseToPollInstace in apiResponse.data)
                 {
-                    Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(responseToPollInstace);
-
-                    // 1. Create components
-                    ICollection<ComponentDTO> components = CreateComponents(responseToPollInstace, variablesPositionByComponents);
-
-                    // 2. Create polls
-                    string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when; // TO REVIEW
-
-                    PollDTO pollDto = new PollDTO
+                    if(responseToPollInstace.status == "validated")
                     {
-                        Name = responseToPollInstace.name,
-                        Version = version,
-                        Components = components,
-                    };
-                    pollsDtos.Add(pollDto);
+                        Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(responseToPollInstace);
+
+                        // 1. Create components
+                        ICollection<ComponentDTO> components = CreateComponents(responseToPollInstace, variablesPositionByComponents);
+
+                        // 2. Create polls
+                        string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when; // TO REVIEW
+
+                        PollDTO pollDto = new PollDTO
+                        {
+                            Name = responseToPollInstace.name,
+                            Version = version,
+                            Components = components,
+                        };
+                        pollsDtos.Add(pollDto);
+                    }
                 }
                 // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
                 // We should redesign the next layer so that this transfer of duplicate information is not required.
