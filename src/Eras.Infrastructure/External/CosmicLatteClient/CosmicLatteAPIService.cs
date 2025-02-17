@@ -142,6 +142,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
+                string studentCohort = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
 
                 StudentDTO studentDTO = CreateStudent(studentName, studentEmail);
 
@@ -164,9 +165,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 throw new Exception($"Cosmic latte server error: {e.Message}");
             }
         }
-        public StudentDTO CreateStudent(string name, string email)
+        public StudentDTO CreateStudent(string name, string email, string cohort)
         {
-            return new StudentDTO { Name = name, Email = email, Uuid = null };
+            StudentDTO studentDTO = new StudentDTO { Name = name, Email = email, Uuid = null };
+            CohortDTO cohortDTO = new CohortDTO() { Name = cohort};
+            studentDTO.Cohort = cohortDTO;
+            return studentDTO;
         }
         public AnswerDTO CreateAnswer(KeyValuePair<int, Answers> answersKVPair, StudentDTO student, Score scoreItem)
         {
