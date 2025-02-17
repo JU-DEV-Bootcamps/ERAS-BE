@@ -142,9 +142,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
-                string studentCohort = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
+                string studentCohort = apiResponse.Data.Answers.ElementAt(2).Value.AnswersList[0];
 
-                StudentDTO studentDTO = CreateStudent(studentName, studentEmail);
+                StudentDTO studentDTO = CreateStudent(studentName, studentEmail, studentCohort);
 
                 foreach (var itemVariable in apiResponse.Data.Answers)
                 {

@@ -7,6 +7,7 @@ using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
 using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Features.Students.Commands.CreateStudent;
+using Eras.Application.Features.Students.Commands.CreateStudentCohort;
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Features.Variables.Commands.CreatePollVariable;
 using Eras.Application.Features.Variables.Commands.CreateVariable;
@@ -123,10 +124,19 @@ namespace Eras.Application.Services
             CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
             return await _mediator.Send(createStudentDetailCommand);
         }
-        public async Task<CreateComandResponse<Cohort>> CreateCohort(CohortDTO cohort)
+        public async Task<CreateComandResponse<Cohort>> CreateAndSetStudentCohort(StudentDTO studentDto)
         {
-            CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohort }; 
-            return await _mediator.Send(createCohortCommand);
+            CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = studentDto.Cohort };
+            CreateComandResponse < Cohort > createdCohort = await _mediator.Send(createCohortCommand);
+
+            if (createdCohort.Success)
+            {
+                CreateStudentCohortCommand createStudentCohortCommand = new CreateStudentCohortCommand() { CohortId = createdCohort.Entity.Id, StudentId = studentDto.Id };
+                CreateComandResponse<Student> createdStudentCohort = await _mediator.Send(createStudentCohortCommand);
+                Console.WriteLine("");
+            }
+
+            return createdCohort;
         }
         public async Task<CreateComandResponse<Student>> CreateStudentFromPoll(PollDTO pollToCreate)
         {
@@ -141,7 +151,7 @@ namespace Eras.Application.Services
                 if (createdStudent.Success)
                 {
                     CreateComandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity.Id);
-                    CreateComandResponse<Cohort> createdCohort = await CreateCohort(studentToCreate.Cohort);
+                    CreateComandResponse<Cohort> createdCohort = await CreateAndSetStudentCohort(createdStudent.Entity.ToDto());
                 }
                 return createdStudent;
             }

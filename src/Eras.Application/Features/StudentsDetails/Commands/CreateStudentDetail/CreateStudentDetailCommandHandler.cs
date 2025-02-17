@@ -38,7 +38,14 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                 };
-                StudentDetail studentDetailCreated = await _studentDetailRepository.AddAsync(studentDetail);
+                // PostgresException: 23505: duplicate key value violates unique constraint "IX_student_details_StudentId"
+                // PostgresException: 23505: duplicate key value violates unique constraint "IX_student_details_StudentId"
+                // PostgresException: 23505: duplicate key value violates unique constraint "IX_student_details_StudentId"
+                // PostgresException: 23505: duplicate key value violates unique constraint "IX_student_details_StudentId"
+                // PostgresException: 23505: duplicate key value violates unique constraint "IX_student_details_StudentId"
+                // PostgresException: 23505: duplicate key value violates unique constraint "IX_student_details_StudentId"
+                // PostgresException: 23505: duplicate key value violates unique constraint "IX_student_details_StudentId"
+                StudentDetail studentDetailCreated = await _studentDetailRepository.AddAsync(studentDetail); 
                 return new CreateComandResponse<StudentDetail>(studentDetailCreated, 1, "Success", true);
             }
             catch (Exception ex)

@@ -10,12 +10,15 @@ public static class StudentMapper
     public static Student ToDomain(this StudentDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto);
+        Cohort cohort = dto.Cohort?.ToDomain();
         return new Student
         {
             Id = dto.Id,
             Uuid = dto.Uuid,
             Name = dto.Name,
             Email = dto.Email,
+            Cohort = cohort,
+            CohortId = cohort.Id,
             StudentDetail = dto.StudentDetail?.ToDomain(),
             Audit = default
         };
@@ -30,6 +33,7 @@ public static class StudentMapper
             Uuid = domain.Uuid,
             Name = domain.Name,
             Email = domain.Email,
+            Cohort = domain.Cohort?.ToDto(),
             StudentDetail = domain.StudentDetail?.ToDto(),
         };
 
@@ -40,6 +44,7 @@ public static class StudentMapper
         {            
             Name = dto.Name,
             Email = dto.Email,
+            Cohort = dto.Cohort.Name,
             SISId = dto.Uuid,
             EnrolledCourses = default,
             GradedCourses = default,
