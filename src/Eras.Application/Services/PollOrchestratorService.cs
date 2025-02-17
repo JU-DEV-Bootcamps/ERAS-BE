@@ -43,7 +43,6 @@ namespace Eras.Application.Services
             {
                 // Create poll
                 PollDTO pollDTO = pollsToCreate[0];
-                pollDTO.Uuid = Guid.NewGuid().ToString();
                 CreateComandResponse<Poll> createdPollResponse = CreatePoll(pollDTO).Result;
                 if (createdPollResponse.Entity == null) return createdPollResponse;
 
@@ -56,7 +55,7 @@ namespace Eras.Application.Services
                     CreateComandResponse<Student> createdStudent = await CreateStudentFromPoll(pollToCreate);
 
                     // Create poll instances
-                    CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, pollDTO.Uuid);
+                    CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, createdPollResponse.Entity.Uuid);
 
                     // Create asnswers
                     if(createdPollInstance.Success)

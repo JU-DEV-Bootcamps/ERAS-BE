@@ -9,6 +9,7 @@ namespace Eras.Application.Contracts.Persistence
 {
     public interface IStudentCohortRepository : IBaseRepository<Student>
     {
-
+        Task<Student?> GetByCohortIdAndStudentIdAsync(int cohortId, int studentId);
+        
     }
 }
