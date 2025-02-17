@@ -1,3 +1,5 @@
+using Serilog;
+using Serilog.Events;
 using Eras.Application.Services;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
@@ -8,12 +10,26 @@ using Eras.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Logging configuration
+var logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .WriteTo.Console()
+    .WriteTo.File(
+        path: "Logs/log-.log",
+        rollingInterval: RollingInterval.Day,
+        restrictedToMinimumLevel: LogEventLevel.Information
+    )
+    .CreateLogger();
+
 builder.Services.AddApiServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
 var app = builder.Build();
+
+// Automitcally log HTTP requests
+app.UseSerilogRequestLogging();
 
 // Apply database migrations
 using (var scope = app.Services.CreateScope())
