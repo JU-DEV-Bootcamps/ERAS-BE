@@ -208,6 +208,8 @@ namespace Eras.Application.Services
             try
             {
                 List <Variable> createdVariables = new List <Variable>();
+                if (variablesDtos == null) return createdVariables;
+
                 foreach (VariableDTO variableDto in variablesDtos)
                 {
                     CreateVariableCommand createVariableCommand = new CreateVariableCommand()

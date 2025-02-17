@@ -140,8 +140,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 if (!response.IsSuccessStatusCode) throw new Exception("Unsuccessful response from cosmic latte");
 
                 string responseBody = await response.Content.ReadAsStringAsync();
-                CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
+                
 
+                CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
 
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
@@ -163,9 +164,10 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 }
                 return createdVariables;
             }
-            catch (HttpRequestException e)
+            catch (Exception e)
             {
-                throw new Exception($"Cosmic latte server error: {e.Message}");
+                _logger.LogError($"Cosmic latte server error: {e.Message}");
+                return null;
             }
         }
         public StudentDTO CreateStudent(string name, string email, string cohort)
