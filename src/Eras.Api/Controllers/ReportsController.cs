@@ -16,9 +16,11 @@ public class ReportsController : ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetAvgRiskStudents(List<int> studentIds, List<int> answerIds)
+    [HttpGet("avgrisk/students/")]
+    public async Task<IActionResult> GetAvgRiskStudents([FromBody] List<List<int>> studentIdsanswerIds)
     {
+        List<int> studentIds = studentIdsanswerIds[0];
+        List<int> answerIds = studentIdsanswerIds[1];
         try
         {
             GetAvgRiskAnswerQuery query = new() { StudentIds = studentIds, AnswerIds = answerIds };
@@ -31,8 +33,8 @@ public class ReportsController : ControllerBase
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetHigherRiskStudentsByCohort( string cohortId, int takeNumber)
+    [HttpGet("higherrisk/students/")]
+    public async Task<IActionResult> GetHigherRiskStudentsByCohort([FromQuery]  string cohortId,[FromQuery]  int takeNumber)
     {
         try
         {
@@ -46,8 +48,8 @@ public class ReportsController : ControllerBase
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetReportByRuleset(List<(int AnswerId, int Weight)> ruleset)
+    [HttpGet("byruleset/")]
+    public async Task<IActionResult> GetReportByRuleset([FromBody] List<(int AnswerId, int Weight)> ruleset)
     {
         try
         {

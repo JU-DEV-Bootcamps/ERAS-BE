@@ -1,5 +1,4 @@
-using System;
-using Eras.Application.Utils;
+using Eras.Application.Models;
 using MediatR;
 
 namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
