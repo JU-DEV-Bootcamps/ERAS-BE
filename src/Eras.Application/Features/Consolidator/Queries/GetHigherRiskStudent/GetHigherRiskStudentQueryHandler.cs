@@ -1,6 +1,6 @@
-using System;
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Utils;
+using Eras.Application.Mappers;
+using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -30,13 +30,6 @@ public class GetHigherRiskStudentQueryHandler: IRequestHandler<GetHigherRiskStud
                 return new BaseResponse($"The cohort {request.CohortId} does not exist", false);
             }
             List<(int Risk, Student student)> studentsRisk = [];
-            foreach (var student in cohort.Students)
-            {
-                //TODO: Add method to repo to get answers by students in a cohort context
-                //_answerRepository.GetByStudentId(student.Id);
-                //StudentAnswers.SumRiskLevel();
-                studentsRisk.Add((5, student));
-            }
             var topHigherRisk = studentsRisk.OrderByDescending(s => s.Risk).Take(request.TakeNumber | defaultTakeNumber);
             return new BaseResponse("The students with higher risk are {topHigherRisk.Format()}", true);
         }
