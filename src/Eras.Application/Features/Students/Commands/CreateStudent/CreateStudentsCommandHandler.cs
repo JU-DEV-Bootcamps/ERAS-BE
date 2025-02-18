@@ -6,13 +6,18 @@ using System.Threading.Tasks;
 using Eras.Application.Mappers;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
-using Eras.Application.Utils;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Eras.Application.Models;
+using Eras.Domain.Entities;
+using Eras.Application.DTOs;
+using Eras.Domain.Common;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
-    public class CreateStudentsCommandHandler : IRequestHandler<CreateStudentsCommand, BaseResponse>
+    public class CreateStudentsCommandHandler : IRequestHandler<CreateStudentsCommand, CreateComandResponse<Student[]>>
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ILogger<CreateStudentsCommandHandler> _logger;
@@ -25,26 +30,59 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             _mediator = mediator;
         }
 
-        public async Task<BaseResponse> Handle(CreateStudentsCommand request, CancellationToken cancellationToken)
+        public async Task<CreateComandResponse<Student[]>> Handle(CreateStudentsCommand request, CancellationToken cancellationToken)
         {
             try
-            {
-                int count=0;
+            { 
                 _logger.LogInformation("Importing students");
-                foreach (var dto in request.students)
-                {
-                    CreateStudentCommand createStudentCommand = new CreateStudentCommand() { student = dto };
-                    await _mediator.Send(createStudentCommand);
-                    count++;
-                }
+                List<Student> createdStudents = [];
+                List<Student> updatedStudents = [];
+                List<Student> errorStudents = [];
 
-                return new BaseResponse($"{count} Students imported successfully",true);
+                foreach (StudentImportDto dto in request.students)
+                {
+                    StudentDTO studentDTO = dto.ExtractStudentDTO();
+                    studentDTO.Audit = new AuditInfo()
+                    {
+                        CreatedBy = "CSV import",
+                        CreatedAt = DateTime.UtcNow,
+                        ModifiedAt = DateTime.UtcNow,
+                    };
+                    CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
+                    CreateComandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand);
+
+                    if (! createdStudent.Success) {
+                        errorStudents.Add(createdStudent.Entity);
+                    } else if (createdStudent.Success && createdStudent.SuccessfullImports == 0)
+                    {
+                        updatedStudents.Add(createdStudent.Entity);
+                    }
+                    else
+                    {
+                        CreateComandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity);
+                        createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
+                        createdStudents.Add(createdStudent.Entity);
+                    }
+                }
+                return new CreateComandResponse<Student[]>(createdStudents.ToArray(), createdStudents.Count, $"{createdStudents.Count} new students, {updatedStudents.Count} updated, and {errorStudents.Count} with errors.", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the massive import process");
-                return new BaseResponse(false);
+                return new CreateComandResponse<Student[]>(null,0, "Error", false);
             }
+        }
+        public async Task<CreateComandResponse<StudentDetail>> CreateStudentDetail(Student student)
+        {
+            StudentDetailDTO studentDetailDTO = student.StudentDetail.ToDto();
+            studentDetailDTO.Audit = new AuditInfo()
+            {
+                CreatedBy = "Csv latte import",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            };
+            CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
+            return await _mediator.Send(createStudentDetailCommand);
         }
     }
 }

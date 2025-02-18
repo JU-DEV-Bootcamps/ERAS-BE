@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Eras.Application.Dtos
+namespace Eras.Application.DTOs.CL
 {
     // this is a class only to serialize from Cosmic latte
     public class CLResponseModelForAllPollsDTO
@@ -26,7 +27,6 @@ namespace Eras.Application.Dtos
         [JsonPropertyName("@count")]
         public int count { get; set; }
     }
-
     public class DataItem
     {
         [JsonPropertyName("_id")]
@@ -135,10 +135,76 @@ namespace Eras.Application.Dtos
     }
     public class ByTrait
     {
-        [JsonPropertyName("default-trait")]
-        public Facet defaultTrait { get; set; }
+        [JsonExtensionData]
+        public Dictionary<string, JsonElement> traits { get; set; }
+
+
+        private static Dictionary<string, TraitData> DeserializeTraits(Dictionary<string, JsonElement> traits)
+        {
+            var result = new Dictionary<string, TraitData>();
+
+            foreach (var kvp in traits)
+            {
+                TraitData traitData = kvp.Value.Deserialize<TraitData>(new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
+                result[kvp.Key] = traitData;
+            }
+
+            return result;
+        }
+        public static Dictionary<string, List<int>> getVariablesPositionByComponents(Dictionary<string, JsonElement> traits)
+        {
+            Dictionary<string, List<int>> componentsAndVariablesPosition = new Dictionary<string, List<int>>();
+
+            foreach (KeyValuePair<string, TraitData> item in DeserializeTraits(traits))
+            {
+                string componentName = item.Key;
+                List<int> variablePositions = new List<int>();
+
+                Dictionary<string, Facet> facets = item.Value.Facets;
+                foreach (KeyValuePair<string, Facet> facet in facets)
+                {
+                    List<ScoreDetail> scores = facet.Value.Scores;
+                    foreach (ScoreDetail score in scores)
+                    {
+                        variablePositions.Add(score.Position);
+                    }
+                }
+                componentsAndVariablesPosition.Add(componentName, variablePositions);
+            }
+            return componentsAndVariablesPosition;
+        }
+    }
+    public class TraitData
+    {
+        public int Sum { get; set; }
+        public double Avg { get; set; }
+        public int Count { get; set; }
+        public int Min { get; set; }
+        public int Max { get; set; }
+        public Dictionary<string, Facet> Facets { get; set; }
     }
 
+    public class Facet
+    {
+        public int Sum { get; set; }
+        public double Avg { get; set; }
+        public int Count { get; set; }
+        public List<ScoreDetail> Scores { get; set; }
+    }
+
+    public class ScoreDetail
+    {
+        public int Score { get; set; }
+        public int Position { get; set; }
+    }
+
+
+
+    /*
     // level 5
     public class Facet
     {
@@ -165,5 +231,5 @@ namespace Eras.Application.Dtos
         [JsonPropertyName("scores")]
         public List<FacetValue> scores { get; set; }
     }
-
+    */
 }

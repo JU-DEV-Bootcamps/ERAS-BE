@@ -11,6 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = entity.Id,
                 Name = entity.Name,
+                StudentDetail = entity.StudentDetail.ToDomain(),
                 Email = entity.Email,
                 Uuid = entity.Uuid,
                 Audit = entity.Audit
@@ -23,6 +24,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = model.Id,
                 Name = model.Name,
+                StudentDetail = model.StudentDetail.ToPersistence(),
                 Email = model.Email,
                 Uuid = model.Uuid,
                 Audit = model.Audit

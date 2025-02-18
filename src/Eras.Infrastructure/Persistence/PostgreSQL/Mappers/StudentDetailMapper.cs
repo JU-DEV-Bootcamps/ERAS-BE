@@ -7,9 +7,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
     {
         public static StudentDetail ToDomain(this StudentDetailEntity entity)
         {
+            ArgumentNullException.ThrowIfNull(entity);
             return new StudentDetail
             {
                 Id = entity.Id,
+                StudentId = entity.StudentId,
                 EnrolledCourses = entity.EnrolledCourses,
                 GradedCourses = entity.GradedCourses,
                 TimeDeliveryRate = entity.TimeDeliveryRate,
@@ -24,9 +26,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 
         public static StudentDetailEntity ToPersistence(this StudentDetail model)
         {
+            ArgumentNullException.ThrowIfNull(model);
             return new StudentDetailEntity
             {
                 Id = model.Id,
+                StudentId = model.StudentId,
                 EnrolledCourses = model.EnrolledCourses,
                 GradedCourses = model.GradedCourses,
                 TimeDeliveryRate = model.TimeDeliveryRate,

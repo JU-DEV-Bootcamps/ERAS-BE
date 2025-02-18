@@ -10,6 +10,8 @@ namespace Eras.Domain.Entities
         public string Email { get; set; } = string.Empty;
         public StudentDetail StudentDetail { get; set; } = default!;
         public AuditInfo Audit { get; set; } = default!;
+        public int CohortId { get; set; }
+        public Cohort Cohort { get; set; } = default!;
     }
 }
 
