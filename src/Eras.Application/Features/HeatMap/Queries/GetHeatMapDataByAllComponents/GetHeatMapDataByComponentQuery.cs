@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents
 {
-    public class GetHeatMapDataByAllComponentsQuery : IRequest<GetQueryResponse<HeatMapByComponentsResponseVm>>
+    public class GetHeatMapDataByAllComponentsQuery : IRequest<GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>>
     {
         public string PollInstanceUUID { get; }
 

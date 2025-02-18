@@ -3,32 +3,35 @@ namespace Eras.Application.Mappers
 {
     public static class HeatMapMapper
     {
-        public static HeatMapByComponentsResponseVm MaptToVmResponse(IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses)
+        public static HeatMapByComponentsResponseVm MaptToVmResponse(
+            IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses,
+            string componentName
+        )
         {
+            var filteredResponses = queryResponses
+                .Where(q => q.ComponentName == componentName)
+                .ToList();
 
-            var groupedByComponent = queryResponses
+            var groupedByComponent = filteredResponses
                 .GroupBy(q => new { q.ComponentId, q.ComponentName })
                 .Select(g => new VariableData
                 {
-                    SurveyKind = g.Key.ComponentName,
                     Variables = g.GroupBy(v => new { v.VariableId, v.VariableName })
                                  .Select(vg => new Variable
                                  {
                                      Description = vg.Key.VariableName,
-                                     IsMultiple = vg.Count() > 1,
                                      PossibleAnswers = vg.Select(a => new PossibleAnswer
                                      {
                                          Description = a.AnswerText,
                                          Value = a.AnswerRiskLevel
-                                     }).ToList()
+                                     }).DistinctBy(pa => new { pa.Description, pa.Value }).ToList()
                                  }).ToList()
                 }).ToList();
 
-            var groupedAnswersByComponent = queryResponses
+            var answers = filteredResponses
                 .GroupBy(q => new { q.ComponentId, q.ComponentName })
                 .Select(g => new AnswerData
                 {
-                    SurveyKind = g.Key.ComponentName,
                     Answers = g.Select(a => new Answer
                     {
                         Description = a.AnswerText,
@@ -38,8 +41,9 @@ namespace Eras.Application.Mappers
 
             return new HeatMapByComponentsResponseVm
             {
+                ComponentName = componentName,
                 Variables = groupedByComponent,
-                Answers = groupedAnswersByComponent
+                Answers = answers
             };
         }
     }
