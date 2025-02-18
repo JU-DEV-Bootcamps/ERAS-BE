@@ -12,6 +12,7 @@ using Eras.Application.Models;
 using Eras.Domain.Entities;
 using Eras.Application.DTOs;
 using Eras.Domain.Common;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
@@ -33,7 +34,9 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             try
             { 
                 _logger.LogInformation("Importing students");
-                Student[] createdStudents = [];
+                List<Student> createdStudents = [];
+                List<Student> updatedStudents = [];
+                List<Student> errorStudents = [];
 
                 foreach (StudentImportDto dto in request.students)
                 {
@@ -45,11 +48,20 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         ModifiedAt = DateTime.UtcNow,
                     };
                     CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
-                    CreateComandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand); 
-                    createdStudents.Append(createdStudent.Entity);
-                }
+                    CreateComandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand);
 
-                return new CreateComandResponse<Student[]>(createdStudents,1, "Success", true);
+                    if (! createdStudent.Success) {
+                        errorStudents.Add(createdStudent.Entity);
+                    } else if (createdStudent.Success && createdStudent.SuccessfullImports == 0)
+                    {
+                        updatedStudents.Add(createdStudent.Entity);
+                    }
+                    else
+                    {
+                        createdStudents.Add(createdStudent.Entity);
+                    }
+                }
+                return new CreateComandResponse<Student[]>(createdStudents.ToArray(), createdStudents.Count, $"{createdStudents.Count} new students, {updatedStudents.Count} updated, and {errorStudents.Count} with errors.", true);
             }
             catch (Exception ex)
             {
