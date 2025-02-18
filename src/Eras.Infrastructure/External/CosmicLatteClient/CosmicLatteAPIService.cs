@@ -93,6 +93,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                             Name = responseToPollInstace.name,
                             Version = version,
                             Components = components,
+                            FinishedAt = responseToPollInstace.finishedAt // responseToPollInstace.finishedAt.ToString("yyyy-MM-dd") //finishedAt  "2025-01-31T13:02:45.915Z"
                         };
                         pollsDtos.Add(pollDto);
                     }
