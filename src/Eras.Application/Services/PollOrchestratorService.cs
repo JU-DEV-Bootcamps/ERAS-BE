@@ -51,10 +51,10 @@ namespace Eras.Application.Services
                     CreateComandResponse<Student> createdStudent = await CreateStudentFromPoll(pollToCreate);
 
                     // Create poll instances
-                    CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, createdPollResponse.Entity.Uuid);
+                    CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, createdPollResponse.Entity.Uuid, pollToCreate.FinishedAt);
 
                     // Create asnswers
-                    if(createdPollInstance.Success)
+                    if (createdPollInstance.Success)
                     {
                         await CreateAnswers(pollToCreate, createdComponents, createdPollInstance);
 
@@ -101,11 +101,12 @@ namespace Eras.Application.Services
                 }
             }
         }
-        public async Task<CreateComandResponse<PollInstance>> CreatePollInstance(Student student, string pollUuid)
+        public async Task<CreateComandResponse<PollInstance>> CreatePollInstance(Student student, string pollUuid, DateTime finishedAt)
         {
             try
-            {
-                PollInstance pollInstance = new PollInstance() { Uuid = pollUuid, Student = student, };
+            { 
+                PollInstance pollInstance = new PollInstance() { Uuid = pollUuid, Student = student, FinishedAt = finishedAt};
+
                 pollInstance.Audit = new AuditInfo()
                 {
                     CreatedBy = "Cosmic latte import",

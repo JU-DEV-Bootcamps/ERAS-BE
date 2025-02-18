@@ -15,5 +15,6 @@ namespace Eras.Application.DTOs
         public StudentDTO Student { get; set; } = default!;
         public ICollection<AnswerDTO> Answers { get; set; } = [];
         public AuditInfo Audit { get; set; } = default!;
+        public DateTime FinishedAt { get; set; }
     }
 }
