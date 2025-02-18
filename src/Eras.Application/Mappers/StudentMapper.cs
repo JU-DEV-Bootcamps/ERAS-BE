@@ -8,11 +8,32 @@ namespace Eras.Application.Mappers;
 
 public static class StudentMapper
 {
+    public static StudentDetail CreateEmptyStudentDetail(StudentDTO dto)
+    {
+            AuditInfo audit = new AuditInfo()
+            {
+                CreatedBy = "Automatic mapper",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            };
+            return new StudentDetail
+            {
+                StudentId = dto.Id,
+                Audit = audit,
+            }; 
+    }
     public static Student ToDomain(this StudentDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto);
         Cohort cohort = dto.Cohort?.ToDomain();
-        StudentDetail details = dto.StudentDetail != null ? dto.StudentDetail.ToDomain() : new StudentDetail();
+        StudentDetail details = dto.StudentDetail != null ? dto.StudentDetail.ToDomain() : CreateEmptyStudentDetail(dto);
+
+        AuditInfo audit = dto.Audit != null ? dto.Audit : new AuditInfo()
+        {
+            CreatedBy = "Automatic mapper",
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow,
+        };
         return new Student
         {
             Id = dto.Id,
@@ -22,7 +43,7 @@ public static class StudentMapper
             Cohort = cohort,
             CohortId = cohort!=null ? cohort.Id : 0,
             StudentDetail = details,
-            Audit = dto.Audit,
+            Audit = audit,
         };
 
     }
