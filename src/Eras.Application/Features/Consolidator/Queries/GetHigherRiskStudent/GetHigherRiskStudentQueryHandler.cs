@@ -25,9 +25,9 @@ public class GetHigherRiskStudentQueryHandler: IRequestHandler<GetHigherRiskStud
         try
         {
             var defaultTakeNumber = 5;
-            var cohort = await _cohortRepository.GetByNameAsync(request.cohortId);
+            var cohort = await _cohortRepository.GetByNameAsync(request.CohortId);
             if(cohort == null) {
-                return new BaseResponse($"The cohort {request.cohortId} does not exist", false);
+                return new BaseResponse($"The cohort {request.CohortId} does not exist", false);
             }
             List<(int Risk, Student student)> studentsRisk = [];
             foreach (var student in cohort.Students)
@@ -37,7 +37,7 @@ public class GetHigherRiskStudentQueryHandler: IRequestHandler<GetHigherRiskStud
                 //StudentAnswers.SumRiskLevel();
                 studentsRisk.Add((5, student));
             }
-            var topHigherRisk = studentsRisk.OrderByDescending(s => s.Risk).Take(request.takeNumber | defaultTakeNumber);
+            var topHigherRisk = studentsRisk.OrderByDescending(s => s.Risk).Take(request.TakeNumber | defaultTakeNumber);
             return new BaseResponse("The students with higher risk are {topHigherRisk.Format()}", true);
         }
         catch (Exception ex)

@@ -7,6 +7,6 @@ namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 
 public class GetHigherRiskStudentQuery: IRequest<BaseResponse>
 {
-    public required string cohortId { get; set; }
-    public required int takeNumber { get; set; }
+    public required string CohortId { get; set; }
+    public required int TakeNumber { get; set; }
 }
