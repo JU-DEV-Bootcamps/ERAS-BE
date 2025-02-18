@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Eras.Domain.Entities;
 using Eras.Domain.Common;
 using Eras.Application.Models;
+using Eras.Application.Dtos;
 
 namespace Eras.Application.Features.Polls.Commands.CreatePoll
 {
@@ -32,6 +33,7 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
                 if (pollInDB != null) return new CreateComandResponse<Poll>(pollInDB, 0, "Success", true);
 
                 Poll poll = request.Poll.ToDomain();
+                poll.Uuid = Guid.NewGuid().ToString();
                 poll.Audit = new AuditInfo() { 
                     CreatedBy = "Cosmic latte import",
                     CreatedAt = DateTime.UtcNow,

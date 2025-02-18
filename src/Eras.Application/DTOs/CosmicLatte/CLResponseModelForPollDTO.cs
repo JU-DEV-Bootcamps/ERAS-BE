@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,66 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.DTOs.CL
 {
+
+
+    /*
+    public class CustomTextConverter : JsonConverter<string[]>
+    {
+        public override string[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            var result = new List<string>();
+
+            // Si el JSON es un arreglo
+            if (reader.TokenType == JsonTokenType.StartArray)
+            {
+                while (reader.Read())
+                {
+                    if (reader.TokenType == JsonTokenType.EndArray)
+                        break;
+
+                    if (reader.TokenType == JsonTokenType.String)
+                    {
+                        var value = reader.GetString();
+                        // Reemplaza "-" por "Invalid string"
+                        if (value.Equals('-'))
+                        {
+                            result.Add(value == "-" ? "Invalid string" : value);
+
+                        }
+                        result.Add(value.Equals('-') ? "Invalid string" : value);
+                    }
+                    else
+                    {
+                        throw new JsonException("Se esperaba un valor de tipo string en el arreglo.");
+                    }
+                }
+                return result.ToArray();
+            }
+            // Si el JSON es un único valor string, encapsúlalo en un arreglo
+            else if (reader.TokenType == JsonTokenType.String)
+            {
+                var value = reader.GetString();
+                return new string[] { value == "-" ? "Invalid string" : value };
+            }
+            else
+            {
+                throw new JsonException("Se esperaba un arreglo o un string.");
+            }
+        }
+
+        public override void Write(Utf8JsonWriter writer, string[] value, JsonSerializerOptions options)
+        {
+            writer.WriteStartArray();
+            foreach (var item in value)
+            {
+                writer.WriteStringValue(item);
+            }
+            writer.WriteEndArray();
+        }
+    }
+    */
+
+
     // this is a class only to serialize from Cosmic latte
     public class CLResponseModelForPollDTO
     {
@@ -101,6 +162,7 @@ namespace Eras.Application.DTOs.CL
     public class Answers
     {
         [JsonPropertyName("answer")]
+        // TODO FINISH CONVERTER TO MANAGE EXCEPTIONS => [JsonConverter(typeof(CustomTextConverter))]
         public string[] AnswersList { get; set; }
 
         [JsonPropertyName("question")]

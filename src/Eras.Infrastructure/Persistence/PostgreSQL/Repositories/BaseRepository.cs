@@ -38,7 +38,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<TDomain?> GetByIdAsync(int id)
         {
             var persistenceEntity = await _context.Set<TPersist>().FindAsync(id);
-            
+
+
             return persistenceEntity != null 
                 ? _toDomain(persistenceEntity)
                 : null; 

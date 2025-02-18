@@ -22,17 +22,8 @@ namespace Eras.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetHeatMapDataByAllComponents([FromRoute] string pollId)
         {
-            try
-            {
-                var vm = await _mediator.Send(new GetHeatMapDataByAllComponentsQuery(pollId));
-                var response = new GetQueryResponse<HeatMapByComponentsResponseVm>(vm, "Heatmap data requested successfully", true);
-                return Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new GetQueryResponse<HeatMapByComponentsResponseVm>(null, "Failed Request, not found poll uuid", false));
-
-            }
+            BaseResponse response = await _mediator.Send(new GetHeatMapDataByAllComponentsQuery(pollId));
+            return response.Success ? Ok(response) : BadRequest(response);
         }
     }
 }

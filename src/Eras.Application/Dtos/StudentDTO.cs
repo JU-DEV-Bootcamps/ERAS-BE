@@ -9,5 +9,7 @@ namespace Eras.Application.Dtos
         public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public StudentDetailDTO? StudentDetail { get; set; }
+
+        public CohortDTO Cohort { get; set; } = default!;
     }
 }

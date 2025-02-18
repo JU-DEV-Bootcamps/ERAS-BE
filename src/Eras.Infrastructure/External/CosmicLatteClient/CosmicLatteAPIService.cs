@@ -78,21 +78,24 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 List<PollDTO> pollsDtos = new List<PollDTO>();
                 foreach (var responseToPollInstace in apiResponse.data)
                 {
-                    Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(responseToPollInstace);
-
-                    // 1. Create components
-                    ICollection<ComponentDTO> components = CreateComponents(responseToPollInstace, variablesPositionByComponents);
-
-                    // 2. Create polls
-                    string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when; // TO REVIEW
-
-                    PollDTO pollDto = new PollDTO
+                    if(responseToPollInstace.status == "validated")
                     {
-                        Name = responseToPollInstace.name,
-                        Version = version,
-                        Components = components,
-                    };
-                    pollsDtos.Add(pollDto);
+                        Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(responseToPollInstace);
+
+                        // 1. Create components
+                        ICollection<ComponentDTO> components = CreateComponents(responseToPollInstace, variablesPositionByComponents);
+
+                        // 2. Create polls
+                        string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when; // TO REVIEW
+
+                        PollDTO pollDto = new PollDTO
+                        {
+                            Name = responseToPollInstace.name,
+                            Version = version,
+                            Components = components,
+                        };
+                        pollsDtos.Add(pollDto);
+                    }
                 }
                 // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
                 // We should redesign the next layer so that this transfer of duplicate information is not required.
@@ -137,13 +140,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 if (!response.IsSuccessStatusCode) throw new Exception("Unsuccessful response from cosmic latte");
 
                 string responseBody = await response.Content.ReadAsStringAsync();
-                CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
+                
 
+                CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
 
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
+                string studentCohort = apiResponse.Data.Answers.ElementAt(2).Value.AnswersList[0];
 
-                StudentDTO studentDTO = CreateStudent(studentName, studentEmail);
+                StudentDTO studentDTO = CreateStudent(studentName, studentEmail, studentCohort);
 
                 foreach (var itemVariable in apiResponse.Data.Answers)
                 {
@@ -159,14 +164,18 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 }
                 return createdVariables;
             }
-            catch (HttpRequestException e)
+            catch (Exception e)
             {
-                throw new Exception($"Cosmic latte server error: {e.Message}");
+                _logger.LogError($"Cosmic latte server error: {e.Message}");
+                return null;
             }
         }
-        public StudentDTO CreateStudent(string name, string email)
+        public StudentDTO CreateStudent(string name, string email, string cohort)
         {
-            return new StudentDTO { Name = name, Email = email, Uuid = null };
+            StudentDTO studentDTO = new StudentDTO { Name = name, Email = email, Uuid = null };
+            CohortDTO cohortDTO = new CohortDTO() { Name = cohort};
+            studentDTO.Cohort = cohortDTO;
+            return studentDTO;
         }
         public AnswerDTO CreateAnswer(KeyValuePair<int, Answers> answersKVPair, StudentDTO student, Score scoreItem)
         {

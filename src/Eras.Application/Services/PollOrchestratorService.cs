@@ -7,6 +7,7 @@ using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
 using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Features.Students.Commands.CreateStudent;
+using Eras.Application.Features.Students.Commands.CreateStudentCohort;
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Features.Variables.Commands.CreatePollVariable;
 using Eras.Application.Features.Variables.Commands.CreateVariable;
@@ -42,7 +43,6 @@ namespace Eras.Application.Services
             {
                 // Create poll
                 PollDTO pollDTO = pollsToCreate[0];
-                pollDTO.Uuid = Guid.NewGuid().ToString();
                 CreateComandResponse<Poll> createdPollResponse = CreatePoll(pollDTO).Result;
                 if (createdPollResponse.Entity == null) return createdPollResponse;
 
@@ -55,11 +55,7 @@ namespace Eras.Application.Services
                     CreateComandResponse<Student> createdStudent = await CreateStudentFromPoll(pollToCreate);
 
                     // Create poll instances
-                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
-                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
-                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
-                    // WE SHOULD CREATE A RULE TO CREATE OR NOT A NEW POLL INSTANCE
-                    CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, pollDTO.Uuid);
+                    CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, createdPollResponse.Entity.Uuid);
 
                     // Create asnswers
                     if(createdPollInstance.Success)
@@ -123,20 +119,18 @@ namespace Eras.Application.Services
             CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
             return await _mediator.Send(createStudentDetailCommand);
         }
-        public async Task<CreateComandResponse<Cohort>> CreateCohort( )
+        public async Task<CreateComandResponse<Cohort>> CreateAndSetStudentCohort(StudentDTO studentDto,CohortDTO cohort)
         {
-            CohortDTO cohortDTO = new CohortDTO()
-            {
-                /*
-                    public string Name { get; set; } = string.Empty;
-                    public string CourseCode { get; set; } = string.Empty;
-                    public AuditInfo Audit { get; set; } = default!;
-                    public ICollection<StudentDTO> Students { get; set; } = [];
-                */
+            CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohort };
+            CreateComandResponse <Cohort> createdCohort = await _mediator.Send(createCohortCommand);
 
-            };
-            CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohortDTO }; 
-            return await _mediator.Send(createCohortCommand);
+            if (createdCohort.Success)
+            {
+                CreateStudentCohortCommand createStudentCohortCommand = new CreateStudentCohortCommand() { CohortId = createdCohort.Entity.Id, StudentId = studentDto.Id };
+                CreateComandResponse<Student> createdStudentCohort = await _mediator.Send(createStudentCohortCommand);
+            }
+
+            return createdCohort;
         }
         public async Task<CreateComandResponse<Student>> CreateStudentFromPoll(PollDTO pollToCreate)
         {
@@ -151,7 +145,10 @@ namespace Eras.Application.Services
                 if (createdStudent.Success)
                 {
                     CreateComandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity.Id);
-                    CreateComandResponse<Cohort> createdCohort = await CreateCohort();
+                    CohortDTO cohortToCreate = studentToCreate.Cohort;
+                    createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
+                    CreateComandResponse<Cohort> createdCohort = await CreateAndSetStudentCohort(createdStudent.Entity.ToDto(), cohortToCreate);
+                    createdStudent.Entity.Cohort = createdCohort.Entity; 
                 }
                 return createdStudent;
             }
@@ -210,6 +207,8 @@ namespace Eras.Application.Services
             try
             {
                 List <Variable> createdVariables = new List <Variable>();
+                if (variablesDtos == null) return createdVariables;
+
                 foreach (VariableDTO variableDto in variablesDtos)
                 {
                     CreateVariableCommand createVariableCommand = new CreateVariableCommand()
