@@ -2,6 +2,7 @@
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
@@ -12,5 +13,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
 
         }
+        public async Task<Variable?> GetByPollIdAndVariableIdAsync(int pollId, int variableId)
+        {
+            var pollVariable = await _context.PollVariables
+                .FirstOrDefaultAsync(pollVar => pollVar.PollId == pollId && pollVar.VariableId == variableId);
+
+            return pollVariable?.ToDomain();
+        }
     }
-    }
+}
