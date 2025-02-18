@@ -1,5 +1,6 @@
 using Eras.Application.Dtos;
-using Eras.Application.DTOs; 
+using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities; 
 using System.Globalization;
 
@@ -11,6 +12,7 @@ public static class StudentMapper
     {
         ArgumentNullException.ThrowIfNull(dto);
         Cohort cohort = dto.Cohort?.ToDomain();
+        StudentDetail details = dto.StudentDetail != null ? dto.StudentDetail.ToDomain() : new StudentDetail();
         return new Student
         {
             Id = dto.Id,
@@ -19,7 +21,7 @@ public static class StudentMapper
             Email = dto.Email,
             Cohort = cohort,
             CohortId = cohort!=null ? cohort.Id : 0,
-            StudentDetail = dto.StudentDetail?.ToDomain(),
+            StudentDetail = details,
             Audit = dto.Audit,
         };
 
@@ -48,6 +50,29 @@ public static class StudentMapper
             Uuid = studentImportDto.SISId,
             Name = studentImportDto.Name,
             Email = studentImportDto.Email,
+            StudentDetail = ExctractStudentDetailDto(studentImportDto),
+            Cohort = new CohortDTO()
         };
+    }
+
+    public static StudentDetailDTO ExctractStudentDetailDto(StudentImportDto dto)
+    {
+        return new StudentDetailDTO()
+        {
+            EnrolledCourses = dto.EnrolledCourses,
+            GradedCourses = dto.GradedCourses,
+            TimeDeliveryRate = dto.TimelySubmissions,
+            AvgScore = dto.AverageScore,
+            CoursesUnderAvg = dto.CoursesBelowAverage,
+            PureScoreDiff = dto.RawScoreDifference,
+            StandardScoreDiff = dto.StandardScoreDifference,
+            LastAccessDays = dto.DaysSinceLastAccess,
+            Audit = new AuditInfo()
+            {
+                CreatedBy = "CSV import",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            }
+        };        
     }
 }

@@ -13,6 +13,7 @@ using Eras.Domain.Entities;
 using Eras.Application.DTOs;
 using Eras.Domain.Common;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
@@ -58,6 +59,14 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                     }
                     else
                     {
+                        CreateComandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity);
+                        createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
+                        /*
+                     This data
+                    CohortDTO cohortToCreate = studentToCreate.Cohort;
+                    CreateComandResponse<Cohort> createdCohort = await CreateAndSetStudentCohort(createdStudent.Entity.ToDto(), cohortToCreate);
+                    createdStudent.Entity.Cohort = createdCohort.Entity; 
+                        */ 
                         createdStudents.Add(createdStudent.Entity);
                     }
                 }
@@ -68,6 +77,18 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                 _logger.LogError(ex, "An error occurred during the massive import process");
                 return new CreateComandResponse<Student[]>(null,0, "Error", false);
             }
+        }
+        public async Task<CreateComandResponse<StudentDetail>> CreateStudentDetail(Student student)
+        {
+            StudentDetailDTO studentDetailDTO = student.StudentDetail.ToDto();
+            studentDetailDTO.Audit = new AuditInfo()
+            {
+                CreatedBy = "Csv latte import",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            };
+            CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
+            return await _mediator.Send(createStudentDetailCommand);
         }
     }
 }
