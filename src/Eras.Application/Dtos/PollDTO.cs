@@ -1,4 +1,5 @@
 ﻿using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -16,5 +17,6 @@ namespace Eras.Application.Dtos
         public string Name { get; set; } = string.Empty;
         public string Version { get; set; } = string.Empty;
         public ICollection<ComponentDTO> Components { get; set; } = [];
+        public AuditInfo Audit { get; set; } = default!;
     }
    }

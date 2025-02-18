@@ -10,6 +10,8 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+using Eras.Application.DTOs;
+using Eras.Domain.Common;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
@@ -33,11 +35,18 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                 _logger.LogInformation("Importing students");
                 Student[] createdStudents = [];
 
-                foreach (var dto in request.students)
+                foreach (StudentImportDto dto in request.students)
                 {
-                    CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = dto };
-                    Student createdStudent = new Student(); //  await _mediator.Send(createStudentCommand).Result; 
-                    createdStudents.Append(createdStudent);
+                    StudentDTO studentDTO = dto.ExtractStudentDTO();
+                    studentDTO.Audit = new AuditInfo()
+                    {
+                        CreatedBy = "CSV import",
+                        CreatedAt = DateTime.UtcNow,
+                        ModifiedAt = DateTime.UtcNow,
+                    };
+                    CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
+                    CreateComandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand); 
+                    createdStudents.Append(createdStudent.Entity);
                 }
 
                 return new CreateComandResponse<Student[]>(createdStudents,1, "Success", true);

@@ -16,11 +16,7 @@ using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Eras.Domain.Common;
 
 namespace Eras.Application.Services
 {
@@ -89,6 +85,12 @@ namespace Eras.Application.Services
                         AnswerDTO answerToCreate = variable.Answer;
                         answerToCreate.PollInstanceId = createdPollInstance.Entity.Id;
                         answerToCreate.PollVariableId = variableByName.PollVariableId;
+                        answerToCreate.Audit = new AuditInfo()
+                        {
+                            CreatedBy = "Cosmic latte import",
+                            CreatedAt = DateTime.UtcNow,
+                            ModifiedAt = DateTime.UtcNow,
+                        };
                         CreateAnswerCommand createAnswerCommand = new CreateAnswerCommand() { Answer = answerToCreate };
                         await _mediator.Send(createAnswerCommand);
                     }
@@ -104,6 +106,12 @@ namespace Eras.Application.Services
             try
             {
                 PollInstance pollInstance = new PollInstance() { Uuid = pollUuid, Student = student, };
+                pollInstance.Audit = new AuditInfo()
+                {
+                    CreatedBy = "Cosmic latte import",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
                 CreatePollInstanceCommand createPollInstanceCommand = new CreatePollInstanceCommand() { PollInstance = pollInstance.ToDTO()};
                 return await _mediator.Send(createPollInstanceCommand);
             }
@@ -116,11 +124,23 @@ namespace Eras.Application.Services
         public async Task<CreateComandResponse<StudentDetail>> CreateStudentDetail(int studentId)
         {
             StudentDetailDTO studentDetailDTO = new StudentDetailDTO() { StudentId = studentId  };
+            studentDetailDTO.Audit = new AuditInfo()
+            {
+                CreatedBy = "Cosmic latte import",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            };
             CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
             return await _mediator.Send(createStudentDetailCommand);
         }
         public async Task<CreateComandResponse<Cohort>> CreateAndSetStudentCohort(StudentDTO studentDto,CohortDTO cohort)
         {
+            cohort.Audit = new AuditInfo()
+            {
+                CreatedBy = "Cosmic latte import",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            };
             CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohort };
             CreateComandResponse <Cohort> createdCohort = await _mediator.Send(createCohortCommand);
 
@@ -139,7 +159,13 @@ namespace Eras.Application.Services
                 StudentDTO studentToCreate = (pollToCreate.Components.FirstOrDefault()?.Variables.FirstOrDefault()?.Answer?.Student) 
                     ?? throw new ArgumentNullException("Student information not found");
                 studentToCreate.Uuid = Guid.NewGuid().ToString();
-                CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate.ToStudentImportDto() };
+                studentToCreate.Audit = new AuditInfo()
+                {
+                    CreatedBy = "Cosmic Latte Import",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
+                CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate };
                 CreateComandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand); 
 
                 if (createdStudent.Success)
@@ -162,6 +188,12 @@ namespace Eras.Application.Services
         {
             try
             {
+                pollToCreate.Audit = new AuditInfo()
+                {
+                    CreatedBy = "Cosmic latte import",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
                 CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = pollToCreate };
                 return await _mediator.Send(createPollCommand);
             }
@@ -175,6 +207,12 @@ namespace Eras.Application.Services
         {
             try
             {
+                componentDto.Audit = new AuditInfo()
+                {
+                    CreatedBy = "Cosmic latte import",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
                 CreateComponentCommand createComponentCommand = new CreateComponentCommand() { Component = componentDto };
                 return await _mediator.Send(createComponentCommand);
             }
@@ -211,6 +249,12 @@ namespace Eras.Application.Services
 
                 foreach (VariableDTO variableDto in variablesDtos)
                 {
+                    variableDto.Audit = new AuditInfo()
+                    {
+                        CreatedBy = "Cosmic latte import",
+                        CreatedAt = DateTime.UtcNow,
+                        ModifiedAt = DateTime.UtcNow,
+                    };
                     CreateVariableCommand createVariableCommand = new CreateVariableCommand()
                     {
                         Variable = variableDto,

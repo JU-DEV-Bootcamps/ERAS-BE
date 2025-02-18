@@ -34,11 +34,6 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
 
                 Poll poll = request.Poll.ToDomain();
                 poll.Uuid = Guid.NewGuid().ToString();
-                poll.Audit = new AuditInfo() { 
-                    CreatedBy = "Cosmic latte import",
-                    CreatedAt = DateTime.UtcNow,
-                    ModifiedAt = DateTime.UtcNow,
-                };
                 Poll response = await _pollRepository.AddAsync(poll);
                 return new CreateComandResponse<Poll>(response,1, "Success", true);
             }

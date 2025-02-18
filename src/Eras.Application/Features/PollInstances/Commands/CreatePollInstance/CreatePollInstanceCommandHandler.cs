@@ -33,12 +33,6 @@ namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
                 if (pollInstanceDB != null) return new CreateComandResponse<PollInstance>(pollInstanceDB, 0, "Success", true);
 
                 PollInstance? pollInstance = request.PollInstance.ToDomain();
-                pollInstance.Audit = new AuditInfo()
-                {
-                    CreatedBy = "Cosmic latte import",
-                    CreatedAt = DateTime.UtcNow,
-                    ModifiedAt = DateTime.UtcNow,
-                };
                 PollInstance createdPoll = await _pollInstanceRepository.AddAsync(pollInstance);
                 return new CreateComandResponse<PollInstance>(createdPoll,1, "Success", true);
             }

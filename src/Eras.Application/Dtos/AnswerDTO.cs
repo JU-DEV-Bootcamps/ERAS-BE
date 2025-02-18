@@ -16,5 +16,6 @@ namespace Eras.Application.Dtos
         public int PollVariableId { get; set; }
 
         public StudentDTO? Student { get; set; }
+        public AuditInfo Audit { get; set; } = default!;
     }
 }
