@@ -61,12 +61,6 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                     {
                         CreateComandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity);
                         createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
-                        /*
-                     This data
-                    CohortDTO cohortToCreate = studentToCreate.Cohort;
-                    CreateComandResponse<Cohort> createdCohort = await CreateAndSetStudentCohort(createdStudent.Entity.ToDto(), cohortToCreate);
-                    createdStudent.Entity.Cohort = createdCohort.Entity; 
-                        */ 
                         createdStudents.Add(createdStudent.Entity);
                     }
                 }
