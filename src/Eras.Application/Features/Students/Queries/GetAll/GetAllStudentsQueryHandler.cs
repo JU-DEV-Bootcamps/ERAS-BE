@@ -26,20 +26,26 @@ namespace Eras.Application.Features.Students.Queries.GetAll
             CancellationToken cancellationToken
         )
         {
-            var students = await _studentRepository.GetPagedAsync(
-                request.Query.Page,
-                request.Query.PageSize
-            );
-            var allstudents = await _studentRepository.GetAllAsync();
+            try
+            {
+                var students = await _studentRepository.GetPagedAsync(
+                    request.Query.Page,
+                    request.Query.PageSize
+                );
+                var totalCount = await _studentRepository.CountAsync();
 
-            var totalCount = allstudents.Count();
+                PagedResult<Student> pagedResult = new PagedResult<Student>(
+                    totalCount,
+                    students.ToList()
+                );
 
-            PagedResult<Student> pagedResult = new PagedResult<Student>(
-                totalCount,
-                students.ToList()
-            );
-
-            return pagedResult;
+                return pagedResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting all students: " + ex.Message);
+                return new PagedResult<Student>(0, []);
+            }
         }
     }
 }

@@ -7,6 +7,6 @@ namespace Eras.Application.Contracts.Persistence
         Task<Student?> GetByNameAsync(string name);
         Task<Student?> GetByUuidAsync(string uuid);
         Task<Student?> GetByEmailAsync(string email);
-        Task<List<Student>> GetAllAsync();
+        Task<int> CountAsync();
     }
 }

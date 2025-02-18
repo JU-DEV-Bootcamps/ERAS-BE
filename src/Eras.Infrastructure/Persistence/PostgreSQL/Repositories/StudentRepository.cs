@@ -38,11 +38,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return student?.ToDomain();
         }
 
-        public async Task<List<Student>> GetAllAsync()
+        public async Task<int> CountAsync()
         {
-            return (await _context.Students.ToListAsync())
-                .Select(student => student.ToDomain())
-                .ToList();
+            return await _context.Students.CountAsync();
         }
     }
 }
