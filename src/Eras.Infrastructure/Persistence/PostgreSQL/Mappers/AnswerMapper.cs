@@ -11,7 +11,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = entity.Id,
                 RiskLevel = entity.RiskLevel,
-                Audit = entity.Audit
+                AnswerText = entity.AnswerText,
+                Audit = entity.Audit,
+                PollInstanceId = entity.PollInstanceId,
+                PollVariableId = entity.PollVariableId
             };
         }
 
@@ -20,8 +23,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             return new AnswerEntity
             {
                 Id = model.Id,
+                AnswerText = model.AnswerText,
                 RiskLevel = model.RiskLevel,
+                PollInstanceId = model.PollInstanceId,
+                PollVariableId = model.PollVariableId,
                 Audit = model.Audit
+
             };
         }
     }

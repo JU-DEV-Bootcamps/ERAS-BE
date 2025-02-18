@@ -4,7 +4,8 @@ namespace Eras.Domain.Entities
 {
 	public class StudentDetail : BaseEntity, IAuditableEntity
 	{
-		public int EnrolledCourses { get; set; }
+        public int StudentId { get; set; }
+        public int EnrolledCourses { get; set; }
 		public int GradedCourses { get; set; }
 		public int TimeDeliveryRate { get; set; }
 		public decimal AvgScore { get; set; }

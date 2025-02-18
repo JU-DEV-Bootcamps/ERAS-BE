@@ -1,52 +1,99 @@
+using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Domain.Common;
-using Eras.Domain.Entities;
-using System.Collections.Generic;
+using Eras.Domain.Entities; 
 using System.Globalization;
 
 namespace Eras.Application.Mappers;
 
 public static class StudentMapper
 {
-    public static Student ToDomain(this StudentImportDto dto)
+    public static StudentDetail CreateEmptyStudentDetail(StudentDTO dto)
     {
-        var culture = CultureInfo.GetCultureInfo("es-ES");
+            AuditInfo audit = new AuditInfo()
+            {
+                CreatedBy = "Automatic mapper",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            };
+            return new StudentDetail
+            {
+                StudentId = dto.Id,
+                Audit = audit,
+            }; 
+    }
+    public static Student ToDomain(this StudentDTO dto)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+        Cohort cohort = dto.Cohort?.ToDomain();
+        StudentDetail details = dto.StudentDetail != null ? dto.StudentDetail.ToDomain() : CreateEmptyStudentDetail(dto);
 
+        AuditInfo audit = dto.Audit != null ? dto.Audit : new AuditInfo()
+        {
+            CreatedBy = "Automatic mapper",
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow,
+        };
         return new Student
         {
-            Uuid = dto.SISId,
+            Id = dto.Id,
+            Uuid = dto.Uuid,
             Name = dto.Name,
             Email = dto.Email,
-            StudentDetail = new StudentDetail
-            {
-                EnrolledCourses = dto.EnrolledCourses,
-                GradedCourses = dto.GradedCourses,
-                TimeDeliveryRate = dto.TimelySubmissions,
-                AvgScore = ParseDecimal(dto.AverageScore, culture),
-                CoursesUnderAvg = dto.CoursesBelowAverage,
-                PureScoreDiff = ParseDecimal(dto.RawScoreDifference, culture),
-                StandardScoreDiff = ParseDecimal(dto.StandardScoreDifference, culture),
-                LastAccessDays = dto.DaysSinceLastAccess,
-                Audit = new Domain.Common.AuditInfo
-                {
-                    CreatedAt = DateTime.Now,
-                    ModifiedAt = DateTime.Now,
-                }
-            },
-            Audit = new Domain.Common.AuditInfo
-            {
-                CreatedAt = DateTime.Now,
-                ModifiedAt = DateTime.Now,
-            }
+            Cohort = cohort,
+            CohortId = cohort!=null ? cohort.Id : 0,
+            StudentDetail = details,
+            Audit = audit,
+        };
+
+    }
+    public static StudentDTO ToDto(this Student domain)
+    {
+        ArgumentNullException.ThrowIfNull(domain);
+        return new StudentDTO
+        {
+            Id = domain.Id,
+            Uuid = domain.Uuid,
+            Name = domain.Name,
+            Email = domain.Email,
+            Cohort = domain.Cohort?.ToDto(),
+            StudentDetail = domain.StudentDetail?.ToDto(),
+            Audit = domain.Audit,
+        };
+
+    }
+
+    public static StudentDTO ExtractStudentDTO(this StudentImportDto studentImportDto)
+    {
+        ArgumentNullException.ThrowIfNull(studentImportDto);
+        return new StudentDTO()
+        {
+            Uuid = studentImportDto.SISId,
+            Name = studentImportDto.Name,
+            Email = studentImportDto.Email,
+            StudentDetail = ExctractStudentDetailDto(studentImportDto),
+            Cohort = new CohortDTO()
         };
     }
 
-    private static decimal ParseDecimal(decimal value, CultureInfo culture)
+    public static StudentDetailDTO ExctractStudentDetailDto(StudentImportDto dto)
     {
-        return decimal.TryParse(
-            value.ToString(culture),
-            NumberStyles.Number,
-            culture, out var result
-        ) ? result : 0;
+        return new StudentDetailDTO()
+        {
+            EnrolledCourses = dto.EnrolledCourses,
+            GradedCourses = dto.GradedCourses,
+            TimeDeliveryRate = dto.TimelySubmissions,
+            AvgScore = dto.AverageScore,
+            CoursesUnderAvg = dto.CoursesBelowAverage,
+            PureScoreDiff = dto.RawScoreDifference,
+            StandardScoreDiff = dto.StandardScoreDifference,
+            LastAccessDays = dto.DaysSinceLastAccess,
+            Audit = new AuditInfo()
+            {
+                CreatedBy = "CSV import",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            }
+        };        
     }
 }

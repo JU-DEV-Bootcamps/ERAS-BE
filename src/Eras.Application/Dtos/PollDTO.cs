@@ -1,4 +1,6 @@
-﻿using Eras.Domain.Entities;
+﻿using Eras.Application.DTOs;
+using Eras.Domain.Common;
+using Eras.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,17 +12,11 @@ namespace Eras.Application.Dtos
     public class PollDTO
     {
         public int Id { get; set; }
-        public string CosmicLatteId { get; set; }
-        public DateTime CreatedDate { get; set; } // in our db
-        public DateTime ModifiedDate { get; set; }// in our db
-        public string PollName { get; set; }
-        public PollDTO(int id, string cosmicLatteId, DateTime createdDate, DateTime modifiedDate, string pollName)
-        {
-            this.Id = id;
-            this.CosmicLatteId = cosmicLatteId;
-            this.CreatedDate = createdDate;
-            this.ModifiedDate = modifiedDate;
-            this.PollName = pollName;
-        }
+        public string IdCosmicLatte { get; set; } = string.Empty;
+        public string Uuid { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Version { get; set; } = string.Empty;
+        public ICollection<ComponentDTO> Components { get; set; } = [];
+        public AuditInfo Audit { get; set; } = default!;
     }
-}
+   }
