@@ -21,6 +21,7 @@ namespace Eras.Application.Mappers
                 Student = dto.Student.ToDomain(),
                 Answers = answers,
                 Audit = dto.Audit,
+                FinishedAt = dto.FinishedAt
             };
         }
         public static PollInstanceDTO ToDTO(this PollInstance entity)
@@ -33,6 +34,7 @@ namespace Eras.Application.Mappers
                 Student = entity.Student.ToDto(),
                 Answers = answers,
                 Audit = entity.Audit,
+                FinishedAt = entity.FinishedAt
             };
 
         }
