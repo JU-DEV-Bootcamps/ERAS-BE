@@ -7,6 +7,5 @@ namespace Eras.Domain.Entities
         public string Name { get; set; } = string.Empty;
         public string CourseCode { get; set; } = string.Empty;
         public AuditInfo Audit { get; set; } = default!;
-        public ICollection<Student> Students { get; set; } = [];
   }
 }

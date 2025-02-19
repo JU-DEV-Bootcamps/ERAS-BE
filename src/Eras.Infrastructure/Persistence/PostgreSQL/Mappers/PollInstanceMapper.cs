@@ -11,7 +11,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = entity.Id,
                 Uuid = entity.Uuid,
-                Audit = entity.Audit
+                Student = entity.Student.ToDomain(),
+                Audit = entity.Audit,
+                FinishedAt = entity.FinishedAt
+             
             };
         }
 
@@ -21,7 +24,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = model.Id,
                 Uuid = model.Uuid,
-                Audit = model.Audit
+                StudentId = model.Student.Id,
+                Audit = model.Audit,
+                FinishedAt = model.FinishedAt                
             };
         }
     }

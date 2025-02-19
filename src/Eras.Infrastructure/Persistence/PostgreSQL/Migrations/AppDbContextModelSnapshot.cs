@@ -148,6 +148,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("FinishedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("StudentId")
                         .HasColumnType("integer");
 

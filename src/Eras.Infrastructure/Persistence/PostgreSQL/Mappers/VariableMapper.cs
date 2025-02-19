@@ -1,5 +1,6 @@
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using System.ComponentModel;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
@@ -14,14 +15,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Audit = entity.Audit
             };
         }
-
         public static VariableEntity ToPersistence(this Variable model)
         {
             return new VariableEntity
             {
                 Id = model.Id,
                 Name = model.Name,
-                Audit = model.Audit
+                Audit = model.Audit,
+                ComponentId = model.IdComponent
             };
         }
     }

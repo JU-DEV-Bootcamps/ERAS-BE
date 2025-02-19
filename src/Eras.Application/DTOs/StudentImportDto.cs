@@ -5,6 +5,8 @@ namespace Eras.Application.DTOs
 {
     public class StudentImportDto
     {
+        public string? Cohort { get; set; }
+
         [JsonPropertyName(nameof(Name))]
         public required string Name { get; set; }
 

@@ -31,9 +31,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<Student?> GetByEmailAsync(string email)
         {
-            var student = await _context.Students.FirstOrDefaultAsync(student =>
-                student.Email == email
-            );
+            var student = await _context
+                .Students.Include(s => s.StudentDetail)
+                .FirstOrDefaultAsync(student => student.Email == email);
 
             return student?.ToDomain();
         }

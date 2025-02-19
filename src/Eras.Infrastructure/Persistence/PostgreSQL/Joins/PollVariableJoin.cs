@@ -9,6 +9,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Joins
 		public PollEntity Poll { get; set; } = default!;
 		public int VariableId { get; set; }
 		public VariableEntity Variable { get; set; } = default!;
+
 		public ICollection<AnswerEntity> Answers { get; set; } = default!;
 	}
 }
