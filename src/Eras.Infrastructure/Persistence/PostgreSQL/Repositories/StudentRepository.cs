@@ -3,6 +3,7 @@ using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
@@ -42,20 +43,21 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             return await _context.Students.CountAsync();
         }
-        public async Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(int page, int pageSize, string pollUuid, int days)
+        public async Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(int page, int pageSize, string pollUuid, int? days = null)
         {
-            var fromDate = DateTime.UtcNow.AddDays(-days);
+            DateTime? fromDate = days > 0 ? DateTime.UtcNow.AddDays(-days.Value) : null;
 
-            var totalCount = await _context.Students
-                .Where(student => student.PollInstances.Any(pollInst => pollInst.Uuid == pollUuid && pollInst.FinishedAt > fromDate))
-                .CountAsync();
+            var queryStudents = _context.Students
+                .Where(student => student.PollInstances.Any(pollInst => pollInst.Uuid == pollUuid));
 
+            if (fromDate != null)
+            {
+                queryStudents = queryStudents.Where(student => student.PollInstances.Any(pollInst => pollInst.FinishedAt > fromDate));
+            }
 
-            var students = await _context.Students
-                .Where(student => student.PollInstances.Any(pollInst => pollInst.Uuid == pollUuid && pollInst.FinishedAt > fromDate ))
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var totalCount = await queryStudents.CountAsync();
+            var students = await queryStudents.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(); 
+
             return (students.Select(student => student.ToDomain()), totalCount);
         }
     }

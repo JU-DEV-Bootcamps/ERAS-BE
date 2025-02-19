@@ -13,6 +13,6 @@ namespace Eras.Application.Features.Students.Queries.GetAllByPollAndDate
     {
         public Pagination Query { get; set; }
         public string PollUuid { get; set; }
-        public int Days { get; set; }
+        public int? Days { get; set; }
     }
 }

@@ -63,16 +63,15 @@ public class StudentsController : ControllerBase
     public async Task<IActionResult> GetPreviewPolls(
     [FromQuery] Pagination query,
     [FromRoute] string pollUuid,
-    [FromQuery] int days = 30
+    [FromQuery] int days
     )
-    {
+    { 
         GetAllStudentsByPollUuidAndDaysQuery studentsByPollQuery = new GetAllStudentsByPollUuidAndDaysQuery()
         {
             Query = query,
             PollUuid = pollUuid,
             Days = days
-        };
-        var result = await _mediator.Send(studentsByPollQuery);
-        return Ok(result);
+        }; 
+        return Ok(await _mediator.Send(studentsByPollQuery));
     }
 }

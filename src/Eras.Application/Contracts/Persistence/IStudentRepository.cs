@@ -8,6 +8,6 @@ namespace Eras.Application.Contracts.Persistence
         Task<Student?> GetByUuidAsync(string uuid);
         Task<Student?> GetByEmailAsync(string email);
         Task<int> CountAsync();
-        Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(int page, int pageSize, string pollUuid, int days);
+        Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(int page, int pageSize, string pollUuid, int? days);
     }
 }
