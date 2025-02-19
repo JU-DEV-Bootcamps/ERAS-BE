@@ -1,5 +1,6 @@
 using Eras.Application.Dtos;
-using Eras.Application.DTOs; 
+using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities; 
 using System.Globalization;
 
@@ -7,10 +8,32 @@ namespace Eras.Application.Mappers;
 
 public static class StudentMapper
 {
+    public static StudentDetail CreateEmptyStudentDetail(StudentDTO dto)
+    {
+            AuditInfo audit = new AuditInfo()
+            {
+                CreatedBy = "Automatic mapper",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            };
+            return new StudentDetail
+            {
+                StudentId = dto.Id,
+                Audit = audit,
+            }; 
+    }
     public static Student ToDomain(this StudentDTO dto)
     {
         ArgumentNullException.ThrowIfNull(dto);
         Cohort cohort = dto.Cohort?.ToDomain();
+        StudentDetail details = dto.StudentDetail != null ? dto.StudentDetail.ToDomain() : CreateEmptyStudentDetail(dto);
+
+        AuditInfo audit = dto.Audit != null ? dto.Audit : new AuditInfo()
+        {
+            CreatedBy = "Automatic mapper",
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow,
+        };
         return new Student
         {
             Id = dto.Id,
@@ -19,8 +42,8 @@ public static class StudentMapper
             Email = dto.Email,
             Cohort = cohort,
             CohortId = cohort!=null ? cohort.Id : 0,
-            StudentDetail = dto.StudentDetail?.ToDomain(),
-            Audit = default
+            StudentDetail = details,
+            Audit = audit,
         };
 
     }
@@ -35,67 +58,42 @@ public static class StudentMapper
             Email = domain.Email,
             Cohort = domain.Cohort?.ToDto(),
             StudentDetail = domain.StudentDetail?.ToDto(),
+            Audit = domain.Audit,
         };
 
     }
-    public static StudentImportDto ToStudentImportDto(this StudentDTO dto)
-    {
-        return new StudentImportDto()
-        {            
-            Name = dto.Name,
-            Email = dto.Email,
-            Cohort = dto.Cohort.Name,
-            SISId = dto.Uuid,
-            EnrolledCourses = default,
-            GradedCourses = default,
-            TimelySubmissions = default,
-            AverageScore = default,
-            CoursesBelowAverage = default,
-            RawScoreDifference = default,
-            StandardScoreDifference = default,
-            DaysSinceLastAccess = default,
-        };
-    }
-    public static Student ToDomain(this StudentImportDto dto)
-    {
-        ArgumentNullException.ThrowIfNull(dto);
-        var culture = CultureInfo.GetCultureInfo("es-ES");
 
-        return new Student
+    public static StudentDTO ExtractStudentDTO(this StudentImportDto studentImportDto)
+    {
+        ArgumentNullException.ThrowIfNull(studentImportDto);
+        return new StudentDTO()
         {
-            Uuid = dto.SISId,
-            Name = dto.Name,
-            Email = dto.Email,
-            StudentDetail = new StudentDetail
-            {
-                EnrolledCourses = dto.EnrolledCourses,
-                GradedCourses = dto.GradedCourses,
-                TimeDeliveryRate = dto.TimelySubmissions,
-                AvgScore = ParseDecimal(dto.AverageScore, culture),
-                CoursesUnderAvg = dto.CoursesBelowAverage,
-                PureScoreDiff = ParseDecimal(dto.RawScoreDifference, culture),
-                StandardScoreDiff = ParseDecimal(dto.StandardScoreDifference, culture),
-                LastAccessDays = dto.DaysSinceLastAccess,
-                Audit = new Domain.Common.AuditInfo
-                {
-                    CreatedAt = DateTime.Now,
-                    ModifiedAt = DateTime.Now,
-                }
-            },
-            Audit = new Domain.Common.AuditInfo
-            {
-                CreatedAt = DateTime.Now,
-                ModifiedAt = DateTime.Now,
-            }
+            Uuid = studentImportDto.SISId,
+            Name = studentImportDto.Name,
+            Email = studentImportDto.Email,
+            StudentDetail = ExctractStudentDetailDto(studentImportDto),
+            Cohort = new CohortDTO()
         };
     }
 
-    private static decimal ParseDecimal(decimal value, CultureInfo culture)
+    public static StudentDetailDTO ExctractStudentDetailDto(StudentImportDto dto)
     {
-        return decimal.TryParse(
-            value.ToString(culture),
-            NumberStyles.Number,
-            culture, out var result
-        ) ? result : 0;
+        return new StudentDetailDTO()
+        {
+            EnrolledCourses = dto.EnrolledCourses,
+            GradedCourses = dto.GradedCourses,
+            TimeDeliveryRate = dto.TimelySubmissions,
+            AvgScore = dto.AverageScore,
+            CoursesUnderAvg = dto.CoursesBelowAverage,
+            PureScoreDiff = dto.RawScoreDifference,
+            StandardScoreDiff = dto.StandardScoreDifference,
+            LastAccessDays = dto.DaysSinceLastAccess,
+            Audit = new AuditInfo()
+            {
+                CreatedBy = "CSV import",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            }
+        };        
     }
 }

@@ -10,7 +10,8 @@ namespace Eras.Application.Mappers
             ArgumentNullException.ThrowIfNull(dto);
             return new Variable
             {
-                Name = dto.Name,      
+                Name = dto.Name,    
+                Audit = dto.Audit,
             };
         }
         public static VariableDTO ToDto(this Variable domain)
@@ -18,7 +19,8 @@ namespace Eras.Application.Mappers
             ArgumentNullException.ThrowIfNull(domain);
             return new VariableDTO
             {
-                Name = domain.Name
+                Name = domain.Name,
+                Audit = domain.Audit,
             };
         }
     }

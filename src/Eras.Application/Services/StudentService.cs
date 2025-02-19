@@ -49,7 +49,7 @@ namespace Eras.Application.Services
                     {
                         continue;
                     }
-                    Student created = await CreateStudent(dto.ToDomain());
+                    Student created = new Student();//await CreateStudent(dto.ToDomain());
                     if (created != null) newRecors++;
                 }
                 catch (Exception ex)

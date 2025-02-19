@@ -18,7 +18,8 @@ namespace Eras.Application.Mappers
                 Name = dto.Name,
                 Version = dto.Version,
                 Uuid = dto.Uuid,
-                Components = components
+                Components = components,
+                Audit = dto.Audit
             };
         }
         public static PollDTO ToDto (this Poll domain)
@@ -30,7 +31,8 @@ namespace Eras.Application.Mappers
                 Name = domain.Name,
                 Uuid= domain.Uuid,
                 Version = domain.Version,
-                Components = components
+                Components = components,
+                Audit = domain.Audit
             };
         }
     }

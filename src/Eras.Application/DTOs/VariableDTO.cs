@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Dtos;
+using Eras.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,5 +16,6 @@ namespace Eras.Application.DTOs
         public string Type { get; set; } = "";
 
         public AnswerDTO? Answer { get; set; }
+        public AuditInfo Audit { get; set; } = default!;
     }
 }

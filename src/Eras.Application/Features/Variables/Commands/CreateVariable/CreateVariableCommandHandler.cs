@@ -42,13 +42,6 @@ namespace Eras.Application.Features.Variables.Commands.CreateVariable
                 {
                     variable.IdComponent = request.ComponentId;
                     variable.IdPoll = request.PollId;
-                    // variable.PollVariableId = 0;
-                    variable.Audit = new AuditInfo()
-                    {
-                        CreatedBy = "Cosmic latte import",
-                        CreatedAt = DateTime.UtcNow,
-                        ModifiedAt = DateTime.UtcNow,
-                    };
                     Variable createdVariable = await _variableRepository.AddAsync(variable);
                     return new CreateComandResponse<Variable>(createdVariable, 1, "Success", true);
                 }

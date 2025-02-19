@@ -1,4 +1,5 @@
 ﻿using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers
@@ -8,6 +9,13 @@ namespace Eras.Application.Mappers
         public static StudentDetail ToDomain(this StudentDetailDTO dto)
         {
             ArgumentNullException.ThrowIfNull(dto);
+
+            AuditInfo audit = dto.Audit != null ? dto.Audit : new AuditInfo()
+            {
+                CreatedBy = "Automatic mapper",
+                CreatedAt = DateTime.UtcNow,
+                ModifiedAt = DateTime.UtcNow,
+            };
             return new StudentDetail
             {
                 StudentId = dto.StudentId,
@@ -19,7 +27,7 @@ namespace Eras.Application.Mappers
                 PureScoreDiff = dto.PureScoreDiff,
                 StandardScoreDiff = dto.StandardScoreDiff,
                 LastAccessDays = dto.LastAccessDays,
-                Audit = dto.Audit,
+                Audit = audit,
             };
 
         }

@@ -29,12 +29,6 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswer
             try
             {
                 Answer answer = request.Answer.ToDomain();
-                answer.Audit = new AuditInfo()
-                {
-                    CreatedBy = "Cosmic latte import",
-                    CreatedAt = DateTime.UtcNow,
-                    ModifiedAt = DateTime.UtcNow,
-                };
                 Answer createdAnswer = await _answerRepository.AddAsync(answer);
                 return new CreateComandResponse<Answer>(createdAnswer,1, "Success", true);
             }

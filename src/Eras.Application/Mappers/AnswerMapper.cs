@@ -13,8 +13,8 @@ namespace Eras.Application.Mappers
                 AnswerText = dto.Answer,
                 RiskLevel = (int) dto.Score,
                 PollInstanceId = dto.PollInstanceId,
-                PollVariableId = dto.PollVariableId
-
+                PollVariableId = dto.PollVariableId,
+                Audit = dto.Audit
             };
         }
         public static AnswerDTO ToDto(this Answer domain)
@@ -25,7 +25,8 @@ namespace Eras.Application.Mappers
                 Answer = domain.AnswerText,
                 Score = domain.RiskLevel,
                 PollInstanceId = domain.PollInstanceId,
-                PollVariableId = domain.PollVariableId
+                PollVariableId = domain.PollVariableId,
+                Audit = domain.Audit
             };
         }
     }

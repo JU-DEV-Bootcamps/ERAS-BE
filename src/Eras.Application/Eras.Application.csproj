@@ -24,13 +24,17 @@
     <Folder Include="Features\Answers\Commands\DeleteAnswer\" />
     <Folder Include="Features\Answers\Commands\UpdateAnswer\" />
     <Folder Include="Features\Answers\Queries\" />
+    <Folder Include="Features\Consolidator\Commands\" />
+    <Folder Include="Features\Consolidator\Queries\GetByRuleset\" />
+    <Folder Include="Features\Consolidator\Queries\GetAvgRiskAnswer\" />
+    <Folder Include="Features\Consolidator\Queries\GetHigherRiskStudent\" />
     <Folder Include="Features\Polls\Commands\DeletePoll\" />
     <Folder Include="Features\Polls\Commands\UpdatePoll\" />
+    <Folder Include="Features\Polls\Queries\" />
     <Folder Include="Features\Students\Commands\DeleteStudent\" />
     <Folder Include="Features\Students\Commands\UpdateStudent\" />
     <Folder Include="Features\Students\Queries\GetStudentDetails\" />
     <Folder Include="Features\Students\Queries\GetStudentsList\" />
-    <Folder Include="Features\Polls\Queries\" />
   </ItemGroup>
 
 </Project>

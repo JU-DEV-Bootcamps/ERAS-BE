@@ -19,7 +19,8 @@ namespace Eras.Application.Mappers
             {
                 Id = default,
                 Name = dto.Name,
-                Variables = variables
+                Variables = variables,
+                Audit = dto.Audit
             };
         }
         public static ComponentDTO ToDto(this Component domain)
@@ -30,6 +31,7 @@ namespace Eras.Application.Mappers
             {
                 Name = domain.Name,
                 Variables = variables,
+                Audit = domain.Audit
             };
         }
     }

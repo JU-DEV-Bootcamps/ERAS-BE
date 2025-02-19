@@ -1,4 +1,5 @@
 ﻿using Eras.Application.DTOs;
+using Eras.Domain.Common;
 
 namespace Eras.Application.Dtos
 {
@@ -11,5 +12,6 @@ namespace Eras.Application.Dtos
         public StudentDetailDTO? StudentDetail { get; set; }
 
         public CohortDTO Cohort { get; set; } = default!;
+        public AuditInfo Audit { get; set; } = default!;
     }
 }

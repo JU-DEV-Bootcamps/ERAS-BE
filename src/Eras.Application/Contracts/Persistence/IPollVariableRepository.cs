@@ -9,6 +9,6 @@ namespace Eras.Application.Contracts.Persistence
 {
     public interface IPollVariableRepository: IBaseRepository<Variable>
     {
-
+        Task<Variable?> GetByPollIdAndVariableIdAsync(int pollId, int variableId);   
     }
 }

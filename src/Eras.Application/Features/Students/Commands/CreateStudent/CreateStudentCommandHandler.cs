@@ -33,7 +33,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred importing student with SISId {request.StudentDTO.SISId}: {ex.Message}");
+                _logger.LogError($"An error occurred importing student with SISId {request.StudentDTO.Uuid}");
                 return new CreateComandResponse<Student>(null,0, "Error", false);
             }
         }

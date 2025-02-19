@@ -68,7 +68,6 @@ namespace Eras.Application.DTOs.CL
     }
     */
 
-
     // this is a class only to serialize from Cosmic latte
     public class CLResponseModelForPollDTO
     {

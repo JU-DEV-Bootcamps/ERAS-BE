@@ -35,12 +35,6 @@ namespace Eras.Application.Features.Cohort.Commands.CreateCohort
                 if (cohort != null)
                     return new CreateComandResponse<Domain.Entities.Cohort>(cohort, 0, "Success", true);
                 Domain.Entities.Cohort cohortToCreate = request.CohortDto.ToDomain();
-                cohortToCreate.Audit = new AuditInfo()
-                {
-                    CreatedBy = "Cosmic latte import",
-                    CreatedAt = DateTime.UtcNow,
-                    ModifiedAt = DateTime.UtcNow,
-                };
                 Domain.Entities.Cohort cohortCreated = await _cohortRepository.AddAsync(cohortToCreate);               
                 return new CreateComandResponse<Domain.Entities.Cohort>(cohortCreated, 1, "Success", true);
             }
