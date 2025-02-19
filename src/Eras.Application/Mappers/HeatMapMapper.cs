@@ -8,42 +8,39 @@ namespace Eras.Application.Mappers
             string componentName
         )
         {
-            var filteredResponses = queryResponses
-                .Where(q => q.ComponentName == componentName)
-                .ToList();
 
-            var groupedByComponent = filteredResponses
-                .GroupBy(q => new { q.ComponentId, q.ComponentName })
-                .Select(g => new VariableData
-                {
-                    Variables = g.GroupBy(v => new { v.VariableId, v.VariableName })
-                                 .Select(vg => new Variable
-                                 {
-                                     Description = vg.Key.VariableName,
-                                     PossibleAnswers = vg.Select(a => new PossibleAnswer
-                                     {
-                                         Description = a.AnswerText,
-                                         Value = a.AnswerRiskLevel
-                                     }).DistinctBy(pa => new { pa.Description, pa.Value }).ToList()
-                                 }).ToList()
-                }).ToList();
+            var variableData = new VariableData
+            {
+                Variables = queryResponses
+                    .GroupBy(v => new { v.VariableId, v.VariableName })
+                    .Select(vg => new Variable
+                    {
+                        Description = vg.Key.VariableName,
+                        PossibleAnswers = vg.Select(a => new PossibleAnswer
+                        {
+                            Description = a.AnswerText,
+                            Value = a.AnswerRiskLevel
+                        }).GroupBy(pa => pa.Description)
+                          .Select(gpa => gpa.First())
+                          .ToList()
+                    }).ToList()
+            };
 
-            var answers = filteredResponses
-                .GroupBy(q => new { q.ComponentId, q.ComponentName })
-                .Select(g => new AnswerData
-                {
-                    Answers = g.Select(a => new Answer
+            var answerData = new AnswerData
+            {
+                Answers = queryResponses
+                    .Select(a => new Answer
                     {
                         Description = a.AnswerText,
                         Value = a.AnswerRiskLevel
                     }).ToList()
-                }).ToList();
+            };
 
             return new HeatMapByComponentsResponseVm
             {
                 ComponentName = componentName,
-                Variables = groupedByComponent,
-                Answers = answers
+                Variables = variableData,
+                Answers = answerData
             };
         }
     }

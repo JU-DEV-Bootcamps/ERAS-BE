@@ -11,11 +11,13 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponent
     public class GetHeatMapDataByAllComponentsHandler : IRequestHandler<GetHeatMapDataByAllComponentsQuery, GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>>
     {
         private readonly IHeatMapRepository _heatMapRepository;
+        private readonly IComponentRepository _componentRepository;
         private readonly ILogger<GetHeatMapDataByAllComponentsHandler> _logger;
 
-        public GetHeatMapDataByAllComponentsHandler(IHeatMapRepository heatMapRepository, ILogger<GetHeatMapDataByAllComponentsHandler> logger)
+        public GetHeatMapDataByAllComponentsHandler(IHeatMapRepository heatMapRepository, IComponentRepository componentRepository , ILogger<GetHeatMapDataByAllComponentsHandler> logger)
         {
             _heatMapRepository = heatMapRepository;
+            _componentRepository = componentRepository;
             _logger = logger;
         }
         public async Task<GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>> Handle(GetHeatMapDataByAllComponentsQuery request, CancellationToken cancellationToken)
@@ -27,14 +29,22 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponent
             try
             {
                 var answersByComponents = await _heatMapRepository.GetHeatMapDataByComponentsAsync(request.PollInstanceUUID);
+                var components = await _componentRepository.GetAllAsync();
                 if (answersByComponents == null || !answersByComponents.Any())
                     throw new NotFoundException($"No data found for poll instance ID: {request.PollInstanceUUID}");
 
+                var bodyData = new List<HeatMapByComponentsResponseVm>();
 
-                var bodyData = answersByComponents
-            .GroupBy(q => q.ComponentName)
-            .Select(g => HeatMapMapper.MaptToVmResponse(g, g.Key))
-            .ToList();
+                foreach (var component in components)
+                {
+                    var filteredResponses = answersByComponents
+                        .Where(q => q.ComponentId == component.Id)
+                        .ToList();
+                    var mappedData = HeatMapMapper.MaptToVmResponse(filteredResponses, component.Name);
+                    bodyData.Add(mappedData);
+                }
+
+                
 
                 return new GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>(bodyData, "Success", true);
             }

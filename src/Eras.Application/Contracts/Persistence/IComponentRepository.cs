@@ -6,5 +6,6 @@ namespace Eras.Application.Contracts.Persistence
     public interface IComponentRepository : IBaseRepository<Component>
     {
         Task<Component?> GetByNameAsync(string name);
+        Task<IEnumerable<Component>> GetAllAsync();
     }
 }

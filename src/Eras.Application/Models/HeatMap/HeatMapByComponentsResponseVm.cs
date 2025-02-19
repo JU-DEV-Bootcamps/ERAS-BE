@@ -2,35 +2,34 @@
 {
     public class HeatMapByComponentsResponseVm
     {
-        public string ComponentName { get; set; }
-        public IEnumerable<VariableData> Variables { get; set; }
-        public IEnumerable<AnswerData> Answers { get; set; }
+        public required string ComponentName { get; set; }
+        public required VariableData Variables { get; set; }
+        public required AnswerData Answers { get; set; }
     }
 
     public class VariableData
     {
-        public IEnumerable<Variable> Variables { get; set; }
+        public IEnumerable<Variable> Variables { get; set; } = new List<Variable>();
     }
 
     public class Variable
     {
-        public string Description { get; set; }
-        public IEnumerable<PossibleAnswer> PossibleAnswers { get; set; }
+        public required string Description { get; set; }
+        public IEnumerable<PossibleAnswer> PossibleAnswers { get; set; } = new List<PossibleAnswer>();
     }
     public class PossibleAnswer
     {
-        public string Description { get; set; }
+        public required string Description { get; set; }
         public int Value { get; set; }
     }
 
     public class AnswerData
     {
-        public IEnumerable<Answer> Answers { get; set; }
+        public IEnumerable<Answer> Answers { get; set; } = new List<Answer>();
     }
     public class Answer
     {
-        public string Description { get; set; }
+        public required string Description { get; set; }
         public int Value { get; set; }
-
     }
 }
