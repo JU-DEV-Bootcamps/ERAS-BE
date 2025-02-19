@@ -17,12 +17,12 @@ namespace Eras.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("components/polls/{pollId}")]
+        [HttpGet("components/polls/{pollUUID}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetHeatMapDataByAllComponents([FromRoute] string pollId)
+        public async Task<IActionResult> GetHeatMapDataByAllComponents([FromRoute] string pollUUID)
         {
-            BaseResponse response = await _mediator.Send(new GetHeatMapDataByAllComponentsQuery(pollId));
+            BaseResponse response = await _mediator.Send(new GetHeatMapDataByAllComponentsQuery(pollUUID));
             return response.Success ? Ok(response) : BadRequest(response);
         }
     }
