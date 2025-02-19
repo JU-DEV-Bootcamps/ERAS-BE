@@ -42,5 +42,21 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             return await _context.Students.CountAsync();
         }
+        public async Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(int page, int pageSize, string pollUuid, int days)
+        {
+            var fromDate = DateTime.UtcNow.AddDays(-days);
+
+            var totalCount = await _context.Students
+                .Where(student => student.PollInstances.Any(pollInst => pollInst.Uuid == pollUuid && pollInst.FinishedAt > fromDate))
+                .CountAsync();
+
+
+            var students = await _context.Students
+                .Where(student => student.PollInstances.Any(pollInst => pollInst.Uuid == pollUuid && pollInst.FinishedAt > fromDate ))
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+            return (students.Select(student => student.ToDomain()), totalCount);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using Eras.Application.DTOs;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Features.Students.Queries.GetAll;
+using Eras.Application.Features.Students.Queries.GetAllByPollAndDate;
 using Eras.Application.Models;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
@@ -53,6 +54,25 @@ public class StudentsController : ControllerBase
     public async Task<IActionResult> GetAll([FromQuery] Pagination query)
     {
         var result = await _mediator.Send(new GetAllStudentsQuery(query));
+        return Ok(result);
+    }
+
+    [HttpGet("poll/{pollUuid}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPreviewPolls(
+    [FromQuery] Pagination query,
+    [FromRoute] string pollUuid,
+    [FromQuery] int days = 30
+    )
+    {
+        GetAllStudentsByPollUuidAndDaysQuery studentsByPollQuery = new GetAllStudentsByPollUuidAndDaysQuery()
+        {
+            Query = query,
+            PollUuid = pollUuid,
+            Days = days
+        };
+        var result = await _mediator.Send(studentsByPollQuery);
         return Ok(result);
     }
 }
