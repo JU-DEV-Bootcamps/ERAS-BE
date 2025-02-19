@@ -1,20 +1,19 @@
-using Microsoft.AspNetCore.Mvc;
-using Eras.Application.Services;
 using Eras.Application.DTOs;
-using System.Threading.Tasks;
-using MediatR;
 using Eras.Application.Features.Students.Commands.CreateStudent;
-using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Features.Students.Queries.GetAll;
 using Eras.Application.Models;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/v1/[controller]")]
 public class StudentsController : ControllerBase
 {
-
     private readonly IMediator _mediator;
     private readonly ILogger<StudentsController> _logger;
+
     public StudentsController(IMediator mediator, ILogger<StudentsController> logger)
     {
         _mediator = mediator;
@@ -26,8 +25,11 @@ public class StudentsController : ControllerBase
     {
         _logger.LogInformation("Importing {Count} students", students?.Length ?? 0);
 
-        CreateStudentsCommand createStudentCommand = new CreateStudentsCommand() {students = students};
-        CreateComandResponse<Student []> response = await _mediator.Send(createStudentCommand);
+        CreateStudentsCommand createStudentCommand = new CreateStudentsCommand()
+        {
+            students = students,
+        };
+        CreateComandResponse<Student[]> response = await _mediator.Send(createStudentCommand);
 
         if (response.Success.Equals(true))
         {
@@ -36,10 +38,21 @@ public class StudentsController : ControllerBase
         }
         else
         {
-            _logger.LogWarning("Failed to import students. Reason: {ResponseMessage}", response.Message);
-            return StatusCode(400, new { status = "error", message = "An error occurred during the import process" });
+            _logger.LogWarning(
+                "Failed to import students. Reason: {ResponseMessage}",
+                response.Message
+            );
+            return StatusCode(
+                400,
+                new { status = "error", message = "An error occurred during the import process" }
+            );
         }
     }
 
-
+    [HttpGet]
+    public async Task<IActionResult> GetAll([FromQuery] Pagination query)
+    {
+        var result = await _mediator.Send(new GetAllStudentsQuery(query));
+        return Ok(result);
+    }
 }

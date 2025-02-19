@@ -8,34 +8,39 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
     public class StudentRepository : BaseRepository<Student, StudentEntity>, IStudentRepository
     {
-        public StudentRepository(AppDbContext context) 
-            : base(context, StudentMapper.ToDomain, StudentMapper.ToPersistence)
-        {
-        }
+        public StudentRepository(AppDbContext context)
+            : base(context, StudentMapper.ToDomain, StudentMapper.ToPersistence) { }
 
         public async Task<Student?> GetByNameAsync(string name)
         {
-            var student = await _context.Students
-                .FirstOrDefaultAsync(student => student.Name == name);
-            
+            var student = await _context.Students.FirstOrDefaultAsync(student =>
+                student.Name == name
+            );
+
             return student?.ToDomain();
         }
 
         public async Task<Student?> GetByUuidAsync(string uuid)
         {
-            var student = await _context.Students
-                .FirstOrDefaultAsync(student => student.Uuid == uuid);
-            
+            var student = await _context.Students.FirstOrDefaultAsync(student =>
+                student.Uuid == uuid
+            );
+
             return student?.ToDomain();
         }
 
         public async Task<Student?> GetByEmailAsync(string email)
         {
-            var student = await _context.Students
-                .Include(s => s.StudentDetail)
+            var student = await _context
+                .Students.Include(s => s.StudentDetail)
                 .FirstOrDefaultAsync(student => student.Email == email);
-            
+
             return student?.ToDomain();
+        }
+
+        public async Task<int> CountAsync()
+        {
+            return await _context.Students.CountAsync();
         }
     }
 }
