@@ -42,8 +42,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return persistenceEntity != null 
                 ? _toDomain(persistenceEntity)
-                : null; 
+                : null;
         }
+        public async Task<IEnumerable<TDomain>> GetAllAsync()
+        {
+            var persistenceEntities = await _context.Set<TPersist>().ToListAsync();
+            return persistenceEntities.Select(entity => _toDomain(entity));
+        }
+
 
         public async Task<IEnumerable<TDomain>> GetPagedAsync(int page, int pageSize)
         {
