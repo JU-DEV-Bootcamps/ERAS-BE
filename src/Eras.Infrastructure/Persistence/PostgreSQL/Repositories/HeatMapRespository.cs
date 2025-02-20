@@ -19,8 +19,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 JOIN poll_variable pv ON v.""Id"" = pv.variable_id
                 JOIN answers a ON pv.""Id"" = a.poll_variable_id
                 JOIN poll_instances pi ON a.poll_instance_id = pi.""Id""
-
-            WHERE pi.uuid = {0};";
+            WHERE pi.uuid = {0}
+            ORDER BY c.""Id"", v.""Id"", a.answer_text;";
 
         public HeatMapRespository(AppDbContext context)
         {

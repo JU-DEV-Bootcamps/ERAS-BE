@@ -3,8 +3,8 @@
     public class HeatMapByComponentsResponseVm
     {
         public required string ComponentName { get; set; }
-        public required VariableData Variables { get; set; }
-        public required AnswerData Answers { get; set; }
+        public VariableData Variables { get; set; } = new VariableData();
+        public IEnumerable<Series> Series { get; set; } = new List<Series>();
     }
 
     public class VariableData
@@ -17,19 +17,22 @@
         public required string Description { get; set; }
         public IEnumerable<PossibleAnswer> PossibleAnswers { get; set; } = new List<PossibleAnswer>();
     }
+
     public class PossibleAnswer
     {
         public required string Description { get; set; }
         public int Value { get; set; }
     }
 
-    public class AnswerData
+    public class Series
     {
-        public IEnumerable<Answer> Answers { get; set; } = new List<Answer>();
+        public required string Name { get; set; }
+        public List<DataPoint> Data { get; set; } = new List<DataPoint>();
     }
-    public class Answer
+
+    public class DataPoint
     {
-        public required string Description { get; set; }
-        public int Value { get; set; }
+        public required string X { get; set; }
+        public int Y { get; set; }
     }
 }
