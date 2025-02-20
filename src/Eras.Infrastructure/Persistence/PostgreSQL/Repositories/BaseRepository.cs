@@ -1,4 +1,5 @@
 using Eras.Application.Contracts.Persistence;
+using Eras.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories

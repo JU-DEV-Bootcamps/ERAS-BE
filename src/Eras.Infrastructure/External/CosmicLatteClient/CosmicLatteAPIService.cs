@@ -23,9 +23,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private string _apiKey;
         private string _apiUrl;
         private readonly HttpClient _httpClient;
-
-        private System.Diagnostics.Stopwatch _stopwatch;
-
         private readonly ILogger<CosmicLatteAPIService> _logger;
         private readonly PollOrchestratorService _pollOrchestratorService;
 
@@ -41,7 +38,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             _httpClient.BaseAddress = new Uri(_apiUrl);
             _logger = logger;
             _pollOrchestratorService = pollOrchestratorService;
-            _stopwatch = Stopwatch.StartNew();
         }
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
         {
@@ -61,10 +57,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
         public async Task<int> ImportAllPolls(string name, string startDate, string endDate)
         {
-            _stopwatch.Start();
-            _logger.LogError($"1) IMPORT ALL POLLS:  inicio:{_stopwatch.ElapsedMilliseconds} ms");
-
-
             string path = _apiUrl + PathEvalaution;
             if (name != "" || startDate != "" || endDate != "")
             {
@@ -85,8 +77,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
-
-                _logger.LogError($"1) IMPORT ALL POLLS:  1era llamada a api :{_stopwatch.ElapsedMilliseconds} ms");
                 Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(apiResponse.data[0]);
                 // 1. Create components and variables
                 List<ComponentDTO> componentsAndVariables = GetComponentsAndVariables(apiResponse.data[0]._id, variablesPositionByComponents).Result;
@@ -111,7 +101,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                                 FinishedAt = responseToPollInstace.finishedAt
                             };
                             pollsDtos.Add(pollDto);
-                        _logger.LogError($"1) CREAR UNA POLL:  TERMINA EN :{_stopwatch.ElapsedMilliseconds} ms");
                         }
                     }
                 }
