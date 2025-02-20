@@ -23,9 +23,10 @@ public class ReportsController : ControllerBase
         List<int> answerIds = studentIdsanswerIds[1];
         try
         {
+            //TODO: Domain Implementation pending
             GetAvgRiskAnswerQuery query = new() { StudentIds = studentIds, AnswerIds = answerIds };
-            var avgRisk = await _mediator.Send(query);
-            return Ok(new { status = "successful", message = avgRisk });
+            //var avgRisk = await _mediator.Send(query);
+            return StatusCode(501, new { status = "not implemented", message = "Implementation to get avgRisk Pending" });
         }
         catch (Exception ex)
         {
@@ -34,13 +35,17 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet("higherrisk/students/")]
-    public async Task<IActionResult> GetHigherRiskStudentsByCohort([FromQuery]  string cohortId,[FromQuery]  int takeNumber)
+    public async Task<IActionResult> GetHigherRiskStudentsByCohort(
+        [FromQuery]  string cohortName,
+        [FromQuery] string pollName,
+        [FromQuery]  int take)
     {
         try
         {
-            GetHigherRiskStudentQuery query = new() { CohortId = cohortId, TakeNumber = takeNumber };
+            GetHigherRiskStudentQuery query = new() { CohortName = cohortName, PollNameCosmicLatte = pollName, Take = take };
             var avgRisk = await _mediator.Send(query);
-            return Ok(new { status = "successful", message = avgRisk });
+            return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Items })
+            : StatusCode(400, new { status = "error", message = avgRisk.Message });
         }
         catch (Exception ex)
         {
@@ -53,9 +58,10 @@ public class ReportsController : ControllerBase
     {
         try
         {
+            //TODO: Domain Implementation pending
             GetByRulesetQuery query = new() { RulesetVariablesWeight = ruleset };
-            var report = await _mediator.Send(query);
-            return Ok(new { status = "successful", message = report });
+            //var report = await _mediator.Send(query);
+            return StatusCode(501, new { status = "not implemented", message = "Implementation to get by ruleset Pending" });
         }
         catch (Exception ex)
         {

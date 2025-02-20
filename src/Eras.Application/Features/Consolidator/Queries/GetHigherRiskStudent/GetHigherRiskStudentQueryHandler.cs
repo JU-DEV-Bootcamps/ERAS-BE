@@ -1,5 +1,4 @@
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
@@ -7,36 +6,58 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 
-public class GetHigherRiskStudentQueryHandler: IRequestHandler<GetHigherRiskStudentQuery, BaseResponse>
+public class GetHigherRiskStudentQueryHandler(
+    ICohortRepository cohortRepository,
+    IStudentCohortRepository studentCohortRepository,
+    IAnswerRepository answerRepository,
+    IPollRepository pollRepository,
+    ILogger<GetHigherRiskStudentQueryHandler> logger
+  ) : IRequestHandler<GetHigherRiskStudentQuery, ListResponse<(Student, List<Answer>?, double)>>
 {
-    private readonly ICohortRepository _cohortRepository;
-    private readonly IAnswerRepository _answerRepository;
-    private readonly ILogger<GetHigherRiskStudentQueryHandler> _logger;
+    private readonly ICohortRepository _cohortRepository = cohortRepository;
+    private readonly IStudentCohortRepository _studentCohortRepository = studentCohortRepository;
+    private readonly IAnswerRepository _answerRepository = answerRepository;
 
-    public GetHigherRiskStudentQueryHandler(ICohortRepository cohortRepository, IAnswerRepository answerRepository, ILogger<GetHigherRiskStudentQueryHandler> logger)
-    {
-        _cohortRepository = cohortRepository;
-        _answerRepository = answerRepository;
-        _logger = logger;
-    }
+    private readonly IPollRepository _pollRepository = pollRepository;
+    private readonly ILogger<GetHigherRiskStudentQueryHandler> _logger = logger;
+    public int DefaultTakeNumber = 5;
 
-    public async Task<BaseResponse> Handle(GetHigherRiskStudentQuery request, CancellationToken cancellationToken)
+    public async Task<ListResponse<(Student, List<Answer>?, double)>> Handle(GetHigherRiskStudentQuery request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var defaultTakeNumber = 5;
-            var cohort = await _cohortRepository.GetByNameAsync(request.CohortId);
-            if(cohort == null) {
-                return new BaseResponse($"The cohort {request.CohortId} does not exist", false);
+        try {
+            int TakeNStudents = request.Take ?? DefaultTakeNumber;
+            //TODO: Should it be a pollInstance or is it okay to be a poll? User (Service students) may only have access to the poll name??.
+            var poll = await _pollRepository.GetByNameAsync(request.PollNameCosmicLatte) ?? throw new KeyNotFoundException("Poll not found");
+
+            var cohort = request.CohortName != null ? await _cohortRepository.GetByNameAsync(request.CohortName) : null;
+            var cohortStudents = (
+                cohort != null
+                    ? await _studentCohortRepository.GetAllStudentsByCohortIdAsync(cohort.Id)
+                    : null
+                ) ?? throw new KeyNotFoundException("No students found for the cohort");
+            List<(Student, List<Answer>?, double riskIndex)> studentsAnswers = [];
+            foreach (var student in cohortStudents){
+                var answers = await _answerRepository.GetByPollInstanceIdAsync(poll.Uuid);
+                //Expensive higher risk index calculator
+                double riskIndex = 0;
+                if(answers?.Count > 0) {
+                    riskIndex = answers.Average(a => a.RiskLevel);
+                }
+                studentsAnswers.Add((student, answers, riskIndex));
             }
-            List<(int Risk, Student student)> studentsRisk = [];
-            var topHigherRisk = studentsRisk.OrderByDescending(s => s.Risk).Take(request.TakeNumber | defaultTakeNumber);
-            return new BaseResponse("The students with higher risk are {topHigherRisk.Format()}", true);
+
+            List<(Student, List<Answer>?, double riskIndex)> topRiskStudents = [];
+            topRiskStudents = [.. studentsAnswers.OrderByDescending(s => s.riskIndex).Take(TakeNStudents)];
+
+            return new ListResponse<(Student, List<Answer>?, double)>(
+                TakeNStudents,
+                topRiskStudents
+            );
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while calculating higher risk students: " + request);
-            return new BaseResponse(false);
+            return new ListResponse<(Student, List<Answer>?, double)>(0, []);
         }
     }
 }
