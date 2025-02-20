@@ -27,7 +27,7 @@ namespace Eras.Api.Controllers
             return response.Success ? Ok(response) : BadRequest(response);
         }
 
-        [HttpGet("components/polls/summary/{pollUUID}")]
+        [HttpGet("summary/polls/{pollUUID}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetHeatMapSummary([FromRoute] string pollUUID) 

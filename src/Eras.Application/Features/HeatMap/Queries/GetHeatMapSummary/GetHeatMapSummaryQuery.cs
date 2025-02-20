@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
 {
-    public class GetHeatMapSummaryQuery : IRequest<GetQueryResponse<IEnumerable<HeatMapSummaryResponseVm>>>
+    public class GetHeatMapSummaryQuery : IRequest<GetQueryResponse<HeatMapSummaryResponseVm>>
     {
         public string PollInstanceUUID { get; }
 

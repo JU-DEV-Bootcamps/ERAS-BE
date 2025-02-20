@@ -14,7 +14,7 @@ using Eras.Application.Mappers;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
 {
-    internal class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, GetQueryResponse<IEnumerable<HeatMapSummaryResponseVm>>>
+    internal class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
     {
         private readonly IHeatMapRepository _heatMapRepository;
         private readonly IComponentRepository _componentRepository;
@@ -27,7 +27,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
             _logger = logger;
         }
 
-        public async Task<GetQueryResponse<IEnumerable<HeatMapSummaryResponseVm>>> Handle(GetHeatMapSummaryQuery request, CancellationToken cancellationToken)
+        public async Task<GetQueryResponse<HeatMapSummaryResponseVm>> Handle(GetHeatMapSummaryQuery request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(request.PollInstanceUUID))
             {
@@ -39,17 +39,14 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
                 if (answersByComponents == null || !answersByComponents.Any())
                     throw new NotFoundException($"No data found for poll instance ID: {request.PollInstanceUUID}");
 
-                var bodyData = new List<HeatMapSummaryResponseVm>();
-
                 var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByComponents);
-                bodyData.Add(mappedData);
 
-                return new GetQueryResponse<IEnumerable<HeatMapSummaryResponseVm>>(bodyData, "Success", true);
+                return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred getting the heat map summary data ");
-                return new GetQueryResponse<IEnumerable<HeatMapSummaryResponseVm>>([], "Failed", false);
+                return new GetQueryResponse<HeatMapSummaryResponseVm>(body: null, "Failed", false);
             }
         }
     }
