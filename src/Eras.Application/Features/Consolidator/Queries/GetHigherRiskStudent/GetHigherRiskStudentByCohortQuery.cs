@@ -10,7 +10,7 @@ namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 // If {CohortName} is provided, it will return the students in the cohort.
 // {PollIDCosmicLatte} is required to get the poll answers.
 /// </summary>
-public class GetHigherRiskStudentQuery: IRequest<ListResponse<(Student, List<Answer>?, double)>>
+public class GetHigherRiskStudentByCohortPollQuery: IRequest<ListResponse<(Student, List<Answer>?, double)>>
 {
     public required string CohortName { get; set; }
     public required string PollNameCosmicLatte { get; set; }

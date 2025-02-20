@@ -6,27 +6,26 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 
-public class GetHigherRiskStudentQueryHandler(
+public class GetHigherRiskStudentByCohortPollQueryHandler(
     ICohortRepository cohortRepository,
     IStudentCohortRepository studentCohortRepository,
     IAnswerRepository answerRepository,
     IPollRepository pollRepository,
-    ILogger<GetHigherRiskStudentQueryHandler> logger
-  ) : IRequestHandler<GetHigherRiskStudentQuery, ListResponse<(Student, List<Answer>?, double)>>
+    ILogger<GetHigherRiskStudentByCohortPollQueryHandler> logger
+  ) : IRequestHandler<GetHigherRiskStudentByCohortPollQuery, ListResponse<(Student, List<Answer>?, double)>>
 {
     private readonly ICohortRepository _cohortRepository = cohortRepository;
     private readonly IStudentCohortRepository _studentCohortRepository = studentCohortRepository;
     private readonly IAnswerRepository _answerRepository = answerRepository;
 
     private readonly IPollRepository _pollRepository = pollRepository;
-    private readonly ILogger<GetHigherRiskStudentQueryHandler> _logger = logger;
+    private readonly ILogger<GetHigherRiskStudentByCohortPollQueryHandler> _logger = logger;
     public int DefaultTakeNumber = 5;
 
-    public async Task<ListResponse<(Student, List<Answer>?, double)>> Handle(GetHigherRiskStudentQuery request, CancellationToken cancellationToken)
+    public async Task<ListResponse<(Student, List<Answer>?, double)>> Handle(GetHigherRiskStudentByCohortPollQuery request, CancellationToken cancellationToken)
     {
         try {
             int TakeNStudents = request.Take ?? DefaultTakeNumber;
-            //TODO: Should it be a pollInstance or is it okay to be a poll? User (Service students) may only have access to the poll name??.
             var poll = await _pollRepository.GetByNameAsync(request.PollNameCosmicLatte) ?? throw new KeyNotFoundException("Poll not found");
 
             var cohort = request.CohortName != null ? await _cohortRepository.GetByNameAsync(request.CohortName) : null;
@@ -37,8 +36,8 @@ public class GetHigherRiskStudentQueryHandler(
                 ) ?? throw new KeyNotFoundException("No students found for the cohort");
             List<(Student, List<Answer>?, double riskIndex)> studentsAnswers = [];
             foreach (var student in cohortStudents){
-                var answers = await _answerRepository.GetByPollInstanceIdAsync(poll.Uuid);
-                //Expensive higher risk index calculator
+                var answers = await _answerRepository.GetByStudentIdAsync(student.Uuid);
+                //Higher risk index calculator
                 double riskIndex = 0;
                 if(answers?.Count > 0) {
                     riskIndex = answers.Average(a => a.RiskLevel);

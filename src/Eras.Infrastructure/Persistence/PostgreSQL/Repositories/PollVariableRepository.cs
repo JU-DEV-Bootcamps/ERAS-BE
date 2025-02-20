@@ -8,7 +8,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
     public class PollVariableRepository : BaseRepository<Variable, PollVariableJoin>, IPollVariableRepository
     {
-        public PollVariableRepository(AppDbContext context ) 
+        public PollVariableRepository(AppDbContext context )
             : base(context, PollVariableMapper.ToDomain, PollVariableMapper.ToPersistenceVariable)
         {
 
