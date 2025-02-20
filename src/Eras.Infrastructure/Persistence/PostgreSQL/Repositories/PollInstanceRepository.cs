@@ -33,10 +33,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var dateLimit = DateTime.UtcNow.AddDays(-days);
             var pollInstanceCounts = await _context.PollInstances
             .Where(pi => pi.FinishedAt >= dateLimit)
-            .GroupBy(pi => pi.Uuid)
             .ToListAsync();
 
-            return pollInstanceCounts.Select(entity => PollInstanceMapper.ToDomain(entity.First()));
+            return pollInstanceCounts.Select(entity => PollInstanceMapper.ToDomain(entity));
         }
 
     }
