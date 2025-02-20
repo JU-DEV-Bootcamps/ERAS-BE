@@ -1,7 +1,5 @@
-﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
-using Eras.Application.DTOs;
-using Eras.Application.Features.Answers.Commands.CreateAnswer;
+﻿using Eras.Application.Dtos;
+using Eras.Application.DTOs; 
 using Eras.Application.Features.Cohort.Commands.CreateCohort;
 using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
@@ -28,9 +26,7 @@ namespace Eras.Application.Services
         ILogger<PollOrchestratorService> _logger;
         private System.Diagnostics.Stopwatch _stopwatch;
 
-        public PollOrchestratorService(IMediator mediator, 
-            ILogger<PollOrchestratorService> logger
-            )
+        public PollOrchestratorService(IMediator mediator, ILogger<PollOrchestratorService> logger )
         {
             _logger = logger;
             _mediator = mediator;
@@ -234,8 +230,7 @@ namespace Eras.Application.Services
                 _logger.LogError($"Error creating variable: {ex.Message}");
                 return [];
             }
-        }
-        
+        }        
         public async Task CreateAnswers(PollDTO pollToCreate, List<Component> createdComponents, CreateComandResponse<PollInstance> createdPollInstance)
         {
             // Answer needs to associate the poll_variable id, from the intermediate table that relates poll and variables
@@ -243,17 +238,16 @@ namespace Eras.Application.Services
             // This way, the information between the id that corresponds to each poll_variable can be crossed with the corresponding answer
             // This is weird, surely there is a more efficient way to do this
 
-
             var componentDict = createdComponents.ToDictionary(c => c.Name, c => c);
 
             List<AnswerDTO> answersToCreate = [];
 
             foreach (ComponentDTO component in pollToCreate.Components)
             {
-                componentDict.TryGetValue(component.Name, out var componentByName);  // Component? componentByName = createdComponents.FirstOrDefault(c => c.Name == component.Name);
+                componentDict.TryGetValue(component.Name, out var componentByName);
                 if (componentByName != null)
                 {
-                    var variableDict = componentByName.Variables.ToDictionary(v => v.Name, v => v); // Variable ? variableByName = componentByName.Variables.FirstOrDefault(v => v.Name == variable.Name);
+                    var variableDict = componentByName.Variables.ToDictionary(v => v.Name, v => v);
 
                     foreach (VariableDTO variable in component.Variables)
                     {
@@ -271,9 +265,6 @@ namespace Eras.Application.Services
                                     ModifiedAt = DateTime.UtcNow,
                                 };
                                 answersToCreate.Add(answerToCreate);
-
-                                // CreateAnswerCommand createAnswerCommand = new CreateAnswerCommand() { Answer = answerToCreate };                                
-                                // await _mediator.Send(createAnswerCommand); // await _mediator.Send(createAnswerCommand);
                             }
                         }
                         catch (Exception ex)
@@ -283,11 +274,11 @@ namespace Eras.Application.Services
                     }
                 }
             }
-
             CreateAnswerListCommand createAnswerListCommand = new CreateAnswerListCommand() { Answers = answersToCreate };
             await _mediator.Send(createAnswerListCommand);
-
         }
+
+
         /*
         public async Task CreateAnswers(PollDTO pollToCreate, List<Component> createdComponents, CreateComandResponse<PollInstance> createdPollInstance)
         {
@@ -376,6 +367,7 @@ namespace Eras.Application.Services
             return null;
         }
         */
+
         public async Task<CreateComandResponse<Component>> CreateComponent(ComponentDTO componentDto)
         {
             try
