@@ -13,6 +13,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
         }
 
+        public async Task<IEnumerable<Component>> GetAllAsync()
+        {
+            var components = await _context.Components
+                .ToListAsync();
+            return components.Select(component => component.ToDomain());
+        }
+
         public async Task<Component?> GetByNameAsync(string name)
         {
             var component = await _context.Components
