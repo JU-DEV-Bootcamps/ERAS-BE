@@ -23,9 +23,10 @@ public class ReportsController : ControllerBase
         List<int> answerIds = studentIdsanswerIds[1];
         try
         {
+            //TODO: Domain Implementation pending
             GetAvgRiskAnswerQuery query = new() { StudentIds = studentIds, AnswerIds = answerIds };
-            var avgRisk = await _mediator.Send(query);
-            return Ok(new { status = "successful", message = avgRisk });
+            //var avgRisk = await _mediator.Send(query);
+            return StatusCode(501, new { status = "not implemented", message = "Implementation to get avgRisk Pending" });
         }
         catch (Exception ex)
         {
@@ -33,29 +34,55 @@ public class ReportsController : ControllerBase
         }
     }
 
-    [HttpGet("higherrisk/students/")]
-    public async Task<IActionResult> GetHigherRiskStudentsByCohort([FromQuery]  string cohortId,[FromQuery]  int takeNumber)
+    [HttpGet("higherrisk/byCohortPoll/")]
+    public async Task<IActionResult> GetHigherRiskStudentsByCohort(
+        [FromQuery] string cohortName,
+        [FromQuery] string pollName,
+        [FromQuery] int take)
     {
         try
         {
-            GetHigherRiskStudentQuery query = new() { CohortId = cohortId, TakeNumber = takeNumber };
+            GetHigherRiskStudentByCohortPollQuery query = new() { CohortName = cohortName, PollNameCosmicLatte = pollName, Take = take };
             var avgRisk = await _mediator.Send(query);
-            return Ok(new { status = "successful", message = avgRisk });
+            return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Items })
+            : BadRequest(new { status = "error", message = avgRisk.Message });
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { status = "error", message = ex.Message });
+            return NotFound(new { status = "error", message = ex.Message });
         }
     }
+
+    [HttpGet("higherrisk/byVariable/")]
+    public async Task<IActionResult> GetHigherRiskStudentsByVariable(
+        [FromQuery] string cohortName,
+        [FromQuery] string variableUuid,
+        [FromQuery] string pollInstanceUuid,
+        [FromQuery] int take)
+    {
+        try
+        {
+            GetHigherRiskStudentByVariableQuery query = new() { CohortName = cohortName, VariableUuid = variableUuid, PollInstanceUuid = pollInstanceUuid, Take = take };
+            var avgRisk = await _mediator.Send(query);
+            return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Items })
+            : BadRequest(new { status = "error", message = avgRisk.Message });
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { status = "error", message = ex.Message });
+        }
+    }
+
 
     [HttpGet("byruleset/")]
     public async Task<IActionResult> GetReportByRuleset([FromBody] List<(int AnswerId, int Weight)> ruleset)
     {
         try
         {
+            //TODO: Domain Implementation pending
             GetByRulesetQuery query = new() { RulesetVariablesWeight = ruleset };
             var report = await _mediator.Send(query);
-            return Ok(new { status = "successful", message = report });
+            return StatusCode(501, new { status = "not implemented", message = "Implementation to get by ruleset Pending" });
         }
         catch (Exception ex)
         {
