@@ -13,7 +13,7 @@ namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 public class GetHigherRiskStudentByVariableQuery: IRequest<ListResponse<(Student, List<Answer>?, double)>>
 {
     public required string CohortName { get; set; }
-    public required string VariableUuid { get; set; }
+    public required int VariableId { get; set; }
     public required string PollInstanceUuid { get; set;}
     public int? Take { get; set; }
 }

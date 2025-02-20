@@ -10,5 +10,6 @@ namespace Eras.Application.Contracts.Persistence
     public interface IPollVariableRepository: IBaseRepository<Variable>
     {
         Task<Variable?> GetByPollIdAndVariableIdAsync(int pollId, int variableId);
+        Task<List<(Answer Answer, Variable Variable, int StudentId)>> GetByPollUuidAsync(string pollUuid);
     }
 }
