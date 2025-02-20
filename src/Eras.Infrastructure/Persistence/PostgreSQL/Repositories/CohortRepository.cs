@@ -28,5 +28,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             
             return cohort?.ToDomain();
         }
+
+        public async Task<List<Cohort>> GetCohortsAsync()
+        {
+            var cohorts = await _context.Cohorts
+                .ToListAsync();
+            return cohorts.Select(p => p.ToDomain()).ToList();
+        }
+
     }
 }
