@@ -1,4 +1,5 @@
-﻿using Eras.Application.Contracts.Persistence;
+﻿using System.Linq;
+using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -21,22 +22,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return pollVariable?.ToDomain();
         }
 
-        public async Task<List<(Answer Answer, Variable Variable, int StudentId)>> GetByPollUuidAsync(string pollUuid)
+        public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string pollUuid, int varibaleId)
         {
             //Assuming the pollUuid and pollInstance Uuid are the same. This query uses the pollIntanceUuid
             var answers = await (from poll in _context.PollInstances
+                                 join student in _context.Students on poll.StudentId equals student.Id
                                  join pollVariable in _context.PollVariables on poll.Id equals pollVariable.PollId
                                  join answer in _context.Answers on pollVariable.Id equals answer.PollVariableId
                                  join variable in _context.Variables on pollVariable.VariableId equals variable.Id
                                  where poll.Uuid == pollUuid
-                                 select new { Answer = answer.ToDomain(), Variable = variable.ToDomain(), studentId = poll.StudentId }
+                                 where variable.Id == varibaleId
+                                 select new { Answer = answer.ToDomain(), Variable = variable.ToDomain(), Student = student.ToDomain() }
                                  ).ToListAsync();
-            List<(Answer, Variable, int)> values = [];
-            foreach(var answer in answers)
-            {
-                values.Add((answer.Answer, answer.Variable, answer.studentId));
-            }
-            return values;
+            return [.. answers.Select(a => (a.Answer, a.Variable, a.Student))];
         }
     }
 }

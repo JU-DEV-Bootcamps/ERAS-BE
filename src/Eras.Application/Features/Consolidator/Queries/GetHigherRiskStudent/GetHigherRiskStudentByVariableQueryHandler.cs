@@ -7,44 +7,31 @@ using Microsoft.Extensions.Logging;
 namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 
 public class GetHigherRiskStudentByVariableQueryHandler(
-    ICohortRepository cohortRepository,
-    IStudentRepository studentRepository,
-    IAnswerRepository answerRepository,
-    IPollVariableRepository pollVariableRepository,
-    IVariableRepository variableRepository,
-    IPollInstanceRepository pollInstanceRepository,
-    ILogger<GetHigherRiskStudentByVariableQueryHandler> logger
-  ) : IRequestHandler<GetHigherRiskStudentByVariableQuery, ListResponse<(Student, List<Answer, Variable>?, double)?>>
+    ILogger<GetHigherRiskStudentByVariableQueryHandler> logger,
+    IPollVariableRepository pollVariableRepository
+  ) : IRequestHandler<GetHigherRiskStudentByVariableQuery, ListResponse<(Student student, List<Answer> answers, List<Variable> variables, double riskIndex)>>
 {
-    private readonly ICohortRepository _cohortRepository = cohortRepository;
-    private readonly IStudentRepository _studentRepository = studentRepository;
-    private readonly IAnswerRepository _answerRepository = answerRepository;
-
-    private readonly IVariableRepository _variableRepository = variableRepository;
-    private readonly IPollVariableRepository _pollVariableRepository = pollVariableRepository;
-    private readonly IPollInstanceRepository _pollInstanceRepository = pollInstanceRepository;
     private readonly ILogger<GetHigherRiskStudentByVariableQueryHandler> _logger = logger;
+    private readonly IPollVariableRepository _pollVariableRepository = pollVariableRepository;
     public int DefaultTakeNumber = 5;
 
-    public async Task<ListResponse<(Student, List<(Answer, Variable)>, double)>> Handle(GetHigherRiskStudentByVariableQuery request, CancellationToken cancellationToken)
+    public async Task<ListResponse<(Student student, List<Answer> answers, List<Variable> variables, double riskIndex)>> Handle(GetHigherRiskStudentByVariableQuery request, CancellationToken cancellationToken)
     {
-        try {
-            int TakeNStudents = request.Take ?? DefaultTakeNumber;
-            var answersVariables = await _pollVariableRepository.GetByPollUuidAsync(request.PollInstanceUuid);
-            var aVOfSelectedVariable = answersVariables.Select(a => a.Variable.Id == request.VariableId).ToList();
-
-            List<(Student Student, List<(Answer Answer, Variable Variable)>, double riskIndex)> results = [];
-            foreach (var answerVArStudentId in answersVariables)
-            {
-                Student stud = await _studentRepository.GetByIdAsync(answerVArStudentId.StudentId);
-                
-            }
-            return new ListResponse<(Student, List<(Answer, Variable)>?, double)>(0, []);
+        try{
+            var results = await _pollVariableRepository.GetByPollUuidAsync(request.PollInstanceUuid, request.VariableId);
+            var byStudent = results.GroupBy(r => r.Student)
+                   .Select(g => new {
+                        student = g.Key,
+                        answers = results.Where(r => r.Student.Id == g.Key.Id).Select(r => r.Answer).ToList(),
+                        variables = results.Where(r => r.Student.Id == g.Key.Id).Select(r => r.Variable).ToList(),
+                        riskIndex = g.Average(s => s.Answer.RiskLevel)
+                   }).OrderByDescending(o => o.riskIndex)
+                   .Take(request.Take ?? DefaultTakeNumber)
+                   .ToList();
+            return new ListResponse<(Student student, List<Answer> answers, List<Variable> variables, double riskIndex)>(byStudent.Count, byStudent);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "An error occurred while calculating higher risk students: " + request);
-            return new ListResponse<(Student, List<(Answer, Variable)>?, double)>(0, []);
+        catch(Exception e){
+          throw new NotImplementedException(e.Message);
         }
     }
 }
