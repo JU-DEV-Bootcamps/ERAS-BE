@@ -1,4 +1,4 @@
-﻿﻿using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence
 {
@@ -7,5 +7,7 @@ namespace Eras.Application.Contracts.Persistence
         Task<Student?> GetByNameAsync(string name);
         Task<Student?> GetByUuidAsync(string uuid);
         Task<Student?> GetByEmailAsync(string email);
+        Task<int> CountAsync();
+        Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(int page, int pageSize, string pollUuid, int? days);
     }
 }
