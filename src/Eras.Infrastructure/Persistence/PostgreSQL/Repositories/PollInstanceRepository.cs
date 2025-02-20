@@ -27,5 +27,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return results?.ToDomain();
         }
 
+
+        public async Task<IEnumerable<PollInstance>> GetByLastDays(int days)
+        {
+            var dateLimit = DateTime.UtcNow.AddDays(-days);
+            var pollInstanceCounts = await _context.PollInstances
+            .Where(pi => pi.FinishedAt >= dateLimit)
+            .GroupBy(pi => pi.Uuid)
+            .ToListAsync();
+
+            return pollInstanceCounts.Select(entity => PollInstanceMapper.ToDomain(entity.First()));
+        }
+
     }
 }
