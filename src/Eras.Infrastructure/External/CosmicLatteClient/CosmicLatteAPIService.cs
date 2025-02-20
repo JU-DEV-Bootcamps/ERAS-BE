@@ -4,10 +4,14 @@ using Eras.Application.DTOs.CL;
 using Eras.Application.Models;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
+using System.Drawing;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
@@ -19,6 +23,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private string _apiKey;
         private string _apiUrl;
         private readonly HttpClient _httpClient;
+
+        private System.Diagnostics.Stopwatch _stopwatch;
 
         private readonly ILogger<CosmicLatteAPIService> _logger;
         private readonly PollOrchestratorService _pollOrchestratorService;
@@ -35,6 +41,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             _httpClient.BaseAddress = new Uri(_apiUrl);
             _logger = logger;
             _pollOrchestratorService = pollOrchestratorService;
+            _stopwatch = Stopwatch.StartNew();
         }
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
         {
@@ -54,6 +61,10 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
         public async Task<int> ImportAllPolls(string name, string startDate, string endDate)
         {
+            _stopwatch.Start();
+            _logger.LogError($"1) IMPORT ALL POLLS:  inicio:{_stopwatch.ElapsedMilliseconds} ms");
+
+
             string path = _apiUrl + PathEvalaution;
             if (name != "" || startDate != "" || endDate != "")
             {
@@ -73,29 +84,35 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
-                
+
+
+                _logger.LogError($"1) IMPORT ALL POLLS:  1era llamada a api :{_stopwatch.ElapsedMilliseconds} ms");
+                Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(apiResponse.data[0]);
+                // 1. Create components and variables
+                List<ComponentDTO> componentsAndVariables = GetComponentsAndVariables(apiResponse.data[0]._id, variablesPositionByComponents).Result;
 
                 List<PollDTO> pollsDtos = new List<PollDTO>();
                 foreach (var responseToPollInstace in apiResponse.data)
                 {
-                    if(responseToPollInstace.status == "validated")
+                    if (responseToPollInstace.status == "validated")
                     {
-                        Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(responseToPollInstace);
+                        ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstance(componentsAndVariables, responseToPollInstace._id, responseToPollInstace.score);
 
-                        // 1. Create components
-                        ICollection<ComponentDTO> components = CreateComponents(responseToPollInstace, variablesPositionByComponents);
-
-                        // 2. Create polls
-                        string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when; // TO REVIEW
-
-                        PollDTO pollDto = new PollDTO
+                        if(populatedComponents != null)
                         {
-                            Name = responseToPollInstace.name,
-                            Version = version,
-                            Components = components,
-                            FinishedAt = responseToPollInstace.finishedAt // responseToPollInstace.finishedAt.ToString("yyyy-MM-dd") //finishedAt  "2025-01-31T13:02:45.915Z"
-                        };
-                        pollsDtos.Add(pollDto);
+                            // 2. Create polls
+                            string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when; // TO REVIEW
+
+                            PollDTO pollDto = new PollDTO
+                            {
+                                Name = responseToPollInstace.name,
+                                Version = version,
+                                Components = populatedComponents,
+                                FinishedAt = responseToPollInstace.finishedAt
+                            };
+                            pollsDtos.Add(pollDto);
+                        _logger.LogError($"1) CREAR UNA POLL:  TERMINA EN :{_stopwatch.ElapsedMilliseconds} ms");
+                        }
                     }
                 }
                 // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
@@ -108,29 +125,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 throw new Exception($"Cosmic latte server error: {e.Message}");
             }
         }
-        public Dictionary<string, List<int>> GetListOfVariablePositionByComponents(DataItem clDataItem)
+        public async Task<List<ComponentDTO>> PopulateListOfComponentsByIdPollInstance(List<ComponentDTO> components, string pollId, Score scoreItem)
         {
-            Dictionary<string, JsonElement> traits = clDataItem.score.byTrait.traits;
-            return ByTrait.getVariablesPositionByComponents(traits);
-        }
-        public List<ComponentDTO> CreateComponents(DataItem pollData, Dictionary<string, List<int>> variablesPositionByComponents) // { "academico" : [1,2,3], "socioeconomico" : [4,5,6]}
-        {
-            List<ComponentDTO> results = [];
-            foreach (KeyValuePair<string, List<int>> item in variablesPositionByComponents)
-            {
-                // 3. Create variables
-                ICollection<VariableDTO> variables = CreateVariablesByComponentAndPoll(pollData, item.Value).Result;
-                // 4. Create components
-                ComponentDTO component = new ComponentDTO { Name = item.Key, Variables = variables };
-                results.Add(component);
-            }
-            return results;
-        }
-        public async Task<List<VariableDTO>> CreateVariablesByComponentAndPoll(DataItem pollData, List<int> positionsByComponent)
-        {
-            var content = new StringContent($"{{\"@data\":{{\"_id\":\"{pollData._id}\"}}}}", Encoding.UTF8, "application/json");
-
-            List<VariableDTO> createdVariables = new List<VariableDTO>();
+            var content = new StringContent($"{{\"@data\":{{\"_id\":\"{pollId}\"}}}}", Encoding.UTF8, "application/json");
             try
             {
                 var request = new HttpRequestMessage(HttpMethod.Post, PathEvalaution + "/exec/evaluationDetails");
@@ -141,35 +138,106 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 if (!response.IsSuccessStatusCode) throw new Exception("Unsuccessful response from cosmic latte");
 
                 string responseBody = await response.Content.ReadAsStringAsync();
-                
+
 
                 CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
 
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
                 string studentCohort = apiResponse.Data.Answers.ElementAt(2).Value.AnswersList[0];
+                StudentDTO studentDto = CreateStudent(studentName, studentEmail, studentCohort); 
 
-                StudentDTO studentDTO = CreateStudent(studentName, studentEmail, studentCohort);
-
-                foreach (var itemVariable in apiResponse.Data.Answers)
+                // clone list
+                List<ComponentDTO> clonedListComponents = components.Select( c => new ComponentDTO
                 {
-                    if (positionsByComponent.Contains(itemVariable.Value.Position))
+                    Name = c.Name,
+                    Variables = c.Variables.Select(variable => new VariableDTO
                     {
-                        VariableDTO newVariable = new VariableDTO();
-                        newVariable.Name = itemVariable.Value.Question.Body["es"];
-                        newVariable.Position = itemVariable.Value.Position;
-                        newVariable.Type = itemVariable.Value.Type;
-                        newVariable.Answer = CreateAnswer(itemVariable, studentDTO, pollData.score);
-                        createdVariables.Add(newVariable);
+                        Name = variable.Name,
+                        Position = variable.Position,
+                        Type = variable.Type,
+                        Answer = new AnswerDTO(),
+                        Audit = variable.Audit,
+                    }).ToList(),
+                    Audit = c.Audit,
+                }).ToList();
+
+                foreach (KeyValuePair<int, Answers> answerCL in apiResponse.Data.Answers)  
+                {
+                    foreach (ComponentDTO component in clonedListComponents)
+                    {
+                        foreach(VariableDTO variable in component.Variables)
+                        {
+                            if (variable.Position == answerCL.Value.Position)
+                            {
+                                variable.Answer = CreateAnswer(answerCL, studentDto, scoreItem);                                  
+                            }
+                        }
+
                     }
+
                 }
-                return createdVariables;
+                return clonedListComponents;
             }
             catch (Exception e)
             {
                 _logger.LogError($"Cosmic latte server error: {e.Message}");
                 return null;
             }
+        }
+        public Dictionary<string, List<int>> GetListOfVariablePositionByComponents(DataItem clDataItem)
+        {
+            Dictionary<string, JsonElement> traits = clDataItem.score.byTrait.traits;
+            return ByTrait.getVariablesPositionByComponents(traits);
+        }
+        public async Task<List<ComponentDTO>> GetComponentsAndVariables(string pollId, Dictionary<string, List<int>> variablesPositionByComponents)
+        {
+            var content = new StringContent($"{{\"@data\":{{\"_id\":\"{pollId}\"}}}}", Encoding.UTF8, "application/json");
+
+            try
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, PathEvalaution + "/exec/evaluationDetails");
+                request.Content = content;
+                request.Headers.Add(HeaderApiKey, _apiKey);
+
+                var response = await _httpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode) throw new Exception("Unsuccessful response from cosmic latte");
+
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+
+                CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+
+                List<ComponentDTO> results = [];
+                foreach (KeyValuePair<string, List<int>> item in variablesPositionByComponents)
+                {
+                    // 3. Create variables
+                    ICollection<VariableDTO> createdVariables = new List<VariableDTO>();
+                    Dictionary<int, Answers> AnswersList = apiResponse.Data.Answers;
+                    foreach (var itemVariable in AnswersList)
+                    {
+                        if (item.Value.Contains(itemVariable.Value.Position))
+                        {
+                            VariableDTO newVariable = new VariableDTO();
+                            newVariable.Name = itemVariable.Value.Question.Body["es"];
+                            newVariable.Position = itemVariable.Value.Position;
+                            newVariable.Type = itemVariable.Value.Type;
+                            newVariable.Answer = null; // CreateAnswer(itemVariable, studentDTO, pollData.score);
+                            createdVariables.Add(newVariable);
+                        }
+                    }
+                    // 4. Create components
+                    ComponentDTO component = new ComponentDTO { Name = item.Key, Variables = createdVariables };
+                    results.Add(component);
+                }
+                return results;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Cosmic latte server error: {e.Message}");
+                return null;
+            }
+
         }
         public StudentDTO CreateStudent(string name, string email, string cohort)
         {
