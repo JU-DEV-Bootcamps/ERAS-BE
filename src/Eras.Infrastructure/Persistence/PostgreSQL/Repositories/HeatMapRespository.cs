@@ -29,8 +29,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> GetHeatMapDataByComponentsAsync(string pollUUID)
         {
             var restult = await _context.Database.SqlQueryRaw<GetHeatMapByComponentsQueryResponse>(_getHeatMapDataByComponentsQuery, pollUUID).ToListAsync();
-            Console.WriteLine(restult);
-
             return restult;
         }
     }
