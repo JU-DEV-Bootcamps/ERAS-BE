@@ -33,6 +33,8 @@ namespace Eras.Application.Services
             _mediator = mediator;
         }
 
+
+
         public async Task<CreateComandResponse<Poll>> ImportPollInstances(List<PollDTO> pollsToCreate)
         {
             try
