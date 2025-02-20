@@ -13,5 +13,6 @@ namespace Eras.Application.Contracts.Persistence
         Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByComponent(
             string componentName
         );
+        Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(int page, int pageSize, string pollUuid, int? days);
     }
 }

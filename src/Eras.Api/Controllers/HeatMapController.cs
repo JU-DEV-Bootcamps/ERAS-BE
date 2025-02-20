@@ -1,4 +1,6 @@
+using Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByComponent;
+using Eras.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,6 +15,17 @@ public class HeatMapController : ControllerBase
     {
         _mediator = mediator;
         _logger = logger;
+    }
+
+    [HttpGet("components/polls/{pollUUID}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetHeatMapDataByAllComponents([FromRoute] string pollUUID)
+    {
+        BaseResponse response = await _mediator.Send(
+            new GetHeatMapDataByAllComponentsQuery(pollUUID)
+        );
+        return response.Success ? Ok(response) : BadRequest(response);
     }
 
     [HttpGet("heatmap-details")]
