@@ -233,11 +233,6 @@ namespace Eras.Application.Services
         }        
         public async Task CreateAnswers(PollDTO pollToCreate, List<Component> createdComponents, CreateComandResponse<PollInstance> createdPollInstance)
         {
-            // Answer needs to associate the poll_variable id, from the intermediate table that relates poll and variables
-            // since there is no direct relationship, it must iterate again over the elements already created   
-            // This way, the information between the id that corresponds to each poll_variable can be crossed with the corresponding answer
-            // This is weird, surely there is a more efficient way to do this
-
             var componentDict = createdComponents.ToDictionary(c => c.Name, c => c);
 
             List<AnswerDTO> answersToCreate = [];
@@ -278,59 +273,6 @@ namespace Eras.Application.Services
             await _mediator.Send(createAnswerListCommand);
         }
 
-
-        /*
-        public async Task CreateAnswers(PollDTO pollToCreate, List<Component> createdComponents, CreateComandResponse<PollInstance> createdPollInstance)
-        {
-            if (createdPollInstance?.Entity == null)
-            {
-                _logger.LogError("Poll instance is null, cannot create answers.");
-                return;
-            }
-
-            // Crear diccionarios para acceso rápido
-            var componentDict = createdComponents.ToDictionary(c => c.Name, c => c);
-
-            List<Task> tasks = [];
-
-            foreach (var component in pollToCreate.Components)
-            {
-                if (!componentDict.TryGetValue(component.Name, out var componentByName))
-                {
-                    _logger.LogWarning($"Component {component.Name} not found in created components.");
-                    continue;
-                }
-
-                // Convertir variables en diccionario dentro de cada componente
-                var variableDict = componentByName.Variables.ToDictionary(v => v.Name, v => v);
-
-                foreach (var variable in component.Variables)
-                {
-                    if (!variableDict.TryGetValue(variable.Name, out var variableByName))
-                    {
-                        _logger.LogWarning($"Variable {variable.Name} not found in component {component.Name}.");
-                        continue;
-                    }
-
-                    AnswerDTO answerToCreate = variable.Answer;
-                    answerToCreate.PollInstanceId = createdPollInstance.Entity.Id;
-                    answerToCreate.PollVariableId = variableByName.PollVariableId;
-                    answerToCreate.Audit = new AuditInfo()
-                    {
-                        CreatedBy = "Cosmic latte import",
-                        CreatedAt = DateTime.UtcNow,
-                        ModifiedAt = DateTime.UtcNow,
-                    };
-
-                    CreateAnswerCommand createAnswerCommand = new() { Answer = answerToCreate };
-                    tasks.Add(_mediator.Send(createAnswerCommand));
-                }
-            }
-
-            // Ejecutar todas las tareas en paralelo
-            await Task.WhenAll(tasks);
-        }
-        */
         /*
         public async Task<List<Component>> CreateComponentsAndVariables(ICollection<ComponentDTO> componentDtoList, int asociatedPollId)
         {
