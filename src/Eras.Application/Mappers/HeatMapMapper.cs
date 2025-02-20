@@ -75,27 +75,26 @@ namespace Eras.Application.Mappers
                     .ToList()
                 })
                 .ToList();
-            var componentData = new ComponentData
-            {
-                Components = components
-            };
 
             var series = components
                 .Select(c => new SeriesSummary
                 {
                     Name = c.Description,
                     Data = c.Variables
-                    .Select(va => new DataPoint
+                    .Select(va => new DataPointSummary
                     { 
                         X = va.Description,
-                        Y = va.AverageScore
+                        Y = Math.Round(va.AverageScore, 2)
                     })
-                });
+                    .OrderBy(dp => dp.Y)
+                    .ToList()
+                })
+                .ToList();
 
 
             return new HeatMapSummaryResponseVm {
-                Components = componentData,
-                Series = null
+                Components = components,
+                Series = series
             };
 
         }

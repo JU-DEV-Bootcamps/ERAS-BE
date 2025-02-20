@@ -8,13 +8,8 @@ namespace Eras.Application.Models.HeatMap
 {
     public class HeatMapSummaryResponseVm
     {
-        public ComponentData Components { get; set; } = new ComponentData();
-        public IEnumerable<SeriesSummary> Series { get; set; } = new List<SeriesSummary>();
-    }
-
-    public class ComponentData
-    {
         public IEnumerable<Component> Components { get; set; } = new List<Component>();
+        public IEnumerable<SeriesSummary> Series { get; set; } = new List<SeriesSummary>();
     }
 
     public class Component
