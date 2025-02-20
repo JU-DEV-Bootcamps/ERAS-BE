@@ -1,4 +1,5 @@
-﻿using Eras.Domain.Entities;
+﻿using Eras.Application.DTOs.HeatMap;
+using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence
 {
@@ -8,6 +9,10 @@ namespace Eras.Application.Contracts.Persistence
         Task<Student?> GetByUuidAsync(string uuid);
         Task<Student?> GetByEmailAsync(string email);
         Task<int> CountAsync();
+
+        Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByComponent(
+            string componentName
+        );
         Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(int page, int pageSize, string pollUuid, int? days);
     }
 }
