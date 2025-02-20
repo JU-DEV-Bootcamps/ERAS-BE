@@ -57,5 +57,47 @@ namespace Eras.Application.Mappers
                 Series = series
             };
         }
+
+        public static HeatMapSummaryResponseVm MapToSummaryVmResponse(
+            IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses) {
+            var components = queryResponses
+                .GroupBy(q => new { q.ComponentId, q.ComponentName })
+                .Select(cg => new Component
+                {
+                    Description = cg.Key.ComponentName,
+                    Variables = cg
+                    .GroupBy(v => v.VariableId)
+                    .Select(vg => new ComponentVars
+                    {
+                        Description = vg.First().VariableName, // Tomar el nombre de la variable
+                        AverageScore = vg.Average(v => v.AnswerRiskLevel)
+                    })
+                    .ToList()
+                })
+                .ToList();
+            var componentData = new ComponentData
+            {
+                Components = components
+            };
+
+            var series = components
+                .Select(c => new SeriesSummary
+                {
+                    Name = c.Description,
+                    Data = c.Variables
+                    .Select(va => new DataPoint
+                    { 
+                        X = va.Description,
+                        Y = va.AverageScore
+                    })
+                });
+
+
+            return new HeatMapSummaryResponseVm {
+                Components = componentData,
+                Series = null
+            };
+
+        }
     }
 }
