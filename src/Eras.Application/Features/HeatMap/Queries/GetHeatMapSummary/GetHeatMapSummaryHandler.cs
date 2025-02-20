@@ -48,7 +48,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred getting the heat map data by components");
+                _logger.LogError(ex, "An error occurred getting the heat map summary data ");
                 return new GetQueryResponse<IEnumerable<HeatMapSummaryResponseVm>>([], "Failed", false);
             }
         }
