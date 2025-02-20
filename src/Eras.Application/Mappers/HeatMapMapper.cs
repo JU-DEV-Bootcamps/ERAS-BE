@@ -57,5 +57,29 @@ namespace Eras.Application.Mappers
                 Series = series
             };
         }
+
+        public static HeatMapByVariablesResponseVm MapToVmResponse(IEnumerable<GetHeatMapDetailByVariablesQueryResponse> queryResponses)
+        {
+            var groupedVariables = queryResponses
+                .GroupBy(q => q.VariableName)
+                .Select(vg => new VariableResponse
+                {
+                    Name = vg.Key,
+                    Students = vg.Select(s => new StudentData
+                    {
+                        Uuid = s.StudentUuid,
+                        Name = s.StudentName,
+                        RiskLevel = s.AnswerRiskLevel
+                    })
+                    .OrderByDescending(s => s.RiskLevel)
+                    .ToList()
+                }).ToList();
+
+            return new HeatMapByVariablesResponseVm
+            {
+                ComponentName = queryResponses.FirstOrDefault()!.ComponentName,
+                Variables = groupedVariables
+            };
+        }
     }
 }
