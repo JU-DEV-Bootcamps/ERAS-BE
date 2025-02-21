@@ -18,8 +18,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             if (lastPoll == null) return null;
 
             var answers = await _context.Answers
-              .Where(answer => answer.PollInstanceId.Equals(lastPoll.Id))
-              .ToListAsync();
+                .Where(answer => answer.PollInstanceId.Equals(lastPoll.Id))
+                .ToListAsync();
             var domainAnswers = new List<Answer>();
             foreach(var answer in answers)
             {
@@ -31,13 +31,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<List<Answer>?> GetByPollInstanceIdAsync(string uuid)
         {
             var answers = await _context.Answers
-              .Where(answer => answer.PollInstanceId.Equals(uuid)).ToListAsync();
+                .Where(answer => answer.PollInstanceId.Equals(uuid)).ToListAsync();
             var domainAnswers = new List<Answer>();
             foreach(var answer in answers)
             {
                 domainAnswers.Add(answer.ToDomain());
             }
             return domainAnswers;
+
+        }
+        public async Task SaveManyAnswersAsync(List<Answer> answers)
+        {
+            await _context.Answers.AddRangeAsync(answers.Select(ans => ans.ToPersistence()));
+            var result =  await _context.SaveChangesAsync();
         }
     }
 }

@@ -12,7 +12,7 @@ public class GetHigherRiskStudentByCohortPollQueryHandler(
     IAnswerRepository answerRepository,
     IPollRepository pollRepository,
     ILogger<GetHigherRiskStudentByCohortPollQueryHandler> logger
-  ) : IRequestHandler<GetHigherRiskStudentByCohortPollQuery, ListResponse<(Student, List<Answer>?, double)>>
+  ) : IRequestHandler<GetHigherRiskStudentByCohortPollQuery, GetQueryResponse<List<(Student, List<Answer>?, double)>>>
 {
     private readonly ICohortRepository _cohortRepository = cohortRepository;
     private readonly IStudentCohortRepository _studentCohortRepository = studentCohortRepository;
@@ -22,11 +22,11 @@ public class GetHigherRiskStudentByCohortPollQueryHandler(
     private readonly ILogger<GetHigherRiskStudentByCohortPollQueryHandler> _logger = logger;
     public int DefaultTakeNumber = 5;
 
-    public async Task<ListResponse<(Student, List<Answer>?, double)>> Handle(GetHigherRiskStudentByCohortPollQuery request, CancellationToken cancellationToken)
+    public async Task<GetQueryResponse<List<(Student, List<Answer>?, double)>>> Handle(GetHigherRiskStudentByCohortPollQuery request, CancellationToken cancellationToken)
     {
         try {
             int TakeNStudents = request.Take ?? DefaultTakeNumber;
-            var poll = await _pollRepository.GetByNameAsync(request.PollNameCosmicLatte) ?? throw new KeyNotFoundException("Poll not found");
+            var poll = await _pollRepository.GetByNameAsync(request.PollName) ?? throw new KeyNotFoundException("Poll not found");
 
             var cohort = request.CohortName != null ? await _cohortRepository.GetByNameAsync(request.CohortName) : null;
             var cohortStudents = (
@@ -47,16 +47,12 @@ public class GetHigherRiskStudentByCohortPollQueryHandler(
 
             List<(Student, List<Answer>?, double riskIndex)> topRiskStudents = [];
             topRiskStudents = [.. studentsAnswers.OrderByDescending(s => s.riskIndex).Take(TakeNStudents)];
-
-            return new ListResponse<(Student, List<Answer>?, double)>(
-                TakeNStudents,
-                topRiskStudents
-            );
+            return new GetQueryResponse<List<(Student, List<Answer>?, double)>>(topRiskStudents, "successful", true);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while calculating higher risk students: " + request);
-            return new ListResponse<(Student, List<Answer>?, double)>(0, []);
+            _logger.LogError(ex, $"An error: {ex.Message} occurred while calculating higher risk students: " + request);
+            return new GetQueryResponse<List<(Student, List<Answer>?, double)>>([], $"Failed to retrieve top risk students. Error: {ex.Message}", false);
         }
     }
 }

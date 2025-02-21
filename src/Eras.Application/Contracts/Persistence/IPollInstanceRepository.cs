@@ -6,6 +6,9 @@ namespace Eras.Application.Contracts.Persistence
     {
         Task<PollInstance?> GetByUuidAsync(string uuid);
         Task<PollInstance?> GetByUuidAndStudentIdAsync(string uuid, int studentId);
-        
+
+        Task<IEnumerable<PollInstance>> GetByLastDays(int days);
+
+
     }
 }

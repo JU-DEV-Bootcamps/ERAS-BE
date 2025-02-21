@@ -10,7 +10,7 @@ namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 // {PollIDCosmicLatte} is required to get the poll answers.
 // {VariableId} is required to filter the answers.
 /// </summary>
-public class GetHigherRiskStudentByVariableQuery: IRequest<ListResponse<(Student student, List<Answer> answers, List<Variable> variables, double riskIndex)>>
+public class GetHigherRiskStudentByVariableQuery: IRequest<GetQueryResponse<List<(Student student, List<Answer> answers, List<Variable> variables, double riskIndex)>>>
 {
     public required int VariableId { get; set; }
     public required string PollInstanceUuid { get; set;}
