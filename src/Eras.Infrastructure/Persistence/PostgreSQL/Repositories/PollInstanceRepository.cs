@@ -32,6 +32,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var dateLimit = DateTime.UtcNow.AddDays(-days);
             var pollInstanceCounts = await _context.PollInstances
+            .Include(pi => pi.Student)
             .Where(pi => pi.FinishedAt >= dateLimit)
             .ToListAsync();
 
