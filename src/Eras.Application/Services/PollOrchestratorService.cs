@@ -313,48 +313,5 @@ namespace Eras.Application.Services
             }
             return createdComponents;
         }
-
-        /*
-
-        public async Task<List<Component>> CreateComponentsAndVariables(ICollection<ComponentDTO> componentDtoList, int asociatedPollId)
-        {
-            List<Task<Component>> componentTasks = [];
-
-            foreach (var componentDto in componentDtoList)
-            {
-                Task<Component> creadt = CreateComponentWithVariables(componentDto, asociatedPollId);
-
-                 componentTasks.Add(creadt);
-            }
-
-            Component[] createdComponents = await Task.WhenAll(componentTasks);
-            return createdComponents.Where(c => c != null).ToList();
-        }
-
-
-        private async Task<Component?> CreateComponentWithVariables(ComponentDTO componentDto, int asociatedPollId)
-        {
-            try
-            {
-                CreateComandResponse<Component> createdComponent = await CreateComponent(componentDto);
-                if (createdComponent.Success)
-                {
-                    int asociatedComponentId = createdComponent.Entity.Id;
-                    var createdVariables = await CreateVariables(componentDto.Variables, asociatedPollId, asociatedComponentId);
-
-                    if (createdVariables.Count > 0 ) createdComponent.Entity.Variables = createdVariables;
-
-                    return createdComponent.Entity;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error creating component: {ex.Message}");
-            }
-
-            return null;
-        }
-
-        */
     }
 }
