@@ -137,8 +137,6 @@ namespace Eras.Application.DTOs.CL
     {
         [JsonExtensionData]
         public Dictionary<string, JsonElement> traits { get; set; }
-
-
         private static Dictionary<string, TraitData> DeserializeTraits(Dictionary<string, JsonElement> traits)
         {
             var result = new Dictionary<string, TraitData>();
