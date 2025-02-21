@@ -109,8 +109,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 }
                 // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
                 // We should redesign the next layer so that this transfer of duplicate information is not required.
-                // CreateComandResponse<Poll> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
-                _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                CreateComandResponse<Poll> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                await _pollOrchestratorService.ImportPollInstances(pollsDtos);
                 return pollsDtos;
             }
             catch (Exception e)
