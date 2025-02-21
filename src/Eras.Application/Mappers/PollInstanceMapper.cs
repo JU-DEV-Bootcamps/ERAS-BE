@@ -18,7 +18,7 @@ namespace Eras.Application.Mappers
             return new PollInstance()
             {
                 Uuid = dto.Uuid,             
-                Student = dto.Student.ToDomain(),
+                Student = dto.Student?.ToDomain() ?? new Student(),
                 Answers = answers,
                 Audit = dto.Audit,
                 FinishedAt = dto.FinishedAt
@@ -31,7 +31,7 @@ namespace Eras.Application.Mappers
             return new PollInstanceDTO()
             {
                 Uuid = entity.Uuid,
-                Student = entity.Student.ToDto(),
+                Student = entity.Student?.ToDto() ?? new StudentDTO(),
                 Answers = answers,
                 Audit = entity.Audit,
                 FinishedAt = entity.FinishedAt

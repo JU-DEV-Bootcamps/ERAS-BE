@@ -21,7 +21,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
               .Where(answer => answer.PollInstanceId.Equals(lastPoll.Id))
               .ToListAsync();
             var domainAnswers = new List<Answer>();
-            foreach(var answer in answers)
+            foreach (var answer in answers)
             {
                 domainAnswers.Add(answer.ToDomain());
             }
@@ -33,11 +33,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var answers = await _context.Answers
               .Where(answer => answer.PollInstanceId.Equals(uuid)).ToListAsync();
             var domainAnswers = new List<Answer>();
-            foreach(var answer in answers)
+            foreach (var answer in answers)
             {
                 domainAnswers.Add(answer.ToDomain());
             }
             return domainAnswers;
+
+        }
+        public async Task SaveManyAnswersAsync(List<Answer> answers)
+        {
+            await _context.Answers.AddRangeAsync(answers.Select(ans => ans.ToPersistence()));
+            var result = await _context.SaveChangesAsync();
+            // return result.;
         }
     }
 }
