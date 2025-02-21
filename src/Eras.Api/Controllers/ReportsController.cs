@@ -42,9 +42,9 @@ public class ReportsController : ControllerBase
     {
         try
         {
-            GetHigherRiskStudentByCohortPollQuery query = new() { CohortName = cohortName, PollNameCosmicLatte = pollName, Take = take };
+            GetHigherRiskStudentByCohortPollQuery query = new() { CohortName = cohortName, PollName = pollName, Take = take };
             var avgRisk = await _mediator.Send(query);
-            return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Items })
+            return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Body })
             : BadRequest(new { status = "error", message = avgRisk.Message });
         }
         catch (Exception ex)
@@ -63,7 +63,7 @@ public class ReportsController : ControllerBase
         {
             GetHigherRiskStudentByVariableQuery query = new() { VariableId = variableId, PollInstanceUuid = pollInstanceUuid, Take = take };
             var avgRisk = await _mediator.Send(query);
-            return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Items })
+            return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Body })
             : BadRequest(new { status = "error", message = avgRisk.Message });
         }
         catch (Exception ex)
