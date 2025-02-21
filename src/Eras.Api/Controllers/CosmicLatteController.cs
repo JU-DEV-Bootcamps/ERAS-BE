@@ -13,10 +13,12 @@ namespace Eras.Api.Controllers
     public class CosmicLatteController : ControllerBase
     {
         private readonly ICosmicLatteAPIService _cosmicLatteService;
+        private readonly ILogger<CosmicLatteController> _logger;
 
-        public CosmicLatteController(ICosmicLatteAPIService cosmicLatteService)
+        public CosmicLatteController(ICosmicLatteAPIService cosmicLatteService, ILogger<CosmicLatteController> logger)
         {
             _cosmicLatteService = cosmicLatteService;
+            _logger = logger;
         }
 
         [HttpGet("polls/")]
@@ -33,6 +35,7 @@ namespace Eras.Api.Controllers
             }
             else
             {
+                _logger.LogWarning("An error occurred during the import process.");
                 return StatusCode(500, new { status = "error", message = "An error occurred during the import process" });
             }
         }
