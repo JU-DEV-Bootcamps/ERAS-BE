@@ -7,6 +7,7 @@ namespace Eras.Application.Contracts.Persistence
         Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> GetHeatMapDataByComponentsAsync(string pollUUID);
         Task<IEnumerable<GetHeatMapDetailByVariablesQueryResponse>> GetHeatMapDataByVariables(
             string componentName,
-            string pollInstanceUuid);
+            string pollInstanceUuid,
+            int variableId);
     }
 }

@@ -39,7 +39,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 JOIN variables v ON pv.variable_id = v.""Id""
                 JOIN components c ON v.component_id = c.""Id""
 
-            WHERE c.name = {0} AND pi.uuid = {1}";
+            WHERE c.name = {0} AND pi.uuid = {1} and v.""Id"" = {2}";
 
         public HeatMapRespository(AppDbContext context)
         {
@@ -61,13 +61,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<IEnumerable<GetHeatMapDetailByVariablesQueryResponse>> GetHeatMapDataByVariables(
             string componentName,
-            string pollInstanceUuid)
+            string pollInstanceUuid,
+            int variableId)
         {
             var result = await _context
                 .Database.SqlQueryRaw<GetHeatMapDetailByVariablesQueryResponse>(
                 _getHeatMapDataByVariables,
                 componentName,
-                pollInstanceUuid
+                pollInstanceUuid,
+                variableId
             ).ToListAsync();
             return result;
         }

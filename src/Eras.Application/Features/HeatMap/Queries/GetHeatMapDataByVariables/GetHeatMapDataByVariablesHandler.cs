@@ -27,7 +27,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByVariables
             }
             try
             {
-                var answersByVarialbe = await _heatMapRepository.GetHeatMapDataByVariables(request.Component, request.PollInstanceUUID);
+                var answersByVarialbe = await _heatMapRepository.GetHeatMapDataByVariables(request.Component, request.PollInstanceUUID, request.VariableId);
                 if (answersByVarialbe == null || !answersByVarialbe.Any())
                     throw new NotFoundException($"No data found for poll instance ID: {request.PollInstanceUUID}");
 

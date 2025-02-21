@@ -30,13 +30,13 @@ public class HeatMapController : ControllerBase
         return response.Success ? Ok(response) : BadRequest(response);
     }
 
-    [HttpGet("components/{componentName}/polls/{pollUUID}/variables")]
+    [HttpGet("components/{componentName}/polls/{pollUUID}/variables/{variableId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetHeatMapDataByVariables([FromRoute] string componentName, [FromRoute] string pollUUID)
+    public async Task<IActionResult> GetHeatMapDataByVariables([FromRoute] string componentName, [FromRoute] string pollUUID, [FromRoute] int variableId)
     {
         BaseResponse response = await _mediator.Send(
-            new GetHeatMapDataByVariablesQuery(componentName, pollUUID)
+            new GetHeatMapDataByVariablesQuery(componentName, pollUUID, variableId)
         );
         return response.Success ? Ok(response) : BadRequest(response);
     }
