@@ -11,7 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = entity.Id,
                 Uuid = entity.Uuid,
-                Student = entity.Student.ToDomain(),
+                Student = entity.Student?.ToDomain() ?? new Student(),
                 Audit = entity.Audit,
                 FinishedAt = entity.FinishedAt
              
