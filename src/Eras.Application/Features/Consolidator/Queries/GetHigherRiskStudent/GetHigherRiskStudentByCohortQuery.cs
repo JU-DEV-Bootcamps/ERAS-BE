@@ -8,7 +8,7 @@ namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 ///  GetHigherRiskStudentQuery Returns a list of students with higher risk based on a sum of the risk in the poll answers.
 // If {Take} is not provided, it will return 5 top risk students.
 // If {CohortName} is provided, it will return the students in the cohort.
-// {PollIDCosmicLatte} is required to get the poll answers.
+// {PollName} is required to get the poll answers.
 /// </summary>
 public class GetHigherRiskStudentByCohortPollQuery: IRequest<GetQueryResponse<List<(Student, List<Answer>?, double)>>>
 {
