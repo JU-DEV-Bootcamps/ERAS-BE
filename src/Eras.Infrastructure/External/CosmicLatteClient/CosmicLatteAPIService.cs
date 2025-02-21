@@ -1,6 +1,7 @@
 ﻿using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
+using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Models;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
@@ -9,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
@@ -55,7 +58,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 throw new Exception($"There was an error with the request: " + e.Message);
             }
         }
-        public async Task<int> ImportAllPolls(string name, string startDate, string endDate)
+        public async Task<List<PollDTO>> ImportAllPolls(string name, string startDate, string endDate)
         {
             string path = _apiUrl + PathEvalaution;
             if (name != "" || startDate != "" || endDate != "")
@@ -72,7 +75,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 request.Headers.Add(HeaderApiKey, _apiKey);
 
                 var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode) return 0;
+                if (!response.IsSuccessStatusCode) return null;
 
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
@@ -262,5 +265,30 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             return dateFromDate.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
         }
 
+        public async Task<List<PollDataItem>> GetPollsNameList()
+        {
+            try
+            {
+                string path = _apiUrl + PathEvalaution;
+                var request = new HttpRequestMessage(HttpMethod.Get, path);
+                request.Headers.Add(HeaderApiKey, _apiKey);
+
+                var response = await _httpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode) return null;
+
+                string responseBody = await response.Content.ReadAsStringAsync();
+                CLResponseForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
+
+                List<PollDataItem> pollsData = apiResponse.data
+                                        .GroupBy(poll => poll.parent)
+                                        .Select(poll => new PollDataItem (poll.First().parent, poll.First().name, poll.First().status))
+                                        .Distinct()
+                                        .ToList();
+                return pollsData;
+            } catch (Exception e)
+            {
+                throw new Exception($"Cosmic latte server error: {e.Message}");
+            }
+        }
     }
 }
