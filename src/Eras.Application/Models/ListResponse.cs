@@ -11,8 +11,18 @@ namespace Eras.Application.Models
             Count = count;
             Items = items;
         }
+        // parameterless constructor
+        public ListResponse()
+        {
+            Count = 0;
+            Items = Array.Empty<T>();
+        }
+
         // used by json deserializer
-        private ListResponse() { }
+        private ListResponse(int count)
+        {
+            Count = count;
+        }
 
         public static ListResponse<T> Empty()
         {

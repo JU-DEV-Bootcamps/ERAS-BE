@@ -20,18 +20,19 @@ public class GetHigherRiskStudentByVariableQueryHandler(
         try{
             var results = await _pollVariableRepository.GetByPollUuidAsync(request.PollInstanceUuid, request.VariableId);
             var byStudent = results.GroupBy(r => r.Student)
-                   .Select(g => new {
-                        student = g.Key,
-                        answers = results.Where(r => r.Student.Id == g.Key.Id).Select(r => r.Answer).ToList(),
-                        variables = results.Where(r => r.Student.Id == g.Key.Id).Select(r => r.Variable).ToList(),
-                        riskIndex = g.Average(s => s.Answer.RiskLevel)
-                   }).OrderByDescending(o => o.riskIndex)
+                   .Select(g => (
+                        student: g.Key,
+                        answers: results.Where(r => r.Student.Id == g.Key.Id).Select(r => r.Answer).ToList(),
+                        variables: results.Where(r => r.Student.Id == g.Key.Id).Select(r => r.Variable).ToList(),
+                        riskIndex: g.Average(s => s.Answer.RiskLevel)
+                   )).OrderByDescending(o => o.riskIndex)
                    .Take(request.Take ?? DefaultTakeNumber)
                    .ToList();
             return new ListResponse<(Student student, List<Answer> answers, List<Variable> variables, double riskIndex)>(byStudent.Count, byStudent);
         }
         catch(Exception e){
-          throw new NotImplementedException(e.Message);
+            _logger.LogError(e, "An error occurred while calculating higher risk students: " + request);
+            return new ListResponse<(Student student, List<Answer> answers, List<Variable> variables, double riskIndex)>();
         }
     }
 }

@@ -55,14 +55,13 @@ public class ReportsController : ControllerBase
 
     [HttpGet("higherrisk/byVariable/")]
     public async Task<IActionResult> GetHigherRiskStudentsByVariable(
-        [FromQuery] string cohortName,
-        [FromQuery] string variableUuid,
+        [FromQuery] int variableId,
         [FromQuery] string pollInstanceUuid,
         [FromQuery] int take)
     {
         try
         {
-            GetHigherRiskStudentByVariableQuery query = new() { CohortName = cohortName, VariableUuid = variableUuid, PollInstanceUuid = pollInstanceUuid, Take = take };
+            GetHigherRiskStudentByVariableQuery query = new() { VariableId = variableId, PollInstanceUuid = pollInstanceUuid, Take = take };
             var avgRisk = await _mediator.Send(query);
             return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Items })
             : BadRequest(new { status = "error", message = avgRisk.Message });
