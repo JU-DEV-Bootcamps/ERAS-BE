@@ -45,9 +45,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             _context = context;
         }
-        public async Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> GetHeatMapDataByComponentsAsync(string pollUUID)
+
+        public async Task<
+            IEnumerable<GetHeatMapByComponentsQueryResponse>
+        > GetHeatMapDataByComponentsAsync(string pollUUID)
         {
-            var restult = await _context.Database.SqlQueryRaw<GetHeatMapByComponentsQueryResponse>(_getHeatMapDataByComponentsQuery, pollUUID).ToListAsync();
+            var restult = await _context
+                .Database.SqlQueryRaw<GetHeatMapByComponentsQueryResponse>(
+                    _getHeatMapDataByComponentsQuery,
+                    pollUUID
+                )
+                .ToListAsync();
             return restult;
         }
 
@@ -55,9 +63,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             string componentName,
             string pollInstanceUuid)
         {
-            var result = await _context.Database.SqlQueryRaw<GetHeatMapDetailByVariablesQueryResponse>(_getHeatMapDataByVariables, componentName, pollInstanceUuid).ToListAsync();
+            var result = await _context
+                .Database.SqlQueryRaw<GetHeatMapDetailByVariablesQueryResponse>(
+                _getHeatMapDataByVariables,
+                componentName,
+                pollInstanceUuid
+            ).ToListAsync();
             return result;
         }
-            
+
     }
 }

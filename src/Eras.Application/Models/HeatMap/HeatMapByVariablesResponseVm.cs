@@ -15,6 +15,7 @@
     public class StudentData
     {
         public string Uuid { get; set; } = string.Empty;
+        public string Answer { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public int RiskLevel { get; set; }
     }

@@ -9,7 +9,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByVariables
         public string PollInstanceUUID { get; set; }
         public string Component { get; set; }
 
-        public GetHeatMapDataByVariablesQuery(string pollInstanceUUID, string component)
+        public GetHeatMapDataByVariablesQuery(string component, string pollInstanceUUID)
         {
             this.PollInstanceUUID = pollInstanceUUID;
             this.Component = component;
