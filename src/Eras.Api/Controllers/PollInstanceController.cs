@@ -27,7 +27,7 @@ namespace Eras.Api.Controllers
         )
         {
 
-            _logger.LogInformation("Getting poll instances in the last {days} students", lastDays);
+            _logger.LogInformation("Getting poll instances in the last {days}", lastDays);
 
             GetPollInstancesByLastDaysQuery createStudentCommand = new GetPollInstancesByLastDaysQuery() { LastDays = int.Parse(lastDays)};
             QueryManyResponse<PollInstance> response = await _mediator.Send(createStudentCommand);
@@ -39,8 +39,8 @@ namespace Eras.Api.Controllers
             }
             else
             {
-                _logger.LogWarning("Failed to import students. Reason: {ResponseMessage}", response.Message);
-                return StatusCode(400, new { status = "error", message = "An error occurred during the import process" });
+                _logger.LogWarning("Failed to get poll instances. Reason: {ResponseMessage}", response.Message);
+                return StatusCode(400, new { status = "error", message = "An error occurred during the get process" });
             }
         }
     }
