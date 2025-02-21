@@ -6,5 +6,6 @@ namespace Eras.Application.Contracts.Persistence
     {
         Task<Cohort?> GetByNameAsync(string name);
         Task<Cohort?> GetByCourseCodeAsync(string name);
+        Task<List<Cohort>> GetCohortsAsync();
     }
 }

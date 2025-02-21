@@ -8,7 +8,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     {
         protected readonly AppDbContext _context;
 
-        private string _getHeatMapDataByComponentsQuery = @"
+        private string _getHeatMapDataByComponentsQuery =
+            @"
             SELECT
                 c.""Id"" AS component_id, c.name AS component_name,
                 v.""Id"" AS variable_id,
@@ -26,9 +27,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             _context = context;
         }
-        public async Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> GetHeatMapDataByComponentsAsync(string pollUUID)
+
+        public async Task<
+            IEnumerable<GetHeatMapByComponentsQueryResponse>
+        > GetHeatMapDataByComponentsAsync(string pollUUID)
         {
-            var restult = await _context.Database.SqlQueryRaw<GetHeatMapByComponentsQueryResponse>(_getHeatMapDataByComponentsQuery, pollUUID).ToListAsync();
+            var restult = await _context
+                .Database.SqlQueryRaw<GetHeatMapByComponentsQueryResponse>(
+                    _getHeatMapDataByComponentsQuery,
+                    pollUUID
+                )
+                .ToListAsync();
             return restult;
         }
     }
