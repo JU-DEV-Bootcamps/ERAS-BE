@@ -10,6 +10,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public AnswerRepository(AppDbContext context)
             : base(context, AnswerMapper.ToDomain, AnswerMapper.ToPersistence)
         {
+
+        }
+        public async Task SaveManyAnswersAsync(List<Answer> answers)
+        {
+            await _context.Answers.AddRangeAsync(answers.Select(ans => ans.ToPersistence()));
+            var result =  await _context.SaveChangesAsync();
+            // return result.;
         }
     }
 }

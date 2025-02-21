@@ -44,8 +44,6 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponent
                     bodyData.Add(mappedData);
                 }
 
-                
-
                 return new GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>(bodyData, "Success", true);
             }
             catch (Exception ex) {

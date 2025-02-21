@@ -1,6 +1,7 @@
 ﻿using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
+using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Models;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
@@ -9,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Xml.Linq;
@@ -23,9 +26,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private string _apiKey;
         private string _apiUrl;
         private readonly HttpClient _httpClient;
-
-        private System.Diagnostics.Stopwatch _stopwatch;
-
         private readonly ILogger<CosmicLatteAPIService> _logger;
         private readonly PollOrchestratorService _pollOrchestratorService;
 
@@ -41,7 +41,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             _httpClient.BaseAddress = new Uri(_apiUrl);
             _logger = logger;
             _pollOrchestratorService = pollOrchestratorService;
-            _stopwatch = Stopwatch.StartNew();
         }
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
         {
@@ -59,12 +58,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 throw new Exception($"There was an error with the request: " + e.Message);
             }
         }
-        public async Task<int> ImportAllPolls(string name, string startDate, string endDate)
+        public async Task<List<PollDTO>> ImportAllPolls(string name, string startDate, string endDate)
         {
-            _stopwatch.Start();
-            _logger.LogError($"1) IMPORT ALL POLLS:  inicio:{_stopwatch.ElapsedMilliseconds} ms");
-
-
             string path = _apiUrl + PathEvalaution;
             if (name != "" || startDate != "" || endDate != "")
             {
@@ -80,13 +75,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 request.Headers.Add(HeaderApiKey, _apiKey);
 
                 var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode) return 0;
+                if (!response.IsSuccessStatusCode) return null;
 
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
-
-                _logger.LogError($"1) IMPORT ALL POLLS:  1era llamada a api :{_stopwatch.ElapsedMilliseconds} ms");
                 Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(apiResponse.data[0]);
                 // 1. Create components and variables
                 List<ComponentDTO> componentsAndVariables = GetComponentsAndVariables(apiResponse.data[0]._id, variablesPositionByComponents).Result;
@@ -111,14 +104,14 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                                 FinishedAt = responseToPollInstace.finishedAt
                             };
                             pollsDtos.Add(pollDto);
-                        _logger.LogError($"1) CREAR UNA POLL:  TERMINA EN :{_stopwatch.ElapsedMilliseconds} ms");
                         }
                     }
                 }
                 // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
                 // We should redesign the next layer so that this transfer of duplicate information is not required.
-                CreateComandResponse<Poll> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
-                return createdPollResponse.SuccessfullImports;
+                // CreateComandResponse<Poll> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                return pollsDtos;
             }
             catch (Exception e)
             {
@@ -272,5 +265,30 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             return dateFromDate.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
         }
 
+        public async Task<List<PollDataItem>> GetPollsNameList()
+        {
+            try
+            {
+                string path = _apiUrl + PathEvalaution;
+                var request = new HttpRequestMessage(HttpMethod.Get, path);
+                request.Headers.Add(HeaderApiKey, _apiKey);
+
+                var response = await _httpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode) return null;
+
+                string responseBody = await response.Content.ReadAsStringAsync();
+                CLResponseForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
+
+                List<PollDataItem> pollsData = apiResponse.data
+                                        .GroupBy(poll => poll.parent)
+                                        .Select(poll => new PollDataItem (poll.First().parent, poll.First().name, poll.First().status))
+                                        .Distinct()
+                                        .ToList();
+                return pollsData;
+            } catch (Exception e)
+            {
+                throw new Exception($"Cosmic latte server error: {e.Message}");
+            }
+        }
     }
 }
