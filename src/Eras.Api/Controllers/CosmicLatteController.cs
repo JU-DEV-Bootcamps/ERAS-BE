@@ -1,6 +1,4 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
-using Eras.Application.Dtos;
-using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
 using MediatR;
@@ -26,21 +24,15 @@ namespace Eras.Api.Controllers
         [FromQuery] string endDate = ""
         )
         {
-            List<PollDTO> createdPolls = await _cosmicLatteService.ImportAllPolls(name, startDate, endDate);
-            if (createdPolls.Count > 0)
+            var success = await _cosmicLatteService.ImportAllPolls(name, startDate, endDate);
+            if (success > 0)
             {
-                return Ok(createdPolls);
+                return Ok(new { status = "successful", message = $"{success} polls imported successfully" });
             }
             else
             {
-                return BadRequest("An error occurred during the import process" );
+                return StatusCode(500, new { status = "error", message = "An error occurred during the import process" });
             }
-        }
-        [HttpGet("polls/names")]
-        public async Task<IActionResult> GetPollsNameList( )
-        {
-            List<PollDataItem> pollList = await _cosmicLatteService.GetPollsNameList();
-            return Ok(pollList);
         }
 
         [HttpPost("polls/")]
