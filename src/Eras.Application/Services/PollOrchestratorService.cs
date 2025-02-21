@@ -14,9 +14,12 @@ using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Eras.Domain.Common; 
-using Eras.Application.Features.Answers.Commands.CreateAnswerList; 
-using Variable = Eras.Domain.Entities.Variable; 
+using Eras.Domain.Common;
+using System.Diagnostics;
+using Eras.Application.Features.Answers.Commands.CreateAnswerList;
+using Eras.Application.Models.HeatMap;
+using Variable = Eras.Domain.Entities.Variable;
+using System.ComponentModel;
 using Component = Eras.Domain.Entities.Component;
 
 namespace Eras.Application.Services
