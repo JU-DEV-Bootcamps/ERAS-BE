@@ -17,6 +17,7 @@ public class GetHigherRiskStudentByVariableQueryHandler(
 
     public async Task<GetQueryResponse<List<(Student student, List<Answer> answers, List<Variable> variables, double riskIndex)>>> Handle(GetHigherRiskStudentByVariableQuery request, CancellationToken cancellationToken)
     {
+        int TakeNStudents = request.Take.HasValue && request.Take.Value > 0 ? request.Take.Value : DefaultTakeNumber;
         try{
             var results = await _pollVariableRepository.GetByPollUuidAsync(request.PollInstanceUuid, request.VariableId);
             var byStudent = results.GroupBy(r => r.Student)
@@ -26,7 +27,7 @@ public class GetHigherRiskStudentByVariableQueryHandler(
                         variables: results.Where(r => r.Student.Id == g.Key.Id).Select(r => r.Variable).ToList(),
                         riskIndex: g.Average(s => s.Answer.RiskLevel)
                    )).OrderByDescending(o => o.riskIndex)
-                   .Take(request.Take ?? DefaultTakeNumber)
+                   .Take(TakeNStudents)
                    .ToList();
             return new GetQueryResponse<List<(Student student, List<Answer> answers, List<Variable> variables, double riskIndex)>>(byStudent, "Success", true);
         }

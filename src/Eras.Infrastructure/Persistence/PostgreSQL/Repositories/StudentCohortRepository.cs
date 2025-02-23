@@ -26,7 +26,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<IEnumerable<Student>?> GetAllStudentsByCohortIdAsync(int cohortId)
         {
-            var cohortStudents = await _context.StudentCohorts.Where(studentCohort => studentCohort.CohortId.Equals(cohortId)).ToListAsync();
+            var cohortStudents = await _context.StudentCohorts.Include(cs => cs.Student).Where(studentCohort => studentCohort.CohortId.Equals(cohortId)).ToListAsync();
             var domainStudents = new List<Student>();
             foreach(var student in cohortStudents)
             {
