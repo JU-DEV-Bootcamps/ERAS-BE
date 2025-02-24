@@ -32,6 +32,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                                  join variable in _context.Variables on pollVariable.VariableId equals variable.Id
                                  where poll.Uuid == pollUuid
                                  where variable.Id == varibaleId
+                                 where answer.PollVariableId == varibaleId
                                  select new { Answer = answer.ToDomain(), Variable = variable.ToDomain(), Student = student.ToDomain() }
                                  ).ToListAsync();
             return [.. answers.Select(a => (a.Answer, a.Variable, a.Student))];

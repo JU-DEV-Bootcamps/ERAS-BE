@@ -85,20 +85,12 @@ public class ReportsController : ControllerBase
         {
             GetHigherRiskStudentByVariableQuery query = new() { VariableId = variableId, PollInstanceUuid = pollInstanceUuid, Take = take };
             var avgRisk = await _mediator.Send(query);
-            var toprmessage = string.Join(", ", avgRisk.Body.Select(s => $"{s.student.Uuid} - {s.student.Name} - RISK = {s.riskIndex}").ToList());
+            var toprmessage = string.Join(", ", avgRisk.Body.Select(s => $"{s.student.Uuid} - {s.student.Name} - RISK = {s.answer.RiskLevel}").ToList());
             var result = avgRisk.Body.Select(s => new
             {
-                StudentUuid = s.student.Uuid,
-                StudentName = s.student.Name,
-                Answers = s.answers?.Select((a, i)=> new {
-                    answer = a.AnswerText,
-                    answerId = a.Id,
-                    answerRiskLevel = a.RiskLevel,
-                    variableName = s.variables[i].Name,
-                    variableId = s.variables[i].Id,
-                    pollInstanceId = s.variables[i].IdPoll
-                    }).ToList(),
-                s.riskIndex
+                s.student,
+                s.variable,
+                s.answer,
             }).ToList();
 
             return avgRisk.Success
