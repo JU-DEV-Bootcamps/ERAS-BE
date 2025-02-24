@@ -28,7 +28,7 @@ public class ReportsController : ControllerBase
         {
             //TODO: Domain Implementation pending
             GetAvgRiskAnswerQuery query = new() { StudentIds = studentIds, AnswerIds = answerIds };
-            //var avgRisk = await _mediator.Send(query);
+            var avgRisk = await _mediator.Send(query);
             return StatusCode(501, new { status = "not implemented", message = "Implementation to get avgRisk Pending" });
         }
         catch (Exception ex)
