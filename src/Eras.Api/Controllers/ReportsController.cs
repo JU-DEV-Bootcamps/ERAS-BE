@@ -52,13 +52,12 @@ public class ReportsController : ControllerBase
             {
                 StudentUuid = s.Student.Uuid,
                 StudentName = s.Student.Name,
-                Answers = s.Answers?.Select(a => new {
+                Answers = s.Answers?.Select((a, i)=> new {
                     answer = a.AnswerText,
                     answerId = a.Id,
                     answerRiskLevel = a.RiskLevel,
-                    variable = a.Variable?.Name,
-                    variableId = a.Variable?.Id,
-                    pollId = a.Variable?.IdPoll
+                    variableId = a.PollVariableId,
+                    pollInstanceId = a.PollInstanceId
                     }).ToList(),
                 s.RiskIndex
             }).ToList();
@@ -91,13 +90,13 @@ public class ReportsController : ControllerBase
             {
                 StudentUuid = s.student.Uuid,
                 StudentName = s.student.Name,
-                Answers = s.answers?.Select(a => new {
+                Answers = s.answers?.Select((a, i)=> new {
                     answer = a.AnswerText,
                     answerId = a.Id,
                     answerRiskLevel = a.RiskLevel,
-                    variable = a.Variable?.Name,
-                    variableId = a.Variable?.Id,
-                    pollId = a.Variable?.IdPoll
+                    variableName = s.variables[i].Name,
+                    variableId = s.variables[i].Id,
+                    pollInstanceId = s.variables[i].IdPoll
                     }).ToList(),
                 s.riskIndex
             }).ToList();
