@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Eras.Application.Features.Consolidator.Queries.GetAvgRiskAnswer;
 using Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 using Eras.Application.Features.Consolidator.Queries.GetByRuleset;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 namespace Eras.Api.Controllers;
 
 [ApiController]
@@ -10,6 +12,7 @@ namespace Eras.Api.Controllers;
 public class ReportsController : ControllerBase
 {
     private readonly IMediator _mediator;
+    private readonly JsonSerializerOptions SerializeOptions = new() { IncludeFields = true };
 
     public ReportsController(IMediator mediator)
     {
@@ -44,9 +47,29 @@ public class ReportsController : ControllerBase
         {
             GetHigherRiskStudentByCohortPollQuery query = new() { CohortName = cohortName, PollName = pollName, Take = take };
             var avgRisk = await _mediator.Send(query);
-            return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Body })
-            : BadRequest(new { status = "error", message = avgRisk.Message });
-        }
+            var toprmessage = string.Join(", ", avgRisk.Body.Select(s => $"{s.Student.Uuid} - {s.Student.Name} - RISK = {s.RiskIndex}").ToList());
+            var result = avgRisk.Body.Select(s => new
+            {
+                StudentUuid = s.Student.Uuid,
+                StudentName = s.Student.Name,
+                Answers = s.Answers?.Select(a => new {
+                    answer = a.AnswerText,
+                    answerId = a.Id,
+                    answerRiskLevel = a.RiskLevel,
+                    variable = a.Variable?.Name,
+                    variableId = a.Variable?.Id,
+                    pollId = a.Variable?.IdPoll
+                    }).ToList(),
+                s.RiskIndex
+            }).ToList();
+
+            return avgRisk.Success
+            ? Ok(new {
+                    status = "successful",
+                    message = $"Top risk students: {toprmessage}",
+                    body = result
+                })
+            : BadRequest(new { status = "error", message = avgRisk.Message });}
         catch (Exception ex)
         {
             return NotFound(new { status = "error", message = ex.Message });
@@ -63,7 +86,28 @@ public class ReportsController : ControllerBase
         {
             GetHigherRiskStudentByVariableQuery query = new() { VariableId = variableId, PollInstanceUuid = pollInstanceUuid, Take = take };
             var avgRisk = await _mediator.Send(query);
-            return avgRisk.Success ? Ok(new { status = "successful", topRiskStudents = avgRisk.Body })
+            var toprmessage = string.Join(", ", avgRisk.Body.Select(s => $"{s.student.Uuid} - {s.student.Name} - RISK = {s.riskIndex}").ToList());
+            var result = avgRisk.Body.Select(s => new
+            {
+                StudentUuid = s.student.Uuid,
+                StudentName = s.student.Name,
+                Answers = s.answers?.Select(a => new {
+                    answer = a.AnswerText,
+                    answerId = a.Id,
+                    answerRiskLevel = a.RiskLevel,
+                    variable = a.Variable?.Name,
+                    variableId = a.Variable?.Id,
+                    pollId = a.Variable?.IdPoll
+                    }).ToList(),
+                s.riskIndex
+            }).ToList();
+
+            return avgRisk.Success
+            ? Ok(new {
+                    status = "successful",
+                    message = $"Top risk students: {toprmessage}",
+                    body = result
+                })
             : BadRequest(new { status = "error", message = avgRisk.Message });
         }
         catch (Exception ex)
