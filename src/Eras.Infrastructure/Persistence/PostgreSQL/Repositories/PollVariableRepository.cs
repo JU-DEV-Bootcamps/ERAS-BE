@@ -22,19 +22,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return pollVariable?.ToDomain();
         }
 
-        public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string pollUuid, int varibaleId)
+        public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string pollUuid, int variableId)
         {
             //Assuming the pollUuid and pollInstance Uuid are the same. This query uses the pollIntanceUuid
-            var answers = await (from poll in _context.PollInstances
-                                 join student in _context.Students on poll.StudentId equals student.Id
-                                 join pollVariable in _context.PollVariables on poll.Id equals pollVariable.PollId
-                                 join answer in _context.Answers on pollVariable.Id equals answer.PollVariableId
-                                 join variable in _context.Variables on pollVariable.VariableId equals variable.Id
-                                 where poll.Uuid == pollUuid
-                                 where variable.Id == varibaleId
-                                 where answer.PollVariableId == varibaleId
-                                 select new { Answer = answer.ToDomain(), Variable = variable.ToDomain(), Student = student.ToDomain() }
-                                 ).ToListAsync();
+            var answers = await (from s in _context.Students
+                     join pi in _context.PollInstances on s.Id equals pi.StudentId
+                     join a in _context.Answers on pi.Id equals a.PollInstanceId
+                     join pv in _context.PollVariables on a.PollVariableId equals pv.Id
+                     join v in _context.Variables on pv.VariableId equals v.Id
+                     join c in _context.Components on v.ComponentId equals c.Id
+                     where pi.Uuid == pollUuid && v.Id == variableId
+                     select new { Answer = a.ToDomain(), Variable = v.ToDomain(), Student = s.ToDomain() }
+                     ).ToListAsync();
             return [.. answers.Select(a => (a.Answer, a.Variable, a.Student))];
         }
     }
