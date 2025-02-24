@@ -17,11 +17,22 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             : base(context, StudentCohortMapper.ToDomain, StudentCohortMapper.ToPersistenceCohort)
         {
         }
-        
+
         public async Task<Student?> GetByCohortIdAndStudentIdAsync(int cohortId, int studentId)
         {
             var results = await _context.StudentCohorts.FirstOrDefaultAsync(studentCohort => studentCohort.StudentId.Equals(studentId) && studentCohort.CohortId.Equals(cohortId));
             return results?.ToDomain();
+        }
+
+        public async Task<IEnumerable<Student>?> GetAllStudentsByCohortIdAsync(int cohortId)
+        {
+            var cohortStudents = await _context.StudentCohorts.Include(cs => cs.Student).Where(studentCohort => studentCohort.CohortId.Equals(cohortId)).ToListAsync();
+            var domainStudents = new List<Student>();
+            foreach(var student in cohortStudents)
+            {
+                domainStudents.Add(student.ToDomain());
+            }
+            return domainStudents;
         }
     }
 }

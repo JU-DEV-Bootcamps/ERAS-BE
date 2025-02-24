@@ -1,4 +1,5 @@
-﻿using Eras.Application.Contracts.Persistence;
+﻿using System.Linq;
+using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -8,7 +9,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
     public class PollVariableRepository : BaseRepository<Variable, PollVariableJoin>, IPollVariableRepository
     {
-        public PollVariableRepository(AppDbContext context ) 
+        public PollVariableRepository(AppDbContext context )
             : base(context, PollVariableMapper.ToDomain, PollVariableMapper.ToPersistenceVariable)
         {
 
@@ -19,6 +20,21 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .FirstOrDefaultAsync(pollVar => pollVar.PollId == pollId && pollVar.VariableId == variableId);
 
             return pollVariable?.ToDomain();
+        }
+
+        public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string pollUuid, int variableId)
+        {
+            //Assuming the pollUuid and pollInstance Uuid are the same. This query uses the pollIntanceUuid
+            var answers = await (from s in _context.Students
+                     join pi in _context.PollInstances on s.Id equals pi.StudentId
+                     join a in _context.Answers on pi.Id equals a.PollInstanceId
+                     join pv in _context.PollVariables on a.PollVariableId equals pv.Id
+                     join v in _context.Variables on pv.VariableId equals v.Id
+                     join c in _context.Components on v.ComponentId equals c.Id
+                     where pi.Uuid == pollUuid && v.Id == variableId
+                     select new { Answer = a.ToDomain(), Variable = v.ToDomain(), Student = s.ToDomain() }
+                     ).ToListAsync();
+            return [.. answers.Select(a => (a.Answer, a.Variable, a.Student))];
         }
     }
 }
