@@ -14,6 +14,7 @@
 
     public class Variable
     {
+        public int VariableId { get; set; }
         public required string Description { get; set; }
         public IEnumerable<PossibleAnswer> PossibleAnswers { get; set; } = new List<PossibleAnswer>();
     }

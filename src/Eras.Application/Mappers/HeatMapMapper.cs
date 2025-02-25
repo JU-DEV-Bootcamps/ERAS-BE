@@ -13,6 +13,7 @@ namespace Eras.Application.Mappers
                 .GroupBy(v => new { v.VariableId, v.VariableName })
                 .Select(vg => new Variable
                 {
+                    VariableId = vg.Key.VariableId,
                     Description = vg.Key.VariableName,
                     PossibleAnswers = vg.Select(a => new PossibleAnswer
                     {
