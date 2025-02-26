@@ -41,13 +41,10 @@ public class HeatMapController : ControllerBase
     [HttpGet("heatmap-details")]
     public async Task<IActionResult> GetStudentHeatMapDetailsByComponent(
         [FromQuery] string component,
-        [FromQuery] int? limit
+        [FromQuery] int limit
     )
     {
-        int numberOfStudents = limit ?? 5;
-        var result = await _mediator.Send(
-            new GetHeatMapDetailsByComponentQuery(component, numberOfStudents)
-        );
+        var result = await _mediator.Send(new GetHeatMapDetailsByComponentQuery(component, limit));
         return Ok(result);
     }
 }
