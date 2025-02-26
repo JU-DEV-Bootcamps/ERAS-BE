@@ -48,7 +48,21 @@ namespace Eras.Application.Tests.Heatmap.Queries.GetHeatmapByAllComponents
 
             foreach (var item in result.Body)
             {
-                Console.WriteLine($"ComponentName: {item.ComponentName}, Variables: {item.Variables}, Series: {item.Series}");
+                Console.WriteLine($"ComponentName: {item.ComponentName}");
+                foreach (var variable in item.Variables.Variables)
+                {
+                    Console.WriteLine($"Variable: {variable.Description}, Possible Answers: {variable.PossibleAnswers.Count()}");
+                    /*foreach (var answer in variable.PossibleAnswers) {
+                        .WriteLine($"Answer: {answer.Description} - {answer.Value}");
+                    }*/
+                }
+
+                foreach (var serie in item.Series) {
+                    Console.WriteLine($"Serie: {serie.Name}, Data: {serie.Data.Count()}");
+                    foreach (var data in serie.Data) {
+                        Console.WriteLine($"{data.X} - {data.Y}");
+                    }
+                }
             }
         }
 
