@@ -28,7 +28,8 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByComponent
             _logger.LogDebug($"heatmap details by component = {request.ComponentName}");
 
             return await _studentRepository.GetStudentHeatMapDetailsByComponent(
-                request.ComponentName
+                request.ComponentName,
+                request.limit
             );
         }
     }

@@ -11,8 +11,15 @@ namespace Eras.Application.Contracts.Persistence
         Task<int> CountAsync();
 
         Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByComponent(
-            string componentName
+            string componentName,
+            int limit
         );
-        Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(int page, int pageSize, string pollUuid, int? days);
+
+        Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(
+            int page,
+            int pageSize,
+            string pollUuid,
+            int? days
+        );
     }
 }
