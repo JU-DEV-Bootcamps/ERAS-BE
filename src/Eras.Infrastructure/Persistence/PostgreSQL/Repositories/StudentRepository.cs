@@ -45,7 +45,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         }
 
         public async Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByComponent(
-            string componentName
+            string componentName,
+            int limit = 5
         )
         {
             var query =
@@ -74,6 +75,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var listDetails = await query
                 .Distinct()
                 .OrderByDescending(x => x.RiskLevel)
+                .Take(limit)
                 .ToListAsync();
 
             return listDetails;
