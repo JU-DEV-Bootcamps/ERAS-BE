@@ -5,16 +5,10 @@ using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Models;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
-using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
@@ -58,7 +52,25 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 throw new Exception($"There was an error with the request: " + e.Message);
             }
         }
-        public async Task<List<PollDTO>> ImportAllPolls(string name, string startDate, string endDate)
+
+
+        public async Task<CreatedPollDTO> SavePreviewPolls(List<PollDTO> pollsDtos)
+        {
+            try
+            {    
+                // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
+                // We should redesign the next layer so that this transfer of duplicate information is not required.
+                CreateComandResponse<CreatedPollDTO> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                CreateComandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                return createdPoll.Entity;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Import server error: {e.Message}");
+            }
+        }
+
+        public async Task<List<PollDTO>> GetAllPollsPreview(string name, string startDate, string endDate)
         {
             string path = _apiUrl + PathEvalaution;
             if (name != "" || startDate != "" || endDate != "")
@@ -75,7 +87,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 request.Headers.Add(HeaderApiKey, _apiKey);
 
                 var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode) return null;
+                if (!response.IsSuccessStatusCode) throw new Exception($"Cosmic latte server error, Message: {response.ReasonPhrase}");
 
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
@@ -109,8 +121,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 }
                 // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
                 // We should redesign the next layer so that this transfer of duplicate information is not required.
-                CreateComandResponse<Poll> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
-                await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                // CreateComandResponse<Poll> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                // await _pollOrchestratorService.ImportPollInstances(pollsDtos);
                 return pollsDtos;
             }
             catch (Exception e)
@@ -166,9 +178,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                                 variable.Answer = CreateAnswer(answerCL, studentDto, scoreItem);                                  
                             }
                         }
-
                     }
-
                 }
                 return clonedListComponents;
             }

@@ -35,39 +35,42 @@ namespace Eras.Application.Services
             _mediator = mediator;
         }
 
-        public async Task<CreateComandResponse<Poll>> ImportPollInstances(List<PollDTO> pollsToCreate)
+        public async Task<CreateComandResponse<CreatedPollDTO>> ImportPollInstances(List<PollDTO> pollsToCreate)
         {
             try
             {
                 // Create poll
                 PollDTO pollDTO = pollsToCreate[0];
-                CreateComandResponse<Poll> createdPollResponse = CreatePoll(pollDTO).Result;
-                if (createdPollResponse.Entity == null) return createdPollResponse;
-
-                // Create components, variables and poll_variables (intermediate table)
-                List<Component> createdComponents = await CreateComponentsAndVariables(pollsToCreate[0].Components, createdPollResponse.Entity.Id);
-
+                CreateComandResponse<Poll> createdPollResponse = await CreatePoll(pollDTO);
                 int createdPollsInstances = 0;
-                foreach (PollDTO pollToCreate in pollsToCreate)
+                CreatedPollDTO createdPoll = new CreatedPollDTO();
+
+                if (createdPollResponse.Entity != null)
                 {
-                    // Create students
-                    CreateComandResponse<Student> createdStudent = await CreateStudentFromPoll(pollToCreate);
+                    // Create components, variables and poll_variables (intermediate table)
+                    List<Component> createdComponents = await CreateComponentsAndVariables(pollsToCreate[0].Components, createdPollResponse.Entity.Id);
 
-                    // Create poll instances
-                    CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, createdPollResponse.Entity.Uuid, pollToCreate.FinishedAt);
-
-                    // Create asnswers
-                    if (createdPollInstance.Success)
+                    foreach (PollDTO pollToCreate in pollsToCreate)
                     {
-                        await CreateAnswers(pollToCreate, createdComponents, createdPollInstance);
+                        // Create students
+                        CreateComandResponse<Student> createdStudent = await CreateStudentFromPoll(pollToCreate);
+                        createdPoll.studentDTOs.Add(createdStudent.Entity.ToDto()); 
+                        // Create poll instances
+                        CreateComandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, createdPollResponse.Entity.Uuid, pollToCreate.FinishedAt);
+
+                        // Create asnswers
+                        if (createdPollInstance.Success)
+                        {
+                            await CreateAnswers(pollToCreate, createdComponents, createdPollInstance);
+                        }
+                        createdPollsInstances++;
                     }
-                    createdPollsInstances++;
                 }
-                return new CreateComandResponse<Poll>(null, createdPollsInstances, "Success", true);
+                return new CreateComandResponse<CreatedPollDTO>(createdPoll, createdPollsInstances, "Success", true);
             }
             catch (Exception ex)
             {
-                return new CreateComandResponse<Poll>(null, 0, $"Error during import process {ex.Message}", false);
+                return new CreateComandResponse<CreatedPollDTO>(null, 0, $"Error during import process {ex.Message}", false);
             }
         }
         public async Task<CreateComandResponse<PollInstance>> CreatePollInstance(Student student, string pollUuid, DateTime finishedAt)

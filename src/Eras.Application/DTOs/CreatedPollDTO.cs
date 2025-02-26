@@ -1,15 +1,14 @@
-﻿using Eras.Application.DTOs;
+﻿using Eras.Application.Dtos;
 using Eras.Domain.Common;
-using Eras.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Eras.Application.Dtos
+namespace Eras.Application.DTOs
 {
-    public class PollDTO
+    public class CreatedPollDTO
     {
         public int Id { get; set; }
         public string IdCosmicLatte { get; set; } = string.Empty;
@@ -17,7 +16,6 @@ namespace Eras.Application.Dtos
         public string Name { get; set; } = string.Empty;
         public string Version { get; set; } = string.Empty;
         public DateTime FinishedAt { get; set; }
-        public ICollection<ComponentDTO> Components { get; set; } = [];
-        public AuditInfo? Audit { get; set; } = default!;
+        public ICollection<StudentDTO> studentDTOs { get; set; } = [];
     }
-   }
+}

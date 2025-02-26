@@ -16,6 +16,6 @@ namespace Eras.Application.DTOs
         public string Type { get; set; } = "";
 
         public AnswerDTO? Answer { get; set; }
-        public AuditInfo Audit { get; set; } = default!;
+        public AuditInfo? Audit { get; set; } = default!;
     }
 }
