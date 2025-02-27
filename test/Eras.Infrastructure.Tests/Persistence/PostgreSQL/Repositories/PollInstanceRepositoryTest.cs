@@ -16,7 +16,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
     {
         private Mock<DbSet<PollInstanceEntity>> _mockSet;
         protected Mock<AppDbContext> _mockContext;
-        private PollInstanceRepository _repository;
+        private PollInstanceRepository? _repository;
 
         public PollInstanceRepositoryTest()
         {
@@ -49,7 +49,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             // Act
             var result = _repository.GetByLastDays(10).Result;
 
-            Assert.Equal(1, result.Count());
+            Assert.Single(result);
         }
 
     }
