@@ -32,18 +32,19 @@ public class HeatMapController : ControllerBase
     [HttpGet("summary/polls/{pollUUID}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetHeatMapSummary([FromRoute] string pollUUID) 
+    public async Task<IActionResult> GetHeatMapSummary([FromRoute] string pollUUID)
     {
         BaseResponse response = await _mediator.Send(new GetHeatMapSummaryQuery(pollUUID));
         return response.Success ? Ok(response) : BadRequest(response);
     }
-        
+
     [HttpGet("heatmap-details")]
     public async Task<IActionResult> GetStudentHeatMapDetailsByComponent(
-        [FromQuery] string component
+        [FromQuery] string component,
+        [FromQuery] int limit
     )
     {
-        var result = await _mediator.Send(new GetHeatMapDetailsByComponentQuery(component));
+        var result = await _mediator.Send(new GetHeatMapDetailsByComponentQuery(component, limit));
         return Ok(result);
     }
 }
