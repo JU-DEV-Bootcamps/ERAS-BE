@@ -45,24 +45,13 @@ namespace Eras.Application.Tests.Heatmap.Queries.GetHeatmapByAllComponents
             Assert.True(result.Success);
             Assert.Equal("Success", result.Message);
             Assert.NotEmpty(result.Body);
-
+            // Validate structure of result.Body 
+            Assert.Equal(2, result.Body.Count());
             foreach (var item in result.Body)
             {
                 Console.WriteLine($"ComponentName: {item.ComponentName}");
-                foreach (var variable in item.Variables.Variables)
-                {
-                    Console.WriteLine($"Variable: {variable.Description}, Possible Answers: {variable.PossibleAnswers.Count()}");
-                    /*foreach (var answer in variable.PossibleAnswers) {
-                        .WriteLine($"Answer: {answer.Description} - {answer.Value}");
-                    }*/
-                }
-
-                foreach (var serie in item.Series) {
-                    Console.WriteLine($"Serie: {serie.Name}, Data: {serie.Data.Count()}");
-                    foreach (var data in serie.Data) {
-                        Console.WriteLine($"{data.X} - {data.Y}");
-                    }
-                }
+                Assert.Equal(2, item.Variables.Variables.Count());
+                Assert.Equal(2, item.Series.Count());
             }
         }
 
