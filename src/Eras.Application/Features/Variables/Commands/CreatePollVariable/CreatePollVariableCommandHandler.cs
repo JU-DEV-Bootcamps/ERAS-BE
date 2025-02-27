@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
 {
-    internal class CreatePollVariableCommandHandler : IRequestHandler<CreatePollVariableCommand, CreateComandResponse<Variable>>
+    public class CreatePollVariableCommandHandler : IRequestHandler<CreatePollVariableCommand, CreateComandResponse<Variable>>
     {
         private readonly IPollVariableRepository _pollVariableRepository;
         private readonly ILogger<CreatePollVariableCommandHandler> _logger;

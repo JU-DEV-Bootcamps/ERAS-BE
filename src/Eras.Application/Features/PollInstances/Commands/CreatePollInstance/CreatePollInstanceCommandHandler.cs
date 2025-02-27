@@ -29,7 +29,7 @@ namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
         {
             try
             {
-                PollInstance pollInstanceDB = await _pollInstanceRepository.GetByUuidAndStudentIdAsync(request.PollInstance.Uuid, request.PollInstance.Student.Id); 
+                PollInstance? pollInstanceDB = await _pollInstanceRepository.GetByUuidAndStudentIdAsync(request.PollInstance.Uuid, request.PollInstance.Student.Id); 
                 if (pollInstanceDB != null) return new CreateComandResponse<PollInstance>(pollInstanceDB, 0, "Success", true);
 
                 PollInstance? pollInstance = request.PollInstance.ToDomain();
