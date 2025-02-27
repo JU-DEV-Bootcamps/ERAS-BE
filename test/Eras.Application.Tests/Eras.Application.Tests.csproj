@@ -26,6 +26,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Eras.Domain\Eras.Domain.csproj" />
     <ProjectReference Include="..\..\src\Eras.Application\Eras.Application.csproj" />
+    <ProjectReference Include="..\..\src\Eras.Infrastructure\Eras.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

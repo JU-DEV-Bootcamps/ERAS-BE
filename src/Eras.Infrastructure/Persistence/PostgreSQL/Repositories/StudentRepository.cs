@@ -9,6 +9,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
     public class StudentRepository : BaseRepository<Student, StudentEntity>, IStudentRepository
     {
+        private const int _defaultLimit = 5;
+
         public StudentRepository(AppDbContext context)
             : base(context, StudentMapper.ToDomain, StudentMapper.ToPersistence) { }
 
@@ -45,7 +47,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         }
 
         public async Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByComponent(
-            string componentName
+            string componentName,
+            int limit
         )
         {
             var query =
@@ -74,6 +77,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var listDetails = await query
                 .Distinct()
                 .OrderByDescending(x => x.RiskLevel)
+                .Take(limit <= 0 ? _defaultLimit : limit)
                 .ToListAsync();
 
             return listDetails;

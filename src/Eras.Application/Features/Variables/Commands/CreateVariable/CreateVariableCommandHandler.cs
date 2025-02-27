@@ -15,17 +15,14 @@ namespace Eras.Application.Features.Variables.Commands.CreateVariable
     public class CreateVariableCommandHandler : IRequestHandler<CreateVariableCommand, CreateComandResponse<Variable>>
     {
         private readonly IVariableRepository _variableRepository;
-        private readonly IComponentRepository _componentRepository;
         private readonly ILogger<CreateVariableCommandHandler> _logger;
 
         public CreateVariableCommandHandler(
             IVariableRepository variableRepository,
-            IComponentRepository componentRepository,
             ILogger<CreateVariableCommandHandler> logger)
         {
 
             _variableRepository = variableRepository;
-            _componentRepository = componentRepository;
             _logger = logger;
         }
 
