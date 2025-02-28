@@ -5,16 +5,10 @@ using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Models;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
-using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
@@ -58,7 +52,23 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 throw new Exception($"There was an error with the request: " + e.Message);
             }
         }
-        public async Task<List<PollDTO>> ImportAllPolls(string name, string startDate, string endDate)
+
+
+        public async Task<CreatedPollDTO> SavePreviewPolls(List<PollDTO> pollsDtos)
+        {
+            try
+            {
+                CreateComandResponse<CreatedPollDTO> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                CreateComandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                return createdPoll.Entity;
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Error saving data: {e.Message}");
+            }
+        }
+
+        public async Task<List<PollDTO>> GetAllPollsPreview(string name, string startDate, string endDate)
         {
             string path = _apiUrl + PathEvalaution;
             if (name != "" || startDate != "" || endDate != "")
@@ -75,23 +85,28 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 request.Headers.Add(HeaderApiKey, _apiKey);
 
                 var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode) return null;
+                if (!response.IsSuccessStatusCode) throw new Exception($"Cosmic latte server error, Message: {response.ReasonPhrase}");
+
+                List<PollDTO> pollsDtos = new List<PollDTO>();
 
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
+                if (apiResponse.data.Count < 1)
+                {
+                    return pollsDtos;
+                }
                 Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(apiResponse.data[0]);
                 // 1. Create components and variables
                 List<ComponentDTO> componentsAndVariables = GetComponentsAndVariables(apiResponse.data[0]._id, variablesPositionByComponents).Result;
 
-                List<PollDTO> pollsDtos = new List<PollDTO>();
                 foreach (var responseToPollInstace in apiResponse.data)
                 {
                     if (responseToPollInstace.status == "validated")
                     {
                         ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstance(componentsAndVariables, responseToPollInstace._id, responseToPollInstace.score);
 
-                        if(populatedComponents != null)
+                        if (populatedComponents != null)
                         {
                             // 2. Create polls
                             string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when; // TO REVIEW
@@ -109,8 +124,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 }
                 // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
                 // We should redesign the next layer so that this transfer of duplicate information is not required.
-                CreateComandResponse<Poll> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
-                await _pollOrchestratorService.ImportPollInstances(pollsDtos);
                 return pollsDtos;
             }
             catch (Exception e)
@@ -166,9 +179,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                                 variable.Answer = CreateAnswer(answerCL, studentDto, scoreItem);                                  
                             }
                         }
-
                     }
-
                 }
                 return clonedListComponents;
             }

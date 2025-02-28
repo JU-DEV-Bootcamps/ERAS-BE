@@ -17,10 +17,10 @@ namespace Eras.Api.Tests.Controllers
         private CosmicLatteController controller;
         public CosmicLatteControllerTest()
         {           
-            mockService.Setup(service => service.ImportAllPolls(It.Is<string>(name => name == "Encuesta"), It.IsAny<string>(), 
+            mockService.Setup(service => service.GetAllPollsPreview(It.Is<string>(name => name == "Encuesta"), It.IsAny<string>(), 
                 It.IsAny<string>())).ReturnsAsync(new List<PollDTO>([new PollDTO()]));
-            mockService.Setup(service => service.ImportAllPolls(It.Is<string>(name => name != "Encuesta"), It.IsAny<string>(),
-                It.IsAny<string>())).ReturnsAsync([]);
+            mockService.Setup(service => service.GetAllPollsPreview(It.Is<string>(name => name == "Name not found"), It.IsAny<string>(),
+                It.IsAny<string>())).ReturnsAsync(new List<PollDTO>());
             controller = new CosmicLatteController(mockService.Object);
         }
         [Fact]
@@ -35,10 +35,10 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async void ImportPoll_Should_Return_Empty()
         {
-            var result = await controller.GetPreviewPolls("Encuest");
-            var okResult = Assert.IsType<ObjectResult>(result);
+            var result = await controller.GetPreviewPolls("Name not found");
+            var okResult = Assert.IsType<OkObjectResult>(result);
             var polls = okResult.Value as List<PollDTO>;
-            Assert.Null(polls);
+            Assert.Empty(polls);
         }
     }
 }

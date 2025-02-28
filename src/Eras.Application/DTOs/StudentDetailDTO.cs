@@ -18,6 +18,6 @@ namespace Eras.Application.DTOs
         public decimal PureScoreDiff { get; set; }
         public decimal StandardScoreDiff { get; set; }
         public int LastAccessDays { get; set; }
-        public AuditInfo Audit { get; set; } = default!;
+        public AuditInfo? Audit { get; set; } = default!;
     }
 }
