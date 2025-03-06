@@ -1,10 +1,12 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Dtos;
+using Eras.Application.DTOs;
 using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Xml.Linq;
 
 namespace Eras.Api.Controllers
 {
@@ -26,27 +28,36 @@ namespace Eras.Api.Controllers
         [FromQuery] string endDate = ""
         )
         {
-            List<PollDTO> createdPolls = await _cosmicLatteService.ImportAllPolls(name, startDate, endDate);
-            if (createdPolls.Count > 0)
+            List<PollDTO> previewPolls = await _cosmicLatteService.GetAllPollsPreview(name, startDate, endDate);
+            if (previewPolls != null)
             {
-                return Ok(createdPolls);
+                return Ok(previewPolls);
             }
             else
             {
                 return StatusCode(500, new { status = "error", message = "An error occurred during the import process" });
             }
         }
+
+        [HttpPost("polls/")]
+        public async Task<IActionResult> SavePreviewPolls([FromBody] List<PollDTO> pollsInstances)
+        {
+            CreatedPollDTO createdPoll = await _cosmicLatteService.SavePreviewPolls(pollsInstances);
+            if (createdPoll != null)
+            {
+                return Ok(createdPoll);
+            }
+            else
+            {
+                return StatusCode(500, new { status = "error", message = "An error occurred during the import process" });
+            }
+        }
+
         [HttpGet("polls/names")]
         public async Task<IActionResult> GetPollsNameList()
         {
             List<PollDataItem> pollList = await _cosmicLatteService.GetPollsNameList();
             return Ok(pollList);
-        }
-
-        [HttpPost("polls/")]
-        public async Task<IActionResult> PostPolls()
-        {
-            return Ok("Not implemented yet");
         }
 
     }
