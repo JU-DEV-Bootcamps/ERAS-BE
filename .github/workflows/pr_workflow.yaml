@@ -19,6 +19,9 @@ jobs:
         with:
           dotnet-version: "8.0"
 
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
       - name: Restore dependencies
         run: dotnet restore
 
@@ -56,5 +59,4 @@ jobs:
 
       - name: Build Docker image
         run: |
-          cp src/environments/environment.production.sample.ts src/environments/environment.production.ts
           docker build -t test-build-image .
