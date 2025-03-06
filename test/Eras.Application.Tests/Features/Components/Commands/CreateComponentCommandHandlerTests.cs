@@ -16,13 +16,13 @@ using Moq;
 
 namespace Eras.Application.Tests.Features.Answers.Commands
 {
-    public class CreateAnswerCommandHandlerTests
+    public class CreateComponentCommandHandlerTests
     {
         private readonly Mock<IComponentRepository> _mockComponentRepository;
         private readonly Mock<ILogger<CreateComponentCommandHandler>> _mockLogger;
         private readonly CreateComponentCommandHandler _handler;
 
-        public CreateAnswerCommandHandlerTests()
+        public CreateComponentCommandHandlerTests()
         {
             _mockComponentRepository = new Mock<IComponentRepository>();
             _mockLogger = new Mock<ILogger<CreateComponentCommandHandler>>();
@@ -34,10 +34,10 @@ namespace Eras.Application.Tests.Features.Answers.Commands
         {
             var newComponentDto = new ComponentDTO() { Name= "newComponent" };
             var command = new CreateComponentCommand { Component = newComponentDto };
-            var newPoll = newComponentDto.ToDomain;
+            var newComponent = newComponentDto.ToDomain;
 
             _mockComponentRepository.Setup(repo => repo.AddAsync(It.IsAny<Component>()))
-                .ReturnsAsync(newPoll);
+                .ReturnsAsync(newComponent);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
