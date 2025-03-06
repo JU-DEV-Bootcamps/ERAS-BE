@@ -58,7 +58,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         {
             try
             {
-                CreateComandResponse<CreatedPollDTO> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
                 CreateComandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
                 return createdPoll.Entity;
             }
