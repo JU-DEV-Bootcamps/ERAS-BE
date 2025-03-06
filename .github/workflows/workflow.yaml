@@ -1,7 +1,4 @@
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
@@ -51,11 +48,7 @@ jobs:
       - name: Merge Coverage Reports
         run: |
           reportgenerator -reports:TestResults/**/coverage.cobertura.xml -targetdir:CoverletReport -reporttypes:TextSummary,Cobertura
-      - name: Upload Coverage Report (Optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: CoverageReport
-          path: CoverletReport
+
       - name: Check Coverage Threshold
         run: |
           coverage=$(grep -oP 'Line coverage:\s+\K[0-9.]+' CoverletReport/Summary.txt)
@@ -66,6 +59,11 @@ jobs:
           else
             echo "✅ Code coverage is above 10%."
           fi
+      - name: Upload Coverage Report (Optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoverageReport
+          path: CoverletReport
 
   package:
     runs-on: ubuntu-latest
