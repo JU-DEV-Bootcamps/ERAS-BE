@@ -56,7 +56,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             }
             catch (DbUpdateException ex)
             {
-                Console.WriteLine($"Error al guardar los registros: {ex.Message}");
+                Console.WriteLine($"Error storing answer: {ex.Message}");
             }
         }
     }
