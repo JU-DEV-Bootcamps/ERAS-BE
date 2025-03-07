@@ -21,7 +21,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Email = studentCohortJoin.Student.Email,
                 CohortId = studentCohortJoin.CohortId,
             };
-
         }
 
         public static Student ToJoinDomain(this StudentCohortJoin studentCohortJoin)

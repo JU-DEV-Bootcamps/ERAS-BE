@@ -7,7 +7,7 @@ namespace Eras.Application.Features.Cohort.Queries
 {
     class GetCohortsSummaryQueryHandler(
         IStudentCohortRepository scRepository,
-        ILogger<GetCohortsSummaryQuery> logger) 
+        ILogger<GetCohortsSummaryQuery> logger)
         : IRequestHandler<GetCohortsSummaryQuery, List<(Student Student, List<PollInstance> PollInstances)>>
     {
         private readonly IStudentCohortRepository _screpository = scRepository;
@@ -15,8 +15,8 @@ namespace Eras.Application.Features.Cohort.Queries
 
         public async Task<List<(Student Student, List<PollInstance> PollInstances)>> Handle(GetCohortsSummaryQuery request, CancellationToken cancellationToken)
         {
-            var studentPollInstances = await _screpository.GetCohortsSummaryAsync();
-            return studentPollInstances;
+            var cohortSummary = await _screpository.GetCohortsSummaryAsync();
+            return cohortSummary;
         }
     }
 }
