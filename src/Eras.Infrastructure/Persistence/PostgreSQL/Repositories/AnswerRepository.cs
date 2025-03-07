@@ -39,7 +39,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 domainAnswers.Add(answer.ToDomain());
             }
             return domainAnswers;
-
         }
         public async Task SaveManyAnswersAsync(List<Answer> answers)
         {
