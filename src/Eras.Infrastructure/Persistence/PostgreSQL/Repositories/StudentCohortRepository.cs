@@ -34,5 +34,20 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             }
             return domainStudents;
         }
+
+        public async Task<List<(Student Student, List<PollInstance> PollInstances)>> GetCohortsSummaryAsync() {
+            var cohorts = await _context.StudentCohorts.
+                Include(cs => cs.Cohort).
+                Include(cs => cs.Student).
+                ThenInclude(s => s.PollInstances).
+                ThenInclude(p => p.Answers).
+                ThenInclude(a => a.PollVariable).
+                ToListAsync();
+            var cohortsDomain = cohorts.Select(c => (
+                Student: c.ToJoinDomain(), 
+                PollInstances: c.Student.PollInstances.Select(p => p.ToSummaryDomain()).ToList())
+            ).ToList();
+            return cohortsDomain;
+        }
     }
 }

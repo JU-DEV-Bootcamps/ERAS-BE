@@ -8,7 +8,5 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery
 {
-    public class GetAllPollsQuery : IRequest<List<Poll>>
-    {
-    }
+    public class GetAllPollsQuery : IRequest<List<Poll>>;
 }

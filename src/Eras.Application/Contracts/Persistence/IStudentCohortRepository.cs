@@ -1,9 +1,4 @@
 ﻿using Eras.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Contracts.Persistence
 {
@@ -11,5 +6,6 @@ namespace Eras.Application.Contracts.Persistence
     {
         Task<Student?> GetByCohortIdAndStudentIdAsync(int cohortId, int studentId);
         Task<IEnumerable<Student>?> GetAllStudentsByCohortIdAsync(int cohortId);
+        Task<List<(Student Student, List<PollInstance> PollInstances)>> GetCohortsSummaryAsync();
     }
 }
