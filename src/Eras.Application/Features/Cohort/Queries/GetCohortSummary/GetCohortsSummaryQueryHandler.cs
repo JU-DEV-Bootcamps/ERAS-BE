@@ -1,20 +1,22 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Cohort.Queries
 {
     class GetCohortsSummaryQueryHandler(
-        IPollCohortRepository repository, 
+        IStudentCohortRepository scRepository,
         ILogger<GetCohortsSummaryQuery> logger) 
-        : IRequestHandler<GetCohortsSummaryQuery, List<Eras.Domain.Entities.Cohort>>
+        : IRequestHandler<GetCohortsSummaryQuery, List<(Student Student, List<PollInstance> PollInstances)>>
     {
-        private readonly IPollCohortRepository _repository = repository;
+        private readonly IStudentCohortRepository _screpository = scRepository;
         private readonly ILogger<GetCohortsSummaryQuery> _logger = logger;
 
-        public Task<List<Eras.Domain.Entities.Cohort>> Handle(GetCohortsSummaryQuery request, CancellationToken cancellationToken)
+        public async Task<List<(Student Student, List<PollInstance> PollInstances)>> Handle(GetCohortsSummaryQuery request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var studentPollInstances = await _screpository.GetCohortsSummaryAsync();
+            return studentPollInstances;
         }
     }
 }

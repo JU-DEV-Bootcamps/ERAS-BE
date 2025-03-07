@@ -32,7 +32,38 @@ namespace Eras.Api.Controllers
         public async Task<IActionResult> GetCohortsSummary()
         {
             GetCohortsSummaryQuery getCohortsSummaryQuery = new();
-            return Ok(await _mediator.Send(getCohortsSummaryQuery));
+            var queryRes = await _mediator.Send(getCohortsSummaryQuery);
+
+            var result = queryRes.Select(s => new
+            {
+                StudentUuid = s.Student.Uuid,
+                StudentName = s.Student.Name,
+                CohortId = s.Student.Cohort.Id,
+                CohortName = s.Student.Cohort.Name,
+                PollinstancesAverage = s.PollInstances.Average(p => p.Answers.Average(a => a.RiskLevel)),
+                PollinstancesCount = s.PollInstances.Count,
+            }).ToList();
+            return Ok(result);
+        }
+        [HttpGet("details")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetCohortsDetails()
+        {
+            GetCohortsSummaryQuery getCohortsSummaryQuery = new();
+            var queryRes = await _mediator.Send(getCohortsSummaryQuery);
+
+            var result = queryRes.Select(s => new
+            {
+                StudentUuid = s.Student.Uuid,
+                StudentName = s.Student.Name,
+                s.Student,
+                CohortName = s.Student.Cohort.Name,
+                s.Student.Cohort,
+                PollinstancesAverage = s.PollInstances.Average(p => p.Answers.Average(a => a.RiskLevel)),
+                Pollinstances = s.PollInstances
+            }).ToList();
+            return Ok(result);
         }
     }
 }

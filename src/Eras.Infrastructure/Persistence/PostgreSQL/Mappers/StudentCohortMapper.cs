@@ -23,6 +23,22 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             };
 
         }
+
+        public static Student ToJoinDomain(this StudentCohortJoin studentCohortJoin)
+        {
+            ArgumentNullException.ThrowIfNull(studentCohortJoin);
+            return new Student()
+            {
+                Uuid = studentCohortJoin.Student.Uuid,
+                Id = studentCohortJoin.Student.Id,
+                Name = studentCohortJoin.Student.Name,
+                Email = studentCohortJoin.Student.Email,
+                Cohort = studentCohortJoin.Cohort.ToDomain(),
+            };
+
+        }
+
+
         public static StudentCohortJoin ToPersistenceCohort(this Student student)
         {
             ArgumentNullException.ThrowIfNull(student);
