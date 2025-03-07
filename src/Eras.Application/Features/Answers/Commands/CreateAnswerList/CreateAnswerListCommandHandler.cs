@@ -1,15 +1,10 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Answers.Commands.CreateAnswer;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
 {
@@ -33,6 +28,16 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
                 await _answerRepository.SaveManyAnswersAsync(answers);
 
                 return new CreateComandResponse<List<Answer>>(answers, 1, "Success", true);
+            }
+            catch (DbUpdateException ex)
+            {
+                if (ex.InnerException!=null)
+                {
+                    _logger.LogError(ex.InnerException.Message, "Create error on Answer");
+                }
+                else
+                    _logger.LogError(ex.Message, "Create error on Answer");
+                return new CreateComandResponse<List<Answer>>(null, 0, "Error", false);
             }
             catch (Exception ex)
             {
