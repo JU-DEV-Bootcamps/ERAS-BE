@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="Code Coverage">
+        <Configuration>
+          <Exclude>
+            <!-- Excluir controladores -->
+            <ModuleMatch>.*Eras.Api.Controllers.*</ModuleMatch>
+            <!-- Excluir Middleware -->
+            <ModuleMatch>.*Eras.Api.Middleware.*</ModuleMatch>
+            <!-- Excluir DTOs -->
+            <ModuleMatch>.*Eras.Application.DTOs.*</ModuleMatch>
+            <!-- Excluir Modelos -->
+            <ModuleMatch>.*Eras.Application.Models.*</ModuleMatch>
+            <!-- Excluir Servicios -->
+            <ModuleMatch>.*Eras.Application.Services.*</ModuleMatch>
+            <!-- Excluir Utils -->
+            <ModuleMatch>.*Eras.Application.Utils.*</ModuleMatch>
+            <ModuleMatch>.*Eras.Infrastructure.Persistence.PostgreSQL.Migrations.*</ModuleMatch>
+            <ModuleMatch>.*Eras.Infrastructure.Persistence.PostgreSQL.Repositories.*</ModuleMatch>
+          </Exclude>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>
