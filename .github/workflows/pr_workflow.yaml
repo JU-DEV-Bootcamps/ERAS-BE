@@ -42,11 +42,11 @@ jobs:
         run: |
           coverage=$(grep -oP 'Line coverage:\s+\K[0-9.]+' CoverletReport/Summary.txt)
           echo "Coverage: $coverage%"
-          if (( $(echo "$coverage < 10.0" | bc -l) )); then
-            echo "❌ Code coverage is below 10%. Failing the build."
+          if (( $(echo "$coverage < 25.0" | bc -l) )); then
+            echo "❌ Code coverage is below 25%. Failing the build."
             exit 1
           else
-            echo "✅ Code coverage is above 10%."
+            echo "✅ Code coverage is above 25%."
           fi
 
   build:
