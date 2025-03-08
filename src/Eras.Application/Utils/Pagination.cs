@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Eras.Application.Utils
 {
+    [ExcludeFromCodeCoverage]
     public class Pagination
     {
         private int _page = 1;

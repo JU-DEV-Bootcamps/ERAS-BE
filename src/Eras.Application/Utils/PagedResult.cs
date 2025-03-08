@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Eras.Application.Utils
 {
+    [ExcludeFromCodeCoverage]
     public class PagedResult<T>
     {
         public int Count { get; init; }
