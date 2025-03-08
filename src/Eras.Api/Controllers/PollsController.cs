@@ -2,10 +2,11 @@ using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Diagnostics.CodeAnalysis;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[ExcludeFromCodeCoverage]
 public class PollsController : ControllerBase
 {
     private readonly IMediator _mediator;

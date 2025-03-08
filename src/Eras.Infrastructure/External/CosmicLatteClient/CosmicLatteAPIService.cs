@@ -7,12 +7,14 @@ using Eras.Application.Services;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
 {
+    [ExcludeFromCodeCoverage]
     public class CosmicLatteAPIService : ICosmicLatteAPIService
     {
         private const string PathEvalaution = "evaluations";

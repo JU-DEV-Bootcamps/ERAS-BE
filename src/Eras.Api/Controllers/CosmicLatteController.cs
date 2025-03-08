@@ -6,6 +6,7 @@ using Eras.Application.Services;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
 using System.Xml.Linq;
 
 namespace Eras.Api.Controllers

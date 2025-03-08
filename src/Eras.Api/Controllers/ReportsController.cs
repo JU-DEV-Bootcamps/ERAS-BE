@@ -5,10 +5,12 @@ using Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 using Eras.Application.Features.Consolidator.Queries.GetByRuleset;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Diagnostics.CodeAnalysis;
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[ExcludeFromCodeCoverage]
 public class ReportsController : ControllerBase
 {
     private readonly IMediator _mediator;

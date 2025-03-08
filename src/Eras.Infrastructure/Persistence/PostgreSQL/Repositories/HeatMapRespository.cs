@@ -1,9 +1,11 @@
-﻿using Eras.Application.Contracts.Persistence;
+﻿using System.Diagnostics.CodeAnalysis;
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.HeatMap;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class HeatMapRespository : IHeatMapRepository
     {
         protected readonly AppDbContext _context;

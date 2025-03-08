@@ -7,6 +7,9 @@
 .env
 appsettings.Development.json
 
+# Coverlet
+CoverletReport/
+
 # User-specific files
 *.rsuser
 *.suo

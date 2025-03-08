@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text.Json;
 
 namespace Eras.Application.Utils
 {
+    [ExcludeFromCodeCoverage]
     public static class JsonKeyMapper
     {
         private static readonly Dictionary<string, string> _keyMappings;

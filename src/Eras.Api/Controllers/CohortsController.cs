@@ -1,9 +1,11 @@
-﻿using Eras.Application.Features.Cohort.Queries.GetCohortsList;
+﻿using System.Diagnostics.CodeAnalysis;
+using Eras.Application.Features.Cohort.Queries.GetCohortsList;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[ExcludeFromCodeCoverage]
 public class CohortsController : ControllerBase
 {
     private readonly IMediator _mediator;

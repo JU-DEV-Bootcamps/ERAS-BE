@@ -1,9 +1,11 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace Eras.Infrastructure.External.KeycloakClient
 {
+    [ExcludeFromCodeCoverage]
     public class KeycloakAuthService : IKeycloakAuthService<TokenResponse>
     {
         private readonly HttpClient _httpClient;
