@@ -3,12 +3,14 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
 {
+    [ExcludeFromCodeCoverage]
     public class CosmicLatteHealthCheck : IHealthCheck
     {
         private const string _PATH_EVALUATION = "evaluations";

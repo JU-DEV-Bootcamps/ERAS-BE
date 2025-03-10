@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class PollVariableRepository : BaseRepository<Variable, PollVariableJoin>, IPollVariableRepository
     {
         public PollVariableRepository(AppDbContext context )

@@ -1,5 +1,8 @@
-﻿namespace Eras.Infrastructure.External.KeycloakClient
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Eras.Infrastructure.External.KeycloakClient
 {
+    [ExcludeFromCodeCoverage]
     public class LoginRequest
     {
         required public string Username { get; set; }

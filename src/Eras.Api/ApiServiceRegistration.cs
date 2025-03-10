@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Eras.Api
 {
+    [ExcludeFromCodeCoverage]
     public static class ApiServiceRegistration
     {
         public static IServiceCollection AddApiServices(
