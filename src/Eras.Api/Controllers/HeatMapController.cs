@@ -1,5 +1,6 @@
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByComponent;
+using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByCohort;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary;
 using Eras.Application.Models;
 using MediatR;
@@ -47,4 +48,16 @@ public class HeatMapController : ControllerBase
         var result = await _mediator.Send(new GetHeatMapDetailsByComponentQuery(component, limit));
         return Ok(result);
     }
+
+    [HttpGet("cohort/{cohortId}/top-risk")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetStudentHeatMapDetailsByCohort(
+    [FromRoute] string cohortId,
+    [FromQuery] int limit = 5)
+    {
+        var result = await _mediator.Send(new GetHeatMapDetailsByCohortQuery(cohortId, limit));
+        return Ok(result);
+    }
+
 }
