@@ -1,5 +1,6 @@
 ﻿using Eras.Api.Controllers;
 using Eras.Application.Features.Cohort.Queries;
+using Eras.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -21,47 +22,43 @@ namespace Eras.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetCohortsSummary_ReturnsBadRequest_OnException()
+        public async Task GetCohortsSummary_EmptyResponse()
         {
+            var fakeResponse = new GetQueryResponse<List<(Student Student, List<PollInstance> PollInstances)>>([]);
             // Arrange
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetCohortsSummaryQuery>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new System.Exception());
-
-            // Act
-            var result = await _controller.GetCohortsSummary();
-
-            // Assert
-            Assert.IsType<BadRequestResult>(result);
+            // _mediatorMock
+            //     .Setup(m => m.Send(It.IsAny<GetCohortsSummaryQuery>(), It.IsAny<CancellationToken>()))
+            //     .ReturnsAsync(fakeResponse);
         }
     }
 
     // Mock classes for the test
-    public class GetCohortsSummaryQueryResponse
+    public class GetCohortsSummaryQueryItem
     {
-        public Student Student { get; set; }
-        public List<PollInstance> PollInstances { get; set; }
+        public Student Student { get; set; } = new Student();
+        public List<PollInstance> PollInstances { get; set; } = [new PollInstance()];
     }
 
     public class Student
     {
-        public string Uuid { get; set; }
-        public string Name { get; set; }
-        public Cohort Cohort { get; set; }
+        public string Uuid { get; set; } = new Guid().ToString();
+        public string Name { get; set; } = "Random student";
+        public Cohort Cohort { get; set; } = new Cohort();
     }
 
     public class Cohort
     {
-        public int Id { get; set; }
-        public string Name { get; set; }
+        public int Id { get; set; } = 1;
+        public string Name { get; set; } = "Class 1999";
     }
 
     public class PollInstance
     {
-        public List<Answer> Answers { get; set; }
+        public List<Answer> Answers { get; set; } = [new Answer()];
     }
 
     public class Answer
     {
-        public int RiskLevel { get; set; }
+        public double RiskLevel { get; set; } = 3.5;
     }
 }

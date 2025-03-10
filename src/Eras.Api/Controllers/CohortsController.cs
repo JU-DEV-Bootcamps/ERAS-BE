@@ -38,8 +38,8 @@ namespace Eras.Api.Controllers
             {
                 StudentUuid = s.Student.Uuid,
                 StudentName = s.Student.Name,
-                CohortId = s.Student.Cohort.Id,
-                CohortName = s.Student.Cohort.Name,
+                CohortId = s.Student.Cohort?.Id,
+                CohortName = s.Student.Cohort?.Name,
                 PollinstancesAverage = s.PollInstances.Average(p => p.Answers.Average(a => a.RiskLevel)),
                 PollinstancesCount = s.PollInstances.Count,
             }).ToList();
@@ -58,7 +58,7 @@ namespace Eras.Api.Controllers
                 StudentUuid = s.Student.Uuid,
                 StudentName = s.Student.Name,
                 s.Student,
-                CohortName = s.Student.Cohort.Name,
+                CohortName = s.Student.Cohort?.Name,
                 s.Student.Cohort,
                 PollinstancesAverage = s.PollInstances.Average(p => p.Answers.Average(a => a.RiskLevel)),
                 Pollinstances = s.PollInstances

@@ -6,16 +6,10 @@ namespace Eras.Api.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class EvaluationProcessController : ControllerBase
+    public class EvaluationProcessController(IMediator mediator, ILogger<EvaluationProcessController> logger) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<EvaluationProcessController> _logger;
-
-        public EvaluationProcessController(IMediator mediator, ILogger<EvaluationProcessController> logger)
-        {
-            _mediator = mediator;
-            _logger = logger;
-        }
+        private readonly IMediator _mediator = mediator;
+        private readonly ILogger<EvaluationProcessController> _logger = logger;
 
         [HttpGet("summary")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -25,6 +19,5 @@ namespace Eras.Api.Controllers
             GetEvaluationProcessSummaryQuery summary = new();
             return Ok(await _mediator.Send(summary));
         }
-
     }
 }
