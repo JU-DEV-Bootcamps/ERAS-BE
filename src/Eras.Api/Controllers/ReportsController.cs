@@ -123,4 +123,7 @@ public class ReportsController : ControllerBase
             return StatusCode(500, new { status = "error", message = ex.Message });
         }
     }
+
+
+
 }

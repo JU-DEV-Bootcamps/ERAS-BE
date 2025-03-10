@@ -29,7 +29,6 @@
   <ItemGroup>
     <Folder Include="Features\Answers\Commands\DeleteAnswer\" />
     <Folder Include="Features\Answers\Commands\UpdateAnswer\" />
-    <Folder Include="Features\Answers\Queries\" />
     <Folder Include="Features\Consolidator\Commands\" />
     <Folder Include="Features\Consolidator\Queries\GetByRuleset\" />
     <Folder Include="Features\Consolidator\Queries\GetAvgRiskAnswer\" />
