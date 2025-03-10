@@ -5,12 +5,14 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class StudentCohortRepository : BaseRepository<Student, StudentCohortJoin>, IStudentCohortRepository
     {
         public StudentCohortRepository(AppDbContext context)

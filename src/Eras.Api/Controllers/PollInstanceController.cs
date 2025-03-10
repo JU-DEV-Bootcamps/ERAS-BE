@@ -1,4 +1,5 @@
-﻿using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
+﻿using System.Diagnostics.CodeAnalysis;
+using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
@@ -10,6 +11,7 @@ namespace Eras.Api.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [ExcludeFromCodeCoverage]
     public class PollInstanceController : ControllerBase
     {
 

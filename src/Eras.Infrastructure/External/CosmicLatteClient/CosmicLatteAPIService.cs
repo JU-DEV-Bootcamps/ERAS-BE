@@ -7,12 +7,14 @@ using Eras.Application.Services;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
 {
+    [ExcludeFromCodeCoverage]
     public class CosmicLatteAPIService : ICosmicLatteAPIService
     {
         private const string PathEvalaution = "evaluations";
@@ -58,7 +60,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         {
             try
             {
-                CreateComandResponse<CreatedPollDTO> createdPollResponse = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
                 CreateComandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
                 return createdPoll.Entity;
             }

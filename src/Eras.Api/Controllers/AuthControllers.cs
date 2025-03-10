@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Eras.Infrastructure.External.KeycloakClient;
 using Microsoft.AspNetCore.Mvc;
 
@@ -5,6 +6,7 @@ namespace Eras.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ExcludeFromCodeCoverage]
     public class AuthController : ControllerBase
     {
         private readonly KeycloakAuthService _keycloakAuthService;

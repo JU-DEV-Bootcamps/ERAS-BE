@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Eras.Application.Utils
 {
     public class PagedResult<T>

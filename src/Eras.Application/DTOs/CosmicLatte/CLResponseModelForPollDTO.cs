@@ -9,18 +9,13 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.DTOs.CL
 {
-
-
-    /*
-    public class CustomTextConverter : JsonConverter<string[]>
+    public class AnswersListConverter : JsonConverter<string[]>
     {
         public override string[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            var result = new List<string>();
-
-            // Si el JSON es un arreglo
             if (reader.TokenType == JsonTokenType.StartArray)
             {
+                var result = new List<string>();
                 while (reader.Read())
                 {
                     if (reader.TokenType == JsonTokenType.EndArray)
@@ -29,31 +24,21 @@ namespace Eras.Application.DTOs.CL
                     if (reader.TokenType == JsonTokenType.String)
                     {
                         var value = reader.GetString();
-                        // Reemplaza "-" por "Invalid string"
-                        if (value.Equals('-'))
-                        {
-                            result.Add(value == "-" ? "Invalid string" : value);
-
-                        }
-                        result.Add(value.Equals('-') ? "Invalid string" : value);
+                        result.Add(value == "-" ? "Invalid string" : value);
                     }
                     else
                     {
-                        throw new JsonException("Se esperaba un valor de tipo string en el arreglo.");
+                        throw new JsonException("A string value was expected in the array.");
                     }
                 }
                 return result.ToArray();
             }
-            // Si el JSON es un único valor string, encapsúlalo en un arreglo
             else if (reader.TokenType == JsonTokenType.String)
             {
                 var value = reader.GetString();
-                return new string[] { value == "-" ? "Invalid string" : value };
+                return new string[] { value };
             }
-            else
-            {
-                throw new JsonException("Se esperaba un arreglo o un string.");
-            }
+            throw new JsonException("An array or string was expected.");
         }
 
         public override void Write(Utf8JsonWriter writer, string[] value, JsonSerializerOptions options)
@@ -65,9 +50,7 @@ namespace Eras.Application.DTOs.CL
             }
             writer.WriteEndArray();
         }
-    }
-    */
-
+    } 
     // this is a class only to serialize from Cosmic latte
     public class CLResponseModelForPollDTO
     {
@@ -144,14 +127,7 @@ namespace Eras.Application.DTOs.CL
 
         [JsonPropertyName("name")]
         public string Name { get; set; }
-    }
-    /*
-    public class Scores
-    {
-        [JsonPropertyName("default-trait")]
-        public DefaultTrait DefaultTrait { get; set; }
-    }
-    */
+    } 
     public class Scores
     {
         [JsonExtensionData]
@@ -159,9 +135,9 @@ namespace Eras.Application.DTOs.CL
     }
 
     public class Answers
-    {
+    { 
         [JsonPropertyName("answer")]
-        // TODO FINISH CONVERTER TO MANAGE EXCEPTIONS => [JsonConverter(typeof(CustomTextConverter))]
+        [JsonConverter(typeof(AnswersListConverter))] 
         public string[] AnswersList { get; set; }
 
         [JsonPropertyName("question")]

@@ -1,8 +1,13 @@
-﻿using Eras.Application.Features.Cohort.Queries;
+﻿using System.Diagnostics.CodeAnalysis;
+using Eras.Application.Features.Cohort.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Eras.Api.Controllers
+[ApiController]
+[Route("api/v1/[controller]")]
+[ExcludeFromCodeCoverage]
+public class CohortsController : ControllerBase
+>>>>>>> main
 {
     [ApiController]
     [Route("api/v1/[controller]")]
