@@ -15,6 +15,11 @@ namespace Eras.Application.Contracts.Persistence
             int limit
         );
 
+        Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByCohort(
+            string cohortId,
+            int limit
+        );
+
         Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(
             int page,
             int pageSize,
