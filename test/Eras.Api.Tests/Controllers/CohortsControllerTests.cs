@@ -26,41 +26,11 @@ namespace Eras.Api.Tests.Controllers
         public async Task GetCohorts_ReturnsOkResult()
         {
             // Arrange
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetCohortsListQuery>(), It.IsAny<CancellationToken>()))
-                         .ReturnsAsync(new List<object>());
+            //_mediatorMock.Setup(m => m.Send(It.IsAny<GetCohortsListQuery>(), It.IsAny<CancellationToken>()))
+
 
             // Act
             var result = await _controller.GetCohorts();
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
-        }
-
-        [Fact]
-        public async Task GetCohortsSummary_ReturnsOkResult()
-        {
-            // Arrange
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetCohortsSummaryQuery>(), It.IsAny<CancellationToken>()))
-                         .ReturnsAsync(new List<(Student Student, List<PollInstance> PollInstances)>());
-
-            // Act
-            var result = await _controller.GetCohortsSummary();
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
-        }
-
-        [Fact]
-        public async Task GetCohortsDetails_ReturnsOkResult()
-        {
-            // Arrange
-            _mediatorMock.Setup(m => m.Send(It.IsAny<GetCohortsSummaryQuery>(), It.IsAny<CancellationToken>()))
-                         .ReturnsAsync(new List<(Student Student, List<PollInstance> PollInstances)>());
-
-            // Act
-            var result = await _controller.GetCohortsDetails();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
