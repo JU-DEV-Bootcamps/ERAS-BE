@@ -1,4 +1,5 @@
 ﻿using Eras.Application.DTOs.HeatMap;
+using Eras.Application.DTOs.Student;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence
@@ -21,5 +22,7 @@ namespace Eras.Application.Contracts.Persistence
             string pollUuid,
             int? days
         );
+
+        Task<List<StudentAverageRiskDto>> GetStudentAverageRiskAsync(int cohortId, int pollId);
     }
 }

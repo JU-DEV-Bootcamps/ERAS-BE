@@ -1,8 +1,9 @@
-using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
+using System.Diagnostics.CodeAnalysis;
+using Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
+using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 
 [ApiController]
 [Route("api/v1/[controller]")]
@@ -31,8 +32,22 @@ public class PollsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPollsByCohort([FromRoute] int cohortId)
     {
-        GetPollsByCohortListQuery getPollsByCohortListQuery = new GetPollsByCohortListQuery() { CohortId = cohortId };
+        GetPollsByCohortListQuery getPollsByCohortListQuery = new GetPollsByCohortListQuery()
+        {
+            CohortId = cohortId,
+        };
         return Ok(await _mediator.Send(getPollsByCohortListQuery));
     }
 
+    [HttpGet("{pollId}/cohort/{cohortId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAllPollVariableByCohortAndPoll(
+        [FromRoute] int pollId,
+        [FromRoute] int cohortId
+    )
+    {
+        var result = await _mediator.Send(new GetAllByPollAndCohortQuery(cohortId, pollId));
+        return Ok(result);
+    }
 }

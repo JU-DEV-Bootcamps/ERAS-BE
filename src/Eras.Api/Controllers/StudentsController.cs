@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Features.Students.Queries.GetAll;
+using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAndPoll;
 using Eras.Application.Features.Students.Queries.GetAllByPollAndDate;
 using Eras.Application.Models;
 using Eras.Application.Utils;
@@ -63,17 +64,32 @@ public class StudentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPreviewPolls(
-    [FromQuery] Pagination query,
-    [FromRoute] string pollUuid,
-    [FromQuery] int days
+        [FromQuery] Pagination query,
+        [FromRoute] string pollUuid,
+        [FromQuery] int days
     )
-    { 
-        GetAllStudentsByPollUuidAndDaysQuery studentsByPollQuery = new GetAllStudentsByPollUuidAndDaysQuery()
-        {
-            Query = query,
-            PollUuid = pollUuid,
-            Days = days
-        }; 
+    {
+        GetAllStudentsByPollUuidAndDaysQuery studentsByPollQuery =
+            new GetAllStudentsByPollUuidAndDaysQuery()
+            {
+                Query = query,
+                PollUuid = pollUuid,
+                Days = days,
+            };
         return Ok(await _mediator.Send(studentsByPollQuery));
+    }
+
+    [HttpGet("average/cohort/{cohortId}/poll/{pollId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAllAvgRiskByCohortAndPoll(
+        [FromRoute] int cohortId,
+        [FromRoute] int pollId
+    )
+    {
+        var result = await _mediator.Send(
+            new GetAllAverageRiskByCohortAndPollQuery(cohortId, pollId)
+        );
+        return Ok(result);
     }
 }

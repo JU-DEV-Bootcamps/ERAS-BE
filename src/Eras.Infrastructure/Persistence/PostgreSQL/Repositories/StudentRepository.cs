@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.HeatMap;
+using Eras.Application.DTOs.Student;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -115,6 +116,36 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .ToListAsync();
 
             return (students.Select(student => student.ToDomain()), totalCount);
+        }
+
+        public async Task<List<StudentAverageRiskDto>> GetStudentAverageRiskAsync(
+            int cohortId,
+            int pollId
+        )
+        {
+            var query =
+                from s in _context.Students
+                join sc in _context.StudentCohorts on s.Id equals sc.StudentId
+                join pi in _context.PollInstances on s.Id equals pi.StudentId
+                join a in _context.Answers on pi.Id equals a.PollInstanceId
+                join pv in _context.PollVariables on a.PollVariableId equals pv.Id
+                join c in _context.Cohorts on sc.CohortId equals c.Id
+                where c.Id == cohortId && pv.PollId == pollId
+                group a by new
+                {
+                    s.Id,
+                    s.Name,
+                    s.Email,
+                } into g
+                select new StudentAverageRiskDto
+                {
+                    StudentId = g.Key.Id,
+                    StudentName = g.Key.Name,
+                    Email = g.Key.Email,
+                    AvgRiskLevel = g.Average(x => x.RiskLevel),
+                };
+
+            return await query.OrderByDescending(x => x.AvgRiskLevel).ToListAsync();
         }
     }
 }
