@@ -13,7 +13,9 @@ namespace Eras.Application.Features.Cohort.Queries
         private readonly IStudentCohortRepository _screpository = scRepository;
         private readonly ILogger<GetCohortsSummaryQuery> _logger = logger;
 
-        public async Task<List<(Student Student, List<PollInstance> PollInstances)>> Handle(GetCohortsSummaryQuery request, CancellationToken cancellationToken)
+        public async Task<List<(Student Student, List<PollInstance> PollInstances)>> Handle(
+            GetCohortsSummaryQuery request, 
+            CancellationToken cancellationToken)
         {
             var cohortSummary = await _screpository.GetCohortsSummaryAsync();
             return cohortSummary;
