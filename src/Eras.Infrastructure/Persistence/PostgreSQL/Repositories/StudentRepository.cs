@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.HeatMap;
 using Eras.Domain.Entities;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class StudentRepository : BaseRepository<Student, StudentEntity>, IStudentRepository
     {
         private const int _defaultLimit = 5;

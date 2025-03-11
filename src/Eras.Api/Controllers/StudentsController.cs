@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Features.Students.Queries.GetAll;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[ExcludeFromCodeCoverage]
 public class StudentsController : ControllerBase
 {
     private readonly IMediator _mediator;

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
@@ -6,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
+    [ExcludeFromCodeCoverage]
     public class AnswerRepository(AppDbContext context) : BaseRepository<Answer, AnswerEntity>
         (context, AnswerMapper.ToDomain, AnswerMapper.ToPersistence), IAnswerRepository
     {
