@@ -15,7 +15,7 @@ namespace Eras.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("getStudentAnswersByPoll")]
+        [HttpGet("answers")]
         public async Task<IActionResult> GetStudentAnswersByPoll([FromQuery] int studentId, [FromQuery] int pollId)
         {
             GetStudentAnswersByPollQuery getStudentAnswersByPoll = new GetStudentAnswersByPollQuery()

@@ -14,7 +14,7 @@ namespace Eras.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet("getComponentsRiskAvgByStudent")]
+        [HttpGet("RiskAvg")]
         public async Task<IActionResult> GetComponentsRiskAvgByStudent([FromQuery] int studentId, [FromQuery] int pollId)
         {
             GetComponentsAvgByStudentQuery getComponentsRiskAvgByStudent = new GetComponentsAvgByStudentQuery()
