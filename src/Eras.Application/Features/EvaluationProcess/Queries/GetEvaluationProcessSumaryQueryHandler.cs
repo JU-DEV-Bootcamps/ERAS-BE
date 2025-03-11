@@ -5,7 +5,10 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.EvaluationProcess.Queries
 {
-    class GetEvaluationProcessSumaryQueryHandler(IPollCohortRepository repository, ILogger<GetEvaluationProcessSummaryQuery> logger) : IRequestHandler<GetEvaluationProcessSummaryQuery, List<Poll>>
+    class GetEvaluationProcessSumaryQueryHandler
+        (IPollCohortRepository repository,
+        ILogger<GetEvaluationProcessSummaryQuery> logger)
+        : IRequestHandler<GetEvaluationProcessSummaryQuery, List<Poll>>
     {
         public async Task<List<Poll>> Handle(GetEvaluationProcessSummaryQuery request, CancellationToken cancellationToken)
         {
