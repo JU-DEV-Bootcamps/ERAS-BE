@@ -10,7 +10,6 @@
     <Compile Remove="Features\Cohort\Queries\NewFolder\**" />
     <EmbeddedResource Remove="Features\Cohort\Queries\NewFolder\**" />
     <None Remove="Features\Cohort\Queries\NewFolder\**" />
-    <None Remove="Features\HeatMap\Queries\GetHeatMapDetailsByCohort\" />
   </ItemGroup>
 
   <ItemGroup>
