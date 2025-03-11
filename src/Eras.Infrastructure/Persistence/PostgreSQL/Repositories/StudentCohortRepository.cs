@@ -6,7 +6,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public class StudentCohortRepository(AppDbContext context) : BaseRepository<Student, StudentCohortJoin>(context, StudentCohortMapper.ToDomain, StudentCohortMapper.ToPersistenceCohort), IStudentCohortRepository
+    public class StudentCohortRepository(AppDbContext context)
+        : BaseRepository<Student, StudentCohortJoin>(
+            context,
+            StudentCohortMapper.ToDomain,
+            StudentCohortMapper.ToPersistenceCohort),
+        IStudentCohortRepository
     {
         public async Task<Student?> GetByCohortIdAndStudentIdAsync(int cohortId, int studentId)
         {
