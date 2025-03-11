@@ -62,7 +62,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 query = query.Where(pi => pi.FinishedAt >= dateLimit);
             }
 
-            var pollInstances = await query.Distinct().ToListAsync();
+            var pollInstances = await query.OrderByDescending(pi => pi.FinishedAt).Distinct().ToListAsync();
             return pollInstances.Select(pi => PollInstanceMapper.ToDomain(pi)).ToList();
         }
 
