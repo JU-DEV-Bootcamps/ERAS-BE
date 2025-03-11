@@ -43,7 +43,11 @@ namespace Eras.Api.Controllers
                 PollinstancesAverage = s.PollInstances.Average(p => p.Answers.Average(a => a.RiskLevel)),
                 PollinstancesCount = s.PollInstances.Count,
             }).ToList();
-            return Ok(result);
+            return Ok(new {
+                CohortCount = result.Select(s => s.CohortName).Distinct().Count(),
+                StudentCount = result.Count,
+                Summary = result
+            });
         }
         [HttpGet("details")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -63,7 +67,12 @@ namespace Eras.Api.Controllers
                 PollinstancesAverage = s.PollInstances.Average(p => p.Answers.Average(a => a.RiskLevel)),
                 Pollinstances = s.PollInstances
             }).ToList();
-            return Ok(result);
+            return Ok(new
+            {
+                CohortCount = result.Select(s => s.CohortName).Distinct().Count(),
+                StudentCount = result.Count,
+                Summary = result
+            });
         }
     }
 }
