@@ -30,6 +30,7 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
             }
             catch(Exception ex)
             {
+                _logger.LogError(ex, "An error occurred getting the poll instance");
                 return new GetQueryResponse<IEnumerable<PollInstanceDTO>>([], "Failed", false);
             }
         }
