@@ -9,6 +9,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public string Version { get; set; } = string.Empty;
         public string Uuid { get; set; } = string.Empty;
         public ICollection<PollVariableJoin> PollVariables { get; set; } = [];
+        public ICollection<EvaluationPollJoin> EvaluationPolls { get; set; } = [];
         public AuditInfo Audit { get; set; } = default!;
     }
 }

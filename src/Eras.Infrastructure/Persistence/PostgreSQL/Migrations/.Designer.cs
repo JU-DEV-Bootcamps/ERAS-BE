@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250311020917_evaluation_process2")]
+    partial class evaluation_process2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -141,7 +144,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("evaluation", (string)null);
+                    b.ToTable("entity", (string)null);
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollEntity", b =>
@@ -541,7 +544,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("EvaluationEntityId");
 
-                            b1.ToTable("evaluation");
+                            b1.ToTable("entity");
 
                             b1.WithOwner()
                                 .HasForeignKey("EvaluationEntityId");

@@ -17,7 +17,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? configuration["Postgres:Password"];
             var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? configuration["Postgres:Database"];
 
-            return $"Host={postgresHost};Port={postgresPort};Username={postgresUser};Password={postgresPassword};Database={postgresDb}";
+            return "Host=localhost;Port=5432;Username=eras_user;Password=eras_password;Database=eras_db";
         }
 
         public static void AddDbContextPostgreSql(IServiceCollection services, IConfiguration configuration)

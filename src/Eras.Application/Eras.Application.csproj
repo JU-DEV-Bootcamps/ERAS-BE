@@ -8,8 +8,11 @@
 
   <ItemGroup>
     <Compile Remove="Features\Cohort\Queries\NewFolder\**" />
+    <Compile Remove="Features\Evaluation\**" />
     <EmbeddedResource Remove="Features\Cohort\Queries\NewFolder\**" />
+    <EmbeddedResource Remove="Features\Evaluation\**" />
     <None Remove="Features\Cohort\Queries\NewFolder\**" />
+    <None Remove="Features\Evaluation\**" />
   </ItemGroup>
 
   <ItemGroup>
