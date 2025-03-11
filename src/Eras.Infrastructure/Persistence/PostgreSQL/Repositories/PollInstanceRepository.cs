@@ -65,28 +65,5 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var pollInstances = await query.Distinct().ToListAsync();
             return pollInstances.Select(pi => PollInstanceMapper.ToDomain(pi)).ToList();
         }
-
-        public async Task<IEnumerable<PollInstance>> GetByCohortId(int cohortId)
-        {
-            var polls = await _context.Cohorts
-                .Where(c => c.Id == cohortId)
-                .Join(_context.StudentCohorts,
-                    cohort => cohort.Id,
-                    studentCohort => studentCohort.CohortId,
-                    (cohort, studentCohort) => studentCohort)
-                .Join(_context.Students,
-                    sc => sc.StudentId,
-                    student => student.Id,
-                    (sc, student) => student)
-                .Join(_context.PollInstances,
-                    student => student.Id,
-                    pollInstance => pollInstance.StudentId,
-                    (student, pollInstance) => pollInstance)
-                .Distinct()
-                .ToListAsync();
-
-            return polls.Select(p => p.ToDomain()).ToList();
-        }
-
     }
 }
