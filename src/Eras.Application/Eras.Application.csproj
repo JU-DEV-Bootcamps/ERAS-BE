@@ -7,12 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Features\Cohort\Queries\NewFolder\**" />
-    <EmbeddedResource Remove="Features\Cohort\Queries\NewFolder\**" />
-    <None Remove="Features\Cohort\Queries\NewFolder\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="Resources/StudentJsonMappings.json" />
   </ItemGroup>
 
