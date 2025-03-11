@@ -18,6 +18,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             };
         }
 
+        public static PollInstance ToSummaryDomain(this PollInstanceEntity entity)
+        {
+            return new PollInstance
+            {
+                Id = entity.Id,
+                Uuid = entity.Uuid,
+                Student = entity.Student?.ToDomain() ?? new Student(),
+                FinishedAt = entity.FinishedAt,
+                Answers = [.. entity.Answers.Select(a => a.ToDomain())],
+            };
+        }
+
         public static PollInstanceEntity ToPersistence(this PollInstance model)
         {
             return new PollInstanceEntity

@@ -7,12 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Features\Cohort\Queries\NewFolder\**" />
-    <EmbeddedResource Remove="Features\Cohort\Queries\NewFolder\**" />
-    <None Remove="Features\Cohort\Queries\NewFolder\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="Resources/StudentJsonMappings.json" />
   </ItemGroup>
 
@@ -29,7 +23,6 @@
   <ItemGroup>
     <Folder Include="Features\Answers\Commands\DeleteAnswer\" />
     <Folder Include="Features\Answers\Commands\UpdateAnswer\" />
-    <Folder Include="Features\Answers\Queries\" />
     <Folder Include="Features\Consolidator\Commands\" />
     <Folder Include="Features\Consolidator\Queries\GetByRuleset\" />
     <Folder Include="Features\Consolidator\Queries\GetAvgRiskAnswer\" />
@@ -38,7 +31,6 @@
     <Folder Include="Features\Polls\Commands\UpdatePoll\" />
     <Folder Include="Features\Students\Commands\DeleteStudent\" />
     <Folder Include="Features\Students\Commands\UpdateStudent\" />
-    <Folder Include="Features\Students\Queries\GetStudentDetails\" />
     <Folder Include="Features\Students\Queries\GetStudentsList\" />
   </ItemGroup>
 

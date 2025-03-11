@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
 using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
+using Eras.Application.Features.Polls.Queries.GetPollsByStudent;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -49,5 +50,17 @@ public class PollsController : ControllerBase
     {
         var result = await _mediator.Send(new GetAllByPollAndCohortQuery(cohortId, pollId));
         return Ok(result);
+    }
+
+    [HttpGet("student/{studentId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetPollsByStudentId([FromRoute] int studentId)
+    {
+        GetPollsByStudentQuery getPollsByStudentQuery = new GetPollsByStudentQuery()
+        {
+            StudentId = studentId,
+        };
+        return Ok(await _mediator.Send(getPollsByStudentQuery));
     }
 }

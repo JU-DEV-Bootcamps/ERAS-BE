@@ -46,6 +46,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             services.AddScoped<IStudentCohortRepository, StudentCohortRepository>();
             services.AddScoped<IPollCohortRepository, PollCohortRepository>();
             services.AddScoped<IHeatMapRepository, HeatMapRespository>();
+            services.AddScoped<IStudentPollsRepository, StudentPollsRepository>();
+            services.AddScoped<IComponentsAvgRepository, ComponentsAvgRepository>();
+            services.AddScoped<IStudentAnswersRepository, StudentAnswersRepository>();
 
             return services;
         }
