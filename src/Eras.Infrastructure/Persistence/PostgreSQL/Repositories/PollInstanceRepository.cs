@@ -41,5 +41,29 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return pollInstanceCounts.Select(entity => PollInstanceMapper.ToDomain(entity));
         }
 
+        public async Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? cohortId, int? days)
+        {
+            IQueryable<PollInstanceEntity> query = _context.PollInstances.Include(pi => pi.Student);
+
+            if (cohortId.HasValue && cohortId != 0)
+            {
+                query = query
+                    .Join(_context.StudentCohorts,
+                        pollInstance => pollInstance.StudentId,
+                        studentCohort => studentCohort.StudentId,
+                        (pollInstance, studentCohort) => new { pollInstance, studentCohort })
+                    .Where(joined => joined.studentCohort.CohortId == cohortId.Value)
+                    .Select(joined => joined.pollInstance);
+            }
+
+            if (days.HasValue && days != 0)
+            {
+                var dateLimit = DateTime.UtcNow.AddDays(-days.Value);
+                query = query.Where(pi => pi.FinishedAt >= dateLimit);
+            }
+
+            var pollInstances = await query.Distinct().ToListAsync();
+            return pollInstances.Select(pi => PollInstanceMapper.ToDomain(pi)).ToList();
+        }
     }
 }

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
-using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
