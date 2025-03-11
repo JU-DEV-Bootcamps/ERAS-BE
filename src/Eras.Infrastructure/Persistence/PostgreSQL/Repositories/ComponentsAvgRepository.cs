@@ -41,7 +41,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                                     .GroupBy(x => new { x.c.Id, x.c.Name })
                                     .Select(g => new ComponentsAvg
                                     {
-                                        Id = g.Key.Id,
+                                        PollId = pollId,
+                                        ComponentId = g.Key.Id,
                                         Name = g.Key.Name,
                                         ComponentAvg = (float)g.Average(x => x.a.RiskLevel)
                                     })
