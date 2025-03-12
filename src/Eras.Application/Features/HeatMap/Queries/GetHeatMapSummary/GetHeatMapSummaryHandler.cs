@@ -17,13 +17,13 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
     internal class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
     {
         private readonly IHeatMapRepository _heatMapRepository;
-        private readonly IComponentRepository _componentRepository;
-        private readonly ILogger<GetHeatMapDataByAllComponentsHandler> _logger;
+        private readonly ILogger<GetHeatMapSummaryHandler> _logger;
 
-        public GetHeatMapSummaryHandler(IHeatMapRepository heatMapRepository, IComponentRepository componentRepository, ILogger<GetHeatMapDataByAllComponentsHandler> logger)
+        public GetHeatMapSummaryHandler(
+            IHeatMapRepository heatMapRepository,
+            ILogger<GetHeatMapSummaryHandler> logger)
         {
             _heatMapRepository = heatMapRepository;
-            _componentRepository = componentRepository;
             _logger = logger;
         }
 
@@ -35,7 +35,6 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
             }
             try {
                 var answersByComponents = await _heatMapRepository.GetHeatMapDataByComponentsAsync(request.PollInstanceUUID);
-                var components = await _componentRepository.GetAllAsync();
                 if (answersByComponents == null || !answersByComponents.Any())
                     throw new NotFoundException($"No data found for poll instance ID: {request.PollInstanceUUID}");
 

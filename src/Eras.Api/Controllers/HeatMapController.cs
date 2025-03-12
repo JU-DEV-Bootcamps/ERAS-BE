@@ -5,6 +5,7 @@ using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary;
 using Eras.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
 
 [ApiController]
 [Route("api/v1/[controller]")]
@@ -58,6 +59,25 @@ public class HeatMapController : ControllerBase
     {
         var result = await _mediator.Send(new GetHeatMapDetailsByCohortQuery(cohortId, limit));
         return Ok(result);
+    }
+
+    [HttpGet("summary/filter")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetHeatMapSummaryByFilters([FromQuery] int cohortId, [FromQuery] int days)
+    {
+        var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(cohortId, days);
+        var response = await _mediator.Send(getHeatMapSummaryByFiltersQuery);
+        if (response.Success.Equals(true))
+        {
+            _logger.LogInformation("Successfull request of heat map summary in {days} for cohort {cohortId}", days, cohortId);
+            return Ok(response);
+        }
+        else
+        {
+            _logger.LogWarning("Failed to get heat map summary. Reason: {ResponseMessage}", response.Message);
+            return BadRequest(response);
+        }
     }
 
 }
