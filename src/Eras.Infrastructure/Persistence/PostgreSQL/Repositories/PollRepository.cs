@@ -22,5 +22,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             
             return poll?.ToDomain();
         }
+
+        public async Task<Poll?> GetByUuidAsync(string Uuid)
+        {
+            var poll = await _context.Polls
+                .FirstOrDefaultAsync(poll => poll.Uuid == Uuid);
+
+            return poll?.ToDomain();
+        }
     }
 }
