@@ -32,6 +32,7 @@
     <Folder Include="Features\Students\Commands\DeleteStudent\" />
     <Folder Include="Features\Students\Commands\UpdateStudent\" />
     <Folder Include="Features\Students\Queries\GetStudentsList\" />
+    <Folder Include="Features\HeatMap\Queries\GetHeatMapDetailsByCohort\" />
   </ItemGroup>
 
 </Project>
