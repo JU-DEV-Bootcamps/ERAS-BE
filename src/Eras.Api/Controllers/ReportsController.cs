@@ -96,11 +96,45 @@ public class ReportsController : ControllerBase
             }).ToList();
 
             return avgRisk.Success
-            ? Ok(new {
-                    status = "successful",
-                    message = $"Top risk students: {toprmessage}",
-                    body = result
-                })
+            ? Ok(new
+            {
+                status = "successful",
+                message = $"Top risk students: {toprmessage}",
+                body = result
+            })
+            : BadRequest(new { status = "error", message = avgRisk.Message });
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { status = "error", message = ex.Message });
+        }
+    }
+
+    [HttpGet("higherrisk/byPoll/")]
+    public async Task<IActionResult> GetHigherRiskStudentsByVariable(
+    [FromQuery] string pollInstanceUuid,
+    [FromQuery] int take,
+    [FromQuery] string variableIds)
+    {
+        try
+        {
+            GetHigherRiskStudentByPollQuery query = new() { PollInstanceUuid = pollInstanceUuid, Take = take , VariableIds = variableIds };
+            var avgRisk = await _mediator.Send(query);
+            var toprmessage = string.Join(", ", avgRisk.Body.Select(s => $"{s.student.Uuid} - {s.student.Name} - RISK = {s.answer.RiskLevel}").ToList());
+            var result = avgRisk.Body.Select(s => new
+            {
+                s.student,
+                s.variable,
+                s.answer,
+            }).ToList();
+
+            return avgRisk.Success
+            ? Ok(new
+            {
+                status = "successful",
+                message = $"Top risk students: {toprmessage}",
+                body = result
+            })
             : BadRequest(new { status = "error", message = avgRisk.Message });
         }
         catch (Exception ex)
