@@ -8,6 +8,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     public partial class update_evaluation : Migration
     {
         /// <inheritdoc />
+        [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
