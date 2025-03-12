@@ -1,4 +1,6 @@
-﻿using Eras.Application.DTOs;
+﻿using System.Xml.Linq;
+using Eras.Application.DTOs;
+using Eras.Application.Features.Evaluations.Commands.CreateEvaluation;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
@@ -24,25 +26,27 @@ namespace Eras.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateEvaluation([FromBody] EvaluationDTO evaluationDTO)
         {
-            _logger.LogInformation("Creating evaluation with the name", evaluationDTO.Name);
-
-           
-
-           
-                _logger.LogInformation("Successfully created Evaluaion ",evaluationDTO.Name);
+            _logger.LogInformation("Creating evaluation with the name {Name}", evaluationDTO.Name);
+            CreateEvaluationCommand command = new CreateEvaluationCommand()
+            {
+                EvaluationDTO = evaluationDTO,
+            };
+            CreateComandResponse<Evaluation> response = await _mediator.Send(command);
+            if (response.Success)
+            {
+                _logger.LogInformation("Successfully created Evaluation {Name}", evaluationDTO.Name);
                 return Ok(new { status = "successful", message = "Created" });
-
-           /*
-                _logger.LogWarning(
-                    "Failed to import students. Reason: {ResponseMessage}",
+            } else
+            {
+                _logger.LogError(
+                    "Failed to create Evaluation. Reason: {ResponseMessage}",
                     response.Message
-                );
+);
                 return StatusCode(
                     400,
-                    new { status = "error", message = "An error occurred during the import process" }
+                    new { status = "error", message = "An error occurred during the evaluation creation process" }
                 );
-            */
+            }
         }
-
     }
 }

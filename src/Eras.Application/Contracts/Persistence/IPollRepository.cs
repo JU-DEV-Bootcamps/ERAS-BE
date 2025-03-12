@@ -5,5 +5,6 @@ namespace Eras.Application.Contracts.Persistence
     public interface IPollRepository : IBaseRepository<Poll>
     {
         Task<Poll?> GetByNameAsync(string name);
+        Task<Poll?> GetByUuidAsync(string Uuid);
     }
 }

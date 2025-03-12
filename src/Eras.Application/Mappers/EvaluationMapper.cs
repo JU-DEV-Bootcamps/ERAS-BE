@@ -20,8 +20,7 @@ namespace Eras.Application.Mappers
                 Name = dto.Name,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
-                EvaluationPollId = dto.EvaluationPollId,
-                Audit = dto.Audit,
+                EvaluationPollId = dto.EvaluationPollId
             };
         }
         public static EvaluationDTO ToDto(this Evaluation domain)
@@ -33,8 +32,7 @@ namespace Eras.Application.Mappers
                 Name = domain.Name,
                 StartDate = domain.StartDate,
                 EndDate = domain.EndDate,
-                EvaluationPollId = domain.EvaluationPollId,
-                Audit = domain.Audit,
+                EvaluationPollId = domain.EvaluationPollId
             };
         }
     }

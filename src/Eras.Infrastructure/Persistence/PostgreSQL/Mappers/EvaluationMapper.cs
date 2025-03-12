@@ -15,6 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             return new Evaluation
             {
                 Id = entity.Id,
+                Status = entity.Status,
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 Audit = entity.Audit,
@@ -26,6 +27,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             return new EvaluationEntity
             {
                 Id = model.Id,
+                Name = model.Name,
+                Status = model.Status,
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,
                 Audit = model.Audit,

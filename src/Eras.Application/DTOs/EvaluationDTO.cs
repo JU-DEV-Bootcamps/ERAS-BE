@@ -27,7 +27,9 @@ namespace Eras.Application.DTOs
 
         [JsonPropertyName(nameof(EvaluationPollId))]
         public int EvaluationPollId { get; set; }
-        public AuditInfo Audit { get; set; } = default!;
+
+        public int pollId { get; set; }
+        public string status { get; set; } = String.Empty;
 
     }
 }
