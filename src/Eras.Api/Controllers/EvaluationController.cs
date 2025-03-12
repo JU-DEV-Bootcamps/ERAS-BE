@@ -15,9 +15,9 @@ namespace Eras.Api.Controllers
     public class EvaluationController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly ILogger<HeatMapController> _logger;
+        private readonly ILogger<EvaluationController> _logger;
 
-        public EvaluationController(IMediator mediator, ILogger<HeatMapController> logger)
+        public EvaluationController(IMediator mediator, ILogger<EvaluationController> logger)
         {
             _mediator = mediator;
             _logger = logger;

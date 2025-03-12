@@ -14,12 +14,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluationPoll
 {
-    internal class CreateEvaluationPollCommandHandler : IRequestHandler<CreateEvaluationPollCommand, CreateComandResponse<Evaluation>>
+    public class CreateEvaluationPollCommandHandler : IRequestHandler<CreateEvaluationPollCommand, CreateComandResponse<Evaluation>>
     {
         private readonly IEvaluationPollRepository _evaluationPollRepository;
-        private readonly ILogger<CreateEvaluationCommandHandler> _logger;
+        private readonly ILogger<CreateEvaluationPollCommandHandler> _logger;
         public CreateEvaluationPollCommandHandler(IEvaluationPollRepository evaluationPollRepository,
-            ILogger<CreateEvaluationCommandHandler> logger)
+            ILogger<CreateEvaluationPollCommandHandler> logger)
         {
             _evaluationPollRepository = evaluationPollRepository;
             _logger = logger;
