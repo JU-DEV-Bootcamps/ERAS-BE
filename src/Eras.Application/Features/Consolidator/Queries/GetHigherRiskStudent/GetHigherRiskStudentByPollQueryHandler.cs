@@ -20,7 +20,12 @@ namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent
         private readonly IPollVariableRepository _pollVariableRepository = pollVariableRepository;
         public int DefaultTakeNumber = 9999;
 
-        public async Task<GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>> Handle(GetHigherRiskStudentByPollQuery request, CancellationToken cancellationToken)
+        public async Task<GetQueryResponse<List<(
+            Answer answer, 
+            Variable variable, 
+            Student student)>>> Handle(
+            GetHigherRiskStudentByPollQuery request, 
+            CancellationToken cancellationToken)
         {
             int TakeNStudents = request.Take.HasValue && request.Take.Value > 0 ? request.Take.Value : DefaultTakeNumber;
             try
