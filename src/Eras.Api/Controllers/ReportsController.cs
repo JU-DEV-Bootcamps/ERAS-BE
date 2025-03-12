@@ -118,9 +118,16 @@ public class ReportsController : ControllerBase
     {
         try
         {
-            GetHigherRiskStudentByPollQuery query = new() { PollInstanceUuid = pollInstanceUuid, Take = take , VariableIds = variableIds };
+            GetHigherRiskStudentByPollQuery query = new() 
+            { 
+                PollInstanceUuid = pollInstanceUuid,
+                Take = take ,
+                VariableIds = variableIds
+            };
             var avgRisk = await _mediator.Send(query);
-            var toprmessage = string.Join(", ", avgRisk.Body.Select(s => $"{s.student.Uuid} - {s.student.Name} - RISK = {s.answer.RiskLevel}").ToList());
+            var topRiskMessage = string.Join(", ", avgRisk.Body.Select(s =>
+                $"{s.student.Uuid} - {s.student.Name} - RISK = {s.answer.RiskLevel}"
+            ).ToList());
             var result = avgRisk.Body.Select(s => new
             {
                 s.student,
@@ -132,7 +139,7 @@ public class ReportsController : ControllerBase
             ? Ok(new
             {
                 status = "successful",
-                message = $"Top risk students: {toprmessage}",
+                message = $"Top risk students: {topRiskMessage}",
                 body = result
             })
             : BadRequest(new { status = "error", message = avgRisk.Message });
