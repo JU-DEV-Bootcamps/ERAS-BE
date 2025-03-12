@@ -15,7 +15,8 @@ using Eras.Application.Mappers;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
 {
-    internal class GetHeatMapSummaryByFiltersHandler : IRequestHandler<GetHeatMapSummaryByFiltersQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
+    internal class GetHeatMapSummaryByFiltersHandler 
+        : IRequestHandler<GetHeatMapSummaryByFiltersQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
     {
         private readonly IHeatMapRepository _heatMapRepository;
         private readonly IComponentRepository _componentRepository;
@@ -31,13 +32,17 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
             _logger = logger;
         }
 
-        public async Task<GetQueryResponse<HeatMapSummaryResponseVm>> Handle(GetHeatMapSummaryByFiltersQuery request, CancellationToken cancellationToken)
+        public async Task<GetQueryResponse<HeatMapSummaryResponseVm>> Handle(
+            GetHeatMapSummaryByFiltersQuery request, 
+            CancellationToken cancellationToken)
         {
             try
             {
-                var answersByFilters = await _heatMapRepository.GetHeatMapDataByCohortAndDaysAsync(request.CohortId, request.Days);
-                if (answersByFilters == null || !answersByFilters.Any())
-                    throw new NotFoundException($"No data found for filters: {request.CohortId} - {request.Days}");
+                var answersByFilters = await _heatMapRepository.GetHeatMapDataByCohortAndDaysAsync(request.CohortId, request.Days) 
+                    ?? throw new NotFoundException($"Error in query for filters: {request.CohortId} - {request.Days}");
+                
+                if (!answersByFilters.Any()) // Returns empty response
+                    return new GetQueryResponse<HeatMapSummaryResponseVm>(new HeatMapSummaryResponseVm(), "Success", true);
 
                 var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByFilters);
 

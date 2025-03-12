@@ -47,11 +47,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var pollInstances = await GetPollInstancesByCohortIdAndLastDays(cohortId, days);
 
+            var pollInstanceIds = pollInstances.Select(pi => pi.Id).ToList();
+
             var query = from v in _context.Variables
                         join c in _context.Components on v.ComponentId equals c.Id
                         join pv in _context.Set<PollVariableJoin>() on v.Id equals pv.VariableId
                         join a in _context.Answers on pv.Id equals a.PollVariableId
-                        join pi in pollInstances on a.PollInstanceId equals pi.Id
+                        join pi in _context.PollInstances.AsEnumerable() on a.PollInstanceId equals pi.Id
+                        where pollInstanceIds.Contains(pi.Id)
                         select new GetHeatMapByComponentsQueryResponse
                         {
                             ComponentId = c.Id,
@@ -72,7 +75,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             GetPollInstancesByCohortIdAndLastDays(int? cohortId, int? days)
         {
             IQueryable<PollInstanceEntity> query = _context.PollInstances
-                .Include(pi => pi.Student);
+                .Include(pi => pi.Student)
+                .Include(pi => pi.Answers);
 
             if (cohortId.HasValue && cohortId != 0)
             {
