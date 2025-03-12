@@ -9,7 +9,8 @@ using MediatR;
 
 namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent
 {
-    public class GetHigherRiskStudentByPollQuery : IRequest<GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>>
+    public class GetHigherRiskStudentByPollQuery 
+        : IRequest<GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>>
     {
         public required string PollInstanceUuid { get; set; }
         public int? Take { get; set; }
