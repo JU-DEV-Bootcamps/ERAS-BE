@@ -29,4 +29,7 @@
     <ProjectReference Include="..\..\src\Eras.Infrastructure\Eras.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Heatmap\Queries\GetHeatMapDetailsByCohort\" />
+  </ItemGroup>
 </Project>

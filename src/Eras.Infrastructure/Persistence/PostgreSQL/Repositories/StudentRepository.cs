@@ -85,6 +85,46 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return listDetails;
         }
 
+        public async Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByCohort(
+            string cohortId,
+            int limit)
+        {
+            if (!int.TryParse(cohortId, out int cohortInt))
+            {
+                throw new ArgumentException("Invalid cohort Id format", nameof(cohortId));
+            }
+
+            var query =
+                from s in _context.Students
+                join sc in _context.StudentCohorts on s.Id equals sc.StudentId
+                join cohort in _context.Cohorts on sc.CohortId equals cohort.Id
+                join sd in _context.StudentDetails on s.Id equals sd.StudentId
+                join pi in _context.PollInstances on s.Id equals pi.StudentId
+                join a in _context.Answers on pi.Id equals a.PollInstanceId
+                where cohort.Id == cohortInt
+                      && a.RiskLevel == _context.Answers
+                                          .Where(a2 => a2.PollInstanceId == pi.Id)
+                                          .Max(a2 => a2.RiskLevel)
+                orderby a.RiskLevel descending
+                select new StudentHeatMapDetailDto
+                {
+                    StudentId = s.Id,
+                    StudentName = s.Name,
+                    RiskLevel = a.RiskLevel,
+                    ComponentName = cohort.Name,
+                };
+
+            var listDetails = await query
+                .Distinct()
+                .OrderByDescending(x => x.RiskLevel)
+                .Take(limit <= 0 ? _defaultLimit : limit)
+                .ToListAsync();
+
+            return listDetails;
+        }
+
+
+
         public async Task<(
             IEnumerable<Student> Students,
             int TotalCount
