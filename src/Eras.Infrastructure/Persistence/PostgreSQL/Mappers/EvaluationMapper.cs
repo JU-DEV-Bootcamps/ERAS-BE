@@ -15,7 +15,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             return new Evaluation
             {
                 Id = entity.Id,
+                Name = entity.Name,
                 Status = entity.Status,
+                PollName = entity.PollName,
                 StartDate = entity.StartDate,
                 EndDate = entity.EndDate,
                 Audit = entity.Audit,
@@ -28,6 +30,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = model.Id,
                 Name = model.Name,
+                PollName = model.PollName,
                 Status = model.Status,
                 StartDate = model.StartDate,
                 EndDate = model.EndDate,

@@ -29,25 +29,27 @@ namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluation
             try
             {
                 string status = "Incomplete";
-                Evaluation? evaluation;
+                Evaluation? evaluation=null;
+                Poll? poll = null;
                 evaluation = await _evaluationRepository.GetByNameAsync(request.EvaluationDTO.Name);
                 if (evaluation != null) return new CreateComandResponse<Evaluation>(null, 0,
                     $"Evaluation with Name{request.EvaluationDTO.Name} already exists", false);
-                Poll? poll = await _pollRepository.GetByUuidAsync(request.EvaluationDTO.PollUuid);
-                if (poll == null && !request.EvaluationDTO.PollUuid.Equals(string.Empty)) { 
-                    return new CreateComandResponse<Evaluation>(null, 0, "Poll not found", false); 
-                }
 
-                if (!request.EvaluationDTO.PollUuid.Equals(string.Empty))
-                    status = "Complete";
+                if(!request.EvaluationDTO.PollName.Equals(string.Empty))
+                    poll = await _pollRepository.GetByNameAsync(request.EvaluationDTO.PollName);
                 evaluation = request.EvaluationDTO.ToDomain();
-                evaluation.Status = status;
                 evaluation.Audit = new AuditInfo()
                 {
                     CreatedBy = "Controller",
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                 };
+                if (poll != null && !request.EvaluationDTO.PollName.Equals(string.Empty))
+                {
+                    evaluation.PollId = poll.Id;
+                    status = "Complete";
+                }
+                evaluation.Status = status;
                 Evaluation response = await _evaluationRepository.AddAsync(evaluation);
                 if (poll != null && status.Equals("Complete"))
                 {

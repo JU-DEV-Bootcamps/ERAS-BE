@@ -22,8 +22,8 @@ namespace Eras.Application.DTOs
         [JsonPropertyName(nameof(EndDate))]
         public required DateTime EndDate { get; set; }
 
-        [JsonPropertyName(nameof(PollUuid))]
-        public string PollUuid { get; set; } = string.Empty;
+        [JsonPropertyName(nameof(PollName))]
+        public string PollName { get; set; } = string.Empty;
 
         [JsonPropertyName(nameof(EvaluationPollId))]
         public int EvaluationPollId { get; set; }

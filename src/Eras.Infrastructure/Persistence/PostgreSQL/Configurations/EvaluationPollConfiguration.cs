@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
-    internal class EvaluationPollConfiguration : IEntityTypeConfiguration<EvaluationPollJoin>
+    public class EvaluationPollConfiguration : IEntityTypeConfiguration<EvaluationPollJoin>
     {
         public void Configure(EntityTypeBuilder<EvaluationPollJoin> builder)
         {

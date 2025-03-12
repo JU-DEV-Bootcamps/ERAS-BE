@@ -18,6 +18,7 @@ namespace Eras.Application.Mappers
             {
                 Id = dto.Id,
                 Name = dto.Name,
+                PollName = dto.PollName,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
                 EvaluationPollId = dto.EvaluationPollId
@@ -30,6 +31,7 @@ namespace Eras.Application.Mappers
             {
                 Id = domain.Id,
                 Name = domain.Name,
+                PollName = domain.PollName,
                 StartDate = domain.StartDate,
                 EndDate = domain.EndDate,
                 EvaluationPollId = domain.EvaluationPollId
