@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    internal class EvaluationRepository: BaseRepository<Evaluation,EvaluationEntity>, IEvaluationRepository
+    public class EvaluationRepository: BaseRepository<Evaluation,EvaluationEntity>, IEvaluationRepository
     {
         public EvaluationRepository(AppDbContext context)
             : base(context, EvaluationMapper.ToDomain, EvaluationMapper.ToPersistence)
