@@ -9,6 +9,8 @@ namespace Eras.Application.Contracts.Persistence
 
         Task<IEnumerable<PollInstance>> GetByLastDays(int days);
 
+        Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? cohortId, int? days);
+
 
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Eras.Domain.Entities;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,11 @@ namespace Eras.Application.Models
         {
             Entity = createdEntity;
             SuccessfullImports = successfullImports;
+        }
+
+        public CreateComandResponse(T createdEntity, string message ,bool success) : base(message, success)
+        {
+            Entity = createdEntity;
         }
 
     }
