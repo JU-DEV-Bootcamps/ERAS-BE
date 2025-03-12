@@ -1,10 +1,10 @@
-using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
+using System.Diagnostics.CodeAnalysis;
+using Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
+using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
+using Eras.Application.Features.Polls.Queries.GetPollsByStudent;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using Eras.Application.Features.Polls.Queries.GetPollsByStudent;
-using System.Diagnostics.CodeAnalysis;
 
 [ApiController]
 [Route("api/v1/[controller]")]
@@ -33,8 +33,23 @@ public class PollsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPollsByCohort([FromRoute] int cohortId)
     {
-        GetPollsByCohortListQuery getPollsByCohortListQuery = new GetPollsByCohortListQuery() { CohortId = cohortId };
+        GetPollsByCohortListQuery getPollsByCohortListQuery = new GetPollsByCohortListQuery()
+        {
+            CohortId = cohortId,
+        };
         return Ok(await _mediator.Send(getPollsByCohortListQuery));
+    }
+
+    [HttpGet("{pollId}/cohort/{cohortId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAllPollVariableByCohortAndPoll(
+        [FromRoute] int pollId,
+        [FromRoute] int cohortId
+    )
+    {
+        var result = await _mediator.Send(new GetAllByPollAndCohortQuery(cohortId, pollId));
+        return Ok(result);
     }
 
     [HttpGet("student/{studentId}")]
@@ -42,8 +57,10 @@ public class PollsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPollsByStudentId([FromRoute] int studentId)
     {
-        GetPollsByStudentQuery getPollsByStudentQuery = new GetPollsByStudentQuery() { StudentId = studentId };
+        GetPollsByStudentQuery getPollsByStudentQuery = new GetPollsByStudentQuery()
+        {
+            StudentId = studentId,
+        };
         return Ok(await _mediator.Send(getPollsByStudentQuery));
     }
-
 }
