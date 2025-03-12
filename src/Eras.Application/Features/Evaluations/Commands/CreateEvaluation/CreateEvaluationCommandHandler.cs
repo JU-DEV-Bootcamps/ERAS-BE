@@ -35,7 +35,8 @@ namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluation
                 if (evaluation != null) return new CreateComandResponse<Evaluation>(null, 0,
                     $"Evaluation with Name{request.EvaluationDTO.Name} already exists", false);
 
-                if(!request.EvaluationDTO.PollName.Equals(string.Empty))
+
+                if (!request.EvaluationDTO.PollName.Equals(string.Empty))
                     poll = await _pollRepository.GetByNameAsync(request.EvaluationDTO.PollName);
                 evaluation = request.EvaluationDTO.ToDomain();
                 evaluation.Audit = new AuditInfo()

@@ -23,7 +23,7 @@ namespace Eras.Application.DTOs
         public required DateTime EndDate { get; set; }
 
         [JsonPropertyName(nameof(PollName))]
-        public string PollName { get; set; } = string.Empty;
+        public string? PollName { get; set; } = string.Empty;
 
         [JsonPropertyName(nameof(EvaluationPollId))]
         public int EvaluationPollId { get; set; }

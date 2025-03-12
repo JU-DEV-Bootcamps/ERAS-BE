@@ -31,7 +31,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             
             return _toDomain(response.Entity);
         }
-
         public async Task DeleteAsync(TDomain entity)
         {
             _context.Set<TPersist>().Remove(_toPersistence(entity));
