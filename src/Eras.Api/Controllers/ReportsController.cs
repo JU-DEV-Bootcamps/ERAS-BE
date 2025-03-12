@@ -111,7 +111,7 @@ public class ReportsController : ControllerBase
     }
 
     [HttpGet("higherrisk/byPoll/")]
-    public async Task<IActionResult> GetHigherRiskStudentsByVariable(
+    public async Task<IActionResult> GetHigherRiskStudentsByPoll(
     [FromQuery] string pollInstanceUuid,
     [FromQuery] int take,
     [FromQuery] string variableIds)
