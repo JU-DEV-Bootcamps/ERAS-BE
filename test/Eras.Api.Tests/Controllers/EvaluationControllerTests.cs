@@ -32,15 +32,10 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async Task CreateEvaluationController_Should_Return_Success()
         {
-            // Arrange
             var evaluationDTO = new EvaluationDTO() { Name = "newEvaluation", StartDate = DateTime.UtcNow, EndDate = DateTime.Now };
             var commandResponse = new CreateComandResponse<Evaluation>(evaluationDTO.ToDomain(), "Success", true);
-
-            // Configura el mock de IMediator para que devuelva el resultado esperado
             _mockMediator.Setup(m => m.Send(It.IsAny<CreateEvaluationCommand>(), default))
                 .ReturnsAsync(commandResponse);
-
-            // Act
             var result = await _controller.CreateEvaluation(evaluationDTO) as OkObjectResult;
 
             Assert.NotNull(result);

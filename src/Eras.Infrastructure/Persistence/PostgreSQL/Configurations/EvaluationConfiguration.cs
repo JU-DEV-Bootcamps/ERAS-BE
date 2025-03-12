@@ -30,8 +30,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .HasColumnName("end_date")
                 .IsRequired();
             builder.Property(evaluation => evaluation.PollName)
-                .HasColumnName("poll_name")
-                .IsRequired();
+                .HasColumnName("poll_name");
         }
     }
 }

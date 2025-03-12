@@ -28,12 +28,12 @@ namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluation
         {
             try
             {
-                string status = "Incomplete";
+                string status = EvaluationConstants.EvaluationStatus.Incompleted.ToString();
                 Evaluation? evaluation=null;
                 Poll? poll = null;
                 evaluation = await _evaluationRepository.GetByNameAsync(request.EvaluationDTO.Name);
                 if (evaluation != null) return new CreateComandResponse<Evaluation>(null, 0,
-                    $"Evaluation with Name{request.EvaluationDTO.Name} already exists", false);
+                    $"Evaluation with Name {request.EvaluationDTO.Name} already exists", false);
 
                 if(!request.EvaluationDTO.PollName.Equals(string.Empty))
                     poll = await _pollRepository.GetByNameAsync(request.EvaluationDTO.PollName);
@@ -47,13 +47,13 @@ namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluation
                 if (poll != null && !request.EvaluationDTO.PollName.Equals(string.Empty))
                 {
                     evaluation.PollId = poll.Id;
-                    status = "Complete";
+                    status = EvaluationConstants.EvaluationStatus.Completed.ToString();
                 }
                 evaluation.Status = status;
                 Evaluation response = await _evaluationRepository.AddAsync(evaluation);
-                if (poll != null && status.Equals("Complete"))
+                if (poll != null && status.Equals(EvaluationConstants.EvaluationStatus.Completed.ToString()))
                 {
-                    request.EvaluationDTO.pollId = poll.Id;
+                    request.EvaluationDTO.PollId = poll.Id;
                     request.EvaluationDTO.Id = response.Id;
                     CreateEvaluationPollCommand evaluationPollCommand = new CreateEvaluationPollCommand()
                     {

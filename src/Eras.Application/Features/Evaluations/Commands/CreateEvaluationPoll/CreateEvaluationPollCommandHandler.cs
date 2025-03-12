@@ -30,7 +30,7 @@ namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluationPoll
             try
             {
                 Evaluation evaluation = request.EvaluationDTO.ToDomain();
-                evaluation.PollId = request.EvaluationDTO.pollId;
+                evaluation.PollId = request.EvaluationDTO.PollId;
                 Evaluation response = await _evaluationPollRepository.AddAsync(evaluation);
                 return new CreateComandResponse<Evaluation>(response, 0, "EvaluationPoll created", true);
             }
