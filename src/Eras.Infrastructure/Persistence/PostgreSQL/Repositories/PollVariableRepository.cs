@@ -58,7 +58,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 {
                     var averageRisk = group.Average(g => g.Answer.RiskLevel);
                     var firstAnswer = group.First();
-                    return (Answer: firstAnswer.Answer, Variable: firstAnswer.Variable, Student: firstAnswer.Student, AverageRisk: averageRisk);
+                    return (
+                        Answer: firstAnswer.Answer, 
+                        Variable: firstAnswer.Variable, 
+                        Student: firstAnswer.Student, 
+                        AverageRisk: averageRisk
+                    );
                 })
                 .ToList();
 
