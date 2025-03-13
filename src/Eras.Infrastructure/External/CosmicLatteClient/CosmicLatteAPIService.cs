@@ -31,8 +31,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             ILogger<CosmicLatteAPIService> logger,
             PollOrchestratorService pollOrchestratorService )
         {
-            _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found"); // this should be move to .env
-            _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found"); // this should be move to .env
+            _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found");
+            _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found");
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(_apiUrl);
             _logger = logger;
@@ -75,7 +75,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             if (name != "" || startDate != "" || endDate != "")
             {
                 path += "?$filter=";
-                if (name != "") path += $"contains(name,'{name}')"; // TODO check exist a scenario where no name is sent?
+                if (name != "") path += $"contains(name,'{name}')";
                 if (startDate != "") path += $" and startedAt ge {ConvertStringToIsoExtendedDate(startDate)}";
                 if (endDate != "") path += $" and startedAt le {ConvertStringToIsoExtendedDate(endDate)}";
             }
@@ -90,12 +90,16 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             List<PollDTO> pollsDtos = new List<PollDTO>();
 
             string responseBody = await response.Content.ReadAsStringAsync();
-            CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
-
-            if (apiResponse.data.Count < 1)
+            CLResponseModelForAllPollsDTO apiResponse;
+            try
             {
-                return pollsDtos;
+                apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody);
             }
+            catch (Exception ex)
+            {
+                throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+            }
+
             Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(apiResponse.data[0]);
 
             // 1. Create components and variables 
@@ -139,8 +143,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 string responseBody = await response.Content.ReadAsStringAsync();
 
-
-                CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+                CLResponseModelForPollDTO apiResponse;
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+                }
 
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];

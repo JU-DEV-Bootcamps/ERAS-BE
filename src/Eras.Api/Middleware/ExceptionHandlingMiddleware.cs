@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 
@@ -25,17 +26,18 @@ namespace Eras.Api.Middleware
             catch (InvalidCastException ex)
             {
                 _logger.LogError(ex, "Data deserialization error in CosmicLatteAPIService.");
+
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 context.Response.ContentType = "application/json";
 
-                var response = new
+                var errorResponse = new
                 {
+                    statusCode = HttpStatusCode.BadRequest,
                     message = "Error deserializing response from Cosmic Latte API",
-                    details = ex.Message
+                    detailed = ex.StackTrace
                 };
 
-                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
-                await HandleExceptionAsync(context, ex);
+                await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
             }
             catch (Exception ex)
             {
