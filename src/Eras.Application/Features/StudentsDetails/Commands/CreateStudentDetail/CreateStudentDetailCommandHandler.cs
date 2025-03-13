@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
 {
-    public class CreateStudentDetailCommandHandler : IRequestHandler<CreateStudentDetailCommand, CreateComandResponse<StudentDetail>>
+    public class CreateStudentDetailCommandHandler : IRequestHandler<CreateStudentDetailCommand, CreateCommandResponse<StudentDetail>>
     {
         private readonly IStudentDetailRepository _studentDetailRepository;
         private readonly ILogger<CreateStudentDetailCommandHandler> _logger;
@@ -26,22 +26,22 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
         }
 
 
-        public async Task<CreateComandResponse<StudentDetail>> Handle(CreateStudentDetailCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<StudentDetail>> Handle(CreateStudentDetailCommand request, CancellationToken cancellationToken)
         {
 
             try
             {
                 StudentDetail response = await _studentDetailRepository.GetByStudentId(request.StudentDetailDto.StudentId);
                 if (response != null)
-                    return new CreateComandResponse<StudentDetail>(response, 0, "Success", true);
+                    return new CreateCommandResponse<StudentDetail>(response, 0, "Success", true);
                 StudentDetail studentDetail = request.StudentDetailDto.ToDomain();
-                StudentDetail studentDetailCreated = await _studentDetailRepository.AddAsync(studentDetail); 
-                return new CreateComandResponse<StudentDetail>(studentDetailCreated, 1, "Success", true);
+                StudentDetail studentDetailCreated = await _studentDetailRepository.AddAsync(studentDetail);
+                return new CreateCommandResponse<StudentDetail>(studentDetailCreated, 1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred creating student detail {request.StudentDetailDto}: {ex.Message}");
-                return new CreateComandResponse<StudentDetail>(null, 0, "Error", false);
+                return new CreateCommandResponse<StudentDetail>(null, 0, "Error", false);
             }
         }
     }

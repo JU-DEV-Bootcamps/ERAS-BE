@@ -1,7 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluation;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluationPoll;
 using Eras.Application.Models;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
@@ -48,7 +46,7 @@ namespace Eras.Application.Features.Evaluations.Commands.DeleteEvaluation
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred deleteing the evaluation: " + request.id);
-                return new CreateComandResponse<Evaluation>(null, 0, "Error", false);
+                return new CreateCommandResponse<Evaluation>(null, 0, "Error", false);
             }
         }
     }

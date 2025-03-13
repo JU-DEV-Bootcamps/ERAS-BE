@@ -1,5 +1,4 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluation;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
 using Eras.Application.Models;
 using Eras.Application.Utils;

@@ -8,5 +8,6 @@ namespace Eras.Application.Contracts.Persistence
         Task<Evaluation?> GetByIdForUpdateAsync(int id);
 
         
+        new Task<List<Evaluation>> GetAllAsync();
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Eras.Api.Controllers;
 using Eras.Application.DTOs;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluation;
+using Eras.Application.Features.Evaluations.Commands;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
@@ -33,7 +33,7 @@ namespace Eras.Api.Tests.Controllers
         public async Task CreateEvaluationController_Should_Return_Success()
         {
             var evaluationDTO = new EvaluationDTO() { Name = "newEvaluation", StartDate = DateTime.UtcNow, EndDate = DateTime.Now };
-            var commandResponse = new CreateComandResponse<Evaluation>(evaluationDTO.ToDomain(), "Success", true);
+            var commandResponse = new CreateCommandResponse<Evaluation>(evaluationDTO.ToDomain(), "Success", true);
             _mockMediator.Setup(m => m.Send(It.IsAny<CreateEvaluationCommand>(), default))
                 .ReturnsAsync(commandResponse);
             var result = await _controller.CreateEvaluation(evaluationDTO) as OkObjectResult;

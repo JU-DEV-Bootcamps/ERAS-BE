@@ -17,7 +17,7 @@ using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
-    public class CreateStudentsCommandHandler : IRequestHandler<CreateStudentsCommand, CreateComandResponse<Student[]>>
+    public class CreateStudentsCommandHandler : IRequestHandler<CreateStudentsCommand, CreateCommandResponse<Student[]>>
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ILogger<CreateStudentsCommandHandler> _logger;
@@ -30,10 +30,10 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             _mediator = mediator;
         }
 
-        public async Task<CreateComandResponse<Student[]>> Handle(CreateStudentsCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Student[]>> Handle(CreateStudentsCommand request, CancellationToken cancellationToken)
         {
             try
-            { 
+            {
                 _logger.LogInformation("Importing students");
                 List<Student> createdStudents = [];
                 List<Student> updatedStudents = [];
@@ -49,7 +49,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         ModifiedAt = DateTime.UtcNow,
                     };
                     CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
-                    CreateComandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand);
+                    CreateCommandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand);
 
                     if (! createdStudent.Success) {
                         errorStudents.Add(createdStudent.Entity);
@@ -59,20 +59,20 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                     }
                     else
                     {
-                        CreateComandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity);
+                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity);
                         createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
                         createdStudents.Add(createdStudent.Entity);
                     }
                 }
-                return new CreateComandResponse<Student[]>(createdStudents.ToArray(), createdStudents.Count, $"{createdStudents.Count} new students, {updatedStudents.Count} updated, and {errorStudents.Count} with errors.", true);
+                return new CreateCommandResponse<Student[]>(createdStudents.ToArray(), createdStudents.Count, $"{createdStudents.Count} new students, {updatedStudents.Count} updated, and {errorStudents.Count} with errors.", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the massive import process");
-                return new CreateComandResponse<Student[]>(null,0, "Error", false);
+                return new CreateCommandResponse<Student[]>(null,0, "Error", false);
             }
         }
-        public async Task<CreateComandResponse<StudentDetail>> CreateStudentDetail(Student student)
+        public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetail(Student student)
         {
             StudentDetailDTO studentDetailDTO = student.StudentDetail.ToDto();
             studentDetailDTO.Audit = new AuditInfo()

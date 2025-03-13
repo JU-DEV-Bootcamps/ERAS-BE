@@ -1,6 +1,4 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluation;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluationPoll;
 using Eras.Application.Models;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
@@ -15,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
 {
-    internal class UpdateEvaluationCommandHandler : IRequestHandler<UpdateEvaluationCommand, CreateComandResponse<Evaluation>>
+    internal class UpdateEvaluationCommandHandler : IRequestHandler<UpdateEvaluationCommand, CreateCommandResponse<Evaluation>>
     {
         private readonly IEvaluationRepository _evaluationRepository;
         private readonly ILogger<UpdateEvaluationCommandHandler> _logger;
@@ -30,16 +28,16 @@ namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
             _mediator = mediator;
         }
 
-        public async Task<CreateComandResponse<Evaluation>> Handle(UpdateEvaluationCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Evaluation>> Handle(UpdateEvaluationCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                Evaluation? evaluationDB = await _evaluationRepository.GetByIdForUpdateAsync(request.EvaluationDTO.Id); // avoid duplicated istance with the same id
+                Evaluation? evaluationDB = await _evaluationRepository.GetByIdForUpdateAsync(request.EvaluationDTO.Id);
 
                 if (evaluationDB == null)
                 {
                     _logger.LogWarning("Evaluation with ID {Id} not found", request.EvaluationDTO.Id);
-                    return new CreateComandResponse<Evaluation>(null, 0, "Evaluation not found", false);
+                    return new CreateCommandResponse<Evaluation>(null, 0, "Evaluation not found", false);
                 }
 
                 // Fields always updatable
@@ -74,7 +72,7 @@ namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
                             catch (Exception ex)
                             {
                                 _logger.LogError(ex, "An error occurred updating the evaluation: " + request.EvaluationDTO.Name);
-                                return new CreateComandResponse<Evaluation>(null, 0, "Error", false);
+                                return new CreateCommandResponse<Evaluation>(null, 0, "Error", false);
                             }
                         }
                     }
@@ -82,12 +80,12 @@ namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
                 await _evaluationRepository.UpdateAsync(evaluationDB);
 
                 _logger.LogInformation("Successfully updated Evaluation ID {Id}", evaluationDB.Id);
-                return new CreateComandResponse<Evaluation>(evaluationDB, 1, "Success", true);
+                return new CreateCommandResponse<Evaluation>(evaluationDB, 1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred updating the evaluation: " + request.EvaluationDTO.Name);
-                return new CreateComandResponse<Evaluation>(null, 0, "Error", false);
+                return new CreateCommandResponse<Evaluation>(null, 0, "Error", false);
             }
         }
     }

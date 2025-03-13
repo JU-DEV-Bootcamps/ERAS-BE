@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
 {
-    public class UpdateEvaluationCommand : IRequest<CreateComandResponse<Evaluation>>
+    public class UpdateEvaluationCommand : IRequest<CreateCommandResponse<Evaluation>>
     {
         public EvaluationDTO EvaluationDTO = default!;
     }

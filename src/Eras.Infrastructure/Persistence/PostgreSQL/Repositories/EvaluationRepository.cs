@@ -30,5 +30,22 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return evaluation?.ToDomain();
         }
+
+        public async new Task<List<Evaluation>> GetAllAsync(){
+            var persistenceEntities = await _context.Evaluations.ToListAsync();
+            var evaluationPolls = await _context.EvaluationPolls.Include(ep => ep.Poll).ToListAsync();
+            var pollInstances = await _context.PollInstances.Include(pi => pi.Answers).ToListAsync();
+            return [.. persistenceEntities.Select(entity => new Evaluation
+            {
+                Id = entity.Id,
+                Name = entity.Name,
+                Status = entity.CurrentStatus,
+                StartDate = entity.StartDate,
+                EndDate = entity.EndDate,
+                Audit = entity.Audit,
+                Polls = [.. evaluationPolls.Where(ep => ep.EvaluationId == entity.Id).Select(ep => PollMapper.ToDomain(ep.Poll))],
+                PollInstances = [.. pollInstances.Where(pi => evaluationPolls.Any( ep => ep.Poll.Uuid == pi.Uuid && ep.EvaluationId == entity.Id)).Select(pi => PollInstanceMapper.ToDomain(pi))]
+            })];
+        }
     }
 }

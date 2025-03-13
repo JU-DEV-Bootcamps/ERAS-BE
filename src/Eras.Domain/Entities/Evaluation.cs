@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Domain.Common;
+﻿using Eras.Domain.Common;
 
 namespace Eras.Domain.Entities
 {
@@ -18,7 +13,7 @@ namespace Eras.Domain.Entities
         public int PollId { get; set; }
         public int EvaluationPollId { get; set; }
         public ICollection<Poll> Polls { get; set; } = [];
-
+        public ICollection<PollInstance>? PollInstances { get; set; }
         public AuditInfo Audit { get; set; } = default!;
     }
 }

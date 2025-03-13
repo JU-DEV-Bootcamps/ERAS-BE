@@ -1,6 +1,6 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluationPoll;
+using Eras.Application.Features.Evaluations.Commands;
 using Microsoft.Extensions.Logging;
 using Eras.Application.Mappers;
 using Moq;

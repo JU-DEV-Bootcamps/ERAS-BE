@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
 {
-    public class CreatePollVariableCommand : IRequest<CreateComandResponse<Variable>>
+    public class CreatePollVariableCommand : IRequest<CreateCommandResponse<Variable>>
     {
         public VariableDTO? Variable;
         public int PollId;

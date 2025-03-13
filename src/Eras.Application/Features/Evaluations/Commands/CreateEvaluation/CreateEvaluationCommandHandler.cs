@@ -4,12 +4,11 @@ using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Eras.Application.Mappers;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluationPoll;
 using Eras.Domain.Common;
 
-namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluation
+namespace Eras.Application.Features.Evaluations.Commands
 {
-    public class CreateEvaluationCommandHandler : IRequestHandler<CreateEvaluationCommand, CreateComandResponse<Evaluation>>
+    public class CreateEvaluationCommandHandler : IRequestHandler<CreateEvaluationCommand, CreateCommandResponse<Evaluation>>
     {
         private readonly IEvaluationRepository _evaluationRepository;
         private readonly ILogger<CreateEvaluationCommandHandler> _logger;
@@ -24,15 +23,15 @@ namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluation
             _mediator = mediator;
         }
 
-        public async Task<CreateComandResponse<Evaluation>> Handle(CreateEvaluationCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Evaluation>> Handle(CreateEvaluationCommand request, CancellationToken cancellationToken)
         {
             try
             {
-                string status = EvaluationConstants.EvaluationStatus.Incompleted.ToString();
+                string status = EvaluationConstants.EvaluationStatus.Pending.ToString();
                 Evaluation? evaluation=null;
                 Poll? poll = null;
                 evaluation = await _evaluationRepository.GetByNameAsync(request.EvaluationDTO.Name);
-                if (evaluation != null) return new CreateComandResponse<Evaluation>(null, 0,
+                if (evaluation != null) return new CreateCommandResponse<Evaluation>(null, 0,
                     $"Evaluation with Name {request.EvaluationDTO.Name} already exists", false);
 
 
@@ -48,26 +47,26 @@ namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluation
                 if (poll != null && !request.EvaluationDTO.PollName.Equals(string.Empty))
                 {
                     evaluation.PollId = poll.Id;
-                    status = EvaluationConstants.EvaluationStatus.Completed.ToString();
+                    status = EvaluationConstants.EvaluationStatus.Ready.ToString();
                 }
                 evaluation.Status = status;
                 Evaluation response = await _evaluationRepository.AddAsync(evaluation);
-                if (poll != null && status.Equals(EvaluationConstants.EvaluationStatus.Completed.ToString()))
+                if (poll != null && status.Equals(EvaluationConstants.EvaluationStatus.Ready.ToString()))
                 {
                     request.EvaluationDTO.PollId = poll.Id;
                     request.EvaluationDTO.Id = response.Id;
-                    CreateEvaluationPollCommand evaluationPollCommand = new CreateEvaluationPollCommand()
+                    CreateEvaluationPollCommand evaluationPollCommand = new()
                     {
                         EvaluationDTO = request.EvaluationDTO
                     };
                     await _mediator.Send(evaluationPollCommand);
                 }
-                return new CreateComandResponse<Evaluation>(response, 1, "Success", true);
+                return new CreateCommandResponse<Evaluation>(response, 1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the evaluation: " + request.EvaluationDTO.Name);
-                return new CreateComandResponse<Evaluation>(null, 0, "Error", false);
+                return new CreateCommandResponse<Evaluation>(null, 0, "Error", false);
             }
         }
     }

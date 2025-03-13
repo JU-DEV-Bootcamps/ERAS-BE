@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
 {
-    internal class CreateStudentCohortCommandHandler : IRequestHandler<CreateStudentCohortCommand, CreateComandResponse<Student>>
+    internal class CreateStudentCohortCommandHandler : IRequestHandler<CreateStudentCohortCommand, CreateCommandResponse<Student>>
     {
         private readonly IStudentCohortRepository _studentCohortRepository;
         private readonly ILogger<CreateStudentCohortCommandHandler> _logger;
@@ -24,14 +24,14 @@ namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
             _studentCohortRepository = studentCohortRepository;
             _logger = logger;
         }
-        public async Task<CreateComandResponse<Student>> Handle(CreateStudentCohortCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Student>> Handle(CreateStudentCohortCommand request, CancellationToken cancellationToken)
         {
 
             try
             {
 
                 Student student = await _studentCohortRepository.GetByCohortIdAndStudentIdAsync(request.CohortId, request.StudentId);
-                if (student != null) return new CreateComandResponse<Student>(student, 0, "Success", true);
+                if (student != null) return new CreateCommandResponse<Student>(student, 0, "Success", true);
 
 
                 Student studentCohortToCreate = new Student();
@@ -40,13 +40,13 @@ namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
 
                 Student createdStudentCohort = await _studentCohortRepository.AddAsync(studentCohortToCreate);
 
-                return new CreateComandResponse<Student>(createdStudentCohort, 1, "Success", true);
+                return new CreateCommandResponse<Student>(createdStudentCohort, 1, "Success", true);
             }
 
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating relationship between student and cohort ");
-                return new CreateComandResponse<Student>(null, 0, "Error", false);
+                return new CreateCommandResponse<Student>(null, 0, "Error", false);
             }
         }
 
