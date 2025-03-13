@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -7,14 +8,19 @@ namespace Eras.Application.Features.Evaluations.Queries
 {
     class GetEvaluationProcessSumaryQueryHandler(
         IEvaluationPollRepository evaluationPollRepository,
-        ILogger<GetEvaluationSummaryQuery> logger
-    ): IRequestHandler<GetEvaluationSummaryQuery, List<Evaluation>>
+        ILogger<GetEvaluationProcessSumaryQueryHandler> logger
+    ): IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>
     {
-        public Task<List<Evaluation>> Handle(GetEvaluationSummaryQuery request, CancellationToken cancellationToken)
+        private readonly IEvaluationPollRepository _evaluationPollRepository = evaluationPollRepository;
+        private readonly ILogger<GetEvaluationProcessSumaryQueryHandler> _logger = logger;
+
+
+        Task<QueryManyResponse<Evaluation>> IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>.Handle(GetEvaluationSummaryQuery request, CancellationToken cancellationToken)
         {
-            logger.LogDebug("Handling summarizing all evaluation processes");
-            var evProcesses = evaluationPollRepository.GetAllPollsPollInstances().ToList();
-            return Task.FromResult(evProcesses);
+            _logger.LogDebug("Handling summarizing all evaluation processes");
+            var evProcesses = _evaluationPollRepository.GetAllPollsPollInstances().ToList();
+            return Task.FromResult(new QueryManyResponse<Evaluation>(evProcesses, "Summary", true));
+
         }
     }
 }

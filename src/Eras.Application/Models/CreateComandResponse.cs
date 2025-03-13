@@ -13,7 +13,7 @@ namespace Eras.Application.Models
         public T Entity { get; set; }
         public int SuccessfullImports { get; set; }
 
-        public CreateComandResponse(T createdEntity, int successfullImports) 
+        public CreateComandResponse(T createdEntity, int successfullImports)
         {
             Entity = createdEntity;
             SuccessfullImports = successfullImports;

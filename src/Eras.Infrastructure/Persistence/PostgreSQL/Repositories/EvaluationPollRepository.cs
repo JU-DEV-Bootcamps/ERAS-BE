@@ -24,10 +24,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     Status = x.ep.Evaluation.Status,
                     StartDate = x.ep.Evaluation.StartDate,
                     EndDate = x.ep.Evaluation.EndDate,
-                    Polls = [ x.ep.Poll ],
-                    PollInstances = [ x.pi ],
+                    Polls = new List<Poll> { PollMapper.ToDomain(x.ep.Poll) },
+                    PollInstances = new List<PollInstance> { PollInstanceMapper.ToDomain(x.pi) },
                 }).ToList();
-
             return result;
         }
     }

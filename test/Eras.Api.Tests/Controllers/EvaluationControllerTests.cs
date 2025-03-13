@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Eras.Api.Controllers;
 using Eras.Application.DTOs;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluation;
+using Eras.Application.Features.Evaluations.Commands;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
