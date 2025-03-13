@@ -60,7 +60,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         {
             try
             {
-                CreateComandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
                 return createdPoll.Entity;
             }
             catch (Exception e)
@@ -152,7 +152,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
                 string studentCohort = apiResponse.Data.Answers.ElementAt(2).Value.AnswersList[0];
-                StudentDTO studentDto = CreateStudent(studentName, studentEmail, studentCohort); 
+                StudentDTO studentDto = CreateStudent(studentName, studentEmail, studentCohort);
 
                 // clone list
                 List<ComponentDTO> clonedListComponents = components.Select( c => new ComponentDTO
@@ -169,7 +169,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     Audit = c.Audit,
                 }).ToList();
 
-                foreach (KeyValuePair<int, Answers> answerCL in apiResponse.Data.Answers)  
+                foreach (KeyValuePair<int, Answers> answerCL in apiResponse.Data.Answers)
                 {
                     foreach (ComponentDTO component in clonedListComponents)
                     {
@@ -177,7 +177,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                         {
                             if (variable.Position == answerCL.Value.Position)
                             {
-                                variable.Answer = CreateAnswer(answerCL, studentDto, scoreItem);                                  
+                                variable.Answer = CreateAnswer(answerCL, studentDto, scoreItem);
                             }
                         }
                     }

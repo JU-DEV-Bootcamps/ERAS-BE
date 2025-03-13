@@ -14,7 +14,7 @@ using Eras.Application.Dtos;
 
 namespace Eras.Application.Features.Polls.Commands.CreatePoll
 {
-    public class CreatePollCommandHandler : IRequestHandler<CreatePollCommand, CreateComandResponse<Poll>>
+    public class CreatePollCommandHandler : IRequestHandler<CreatePollCommand, CreateCommandResponse<Poll>>
     {
         private readonly IPollRepository _pollRepository;
         private readonly ILogger<CreatePollCommandHandler> _logger;
@@ -25,22 +25,22 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
             _logger = logger;
         }
 
-        public async Task<CreateComandResponse<Poll>> Handle(CreatePollCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Poll>> Handle(CreatePollCommand request, CancellationToken cancellationToken)
         {
             try
             {
                 Poll? pollInDB = await _pollRepository.GetByNameAsync(request.Poll.Name);
-                if (pollInDB != null) return new CreateComandResponse<Poll>(pollInDB, 0, "Success", true);
+                if (pollInDB != null) return new CreateCommandResponse<Poll>(pollInDB, 0, "Success", true);
 
                 Poll poll = request.Poll.ToDomain();
                 poll.Uuid = Guid.NewGuid().ToString();
                 Poll response = await _pollRepository.AddAsync(poll);
-                return new CreateComandResponse<Poll>(response,1, "Success", true);
+                return new CreateCommandResponse<Poll>(response,1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the poll: " + request.Poll.Name);
-                return new CreateComandResponse<Poll>(null,0, "Error", false);
+                return new CreateCommandResponse<Poll>(null,0, "Error", false);
             }
         }
     }

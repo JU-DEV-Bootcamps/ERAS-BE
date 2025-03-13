@@ -1,11 +1,9 @@
-﻿using System.Xml.Linq;
-using Eras.Application.DTOs;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluation;
-using Eras.Application.Features.Students.Commands.CreateStudent;
+﻿using Eras.Application.DTOs;
+using Eras.Application.Features.Evaluations.Commands;
+using Eras.Application.Features.Evaluations.Queries;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers
@@ -31,7 +29,7 @@ namespace Eras.Api.Controllers
             {
                 EvaluationDTO = evaluationDTO,
             };
-            CreateComandResponse<Evaluation> response = await _mediator.Send(command);
+            CreateCommandResponse<Evaluation> response = await _mediator.Send(command);
             if (response.Success)
             {
                 _logger.LogInformation("Successfully created Evaluation {Name}", evaluationDTO.Name);
@@ -47,6 +45,17 @@ namespace Eras.Api.Controllers
                     new { status = "error", message = "An error occurred during the evaluation creation process" }
                 );
             }
+        }
+
+        [HttpGet("summary")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetEvaluationProcessSumary()
+        {
+            _logger.LogInformation("Getting evaluation process summary");
+            GetEvaluationSummaryQuery summary = new();
+            var res = await _mediator.Send(summary);
+            return Ok(res);
         }
     }
 }

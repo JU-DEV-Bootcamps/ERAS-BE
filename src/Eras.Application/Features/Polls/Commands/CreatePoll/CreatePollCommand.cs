@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Eras.Application.Features.Polls.Commands.CreatePoll
 {
-    public class CreatePollCommand : IRequest<CreateComandResponse<Poll>>
+    public class CreatePollCommand : IRequest<CreateCommandResponse<Poll>>
     {
         public PollDTO Poll = default!;
     }

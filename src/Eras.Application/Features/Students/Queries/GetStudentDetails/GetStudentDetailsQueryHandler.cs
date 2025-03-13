@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Queries.GetStudentDetails
 {
-    public class GetStudentDetailsQueryHandler : IRequestHandler<GetStudentDetailsQuery, CreateComandResponse<Student>>
+    public class GetStudentDetailsQueryHandler : IRequestHandler<GetStudentDetailsQuery, CreateCommandResponse<Student>>
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ILogger<GetStudentDetailsQueryHandler> _logger;
@@ -24,18 +24,18 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
         }
 
 
-        public async Task<CreateComandResponse<Student>> Handle(GetStudentDetailsQuery request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Student>> Handle(GetStudentDetailsQuery request, CancellationToken cancellationToken)
         {
 
             try
             {
                 Student response = await _studentRepository.GetByIdAsync(request.StudentDetailId);
-                return new CreateComandResponse<Student>(response, "Success", true);
+                return new CreateCommandResponse<Student>(response, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred creating student detail {request.StudentDetailId}: {ex.Message}");
-                return new CreateComandResponse<Student>(null, "Error", false);
+                return new CreateCommandResponse<Student>(null, "Error", false);
             }
         }
     }

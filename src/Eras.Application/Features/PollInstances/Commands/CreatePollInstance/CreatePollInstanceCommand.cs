@@ -6,7 +6,7 @@ using MediatR;
 
 namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
 {
-    public class CreatePollInstanceCommand : IRequest<CreateComandResponse<PollInstance>>
+    public class CreatePollInstanceCommand : IRequest<CreateCommandResponse<PollInstance>>
     {
         public PollInstanceDTO? PollInstance;
     }

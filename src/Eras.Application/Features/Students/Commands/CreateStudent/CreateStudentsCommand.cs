@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
-    public class CreateStudentsCommand: IRequest<CreateComandResponse<Student[]>>
+    public class CreateStudentsCommand: IRequest<CreateCommandResponse<Student[]>>
     {
         public StudentImportDto[] students;
     }

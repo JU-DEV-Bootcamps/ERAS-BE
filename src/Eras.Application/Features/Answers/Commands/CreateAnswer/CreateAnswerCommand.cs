@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Eras.Application.Features.Answers.Commands.CreateAnswer
 {
-    public class CreateAnswerCommand : IRequest<CreateComandResponse<Answer>>
+    public class CreateAnswerCommand : IRequest<CreateCommandResponse<Answer>>
     {
         public AnswerDTO? Answer;
     }

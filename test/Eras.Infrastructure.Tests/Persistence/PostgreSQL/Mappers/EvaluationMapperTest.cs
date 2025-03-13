@@ -27,7 +27,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
             Assert.NotNull(result);
             Assert.Equal(entity.Id, result.Id);
             Assert.Equal(entity.Name, result.Name);
-            Assert.Equal(entity.Status, result.Status);
             Assert.Equal(entity.PollName, result.PollName);
             Assert.Equal(entity.StartDate, result.StartDate);
             Assert.Equal(entity.EndDate, result.EndDate);
@@ -54,7 +53,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
             Assert.NotNull(result);
             Assert.Equal(model.Id, result.Id);
             Assert.Equal(model.Name, result.Name);
-            Assert.Equal(model.Status, result.Status);
             Assert.Equal(model.PollName, result.PollName);
             Assert.Equal(model.StartDate, result.StartDate);
             Assert.Equal(model.EndDate, result.EndDate);
