@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250312145121_update_evaluation")]
-    partial class update_evaluation
+    [Migration("20250312192649_evaluation_process")]
+    partial class evaluation_process
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

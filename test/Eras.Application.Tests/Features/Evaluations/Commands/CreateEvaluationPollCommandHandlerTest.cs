@@ -25,7 +25,7 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
         [Fact]
         public async Task Handle_Component_CreatesNewComponentIncomplete()
         {
-            var newEvaluationDto = new EvaluationDTO() { Name = "newEvaluation", StartDate = DateTime.UtcNow, EndDate = DateTime.Now, EvaluationPollId = 1, pollId = 1 };
+            var newEvaluationDto = new EvaluationDTO() { Name = "newEvaluation", StartDate = DateTime.UtcNow, EndDate = DateTime.Now, EvaluationPollId = 1, PollId = 1 };
             var command = new CreateEvaluationPollCommand { EvaluationDTO = newEvaluationDto };
             var newComponent = newEvaluationDto.ToDomain;
 

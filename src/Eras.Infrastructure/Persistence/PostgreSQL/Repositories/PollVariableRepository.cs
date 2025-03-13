@@ -11,7 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     [ExcludeFromCodeCoverage]
     public class PollVariableRepository : BaseRepository<Variable, PollVariableJoin>, IPollVariableRepository
     {
-        public PollVariableRepository(AppDbContext context )
+        public PollVariableRepository(AppDbContext context)
             : base(context, PollVariableMapper.ToDomain, PollVariableMapper.ToPersistenceVariable)
         {
 
@@ -37,6 +37,37 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                      select new { Answer = a.ToDomain(), Variable = v.ToDomain(), Student = s.ToDomain() }
                      ).ToListAsync();
             return [.. answers.Select(a => (a.Answer, a.Variable, a.Student))];
+        }
+        public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string pollUuid, string variableIds)
+        {
+            var variableIdsArray = variableIds.Split(',').Select(int.Parse).ToArray();
+
+            var answers = await (from s in _context.Students
+                     join pi in _context.PollInstances on s.Id equals pi.StudentId
+                     join a in _context.Answers on pi.Id equals a.PollInstanceId
+                     join pv in _context.PollVariables on a.PollVariableId equals pv.Id
+                     join v in _context.Variables on pv.VariableId equals v.Id
+                     join c in _context.Components on v.ComponentId equals c.Id
+                     where pi.Uuid == pollUuid && variableIdsArray.Contains(v.Id)
+                     select new { Answer = a.ToDomain(), Variable = v.ToDomain(), Student = s.ToDomain() }
+                    ).ToListAsync();
+
+            var groupedResults = answers
+                .GroupBy(a => a.Student.Name)
+                .Select(group =>
+                {
+                    var averageRisk = group.Average(g => g.Answer.RiskLevel);
+                    var firstAnswer = group.First();
+                    return (
+                        Answer: firstAnswer.Answer, 
+                        Variable: firstAnswer.Variable, 
+                        Student: firstAnswer.Student, 
+                        AverageRisk: averageRisk
+                    );
+                })
+                .ToList();
+
+            return groupedResults.Select(g => (g.Answer, g.Variable, g.Student)).ToList();
         }
     }
 }

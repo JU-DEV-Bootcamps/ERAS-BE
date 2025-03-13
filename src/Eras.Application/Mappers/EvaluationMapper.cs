@@ -34,6 +34,7 @@ namespace Eras.Application.Mappers
                 PollName = domain.PollName,
                 StartDate = domain.StartDate,
                 EndDate = domain.EndDate,
+                Status = domain.Status,
                 EvaluationPollId = domain.EvaluationPollId
             };
         }
