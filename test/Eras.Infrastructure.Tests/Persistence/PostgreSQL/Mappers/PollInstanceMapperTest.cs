@@ -30,7 +30,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
         [Fact]
         public void ToPersistence_Should_Convert_PollInstance_To_PollInstanceEntity()
         {
-            // Arrange
             var model = new PollInstance
             {
                 Id = 1,
@@ -38,11 +37,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
                 Student = new Student { Id = 1, Name = "Test Student" },
                 FinishedAt = DateTime.Now
             };
-
-            // Act
             var result = model.ToPersistence();
-
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(model.Id, result.Id);
             Assert.Equal(model.Uuid, result.Uuid);

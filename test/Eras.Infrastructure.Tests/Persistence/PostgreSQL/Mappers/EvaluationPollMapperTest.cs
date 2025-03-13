@@ -10,18 +10,13 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
         [Fact]
         public void ToDomain_Should_Convert_EvaluationPollEntity_To_Evaluation()
         {
-            // Arrange
             var entity = new EvaluationPollJoin
             {
                 Id = 1,
                 PollId = 2,
                 EvaluationId = 3
             };
-
-            // Act
             var result = EvaluationPollMapper.ToDomain(entity);
-
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(entity.Id, result.EvaluationPollId);
             Assert.Equal(entity.PollId, result.PollId);
@@ -31,18 +26,13 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
         [Fact]
         public void ToPersistence_Should_Convert_Evaluation_To_EvaluationPollEntity()
         {
-            // Arrange
             var entity = new Evaluation
             {
                 Id = 1,
                 PollId = 2,
                 EvaluationPollId= 3
             };
-
-            // Act
             var result = EvaluationPollMapper.ToPersistence(entity);
-
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(entity.Id, result.EvaluationId);
             Assert.Equal(entity.PollId, result.PollId);

@@ -9,7 +9,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
         [Fact]
         public void ToDomain_Should_Convert_StudentDetailEntity_To_StudentDetail()
         {
-            // Arrange
             var entity = new StudentDetailEntity
             {
                 Id = 1,
@@ -23,11 +22,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
                 StandardScoreDiff = 5,
                 LastAccessDays = 3,
             };
-
-            // Act
             var result = entity.ToDomain();
-
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(entity.Id, result.Id);
             Assert.Equal(entity.StudentId, result.StudentId);
@@ -44,7 +39,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
         [Fact]
         public void ToPersistence_Should_Convert_StudentDetail_To_StudentDetailEntity()
         {
-            // Arrange
             var model = new StudentDetail
             {
                 Id = 1,
@@ -58,11 +52,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
                 StandardScoreDiff = 5,
                 LastAccessDays = 3,
             };
-
-            // Act
             var result = model.ToPersistence();
-
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(model.Id, result.Id);
             Assert.Equal(model.StudentId, result.StudentId);

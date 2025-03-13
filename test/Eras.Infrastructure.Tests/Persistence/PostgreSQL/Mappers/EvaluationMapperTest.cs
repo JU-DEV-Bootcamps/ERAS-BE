@@ -9,7 +9,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
         [Fact]
         public void ToDomain_Should_Convert_EvaluationEntity_To_Evaluation()
         {
-            // Arrange
             var entity = new EvaluationEntity
             {
                 Id = 1,
@@ -19,11 +18,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddDays(1)
             };
-
-            // Act
             var result = entity.ToDomain();
-
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(entity.Id, result.Id);
             Assert.Equal(entity.Name, result.Name);
@@ -35,7 +30,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
         [Fact]
         public void ToPersistence_Should_Convert_Evaluation_To_EvaluationEntity()
         {
-            // Arrange
             var model = new Evaluation
             {
                 Id = 1,
@@ -45,11 +39,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
                 StartDate = DateTime.Now,
                 EndDate = DateTime.Now.AddDays(1),
             };
-
-            // Act
             var result = EvaluationMapper.ToPersistence(model);
-
-            // Assert
             Assert.NotNull(result);
             Assert.Equal(model.Id, result.Id);
             Assert.Equal(model.Name, result.Name);
