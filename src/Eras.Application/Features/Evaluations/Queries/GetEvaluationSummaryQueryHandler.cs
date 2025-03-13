@@ -6,15 +6,13 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Evaluations.Queries
 {
-    class GetEvaluationProcessSumaryQueryHandler(
-        IEvaluationPollRepository evaluationPollRepository,
+    class GetEvaluationProcessSummaryQueryHandler(
         IEvaluationRepository evaluationRepository,
-        ILogger<GetEvaluationProcessSumaryQueryHandler> logger
+        ILogger<GetEvaluationProcessSummaryQueryHandler> logger
     ): IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>
     {
-        private readonly IEvaluationPollRepository _evaluationPollRepository = evaluationPollRepository;
         private readonly IEvaluationRepository _evaluationRepository = evaluationRepository;
-        private readonly ILogger<GetEvaluationProcessSumaryQueryHandler> _logger = logger;
+        private readonly ILogger<GetEvaluationProcessSummaryQueryHandler> _logger = logger;
 
 
         Task<QueryManyResponse<Evaluation>> IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>.Handle(GetEvaluationSummaryQuery request, CancellationToken cancellationToken)

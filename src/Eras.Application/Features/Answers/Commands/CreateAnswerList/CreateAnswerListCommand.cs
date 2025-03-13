@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
 {
-    public class CreateAnswerListCommand : IRequest<CreateComandResponse<List<Answer>>>
+    public class CreateAnswerListCommand : IRequest<CreateCommandResponse<List<Answer>>>
     {
         public List<AnswerDTO>? Answers;
     }

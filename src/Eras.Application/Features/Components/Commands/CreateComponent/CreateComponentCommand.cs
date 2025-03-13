@@ -11,7 +11,7 @@ using MediatR;
 
 namespace Eras.Application.Features.Components.Commands.CreateCommand
 {
-    public class CreateComponentCommand : IRequest<CreateComandResponse<Component>>
+    public class CreateComponentCommand : IRequest<CreateCommandResponse<Component>>
     {
         public ComponentDTO? Component;
     }

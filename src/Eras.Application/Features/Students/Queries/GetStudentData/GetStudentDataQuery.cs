@@ -9,7 +9,7 @@ using MediatR;
 
 namespace Eras.Application.Features.Students.Queries.GetStudentData
 {
-    public class GetStudentDataQuery : IRequest<CreateComandResponse<Student>>
+    public class GetStudentDataQuery : IRequest<CreateCommandResponse<Student>>
     {
     }
 }

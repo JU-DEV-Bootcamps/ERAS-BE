@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
 {
-    public class CreateStudentDetailCommand : IRequest<CreateComandResponse<StudentDetail>>
+    public class CreateStudentDetailCommand : IRequest<CreateCommandResponse<StudentDetail>>
     {
         public StudentDetailDTO? StudentDetailDto;
     }

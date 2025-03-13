@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
 {
-    public class CreateAnswerListCommandHandler : IRequestHandler<CreateAnswerListCommand, CreateComandResponse<List<Answer>>>
+    public class CreateAnswerListCommandHandler : IRequestHandler<CreateAnswerListCommand, CreateCommandResponse<List<Answer>>>
     {
         private readonly IAnswerRepository _answerRepository;
         private readonly ILogger<CreateAnswerListCommandHandler> _logger;
@@ -19,7 +19,7 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
             _logger = logger;
         }
 
-        public async Task<CreateComandResponse<List<Answer>>> Handle(CreateAnswerListCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<List<Answer>>> Handle(CreateAnswerListCommand request, CancellationToken cancellationToken)
         {
             try
             {
@@ -27,7 +27,7 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
 
                 await _answerRepository.SaveManyAnswersAsync(answers);
 
-                return new CreateComandResponse<List<Answer>>(answers, 1, "Success", true);
+                return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);
             }
             catch (DbUpdateException ex)
             {
@@ -37,12 +37,12 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
                 }
                 else
                     _logger.LogError(ex.Message, "Create error on Answer");
-                return new CreateComandResponse<List<Answer>>(null, 0, "Error", false);
+                return new CreateCommandResponse<List<Answer>>(null, 0, "Error", false);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating answers ");
-                return new CreateComandResponse<List<Answer>>(null, 0, "Error", false);
+                return new CreateCommandResponse<List<Answer>>(null, 0, "Error", false);
             }
         }
     }

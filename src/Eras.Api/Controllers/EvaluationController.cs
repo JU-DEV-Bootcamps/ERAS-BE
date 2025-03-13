@@ -29,7 +29,7 @@ namespace Eras.Api.Controllers
             {
                 EvaluationDTO = evaluationDTO,
             };
-            CreateComandResponse<Evaluation> response = await _mediator.Send(command);
+            CreateCommandResponse<Evaluation> response = await _mediator.Send(command);
             if (response.Success)
             {
                 _logger.LogInformation("Successfully created Evaluation {Name}", evaluationDTO.Name);

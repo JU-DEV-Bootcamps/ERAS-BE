@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Eras.Application.Features.Evaluations.Commands
 {
-    public class CreateEvaluationPollCommand : IRequest<CreateComandResponse<Evaluation>>
+    public class CreateEvaluationPollCommand : IRequest<CreateCommandResponse<Evaluation>>
     {
         public EvaluationDTO EvaluationDTO = default!;
     }

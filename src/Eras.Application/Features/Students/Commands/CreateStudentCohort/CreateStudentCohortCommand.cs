@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
 {
-    public class CreateStudentCohortCommand : IRequest<CreateComandResponse<Student>>
+    public class CreateStudentCohortCommand : IRequest<CreateCommandResponse<Student>>
     {
         public int StudentId;
         public int CohortId;

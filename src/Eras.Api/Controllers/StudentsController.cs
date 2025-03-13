@@ -34,7 +34,7 @@ public class StudentsController : ControllerBase
         {
             students = students,
         };
-        CreateComandResponse<Student[]> response = await _mediator.Send(createStudentCommand);
+        CreateCommandResponse<Student[]> response = await _mediator.Send(createStudentCommand);
 
         if (response.Success.Equals(true))
         {
@@ -56,7 +56,7 @@ public class StudentsController : ControllerBase
 
     [HttpGet]
     public async Task<IActionResult> GetAll([FromQuery] Pagination query)
-    {   
+    {
         var result = await _mediator.Send(new GetAllStudentsQuery(query));
         return Ok(result);
     }
