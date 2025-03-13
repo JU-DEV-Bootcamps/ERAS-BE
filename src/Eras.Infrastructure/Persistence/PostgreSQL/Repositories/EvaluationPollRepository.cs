@@ -21,7 +21,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Select(x => new Evaluation
                 {
                     Name = x.ep.Evaluation.Name,
-                    Status = x.ep.Evaluation.Status,
+                    Status = x.ep.Evaluation.CurrentStatus,
                     StartDate = x.ep.Evaluation.StartDate,
                     EndDate = x.ep.Evaluation.EndDate,
                     Polls = new List<Poll> { PollMapper.ToDomain(x.ep.Poll) },

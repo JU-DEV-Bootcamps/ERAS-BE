@@ -20,7 +20,6 @@ namespace Eras.Application.Features.Evaluations.Queries
             _logger.LogDebug("Handling summarizing all evaluation processes");
             var evProcesses = _evaluationPollRepository.GetAllPollsPollInstances().ToList();
             return Task.FromResult(new QueryManyResponse<Evaluation>(evProcesses, "Summary", true));
-
         }
     }
 }

@@ -54,7 +54,8 @@ namespace Eras.Api.Controllers
         {
             _logger.LogInformation("Getting evaluation process summary");
             GetEvaluationSummaryQuery summary = new();
-            return Ok(await _mediator.Send(summary));
+            var res = await _mediator.Send(summary);
+            return Ok(res);
         }
     }
 }
