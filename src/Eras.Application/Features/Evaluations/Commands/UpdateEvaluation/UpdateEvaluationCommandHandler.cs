@@ -62,7 +62,7 @@ namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
                             try
                             {
                                 evaluationDB.Status = "Complete";
-                                request.EvaluationDTO.pollId = poll.Id;
+                                request.EvaluationDTO.PollId = poll.Id;
                                 request.EvaluationDTO.Id = evaluationDB.Id;
                                 CreateEvaluationPollCommand evaluationPollCommand = new CreateEvaluationPollCommand()
                                 {
