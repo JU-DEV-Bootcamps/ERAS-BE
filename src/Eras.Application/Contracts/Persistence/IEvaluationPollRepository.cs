@@ -9,5 +9,6 @@ namespace Eras.Application.Contracts.Persistence
 {
     public interface IEvaluationPollRepository: IBaseRepository<Evaluation>
     {
+            public List<Evaluation> GetAllPollsPollInstances();
     }
 }

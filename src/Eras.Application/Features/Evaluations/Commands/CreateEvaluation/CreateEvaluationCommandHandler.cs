@@ -27,7 +27,7 @@ namespace Eras.Application.Features.Evaluations.Commands
         {
             try
             {
-                string status = EvaluationConstants.EvaluationStatus.Incompleted.ToString();
+                string status = EvaluationConstants.EvaluationStatus.Pending.ToString();
                 Evaluation? evaluation=null;
                 Poll? poll = null;
                 evaluation = await _evaluationRepository.GetByNameAsync(request.EvaluationDTO.Name);
@@ -46,15 +46,15 @@ namespace Eras.Application.Features.Evaluations.Commands
                 if (poll != null && !request.EvaluationDTO.PollName.Equals(string.Empty))
                 {
                     evaluation.PollId = poll.Id;
-                    status = EvaluationConstants.EvaluationStatus.Completed.ToString();
+                    status = EvaluationConstants.EvaluationStatus.Ready.ToString();
                 }
                 evaluation.Status = status;
                 Evaluation response = await _evaluationRepository.AddAsync(evaluation);
-                if (poll != null && status.Equals(EvaluationConstants.EvaluationStatus.Completed.ToString()))
+                if (poll != null && status.Equals(EvaluationConstants.EvaluationStatus.Ready.ToString()))
                 {
                     request.EvaluationDTO.PollId = poll.Id;
                     request.EvaluationDTO.Id = response.Id;
-                    CreateEvaluationPollCommand evaluationPollCommand = new CreateEvaluationPollCommand()
+                    CreateEvaluationPollCommand evaluationPollCommand = new()
                     {
                         EvaluationDTO = request.EvaluationDTO
                     };

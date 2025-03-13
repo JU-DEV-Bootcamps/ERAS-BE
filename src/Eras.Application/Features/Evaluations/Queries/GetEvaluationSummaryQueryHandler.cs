@@ -6,17 +6,15 @@ using Microsoft.Extensions.Logging;
 namespace Eras.Application.Features.Evaluations.Queries
 {
     class GetEvaluationProcessSumaryQueryHandler(
-        IPollCohortRepository repository,
         IEvaluationPollRepository evaluationPollRepository,
         ILogger<GetEvaluationSummaryQuery> logger
-    ): IRequestHandler<GetEvaluationSummaryQuery, List<Poll>>
+    ): IRequestHandler<GetEvaluationSummaryQuery, List<Evaluation>>
     {
-        public async Task<List<Poll>> Handle(GetEvaluationSummaryQuery request, CancellationToken cancellationToken)
+        public Task<List<Evaluation>> Handle(GetEvaluationSummaryQuery request, CancellationToken cancellationToken)
         {
             logger.LogDebug("Handling summarizing all evaluation processes");
-            var polls = await repository.GetAllAsync();
-            var evProcesses = await evaluationPollRepository.GetAllAsync();
-            return [.. polls];
+            var evProcesses = evaluationPollRepository.GetAllPollsPollInstances().ToList();
+            return Task.FromResult(evProcesses);
         }
     }
 }
