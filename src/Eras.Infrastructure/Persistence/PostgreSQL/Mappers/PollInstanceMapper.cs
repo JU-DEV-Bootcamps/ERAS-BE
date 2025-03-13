@@ -12,6 +12,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Id = entity.Id,
                 Uuid = entity.Uuid,
                 Student = entity.Student?.ToDomain() ?? new Student(),
+                Answers = entity.Answers?.Select(ans => ans.ToDomain()).ToList() ?? [],
                 Audit = entity.Audit,
                 FinishedAt = entity.FinishedAt
              

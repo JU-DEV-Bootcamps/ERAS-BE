@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Castle.Core.Logging;
+﻿
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Exceptions;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents;
 using Eras.Application.Tests.Mocks;
-using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Eras.Application.Tests.Heatmap.Queries.GetHeatmapByAllComponents
+namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllComponents
 {
     public class GetHeatMapDataByComponentsHandlerTest
     {
@@ -31,13 +25,14 @@ namespace Eras.Application.Tests.Heatmap.Queries.GetHeatmapByAllComponents
         [Fact]
         public async Task ShouldThrowNotFoundException_WhenPollInstanceUUIDIsNull()
         {
-            
+
             var request = new GetHeatMapDataByAllComponentsQuery(null);
             await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(request, CancellationToken.None));
         }
 
         [Fact]
-        public async Task ShouldReturnSuccessResponse_WhenDataIsRetrievedSuccessfully() {
+        public async Task ShouldReturnSuccessResponse_WhenDataIsRetrievedSuccessfully()
+        {
             var request = new GetHeatMapDataByAllComponentsQuery("valid-uuid");
 
             var result = await _handler.Handle(request, CancellationToken.None);
@@ -53,6 +48,7 @@ namespace Eras.Application.Tests.Heatmap.Queries.GetHeatmapByAllComponents
                 Assert.Equal(2, item.Variables.Variables.Count());
                 Assert.Equal(2, item.Series.Count());
             }
+            _mockHeatmapRepository.Verify(repo => repo.GetHeatMapDataByComponentsAsync("valid-uuid"), Times.Once);
         }
 
         [Fact]
@@ -67,6 +63,7 @@ namespace Eras.Application.Tests.Heatmap.Queries.GetHeatmapByAllComponents
             Assert.False(result.Success);
             Assert.Equal("Failed", result.Message);
             Assert.Empty(result.Body);
+            _mockHeatmapRepository.Verify(repo => repo.GetHeatMapDataByComponentsAsync("valid-uuid"), Times.Once);
         }
     }
 }
