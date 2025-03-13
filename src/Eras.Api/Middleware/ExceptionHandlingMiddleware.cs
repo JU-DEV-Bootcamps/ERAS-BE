@@ -22,6 +22,21 @@ namespace Eras.Api.Middleware
             {
                 await _next(context);
             }
+            catch (InvalidCastException ex)
+            {
+                _logger.LogError(ex, "Data deserialization error in CosmicLatteAPIService.");
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                context.Response.ContentType = "application/json";
+
+                var response = new
+                {
+                    message = "Error deserializing response from Cosmic Latte API",
+                    details = ex.Message
+                };
+
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+                await HandleExceptionAsync(context, ex);
+            }
             catch (Exception ex)
             {
                 await HandleExceptionAsync(context, ex);
