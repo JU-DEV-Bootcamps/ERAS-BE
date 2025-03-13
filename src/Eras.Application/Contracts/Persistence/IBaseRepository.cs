@@ -7,6 +7,8 @@ namespace Eras.Application.Contracts.Persistence
         Task<IEnumerable<T>> GetPagedAsync(int page, int pageSize);
         Task<T?> GetByIdAsync(int id);
         Task DeleteAsync(T entity);
-        Task<T> UpdateAsync(T entity);   
+        Task<T> UpdateAsync(T entity);
+        Task<int> CountAsync();
+        
     }
 }

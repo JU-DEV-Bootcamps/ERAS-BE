@@ -31,7 +31,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             
             return _toDomain(response.Entity);
         }
-
         public async Task DeleteAsync(TDomain entity)
         {
             _context.Set<TPersist>().Remove(_toPersistence(entity));
@@ -62,6 +61,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .ToListAsync();
             
             return persistenceEntity.Select(entity => _toDomain(entity));
+        }
+        public async Task<int> CountAsync()
+        {
+            return await _context.Set<TPersist>().CountAsync();
         }
 
         public async Task<TDomain> UpdateAsync(TDomain entity)

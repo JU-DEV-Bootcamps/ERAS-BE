@@ -43,12 +43,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return student?.ToDomain();
         }
-
-        public async Task<int> CountAsync()
-        {
-            return await _context.Students.CountAsync();
-        }
-
         public async Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByComponent(
             string componentName,
             int limit
