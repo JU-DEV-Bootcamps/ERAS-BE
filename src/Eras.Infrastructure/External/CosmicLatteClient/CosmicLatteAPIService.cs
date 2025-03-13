@@ -31,8 +31,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             ILogger<CosmicLatteAPIService> logger,
             PollOrchestratorService pollOrchestratorService )
         {
-            _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found"); // this should be move to .env
-            _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found"); // this should be move to .env
+            _apiKey = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found");
+            _apiUrl = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found");
             _httpClient = httpClientFactory.CreateClient();
             _httpClient.BaseAddress = new Uri(_apiUrl);
             _logger = logger;
@@ -75,62 +75,59 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             if (name != "" || startDate != "" || endDate != "")
             {
                 path += "?$filter=";
-                if (name != "") path += $"contains(name,'{name}')"; // TODO check exist a scenario where no name is sent?
+                if (name != "") path += $"contains(name,'{name}')";
                 if (startDate != "") path += $" and startedAt ge {ConvertStringToIsoExtendedDate(startDate)}";
                 if (endDate != "") path += $" and startedAt le {ConvertStringToIsoExtendedDate(endDate)}";
             }
+
+            int newRegisters = 0;
+            var request = new HttpRequestMessage(HttpMethod.Get, path);
+            request.Headers.Add(HeaderApiKey, _apiKey);
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode) throw new Exception($"Cosmic latte server error, Message: {response.ReasonPhrase}");
+
+            List<PollDTO> pollsDtos = new List<PollDTO>();
+
+            string responseBody = await response.Content.ReadAsStringAsync();
+            CLResponseModelForAllPollsDTO apiResponse;
             try
             {
-                int newRegisters = 0;
-                var request = new HttpRequestMessage(HttpMethod.Get, path);
-                request.Headers.Add(HeaderApiKey, _apiKey);
+                apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+            }
 
-                var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode) throw new Exception($"Cosmic latte server error, Message: {response.ReasonPhrase}");
+            Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(apiResponse.data[0]);
 
-                List<PollDTO> pollsDtos = new List<PollDTO>();
+            // 1. Create components and variables 
+            List<ComponentDTO> componentsAndVariables = GetComponentsAndVariables(apiResponse.data[0]._id, variablesPositionByComponents).Result;
 
-                string responseBody = await response.Content.ReadAsStringAsync();
-                CLResponseModelForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
-
-                if (apiResponse.data.Count < 1)
+            foreach (var responseToPollInstace in apiResponse.data)
+            {
+                if (responseToPollInstace.status == "validated")
                 {
-                    return pollsDtos;
-                }
-                Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(apiResponse.data[0]);
-                // 1. Create components and variables
-                List<ComponentDTO> componentsAndVariables = GetComponentsAndVariables(apiResponse.data[0]._id, variablesPositionByComponents).Result;
+                    ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstance(componentsAndVariables, responseToPollInstace._id, responseToPollInstace.score);
 
-                foreach (var responseToPollInstace in apiResponse.data)
-                {
-                    if (responseToPollInstace.status == "validated")
+                    if (populatedComponents != null)
                     {
-                        ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstance(componentsAndVariables, responseToPollInstace._id, responseToPollInstace.score);
+                        // 2. Create polls
+                        string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when;
 
-                        if (populatedComponents != null)
+                        PollDTO pollDto = new PollDTO
                         {
-                            // 2. Create polls
-                            string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when; // TO REVIEW
-
-                            PollDTO pollDto = new PollDTO
-                            {
-                                Name = responseToPollInstace.name,
-                                Version = version,
-                                Components = populatedComponents,
-                                FinishedAt = responseToPollInstace.finishedAt
-                            };
-                            pollsDtos.Add(pollDto);
-                        }
+                            Name = responseToPollInstace.name,
+                            Version = version,
+                            Components = populatedComponents,
+                            FinishedAt = responseToPollInstace.finishedAt
+                        };
+                        pollsDtos.Add(pollDto);
                     }
                 }
-                // At this point we have created a huge json with a lot of duplicate information, it makes no sense.
-                // We should redesign the next layer so that this transfer of duplicate information is not required.
-                return pollsDtos;
             }
-            catch (Exception e)
-            {
-                throw new Exception($"Cosmic latte server error: {e.Message}");
-            }
+            return pollsDtos;
         }
         public async Task<List<ComponentDTO>> PopulateListOfComponentsByIdPollInstance(List<ComponentDTO> components, string pollId, Score scoreItem)
         {
@@ -146,8 +143,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 string responseBody = await response.Content.ReadAsStringAsync();
 
-
-                CLResponseModelForPollDTO apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody) ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+                CLResponseModelForPollDTO apiResponse;
+                try
+                {
+                    apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody);
+                }
+                catch (Exception ex)
+                {
+                    throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+                }
 
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
@@ -192,8 +196,21 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
         public Dictionary<string, List<int>> GetListOfVariablePositionByComponents(DataItem clDataItem)
         {
-            Dictionary<string, JsonElement> traits = clDataItem.score.byTrait.traits;
-            return ByTrait.getVariablesPositionByComponents(traits);
+            try
+            {
+                Dictionary<string, JsonElement>? traits = clDataItem?.score?.byTrait?.traits;
+                if (traits != null)
+                {
+                    return ByTrait.getVariablesPositionByComponents(traits);
+                }
+                _logger.LogError($"Cosmic latte server error: Invalid poll");
+                return new Dictionary<string, List<int>>();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Cosmic latte server error: {e.Message}");
+                throw new InvalidCastException("Invalid Cosmic Latte poll, not supported for this version.");
+            }
         }
         public async Task<List<ComponentDTO>> GetComponentsAndVariables(string pollId, Dictionary<string, List<int>> variablesPositionByComponents)
         {
@@ -227,7 +244,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                             newVariable.Name = itemVariable.Value.Question.Body["es"];
                             newVariable.Position = itemVariable.Value.Position;
                             newVariable.Type = itemVariable.Value.Type;
-                            newVariable.Answer = null; // CreateAnswer(itemVariable, studentDTO, pollData.score);
+                            newVariable.Answer = null;
                             createdVariables.Add(newVariable);
                         }
                     }
@@ -299,7 +316,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 return pollsData;
             } catch (Exception e)
             {
-                throw new Exception($"Cosmic latte server error: {e.Message}");
+                throw new InvalidCastException($"Invalid Cosmic Latte poll, not supported for this version. {e.Message}");
             }
         }
     }
