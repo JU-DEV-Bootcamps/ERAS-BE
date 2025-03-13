@@ -4,10 +4,9 @@ using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Eras.Application.Mappers;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluationPoll;
 using Eras.Domain.Common;
 
-namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluation
+namespace Eras.Application.Features.Evaluations.Commands
 {
     public class CreateEvaluationCommandHandler : IRequestHandler<CreateEvaluationCommand, CreateComandResponse<Evaluation>>
     {

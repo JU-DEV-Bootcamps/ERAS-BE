@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Domain.Common;
+﻿using Eras.Domain.Common;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities

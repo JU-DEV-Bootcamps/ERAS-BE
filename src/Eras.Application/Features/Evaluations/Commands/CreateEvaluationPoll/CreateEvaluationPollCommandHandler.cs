@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.DTOs;
-using Eras.Application.Features.Evaluations.Commands.CreateEvaluation;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Evaluations.Commands.CreateEvaluationPoll
+namespace Eras.Application.Features.Evaluations.Commands
 {
     public class CreateEvaluationPollCommandHandler : IRequestHandler<CreateEvaluationPollCommand, CreateComandResponse<Evaluation>>
     {
