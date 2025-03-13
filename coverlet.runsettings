@@ -5,21 +5,16 @@
       <DataCollector friendlyName="XPlat code coverage">
         <Configuration>
           <ExcludeBy>
-            <!-- No funcionando -->
+            <!-- Still not working -->
             
-            <!-- Excluir DTOs (si el namespace es Eras.Application.DTOs) -->
             <Namespace>.*Eras\.Application\.DTOs.*</Namespace>
 
-            <!-- Excluir Models (namespace Eras.Domain.Entities) -->
             <Namespace>.*Eras\.Domain\.Entities.*</Namespace>
 
-            <!-- Excluir Utils (namespace Eras.Application.Utils) -->
             <Namespace>.*Eras\.Application\.Utils.*</Namespace>
 
-            <!-- Excluir Repositories (ej: Eras.Infrastructure.Repositories) -->
             <Namespace>.*Eras\.Infrastructure\.Persistence\.PostgreSQL\.Repositories.*</Namespace>
 
-            <!-- Excluir Migrations -->
             <Namespace>.*Eras\.Infrastructure\.Persistence\.PostgreSQL\.Migrations.*</Namespace>
           </ExcludeBy>
           <IncludeTestAssembly>false</IncludeTestAssembly>

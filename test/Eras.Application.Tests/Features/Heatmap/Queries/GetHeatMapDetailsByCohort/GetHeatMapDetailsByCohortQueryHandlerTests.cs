@@ -1,14 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+﻿
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.HeatMap;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByCohort;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Xunit;
 
-namespace Eras.Application.Tests.Features.HeatMap.Queries.GetHeatMapDetailsByCohort
+namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatMapDetailsByCohort
 {
     public class GetHeatMapDetailsByCohortQueryHandlerTests
     {

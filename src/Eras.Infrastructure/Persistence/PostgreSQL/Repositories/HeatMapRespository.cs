@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class HeatMapRespository : IHeatMapRepository
     {
         protected readonly AppDbContext _context;
