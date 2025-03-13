@@ -7,6 +7,7 @@ using Eras.Application.Features.Evaluations.Queries.GetAll;
 using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Models;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -134,13 +135,13 @@ namespace Eras.Api.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllEvaluations()
+        public async Task<IActionResult> GetAllEvaluations([FromQuery] Pagination query)
         {
             try
             {
-                GetAllEvaluationsQuery command = new GetAllEvaluationsQuery();
+                GetAllEvaluationsQuery command = new GetAllEvaluationsQuery(query);
 
-                List<Evaluation> response = await _mediator.Send(command);
+                var response = await _mediator.Send(command);
                 return Ok(response);
 
             } catch (Exception ex)

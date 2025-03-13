@@ -34,42 +34,55 @@ namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
         {
             try
             {
-                Evaluation? evaluation = await _evaluationRepository.GetByIdForUpdateAsync(request.EvaluationDTO.Id); // avoid duplicated istance with the same id
+                Evaluation? evaluationDB = await _evaluationRepository.GetByIdForUpdateAsync(request.EvaluationDTO.Id); // avoid duplicated istance with the same id
 
-                if (evaluation == null)
+                if (evaluationDB == null)
                 {
                     _logger.LogWarning("Evaluation with ID {Id} not found", request.EvaluationDTO.Id);
                     return new CreateComandResponse<Evaluation>(null, 0, "Evaluation not found", false);
                 }
 
                 // Fields always updatable
-                evaluation.Name = request.EvaluationDTO.Name;
-                evaluation.Status = request.EvaluationDTO.status;
-                evaluation.StartDate = request.EvaluationDTO.StartDate;
-                evaluation.EndDate = request.EvaluationDTO.EndDate;
-                evaluation.Audit.ModifiedAt = DateTime.UtcNow;
-                evaluation.Audit.ModifiedBy = "Controller";
+                evaluationDB.Name = request.EvaluationDTO.Name;
+                evaluationDB.StartDate = request.EvaluationDTO.StartDate;
+                evaluationDB.EndDate = request.EvaluationDTO.EndDate;
+                evaluationDB.Audit.ModifiedAt = DateTime.UtcNow;
+                evaluationDB.Audit.ModifiedBy = "Controller";
 
                 // Only updatable if they were never set
-                if (string.IsNullOrEmpty(evaluation.PollName))
+                if (string.IsNullOrEmpty(evaluationDB.PollName) || evaluationDB.Status == "Incomplete")
                 {
-                    if (string.IsNullOrEmpty(request.EvaluationDTO.PollName))
+                    if (! string.IsNullOrEmpty(request.EvaluationDTO.PollName))
                     {
-                        evaluation.PollName = string.Empty;
-                    }
-                    if (request.EvaluationDTO.pollId != 0)
-                    {
-                        evaluation.PollId = request.EvaluationDTO.pollId;
-                    }
-                    if (request.EvaluationDTO.EvaluationPollId != 0)
-                    {
-                        evaluation.EvaluationPollId = request.EvaluationDTO.EvaluationPollId;
+                        Poll?  poll = await _pollRepository.GetByNameAsync(request.EvaluationDTO.PollName);
+
+                        evaluationDB.PollName = request.EvaluationDTO.PollName; 
+                        if (poll != null)
+                        {
+                            try
+                            {
+                                evaluationDB.Status = "Complete";
+                                request.EvaluationDTO.pollId = poll.Id;
+                                request.EvaluationDTO.Id = evaluationDB.Id;
+                                CreateEvaluationPollCommand evaluationPollCommand = new CreateEvaluationPollCommand()
+                                {
+                                    EvaluationDTO = request.EvaluationDTO
+                                };
+                                await _mediator.Send(evaluationPollCommand);
+
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, "An error occurred updating the evaluation: " + request.EvaluationDTO.Name);
+                                return new CreateComandResponse<Evaluation>(null, 0, "Error", false);
+                            }
+                        }
                     }
                 }
-                await _evaluationRepository.UpdateAsync(evaluation);
+                await _evaluationRepository.UpdateAsync(evaluationDB);
 
-                _logger.LogInformation("Successfully updated Evaluation ID {Id}", evaluation.Id);
-                return new CreateComandResponse<Evaluation>(evaluation, 1, "Success", true);
+                _logger.LogInformation("Successfully updated Evaluation ID {Id}", evaluationDB.Id);
+                return new CreateComandResponse<Evaluation>(evaluationDB, 1, "Success", true);
             }
             catch (Exception ex)
             {

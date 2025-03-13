@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Models;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using MediatR;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Evaluations.Queries.GetAll
 {
-    public class GetAllEvaluationsQuery : IRequest<List<Evaluation>>
+    public sealed record GetAllEvaluationsQuery(Pagination Query) : IRequest<PagedResult<Evaluation>>
     {
     }
 }

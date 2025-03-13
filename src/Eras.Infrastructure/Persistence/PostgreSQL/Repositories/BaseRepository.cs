@@ -62,6 +62,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             
             return persistenceEntity.Select(entity => _toDomain(entity));
         }
+        public async Task<int> CountAsync()
+        {
+            return await _context.Set<TPersist>().CountAsync();
+        }
 
         public async Task<TDomain> UpdateAsync(TDomain entity)
         {

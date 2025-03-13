@@ -2,6 +2,7 @@
 using Eras.Application.Features.Evaluations.Commands.CreateEvaluation;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
 using Eras.Application.Models;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Evaluations.Queries.GetAll
 {
-    public class GetAllEvaluationsQueryHandler : IRequestHandler<GetAllEvaluationsQuery, List<Evaluation>>
+    public class GetAllEvaluationsQueryHandler : IRequestHandler<GetAllEvaluationsQuery, PagedResult<Evaluation>>
     {
         private readonly IEvaluationRepository _evaluationRepository;
         private readonly ILogger<GetAllEvaluationsQueryHandler> _logger;
@@ -23,16 +24,30 @@ namespace Eras.Application.Features.Evaluations.Queries.GetAll
             _evaluationRepository = evaluationRepository;
             _logger = logger;
         }
-        public async Task<List<Evaluation>> Handle(GetAllEvaluationsQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Evaluation>> Handle(GetAllEvaluationsQuery request, CancellationToken cancellationToken)
         {
             try
             {             
-                return _evaluationRepository.GetAllAsync().Result.ToList();
+                var evaluations = await _evaluationRepository.GetPagedAsync(
+                    request.Query.Page,
+                    request.Query.PageSize
+                );
+                var totalCount = await _evaluationRepository.CountAsync();
+
+                PagedResult<Evaluation> pagedResult = new PagedResult<Evaluation>(
+                    totalCount,
+                    evaluations.ToList()
+                );
+
+                return pagedResult;
             }
             catch (Exception ex)
             {
                 _logger.LogError("Failed to get information. Reason: {ResponseMessage}", ex.Message);
-                return new List<Evaluation>();
+                return new PagedResult<Evaluation>(
+                    0,
+                    new List<Evaluation>()
+                );
             }
         }
     }
