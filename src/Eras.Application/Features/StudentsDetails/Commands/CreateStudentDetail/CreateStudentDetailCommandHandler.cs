@@ -18,14 +18,12 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
     {
         private readonly IStudentDetailRepository _studentDetailRepository;
         private readonly ILogger<CreateStudentDetailCommandHandler> _logger;
-        private readonly IMediator _mediator;
 
         public CreateStudentDetailCommandHandler(IStudentDetailRepository studentDetailRepository, 
-            ILogger<CreateStudentDetailCommandHandler> logger, IMediator mediator)
+            ILogger<CreateStudentDetailCommandHandler> logger)
         {
             _studentDetailRepository = studentDetailRepository;
             _logger = logger;
-            _mediator = mediator;
         }
 
 
