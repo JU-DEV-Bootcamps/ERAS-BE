@@ -31,6 +31,23 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return evaluation?.ToDomain();
         }
 
+        public async new Task<IEnumerable<Evaluation>> GetPagedAsync(int page, int pageSize)
+        {
+            var persistenceEntity = await _context.Evaluations
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Include(e => e.EvaluationPolls)
+                .ThenInclude(ep => ep.Poll)
+                .ToListAsync();
+
+            var entities = persistenceEntity.Select(entity => {
+                 var ev = entity.ToDomain();
+                 ev.Polls = [..entity.EvaluationPolls.Select(ep => ep.Poll.ToDomain())];
+                 return ev;
+                });
+            return entities;
+        }
+
         public async new Task<List<Evaluation>> GetAllAsync(){
             var persistenceEntities = await _context.Evaluations.ToListAsync();
             var evaluationPolls = await _context.EvaluationPolls.Include(ep => ep.Poll).ToListAsync();
