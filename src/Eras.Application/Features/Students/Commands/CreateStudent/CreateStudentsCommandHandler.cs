@@ -53,13 +53,11 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 
                     if (! createdStudent.Success) {
                         errorStudents.Add(createdStudent.Entity);
-                    } else if (createdStudent.Success && createdStudent.SuccessfullImports == 0)
+                    } else if (createdStudent.Success)
                     {
-                        updatedStudents.Add(createdStudent.Entity);
-                    }
-                    else
-                    {
-                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity);
+                        if(createdStudent.SuccessfullImports == 0)
+                            updatedStudents.Add(createdStudent.Entity);
+                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity,dto);
                         createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
                         createdStudents.Add(createdStudent.Entity);
                     }
@@ -72,8 +70,17 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                 return new CreateCommandResponse<Student[]>(null,0, "Error", false);
             }
         }
-        public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetail(Student student)
+        public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetail(Student student, StudentImportDto dto)
         {
+            student.StudentDetail.EnrolledCourses = dto.EnrolledCourses;
+            student.StudentDetail.GradedCourses = dto.GradedCourses;
+            student.StudentDetail.TimeDeliveryRate = dto.TimelySubmissions;
+            student.StudentDetail.AvgScore = dto.AverageScore;
+            student.StudentDetail.CoursesUnderAvg = dto.CoursesBelowAverage;
+            student.StudentDetail.PureScoreDiff = dto.RawScoreDifference;
+            student.StudentDetail.StandardScoreDiff = dto.StandardScoreDifference;
+            student.StudentDetail.LastAccessDays = dto.DaysSinceLastAccess;
+            student.StudentDetail.Audit.ModifiedAt = DateTime.UtcNow;
             StudentDetailDTO studentDetailDTO = student.StudentDetail.ToDto();
             studentDetailDTO.Audit = new AuditInfo()
             {
