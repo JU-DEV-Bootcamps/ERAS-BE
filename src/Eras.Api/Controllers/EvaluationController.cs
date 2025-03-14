@@ -4,8 +4,6 @@ using Eras.Application.Features.Evaluations.Commands.DeleteEvaluation;
 using Eras.Application.Features.Evaluations.Commands.UpdateEvaluation;
 using Eras.Application.Features.Evaluations.Queries;
 using Eras.Application.Features.Evaluations.Queries.GetAll;
-using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
-using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Models;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
@@ -149,7 +147,7 @@ namespace Eras.Api.Controllers
         {
             try
             {
-                GetAllEvaluationsQuery command = new GetAllEvaluationsQuery(query);
+                GetAllEvaluationsQuery command = new(query);
 
                 var response = await _mediator.Send(command);
                 return Ok(response);
