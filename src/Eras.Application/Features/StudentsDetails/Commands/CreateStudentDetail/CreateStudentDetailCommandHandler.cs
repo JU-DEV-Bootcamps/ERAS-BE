@@ -19,7 +19,8 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
         private readonly IStudentDetailRepository _studentDetailRepository;
         private readonly ILogger<CreateStudentDetailCommandHandler> _logger;
 
-        public CreateStudentDetailCommandHandler(IStudentDetailRepository studentDetailRepository, ILogger<CreateStudentDetailCommandHandler> logger)
+        public CreateStudentDetailCommandHandler(IStudentDetailRepository studentDetailRepository, 
+            ILogger<CreateStudentDetailCommandHandler> logger)
         {
             _studentDetailRepository = studentDetailRepository;
             _logger = logger;
@@ -32,11 +33,27 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
             try
             {
                 StudentDetail response = await _studentDetailRepository.GetByStudentId(request.StudentDetailDto.StudentId);
-                if (response != null)
-                    return new CreateCommandResponse<StudentDetail>(response, 0, "Success", true);
                 StudentDetail studentDetail = request.StudentDetailDto.ToDomain();
-                StudentDetail studentDetailCreated = await _studentDetailRepository.AddAsync(studentDetail);
-                return new CreateCommandResponse<StudentDetail>(studentDetailCreated, 1, "Success", true);
+                if (response != null)
+                {
+                    response.EnrolledCourses = studentDetail.EnrolledCourses;
+                    response.GradedCourses = studentDetail.GradedCourses;
+                    response.TimeDeliveryRate = studentDetail.TimeDeliveryRate;
+                    response.AvgScore = studentDetail.AvgScore;
+                    response.CoursesUnderAvg = studentDetail.CoursesUnderAvg;
+                    response.PureScoreDiff = studentDetail.PureScoreDiff;
+                    response.StandardScoreDiff = studentDetail.StandardScoreDiff;
+                    response.LastAccessDays = studentDetail.LastAccessDays;
+                    response.Audit = studentDetail.Audit;
+                    response.Audit.ModifiedAt = DateTime.UtcNow;
+                    StudentDetail existentStudentDetail = await _studentDetailRepository.UpdateAsync(response);
+                    return new CreateCommandResponse<StudentDetail>(existentStudentDetail, 0, "Success", true);
+                }
+                else
+                {
+                    StudentDetail studentDetailCreated = await _studentDetailRepository.AddAsync(studentDetail);
+                    return new CreateCommandResponse<StudentDetail>(studentDetailCreated, 1, "Success", true);
+                }
             }
             catch (Exception ex)
             {

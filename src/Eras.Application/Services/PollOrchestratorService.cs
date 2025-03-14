@@ -15,13 +15,10 @@ using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Eras.Domain.Common;
-using System.Diagnostics;
 using Eras.Application.Features.Answers.Commands.CreateAnswerList;
-using Eras.Application.Models.HeatMap;
 using Variable = Eras.Domain.Entities.Variable;
-using System.ComponentModel;
 using Component = Eras.Domain.Entities.Component;
-using System.Reflection;
+using Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStudentId;
 
 namespace Eras.Application.Services
 {
@@ -97,15 +94,29 @@ namespace Eras.Application.Services
         }
         public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetail(int studentId)
         {
-            StudentDetailDTO studentDetailDTO = new StudentDetailDTO() { StudentId = studentId  };
-            studentDetailDTO.Audit = new AuditInfo()
+            GetStudentDetailByStudentIdQuery query = new GetStudentDetailByStudentIdQuery()
             {
-                CreatedBy = "Cosmic latte import",
-                CreatedAt = DateTime.UtcNow,
-                ModifiedAt = DateTime.UtcNow,
+                StudentId = studentId
             };
-            CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
-            return await _mediator.Send(createStudentDetailCommand);
+            GetQueryResponse<StudentDetail> createdStudentDetail = await _mediator.Send(query);
+            if(createdStudentDetail.Success && createdStudentDetail.Body != null)
+            {
+                CreateCommandResponse<StudentDetail> command = new CreateCommandResponse<StudentDetail>(createdStudentDetail.Body,
+                    0, createdStudentDetail.Message, true);
+                return command;
+            }
+            else
+            {
+                StudentDetailDTO studentDetailDTO = new StudentDetailDTO() { StudentId = studentId };
+                studentDetailDTO.Audit = new AuditInfo()
+                {
+                    CreatedBy = "Cosmic latte import",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
+                CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
+                return await _mediator.Send(createStudentDetailCommand);
+            }
         }
         public async Task<CreateCommandResponse<Cohort>> CreateAndSetStudentCohort(StudentDTO studentDto,CohortDTO cohort)
         {

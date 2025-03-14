@@ -22,5 +22,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return studentDetail?.ToDomain();
         }
+
+        public new async Task<StudentDetail> UpdateAsync(StudentDetail entity)
+        {
+            var existingEntity = await _context.Set<StudentDetailEntity>().FindAsync(entity.Id);
+            if (existingEntity == null)
+            {
+                throw new Exception("Entity not found");
+            }
+            _context.Entry(existingEntity).CurrentValues.SetValues(StudentDetailMapper.ToPersistence(entity));
+            await _context.SaveChangesAsync();
+            return entity;
+        }
     }
 }
