@@ -29,29 +29,13 @@ namespace Eras.Api.Controllers
         [FromQuery] string endDate = ""
         )
         {
-            List<PollDTO> previewPolls = await _cosmicLatteService.GetAllPollsPreview(name, startDate, endDate);
-            if (previewPolls != null)
-            {
-                return Ok(previewPolls);
-            }
-            else
-            {
-                return StatusCode(500, new { status = "error", message = "An error occurred during the import process" });
-            }
+            return Ok(await _cosmicLatteService.GetAllPollsPreview(name, startDate, endDate));
         }
 
         [HttpPost("polls/")]
         public async Task<IActionResult> SavePreviewPolls([FromBody] List<PollDTO> pollsInstances)
         {
-            CreatedPollDTO createdPoll = await _cosmicLatteService.SavePreviewPolls(pollsInstances);
-            if (createdPoll != null)
-            {
-                return Ok(createdPoll);
-            }
-            else
-            {
-                return StatusCode(500, new { status = "error", message = "An error occurred during the import process" });
-            }
+            return Ok(await _cosmicLatteService.SavePreviewPolls(pollsInstances));
         }
 
         [HttpGet("polls/names")]
