@@ -17,6 +17,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
     [ExcludeFromCodeCoverage]
     public class CosmicLatteAPIService : ICosmicLatteAPIService
     {
+        private const string PathEvalautionSet = "evaluationSets";
         private const string PathEvalaution = "evaluations";
         private const string HeaderApiKey = "x-apikey";
         private string _apiKey;
@@ -40,7 +41,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy()
         {
-            string path = _apiUrl + PathEvalaution;
+            string path = _apiUrl + PathEvalautionSet;
             var request = new HttpRequestMessage(HttpMethod.Get, path + "?$filter=contains(name,' ')");
             request.Headers.Add(HeaderApiKey, _apiKey);
 
@@ -298,7 +299,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         {
             try
             {
-                string path = _apiUrl + PathEvalaution;
+                string path = _apiUrl + PathEvalautionSet;
                 var request = new HttpRequestMessage(HttpMethod.Get, path);
                 request.Headers.Add(HeaderApiKey, _apiKey);
 
