@@ -103,7 +103,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(apiResponse.data[0]);
 
-            // 1. Create components and variables 
+            // 1. Create components and variables
             List<ComponentDTO> componentsAndVariables = GetComponentsAndVariables(apiResponse.data[0]._id, variablesPositionByComponents).Result;
 
             foreach (var responseToPollInstace in apiResponse.data)
@@ -309,11 +309,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
-                List<PollDataItem> pollsData = apiResponse.data
-                                        .GroupBy(poll => poll.parent)
-                                        .Select(poll => new PollDataItem (poll.First().parent, poll.First().name, poll.First().status))
-                                        .Distinct()
-                                        .ToList();
+                List<PollDataItem> pollsData = [.. apiResponse.data.Select(poll => new PollDataItem (poll.parent, poll.name, poll.status))];
                 return pollsData;
             } catch (Exception e)
             {
