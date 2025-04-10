@@ -2,6 +2,7 @@
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -23,14 +24,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var cohortStudents = await _context.StudentCohorts.Include(cs => cs.Student).Where(studentCohort => studentCohort.CohortId.Equals(cohortId)).ToListAsync();
             var domainStudents = new List<Student>();
-            foreach(var student in cohortStudents)
+            foreach (var student in cohortStudents)
             {
                 domainStudents.Add(student.ToDomain());
             }
             return domainStudents;
         }
 
-        public async Task<List<(Student Student, List<PollInstance> PollInstances)>> GetCohortsSummaryAsync() {
+        public async Task<List<(Student Student, List<PollInstance> PollInstances)>> GetCohortsSummaryAsync()
+        {
             var cohorts = await _context.StudentCohorts.
                 Include(cs => cs.Cohort).
                 Include(cs => cs.Student).

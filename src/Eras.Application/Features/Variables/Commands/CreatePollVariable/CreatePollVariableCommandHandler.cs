@@ -1,15 +1,18 @@
-﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Variables.Commands.CreateVariable;
-using Eras.Application.Mappers;
-using Eras.Application.Models;
-using Eras.Domain.Entities;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Eras.Application.Contracts.Persistence;
+using Eras.Application.Features.Variables.Commands.CreateVariable;
+using Eras.Application.Mappers;
+using Eras.Application.Models;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
 {
@@ -41,13 +44,13 @@ namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
                 createdVariable.IdPoll = pollId;
                 createdVariable.Id = variableId;
                 Variable response = await _pollVariableRepository.AddAsync(createdVariable);
-                return new CreateCommandResponse<Variable>(response,1, "Success", true);
+                return new CreateCommandResponse<Variable>(response, 1, "Success", true);
             }
 
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the variable: ");
-                return new CreateCommandResponse<Variable>(null,0, "Error", false);
+                return new CreateCommandResponse<Variable>(null, 0, "Error", false);
             }
         }
     }

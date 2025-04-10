@@ -1,4 +1,4 @@
-namespace Eras.Application.DTOs.Student
+﻿namespace Eras.Application.DTOs.Student
 {
     public class StudentAverageRiskDto
     {

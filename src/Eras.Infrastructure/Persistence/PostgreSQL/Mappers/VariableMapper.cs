@@ -1,6 +1,7 @@
+﻿using System.ComponentModel;
+
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
-using System.ComponentModel;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {

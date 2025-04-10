@@ -1,15 +1,18 @@
-﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models;
-using Eras.Domain.Common;
-using Eras.Domain.Entities;
-using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Eras.Application.Contracts.Persistence;
+using Eras.Application.Models;
+using Eras.Domain.Common;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
 {
@@ -50,11 +53,11 @@ namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
                 // Only updatable if they were never set
                 if (string.IsNullOrEmpty(evaluationDB.PollName) || evaluationDB.Status == "Incomplete")
                 {
-                    if (! string.IsNullOrEmpty(request.EvaluationDTO.PollName))
+                    if (!string.IsNullOrEmpty(request.EvaluationDTO.PollName))
                     {
-                        Poll?  poll = await _pollRepository.GetByNameAsync(request.EvaluationDTO.PollName);
+                        Poll? poll = await _pollRepository.GetByNameAsync(request.EvaluationDTO.PollName);
 
-                        evaluationDB.PollName = request.EvaluationDTO.PollName; 
+                        evaluationDB.PollName = request.EvaluationDTO.PollName;
                         if (poll != null)
                         {
                             try

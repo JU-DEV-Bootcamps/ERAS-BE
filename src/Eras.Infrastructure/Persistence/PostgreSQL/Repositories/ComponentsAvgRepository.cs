@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -12,7 +14,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     public class ComponentsAvgRepository : IComponentsAvgRepository
     {
         private readonly AppDbContext _context;
-        
+
         public ComponentsAvgRepository(AppDbContext context)
         {
             _context = context;

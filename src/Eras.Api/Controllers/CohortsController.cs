@@ -1,5 +1,7 @@
-﻿﻿using Eras.Application.Features.Cohort.Queries;
+﻿using Eras.Application.Features.Cohort.Queries;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers
@@ -43,7 +45,8 @@ namespace Eras.Api.Controllers
                 PollinstancesAverage = s.PollInstances.Average(p => p.Answers.Average(a => a.RiskLevel)),
                 PollinstancesCount = s.PollInstances.Count,
             }).ToList();
-            return Ok(new {
+            return Ok(new
+            {
                 CohortCount = result.Select(s => s.CohortName).Distinct().Count(),
                 StudentCount = result.Count,
                 Summary = result

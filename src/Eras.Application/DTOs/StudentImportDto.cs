@@ -1,4 +1,5 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+
 using Eras.Application.Utils;
 
 namespace Eras.Application.DTOs

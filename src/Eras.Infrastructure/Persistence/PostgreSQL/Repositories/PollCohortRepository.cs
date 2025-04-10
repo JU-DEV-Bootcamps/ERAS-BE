@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Poll;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories

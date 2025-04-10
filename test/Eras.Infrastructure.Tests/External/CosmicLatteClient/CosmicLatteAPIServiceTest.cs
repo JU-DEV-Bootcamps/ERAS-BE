@@ -4,14 +4,18 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Dtos;
 using Eras.Application.Models;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.External.CosmicLatteClient;
+
 using MediatR;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Infrastructure.Tests.External.CosmicLatteClient

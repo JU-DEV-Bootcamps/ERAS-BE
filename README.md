@@ -1,5 +1,6 @@
 # ERAS-BE
-
+Format Check:
+![Enforce .editorconfig Rules](https://github.com/<your-username>/<your-repo>/actions/workflows/dotnet-format.yml/badge.svg)
 # Onion Architecture
 
 For this project Onion architecture is going to use this architecture due to the Modularity, Flexibility and Easy to Learn pros. And our Domain Entities Will be surveys, variables, componentes and students info. For more info about the architecture https://github.com/JU-DEV-Bootcamps/ERAS/wiki/Hexagonal-and-Onion-Architecture

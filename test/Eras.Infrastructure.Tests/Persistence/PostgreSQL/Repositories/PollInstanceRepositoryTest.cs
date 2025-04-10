@@ -2,12 +2,15 @@
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+
 using Microsoft.EntityFrameworkCore;
+
 using MockQueryable.Moq;
+
 using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
-{   
+{
 
     public class PollInstanceRepositoryTest
     {

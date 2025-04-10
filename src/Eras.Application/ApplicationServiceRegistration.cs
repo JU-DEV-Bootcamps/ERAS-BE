@@ -2,7 +2,9 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Utils;
+
 using MediatR;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Eras.Application.Services
@@ -17,7 +19,7 @@ namespace Eras.Application.Services
             services.AddScoped<IPollService, PollService>();
             services.AddScoped<IAnswerService, AnswerService>();
             services.AddScoped<PollOrchestratorService, PollOrchestratorService>();
-            
+
             return services;
         }
     }

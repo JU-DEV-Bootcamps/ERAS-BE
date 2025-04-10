@@ -1,20 +1,23 @@
-﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.DTOs;
-using Eras.Application.Models;
-using Eras.Domain.Common;
-using Eras.Domain.Entities;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using Eras.Application.Contracts.Persistence;
+using Eras.Application.DTOs;
+using Eras.Application.Models;
+using Eras.Domain.Common;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
+
 namespace Eras.Application.Features.Evaluations.Commands.DeleteEvaluation
 {
-    
-    public class DeleteEvaluationCommandHandler : IRequestHandler<DeleteEvaluationCommand,BaseResponse>
+
+    public class DeleteEvaluationCommandHandler : IRequestHandler<DeleteEvaluationCommand, BaseResponse>
     {
         private readonly IEvaluationRepository _evaluationRepository;
         private readonly ILogger<DeleteEvaluationCommandHandler> _logger;
@@ -33,7 +36,7 @@ namespace Eras.Application.Features.Evaluations.Commands.DeleteEvaluation
         {
             try
             {
-                Evaluation? evaluation = await _evaluationRepository.GetByIdForUpdateAsync(request.id); 
+                Evaluation? evaluation = await _evaluationRepository.GetByIdForUpdateAsync(request.id);
 
                 if (evaluation == null)
                 {

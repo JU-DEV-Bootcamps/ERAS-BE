@@ -1,5 +1,6 @@
 ﻿using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
 
 namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays

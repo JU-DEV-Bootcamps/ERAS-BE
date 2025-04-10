@@ -1,9 +1,12 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
 using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using Eras.Application.Features.Polls.Queries.GetPollsByStudent;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]

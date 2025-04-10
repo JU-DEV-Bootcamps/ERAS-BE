@@ -1,6 +1,8 @@
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Poll;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort

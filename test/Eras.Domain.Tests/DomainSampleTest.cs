@@ -1,5 +1,6 @@
 ﻿using Eras.Domain.Common;
 using Eras.Domain.Entities;
+
 using Moq;
 
 namespace Eras.Domain.Tests
@@ -14,12 +15,12 @@ namespace Eras.Domain.Tests
             //-DB Data example
             var expectedPolls = new List<Poll>
             {
-                new Poll { 
+                new Poll {
                     Id = 1,
                     Name = "Poll 1",
                     Audit = new AuditInfo { CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now }
                 },
-                new Poll { 
+                new Poll {
                     Id = 2,
                     Name = "Poll 2",
                     Audit = new AuditInfo { CreatedAt = DateTime.Now, ModifiedAt = DateTime.Now }

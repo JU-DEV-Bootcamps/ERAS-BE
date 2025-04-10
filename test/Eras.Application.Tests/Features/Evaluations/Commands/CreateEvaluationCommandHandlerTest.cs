@@ -1,11 +1,14 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Evaluations.Commands;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using Eras.Application.Mappers;
-using Moq;
 using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
+
+using Moq;
 
 namespace Eras.Application.Tests.Features.Evaluations.Commands
 {
@@ -24,13 +27,13 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
             _mockLogger = new Mock<ILogger<CreateEvaluationCommandHandler>>();
             _mockMediator = new Mock<IMediator>();
             _handler = new CreateEvaluationCommandHandler(_mockEvaluationRepository.Object, _mockPollRepository.Object,
-                _mockLogger.Object,_mockMediator.Object);
+                _mockLogger.Object, _mockMediator.Object);
         }
 
         [Fact]
         public async Task Handle_Component_CreatesNewComponentIncomplete()
         {
-            var newEvaluationDto = new EvaluationDTO() { Name = "newEvaluation", StartDate= DateTime.UtcNow, EndDate = DateTime.Now };
+            var newEvaluationDto = new EvaluationDTO() { Name = "newEvaluation", StartDate = DateTime.UtcNow, EndDate = DateTime.Now };
             var command = new CreateEvaluationCommand { EvaluationDTO = newEvaluationDto };
             var newComponent = newEvaluationDto.ToDomain;
 

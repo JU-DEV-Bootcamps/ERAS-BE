@@ -1,4 +1,10 @@
-﻿using Eras.Application.Contracts.Persistence;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
 using Eras.Application.Features.Evaluations.Commands;
@@ -6,15 +12,14 @@ using Eras.Application.Features.Evaluations.Commands.DeleteEvaluation;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 using Evaluation = Eras.Domain.Entities.Evaluation;
 
 namespace Eras.Application.Tests.Features.Evaluations.Commands
@@ -51,7 +56,7 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
             Assert.False(responseExample.Success);
             Assert.Equal(responseExample.Message, response.Message);
         }
-        
+
         [Fact]
         public async Task Handle_Component_Deletes_Evaluation()
         {

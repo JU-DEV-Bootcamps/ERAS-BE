@@ -1,11 +1,12 @@
-﻿using Eras.Application.DTOs;
-using Eras.Domain.Common;
-using Eras.Domain.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Eras.Application.DTOs;
+using Eras.Domain.Common;
+using Eras.Domain.Entities;
 
 namespace Eras.Application.Dtos
 {
@@ -20,4 +21,4 @@ namespace Eras.Application.Dtos
         public ICollection<ComponentDTO> Components { get; set; } = [];
         public AuditInfo? Audit { get; set; } = default!;
     }
-   }
+}

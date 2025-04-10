@@ -3,7 +3,9 @@ using Eras.Application.DTOs;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays
@@ -26,9 +28,9 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
             {
                 var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(request.CohortId, request.Days);
                 var pollInstanceDTOs = pollInstances.Select(pollInstance => PollInstanceMapper.ToDTO(pollInstance)).OrderByDescending(pi => pi.FinishedAt);
-                return new GetQueryResponse<IEnumerable<PollInstanceDTO>>(pollInstanceDTOs ,"Success", true );
+                return new GetQueryResponse<IEnumerable<PollInstanceDTO>>(pollInstanceDTOs, "Success", true);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred getting the poll instance");
                 return new GetQueryResponse<IEnumerable<PollInstanceDTO>>([], "Failed", false);

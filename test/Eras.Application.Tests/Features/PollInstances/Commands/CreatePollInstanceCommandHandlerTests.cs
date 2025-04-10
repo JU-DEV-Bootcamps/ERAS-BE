@@ -4,7 +4,9 @@ using Eras.Application.DTOs;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.PollInstances.Commands
@@ -29,7 +31,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Commands
             {
                 Id = 1,
             };
-            var newPollIsntanceDto = new PollInstanceDTO() { Uuid= "Uuid1" , Student = newStudent};
+            var newPollIsntanceDto = new PollInstanceDTO() { Uuid = "Uuid1", Student = newStudent };
             var command = new CreatePollInstanceCommand { PollInstance = newPollIsntanceDto };
             var newPoll = newPollIsntanceDto.ToDomain;
 

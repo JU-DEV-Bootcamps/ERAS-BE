@@ -1,7 +1,9 @@
-﻿using Eras.Application.Contracts.Infrastructure;
-using Microsoft.Extensions.Configuration;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+
+using Eras.Application.Contracts.Infrastructure;
+
+using Microsoft.Extensions.Configuration;
 
 namespace Eras.Infrastructure.External.KeycloakClient
 {
@@ -21,7 +23,7 @@ namespace Eras.Infrastructure.External.KeycloakClient
         {
             var baseUrl = _configuration["Keycloak:BaseUrl"];
             var realm = _configuration["Keycloak:Realm"];
-            var clientId =  _configuration["Keycloak:ClientId"];
+            var clientId = _configuration["Keycloak:ClientId"];
             var clientSecret = _configuration["Keycloak:ClientSecret"];
             var tokenEndpoint = $"{baseUrl}/realms/{realm}/protocol/openid-connect/token";
 

@@ -1,4 +1,4 @@
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers

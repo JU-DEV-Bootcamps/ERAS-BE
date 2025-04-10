@@ -1,13 +1,16 @@
-﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models;
-using Eras.Domain.Entities;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Eras.Application.Contracts.Persistence;
+using Eras.Application.Models;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery
 {
@@ -28,7 +31,7 @@ namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery
         public async Task<List<Poll>> Handle(GetAllPollsQuery request, CancellationToken cancellationToken)
         {
             try
-            { 
+            {
                 return _pollRepository.GetAllAsync().Result.ToList();
             }
             catch (Exception ex)

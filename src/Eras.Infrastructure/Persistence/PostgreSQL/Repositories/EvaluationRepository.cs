@@ -3,12 +3,14 @@ using Eras.Application.DTOs.CL;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
+
 using Evaluation = Eras.Domain.Entities.Evaluation;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public class EvaluationRepository: BaseRepository<Evaluation,EvaluationEntity>, IEvaluationRepository
+    public class EvaluationRepository : BaseRepository<Evaluation, EvaluationEntity>, IEvaluationRepository
     {
         public EvaluationRepository(AppDbContext context)
             : base(context, EvaluationMapper.ToDomain, EvaluationMapper.ToPersistence)
@@ -40,15 +42,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .ThenInclude(ep => ep.Poll)
                 .ToListAsync();
 
-            var entities = persistenceEntity.Select(entity => {
-                 var ev = entity.ToDomain();
-                 ev.Polls = [..entity.EvaluationPolls.Select(ep => ep.Poll.ToDomain())];
-                 return ev;
-                });
+            var entities = persistenceEntity.Select(entity =>
+            {
+                var ev = entity.ToDomain();
+                ev.Polls = [.. entity.EvaluationPolls.Select(ep => ep.Poll.ToDomain())];
+                return ev;
+            });
             return entities;
         }
 
-        public async new Task<List<Evaluation>> GetAllAsync(){
+        public async new Task<List<Evaluation>> GetAllAsync()
+        {
             var persistenceEntities = await _context.Evaluations.ToListAsync();
             var evaluationPolls = await _context.EvaluationPolls.Include(ep => ep.Poll).ToListAsync();
             var pollInstances = await _context.PollInstances.Include(pi => pi.Answers).ToListAsync();

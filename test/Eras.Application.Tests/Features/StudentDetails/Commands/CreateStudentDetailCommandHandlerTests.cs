@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
@@ -14,7 +15,9 @@ using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Features.Variables.Commands.CreateVariable;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.StudentDetails.Commands

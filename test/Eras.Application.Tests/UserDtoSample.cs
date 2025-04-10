@@ -1,4 +1,4 @@
-﻿namespace Eras.Application.Tests 
+﻿namespace Eras.Application.Tests
 {
     public class UserDtoSample
     {

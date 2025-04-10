@@ -1,10 +1,14 @@
-using Eras.Api.Controllers;
+﻿using Eras.Api.Controllers;
 using Eras.Application.Features.Cohort.Queries;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Moq;
+
 using Xunit;
 
 namespace Eras.Api.Tests.Controllers

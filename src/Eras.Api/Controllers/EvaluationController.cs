@@ -1,4 +1,4 @@
-using Eras.Application.DTOs;
+﻿using Eras.Application.DTOs;
 using Eras.Application.Features.Evaluations.Commands;
 using Eras.Application.Features.Evaluations.Commands.DeleteEvaluation;
 using Eras.Application.Features.Evaluations.Commands.UpdateEvaluation;
@@ -7,7 +7,9 @@ using Eras.Application.Features.Evaluations.Queries.GetAll;
 using Eras.Application.Models;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers
@@ -74,7 +76,7 @@ namespace Eras.Api.Controllers
                 }
                 _logger.LogInformation("Editing evaluation with ID {Id}", id);
 
-                UpdateEvaluationCommand command = new UpdateEvaluationCommand() { EvaluationDTO = evaluationDTO};
+                UpdateEvaluationCommand command = new UpdateEvaluationCommand() { EvaluationDTO = evaluationDTO };
 
                 CreateCommandResponse<Evaluation> response = await _mediator.Send(command);
                 if (response.Success)
@@ -84,7 +86,7 @@ namespace Eras.Api.Controllers
                 }
                 else
                 {
-                    _logger.LogError( "Failed to update Evaluation. Reason: {ResponseMessage}", response.Message );
+                    _logger.LogError("Failed to update Evaluation. Reason: {ResponseMessage}", response.Message);
                     return StatusCode(
                         400,
                         new { status = "error", message = "An error occurred during the evaluation update process" }
@@ -119,7 +121,8 @@ namespace Eras.Api.Controllers
             {
                 _logger.LogInformation("Successfully created Evaluation {Name}", evaluationDTO.Name);
                 return Ok(new { status = "successful", message = "Created" });
-            } else
+            }
+            else
             {
                 _logger.LogError(
                     "Failed to create Evaluation. Reason: {ResponseMessage}",
@@ -152,7 +155,8 @@ namespace Eras.Api.Controllers
                 var response = await _mediator.Send(command);
                 return Ok(response);
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.LogError(
                     "Failed to get information. Reason: {ResponseMessage}",

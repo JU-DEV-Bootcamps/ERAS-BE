@@ -1,4 +1,5 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -28,7 +29,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             builder.HasMany(pollInstance => pollInstance.Answers)
                 .WithOne(answer => answer.PollInstance)
                 .HasForeignKey(answer => answer.PollInstanceId);
-            
+
             builder.HasOne(pollInstance => pollInstance.Student)
                 .WithMany(student => student.PollInstances)
                 .HasForeignKey(pollInstance => pollInstance.StudentId);

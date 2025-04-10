@@ -1,13 +1,16 @@
-﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Utils;
-using Eras.Domain.Entities;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Eras.Application.Contracts.Persistence;
+using Eras.Application.Utils;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Queries.GetAllByPollAndDate
 {
@@ -30,13 +33,13 @@ namespace Eras.Application.Features.Students.Queries.GetAllByPollAndDate
         {
             try
             {
-                (IEnumerable<Student> students, int totalCount) = 
+                (IEnumerable<Student> students, int totalCount) =
                     await _studentRepository.GetAllStudentsByPollUuidAndDaysQuery(
-                        request.Query.Page, 
-                        request.Query.PageSize, 
+                        request.Query.Page,
+                        request.Query.PageSize,
                         request.PollUuid,
                         request.Days);
- 
+
                 return new PagedResult<Student>(totalCount, students.ToList());
             }
             catch (Exception ex)

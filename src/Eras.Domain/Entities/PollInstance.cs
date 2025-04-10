@@ -1,4 +1,4 @@
-using Eras.Domain.Common;
+﻿using Eras.Domain.Common;
 
 namespace Eras.Domain.Entities
 {

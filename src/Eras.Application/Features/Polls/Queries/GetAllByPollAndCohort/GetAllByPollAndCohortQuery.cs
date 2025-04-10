@@ -1,4 +1,5 @@
-using Eras.Application.DTOs.Poll;
+﻿using Eras.Application.DTOs.Poll;
+
 using MediatR;
 
 namespace Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort

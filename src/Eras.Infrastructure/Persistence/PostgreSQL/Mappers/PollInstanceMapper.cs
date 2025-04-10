@@ -1,4 +1,4 @@
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
@@ -15,7 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Answers = entity.Answers?.Select(ans => ans.ToDomain()).ToList() ?? [],
                 Audit = entity.Audit,
                 FinishedAt = entity.FinishedAt
-             
+
             };
         }
 
@@ -39,7 +39,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Uuid = model.Uuid,
                 StudentId = model.Student.Id,
                 Audit = model.Audit,
-                FinishedAt = model.FinishedAt                
+                FinishedAt = model.FinishedAt
             };
         }
     }

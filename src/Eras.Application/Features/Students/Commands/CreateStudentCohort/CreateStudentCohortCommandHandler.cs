@@ -1,14 +1,17 @@
-﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Variables.Commands.CreatePollVariable;
-using Eras.Application.Models;
-using Eras.Domain.Entities;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Eras.Application.Contracts.Persistence;
+using Eras.Application.Features.Variables.Commands.CreatePollVariable;
+using Eras.Application.Models;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
 {

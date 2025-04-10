@@ -1,12 +1,14 @@
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Consolidator.Queries.GetAvgRiskAnswer;
 
-public class GetAvgRiskAnswerQueryHandler: IRequestHandler<GetAvgRiskAnswerQuery, BaseResponse>
+public class GetAvgRiskAnswerQueryHandler : IRequestHandler<GetAvgRiskAnswerQuery, BaseResponse>
 {
     private readonly IAnswerRepository _answerRepository;
     private readonly ILogger<GetAvgRiskAnswerQuery> _logger;
@@ -23,13 +25,14 @@ public class GetAvgRiskAnswerQueryHandler: IRequestHandler<GetAvgRiskAnswerQuery
         {
             var studentIds = request.StudentIds;
             var answerIds = request.AnswerIds;
-            List<Answer> answers  = [];
+            List<Answer> answers = [];
             foreach (var answerId in answerIds)
             {
                 //TODO: Add repo method to get by student id and answer id
                 //var answerDTO = await _answerRepository.GetByStudentIdAndAnswerId(answer.StudentId, answer.AnswerId);
                 var answer = await _answerRepository.GetByIdAsync(answerId);
-                if(answer != null) {
+                if (answer != null)
+                {
                     answers.Add(answer);
                 }
             }

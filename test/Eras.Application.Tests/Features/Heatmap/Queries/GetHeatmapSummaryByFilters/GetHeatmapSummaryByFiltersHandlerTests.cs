@@ -2,7 +2,9 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
 using Eras.Application.Models.HeatMap;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapSummaryByFilters
@@ -23,7 +25,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapSummaryByFil
         [Fact]
         public async Task Handle_ShouldReturnSuccessResponse_WhenDataIsFound()
         {
-            
+
             var query = new GetHeatMapSummaryByFiltersQuery(1, 7);
             var heatMapData = new List<GetHeatMapByComponentsQueryResponse>
             {

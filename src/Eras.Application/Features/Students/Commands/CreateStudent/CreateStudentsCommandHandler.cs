@@ -3,17 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Eras.Application.Mappers;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Eras.Application.Models;
-using Eras.Domain.Entities;
 using Eras.Application.DTOs;
-using Eras.Domain.Common;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
+using Eras.Application.Mappers;
+using Eras.Application.Models;
+using Eras.Domain.Common;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
+
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
@@ -51,13 +55,15 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                     CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
                     CreateCommandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand);
 
-                    if (! createdStudent.Success) {
-                        errorStudents.Add(createdStudent.Entity);
-                    } else if (createdStudent.Success)
+                    if (!createdStudent.Success)
                     {
-                        if(createdStudent.SuccessfullImports == 0)
+                        errorStudents.Add(createdStudent.Entity);
+                    }
+                    else if (createdStudent.Success)
+                    {
+                        if (createdStudent.SuccessfullImports == 0)
                             updatedStudents.Add(createdStudent.Entity);
-                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity,dto);
+                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity, dto);
                         createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
                         createdStudents.Add(createdStudent.Entity);
                     }
@@ -67,7 +73,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the massive import process");
-                return new CreateCommandResponse<Student[]>(null,0, "Error", false);
+                return new CreateCommandResponse<Student[]>(null, 0, "Error", false);
             }
         }
         public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetail(Student student, StudentImportDto dto)

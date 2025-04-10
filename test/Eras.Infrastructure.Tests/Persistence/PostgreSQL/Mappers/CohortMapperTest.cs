@@ -1,6 +1,6 @@
 ﻿using Eras.Domain.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
 {

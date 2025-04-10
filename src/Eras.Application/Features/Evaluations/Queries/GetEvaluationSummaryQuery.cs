@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using Eras.Application.Models;
 using Eras.Domain.Entities;
-using Eras.Application.Models;
+
+using MediatR;
 
 namespace Eras.Application.Features.Evaluations.Queries
 {
-    public class GetEvaluationSummaryQuery: IRequest<QueryManyResponse<Evaluation>>;
+    public class GetEvaluationSummaryQuery : IRequest<QueryManyResponse<Evaluation>>;
 }

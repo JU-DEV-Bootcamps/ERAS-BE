@@ -2,7 +2,9 @@
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
@@ -29,12 +31,12 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 
                 Student student = request.StudentDTO.ToDomain();
                 Student studentCreated = await _studentRepository.AddAsync(student);
-                return new CreateCommandResponse<Student>(studentCreated,1, "Success", true);
+                return new CreateCommandResponse<Student>(studentCreated, 1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred importing student {request.StudentDTO.Uuid}");
-                return new CreateCommandResponse<Student>(null,0, "Error", false);
+                return new CreateCommandResponse<Student>(null, 0, "Error", false);
             }
         }
     }

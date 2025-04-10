@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Queries.GetStudentDetails
@@ -18,7 +21,7 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
         private readonly IStudentDetailRepository _studentDetailRepository;
         private readonly ILogger<GetStudentDetailsQueryHandler> _logger;
 
-        public GetStudentDetailsQueryHandler(IStudentRepository studentRepository, 
+        public GetStudentDetailsQueryHandler(IStudentRepository studentRepository,
             ILogger<GetStudentDetailsQueryHandler> logger,
             IStudentDetailRepository studentDetailRepository)
         {
@@ -35,7 +38,7 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
             {
                 Student response = await _studentRepository.GetByIdAsync(request.StudentDetailId);
                 StudentDetail studentDetail = await _studentDetailRepository.GetByStudentId(response.Id);
-                if(studentDetail!=null)
+                if (studentDetail != null)
                     response.StudentDetail = studentDetail;
                 return new CreateCommandResponse<Student>(response, "Success", true);
             }

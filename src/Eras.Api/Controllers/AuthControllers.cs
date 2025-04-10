@@ -1,5 +1,7 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Infrastructure.External.KeycloakClient;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers
@@ -37,5 +39,5 @@ namespace Eras.Api.Controllers
                 return Unauthorized(ex.Message);
             }
         }
-    }    
+    }
 }

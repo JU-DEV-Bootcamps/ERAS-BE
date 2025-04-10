@@ -1,4 +1,4 @@
-namespace Eras.Application.DTOs.HeatMap
+﻿namespace Eras.Application.DTOs.HeatMap
 {
     public class StudentHeatMapDetailDto
     {

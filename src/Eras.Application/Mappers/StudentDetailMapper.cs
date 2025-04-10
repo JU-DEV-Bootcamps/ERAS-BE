@@ -23,7 +23,7 @@ namespace Eras.Application.Mappers
                 GradedCourses = dto.GradedCourses,
                 TimeDeliveryRate = dto.TimeDeliveryRate,
                 AvgScore = dto.AvgScore,
-                CoursesUnderAvg= dto.CoursesUnderAvg,
+                CoursesUnderAvg = dto.CoursesUnderAvg,
                 PureScoreDiff = dto.PureScoreDiff,
                 StandardScoreDiff = dto.StandardScoreDiff,
                 LastAccessDays = dto.LastAccessDays,

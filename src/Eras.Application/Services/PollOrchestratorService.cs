@@ -1,5 +1,6 @@
 ﻿using Eras.Application.Dtos;
 using Eras.Application.DTOs;
+using Eras.Application.Features.Answers.Commands.CreateAnswerList;
 using Eras.Application.Features.Cohort.Commands.CreateCohort;
 using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
@@ -7,18 +8,20 @@ using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Features.Students.Commands.CreateStudentCohort;
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
+using Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStudentId;
 using Eras.Application.Features.Variables.Commands.CreatePollVariable;
 using Eras.Application.Features.Variables.Commands.CreateVariable;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
-using Eras.Domain.Entities;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using Eras.Domain.Common;
-using Eras.Application.Features.Answers.Commands.CreateAnswerList;
-using Variable = Eras.Domain.Entities.Variable;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
+
 using Component = Eras.Domain.Entities.Component;
-using Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStudentId;
+using Variable = Eras.Domain.Entities.Variable;
 
 namespace Eras.Application.Services
 {
@@ -27,7 +30,7 @@ namespace Eras.Application.Services
         private readonly IMediator _mediator;
         ILogger<PollOrchestratorService> _logger;
 
-        public PollOrchestratorService(IMediator mediator, ILogger<PollOrchestratorService> logger )
+        public PollOrchestratorService(IMediator mediator, ILogger<PollOrchestratorService> logger)
         {
             _logger = logger;
             _mediator = mediator;
@@ -75,7 +78,7 @@ namespace Eras.Application.Services
         {
             try
             {
-                PollInstance pollInstance = new PollInstance() { Uuid = pollUuid, Student = student, FinishedAt = finishedAt};
+                PollInstance pollInstance = new PollInstance() { Uuid = pollUuid, Student = student, FinishedAt = finishedAt };
 
                 pollInstance.Audit = new AuditInfo()
                 {
@@ -83,7 +86,7 @@ namespace Eras.Application.Services
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                 };
-                CreatePollInstanceCommand createPollInstanceCommand = new CreatePollInstanceCommand() { PollInstance = pollInstance.ToDTO()};
+                CreatePollInstanceCommand createPollInstanceCommand = new CreatePollInstanceCommand() { PollInstance = pollInstance.ToDTO() };
                 return await _mediator.Send(createPollInstanceCommand);
             }
             catch (Exception ex)
@@ -99,7 +102,7 @@ namespace Eras.Application.Services
                 StudentId = studentId
             };
             GetQueryResponse<StudentDetail> createdStudentDetail = await _mediator.Send(query);
-            if(createdStudentDetail.Success && createdStudentDetail.Body != null)
+            if (createdStudentDetail.Success && createdStudentDetail.Body != null)
             {
                 CreateCommandResponse<StudentDetail> command = new CreateCommandResponse<StudentDetail>(createdStudentDetail.Body,
                     0, createdStudentDetail.Message, true);
@@ -118,7 +121,7 @@ namespace Eras.Application.Services
                 return await _mediator.Send(createStudentDetailCommand);
             }
         }
-        public async Task<CreateCommandResponse<Cohort>> CreateAndSetStudentCohort(StudentDTO studentDto,CohortDTO cohort)
+        public async Task<CreateCommandResponse<Cohort>> CreateAndSetStudentCohort(StudentDTO studentDto, CohortDTO cohort)
         {
             cohort.Audit = new AuditInfo()
             {
@@ -127,7 +130,7 @@ namespace Eras.Application.Services
                 ModifiedAt = DateTime.UtcNow,
             };
             CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohort };
-            CreateCommandResponse <Cohort> createdCohort = await _mediator.Send(createCohortCommand);
+            CreateCommandResponse<Cohort> createdCohort = await _mediator.Send(createCohortCommand);
 
             if (createdCohort.Success)
             {
@@ -166,7 +169,7 @@ namespace Eras.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError($"Error creating student: {ex.Message}");
-                return new CreateCommandResponse<Student>(null,0, "Error", false);
+                return new CreateCommandResponse<Student>(null, 0, "Error", false);
             }
         }
         public async Task<CreateCommandResponse<Poll>> CreatePoll(PollDTO pollToCreate)
@@ -210,7 +213,7 @@ namespace Eras.Application.Services
         {
             try
             {
-                List <Variable> createdVariables = new List <Variable>();
+                List<Variable> createdVariables = new List<Variable>();
                 if (variablesDtos == null) return createdVariables;
 
                 foreach (VariableDTO variableDto in variablesDtos)

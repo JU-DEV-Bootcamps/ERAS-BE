@@ -1,0 +1,41 @@
+name: Enforce .editorconfig Rules
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Setup .NET environment
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0 
+
+      # Step 3: Install dotnet-format
+      - name: Install dotnet-format
+        run: dotnet tool install -g dotnet-format
+
+      # Step 4: Run dotnet format to verify .editorconfig rules
+      - name: Run dotnet format
+        run: dotnet format --verify-no-changes
+        env:
+          PATH: ${{ runner.tool_cache }}/dotnet:$PATH
+
+      # Step 5: Fail the workflow if formatting issues are found
+      - name: Check formatting result
+        if: failure()
+        run: |
+          echo "Code formatting issues detected. Please fix them locally by running 'dotnet format'."
+          exit 1

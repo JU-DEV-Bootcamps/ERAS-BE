@@ -1,34 +1,33 @@
-using Eras.Application.Dtos;
+﻿using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Domain.Common;
-using Eras.Domain.Entities; 
-using System.Globalization;
+using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers;
 
 public static class StudentMapper
 {
-    public static StudentDetail CreateEmptyStudentDetail(StudentDTO dto)
+    public static StudentDetail CreateEmptyStudentDetail(StudentDTO Dto)
     {
-            AuditInfo audit = new AuditInfo()
-            {
-                CreatedBy = "Automatic mapper",
-                CreatedAt = DateTime.UtcNow,
-                ModifiedAt = DateTime.UtcNow,
-            };
-            return new StudentDetail
-            {
-                StudentId = dto.Id,
-                Audit = audit,
-            }; 
+        var audit = new AuditInfo()
+        {
+            CreatedBy = "Automatic mapper",
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow,
+        };
+        return new StudentDetail
+        {
+            StudentId = Dto.Id,
+            Audit = audit,
+        };
     }
-    public static Student ToDomain(this StudentDTO dto)
+    public static Student ToDomain(this StudentDTO Dto)
     {
-        ArgumentNullException.ThrowIfNull(dto);
-        Cohort cohort = dto.Cohort?.ToDomain();
-        StudentDetail details = dto.StudentDetail != null ? dto.StudentDetail.ToDomain() : CreateEmptyStudentDetail(dto);
+        ArgumentNullException.ThrowIfNull(Dto);
+        Cohort? cohort = Dto.Cohort?.ToDomain();
+        StudentDetail details = Dto.StudentDetail != null ? Dto.StudentDetail.ToDomain() : CreateEmptyStudentDetail(Dto);
 
-        AuditInfo audit = dto.Audit != null ? dto.Audit : new AuditInfo()
+        AuditInfo audit = Dto.Audit ?? new AuditInfo()
         {
             CreatedBy = "Automatic mapper",
             CreatedAt = DateTime.UtcNow,
@@ -36,64 +35,64 @@ public static class StudentMapper
         };
         return new Student
         {
-            Id = dto.Id,
-            Uuid = dto.Uuid,
-            Name = dto.Name,
-            Email = dto.Email,
+            Id = Dto.Id,
+            Uuid = Dto.Uuid ?? "UUID not found",
+            Name = Dto.Name,
+            Email = Dto.Email,
             Cohort = cohort,
-            CohortId = cohort!=null ? cohort.Id : 0,
+            CohortId = cohort != null ? cohort.Id : 0,
             StudentDetail = details,
             Audit = audit,
         };
 
     }
-    public static StudentDTO ToDto(this Student domain)
+    public static StudentDTO ToDto(this Student Domain)
     {
-        ArgumentNullException.ThrowIfNull(domain);
+        ArgumentNullException.ThrowIfNull(Domain);
         return new StudentDTO
         {
-            Id = domain.Id,
-            Uuid = domain.Uuid,
-            Name = domain.Name,
-            Email = domain.Email,
-            Cohort = domain.Cohort?.ToDto(),
-            StudentDetail = domain.StudentDetail?.ToDto(),
-            Audit = domain.Audit,
+            Id = Domain.Id,
+            Uuid = Domain.Uuid,
+            Name = Domain.Name,
+            Email = Domain.Email,
+            Cohort = Domain.Cohort != null ? Domain.Cohort.ToDto() : new CohortDTO(),
+            StudentDetail = Domain.StudentDetail?.ToDto(),
+            Audit = Domain.Audit,
         };
 
     }
 
-    public static StudentDTO ExtractStudentDTO(this StudentImportDto studentImportDto)
+    public static StudentDTO ExtractStudentDTO(this StudentImportDto StudentImportDto)
     {
-        ArgumentNullException.ThrowIfNull(studentImportDto);
+        ArgumentNullException.ThrowIfNull(StudentImportDto);
         return new StudentDTO()
         {
-            Uuid = studentImportDto.SISId,
-            Name = studentImportDto.Name,
-            Email = studentImportDto.Email,
-            StudentDetail = ExctractStudentDetailDto(studentImportDto),
+            Uuid = StudentImportDto.SISId,
+            Name = StudentImportDto.Name,
+            Email = StudentImportDto.Email,
+            StudentDetail = ExctractStudentDetailDto(StudentImportDto),
             Cohort = new CohortDTO()
         };
     }
 
-    public static StudentDetailDTO ExctractStudentDetailDto(StudentImportDto dto)
+    public static StudentDetailDTO ExctractStudentDetailDto(StudentImportDto Dto)
     {
         return new StudentDetailDTO()
         {
-            EnrolledCourses = dto.EnrolledCourses,
-            GradedCourses = dto.GradedCourses,
-            TimeDeliveryRate = dto.TimelySubmissions,
-            AvgScore = dto.AverageScore,
-            CoursesUnderAvg = dto.CoursesBelowAverage,
-            PureScoreDiff = dto.RawScoreDifference,
-            StandardScoreDiff = dto.StandardScoreDifference,
-            LastAccessDays = dto.DaysSinceLastAccess,
+            EnrolledCourses = Dto.EnrolledCourses,
+            GradedCourses = Dto.GradedCourses,
+            TimeDeliveryRate = Dto.TimelySubmissions,
+            AvgScore = Dto.AverageScore,
+            CoursesUnderAvg = Dto.CoursesBelowAverage,
+            PureScoreDiff = Dto.RawScoreDifference,
+            StandardScoreDiff = Dto.StandardScoreDifference,
+            LastAccessDays = Dto.DaysSinceLastAccess,
             Audit = new AuditInfo()
             {
                 CreatedBy = "CSV import",
                 CreatedAt = DateTime.UtcNow,
                 ModifiedAt = DateTime.UtcNow,
             }
-        };        
+        };
     }
 }

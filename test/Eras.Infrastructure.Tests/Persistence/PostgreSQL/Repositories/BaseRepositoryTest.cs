@@ -2,18 +2,22 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+
 using Microsoft.EntityFrameworkCore;
+
 using MockQueryable.Moq;
+
 using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
-{   
+{
 
     public class BaseRepositoyTest
     {

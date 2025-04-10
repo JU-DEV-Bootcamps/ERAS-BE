@@ -1,4 +1,5 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,7 +10,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
         public void Configure(EntityTypeBuilder<StudentDetailEntity> builder)
         {
             builder.ToTable("student_details");
-            
+
             ConfigureColumns(builder);
             ConfigureRelationShips(builder);
             AuditConfiguration.Configure(builder);

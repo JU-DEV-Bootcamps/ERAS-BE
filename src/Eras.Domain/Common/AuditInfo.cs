@@ -1,4 +1,4 @@
-namespace Eras.Domain.Common
+﻿namespace Eras.Domain.Common
 {
     public class AuditInfo
     {

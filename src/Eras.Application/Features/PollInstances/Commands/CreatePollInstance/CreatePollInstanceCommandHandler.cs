@@ -3,13 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
@@ -34,12 +37,12 @@ namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
 
                 PollInstance? pollInstance = request.PollInstance.ToDomain();
                 PollInstance createdPoll = await _pollInstanceRepository.AddAsync(pollInstance);
-                return new CreateCommandResponse<PollInstance>(createdPoll,1, "Success", true);
+                return new CreateCommandResponse<PollInstance>(createdPoll, 1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the poll: ");
-                return new CreateCommandResponse<PollInstance>(null,0, "Error", false);
+                return new CreateCommandResponse<PollInstance>(null, 0, "Error", false);
             }
         }
     }

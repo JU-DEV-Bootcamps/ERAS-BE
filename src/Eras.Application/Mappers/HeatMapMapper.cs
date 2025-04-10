@@ -60,7 +60,8 @@ namespace Eras.Application.Mappers
         }
 
         public static HeatMapSummaryResponseVm MapToSummaryVmResponse(
-            IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses) {
+            IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses)
+        {
             var components = queryResponses
                 .GroupBy(q => new { q.ComponentId, q.ComponentName })
                 .Select(cg => new Component
@@ -83,7 +84,7 @@ namespace Eras.Application.Mappers
                     Name = c.Description,
                     Data = c.Variables
                     .Select(va => new DataPointSummary
-                    { 
+                    {
                         X = va.Description,
                         Y = Math.Round(Math.Min(va.AverageScore, 5), 2) // Limit the maxValue to 5, should be fixed
                     })
@@ -104,7 +105,8 @@ namespace Eras.Application.Mappers
             }
 
 
-            return new HeatMapSummaryResponseVm {
+            return new HeatMapSummaryResponseVm
+            {
                 Components = components,
                 Series = series
             };

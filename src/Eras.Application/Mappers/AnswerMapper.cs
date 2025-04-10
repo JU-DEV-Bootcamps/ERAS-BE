@@ -11,7 +11,7 @@ namespace Eras.Application.Mappers
             return new Answer
             {
                 AnswerText = dto.Answer,
-                RiskLevel = (int) dto.Score,
+                RiskLevel = (int)dto.Score,
                 PollInstanceId = dto.PollInstanceId,
                 PollVariableId = dto.PollVariableId,
                 Audit = dto.Audit

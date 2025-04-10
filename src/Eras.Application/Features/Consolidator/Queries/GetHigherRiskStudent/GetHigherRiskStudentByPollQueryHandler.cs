@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent
@@ -21,10 +24,10 @@ namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent
         public int DefaultTakeNumber = 9999;
 
         public async Task<GetQueryResponse<List<(
-            Answer answer, 
-            Variable variable, 
+            Answer answer,
+            Variable variable,
             Student student)>>> Handle(
-            GetHigherRiskStudentByPollQuery request, 
+            GetHigherRiskStudentByPollQuery request,
             CancellationToken cancellationToken)
         {
             int TakeNStudents = request.Take.HasValue && request.Take.Value > 0 ? request.Take.Value : DefaultTakeNumber;

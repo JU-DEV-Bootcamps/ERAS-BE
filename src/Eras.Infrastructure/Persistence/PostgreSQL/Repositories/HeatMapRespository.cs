@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.HeatMap;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -16,7 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> 
+        public async Task<IEnumerable<GetHeatMapByComponentsQueryResponse>>
             GetHeatMapDataByComponentsAsync(string pollUUID)
         {
             var query = from v in _context.Variables
@@ -41,7 +43,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                               .ToListAsync();
         }
 
-        public async Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> 
+        public async Task<IEnumerable<GetHeatMapByComponentsQueryResponse>>
             GetHeatMapDataByCohortAndDaysAsync(int? cohortId, int? days)
         {
             var pollInstances = await GetPollInstancesByCohortIdAndLastDays(cohortId, days);
@@ -70,7 +72,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                               .ToListAsync();
         }
 
-        internal async Task<IEnumerable<PollInstanceEntity>> 
+        internal async Task<IEnumerable<PollInstanceEntity>>
             GetPollInstancesByCohortIdAndLastDays(int? cohortId, int? days)
         {
             IQueryable<PollInstanceEntity> query = _context.PollInstances

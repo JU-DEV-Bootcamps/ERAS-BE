@@ -1,7 +1,8 @@
-using Eras.Application.Contracts.Infrastructure;
+﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Services;
 using Eras.Infrastructure.External.CosmicLatteClient;
 using Eras.Infrastructure.External.KeycloakClient;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ namespace Eras.Infrastructure
         {
             services.AddScoped<IKeycloakAuthService<TokenResponse>, KeycloakAuthService>();
             services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
-            
+
             AddAuthentication(services, configuration);
 
             return services;
@@ -32,7 +33,7 @@ namespace Eras.Infrastructure
             keycloakRealm = Environment.GetEnvironmentVariable("KEYCLOAK_REALM") ?? configuration["Keycloak:Realm"];
         }
 
-         private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
+        private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
         {
             GetKeycloakConfiguration(
                 configuration,

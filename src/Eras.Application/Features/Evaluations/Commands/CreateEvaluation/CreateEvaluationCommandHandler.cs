@@ -1,10 +1,12 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models;
-using Eras.Domain.Entities;
-using MediatR;
-using Microsoft.Extensions.Logging;
 using Eras.Application.Mappers;
+using Eras.Application.Models;
 using Eras.Domain.Common;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Evaluations.Commands
 {
@@ -14,7 +16,7 @@ namespace Eras.Application.Features.Evaluations.Commands
         private readonly ILogger<CreateEvaluationCommandHandler> _logger;
         private readonly IPollRepository _pollRepository;
         private readonly IMediator _mediator;
-        public CreateEvaluationCommandHandler(IEvaluationRepository evaluationRepository,IPollRepository pollRepository,
+        public CreateEvaluationCommandHandler(IEvaluationRepository evaluationRepository, IPollRepository pollRepository,
             ILogger<CreateEvaluationCommandHandler> logger, IMediator mediator)
         {
             _evaluationRepository = evaluationRepository;
@@ -28,7 +30,7 @@ namespace Eras.Application.Features.Evaluations.Commands
             try
             {
                 string status = EvaluationConstants.EvaluationStatus.Pending.ToString();
-                Evaluation? evaluation=null;
+                Evaluation? evaluation = null;
                 Poll? poll = null;
                 evaluation = await _evaluationRepository.GetByNameAsync(request.EvaluationDTO.Name);
                 if (evaluation != null) return new CreateCommandResponse<Evaluation>(null, 0,

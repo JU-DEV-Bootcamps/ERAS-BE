@@ -1,47 +1,33 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
 using Eras.Application.DTOs;
-using Eras.Application.Mappers;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Services
 {
-    public class StudentService : IStudentService
+    public class StudentService(IStudentRepository StudentRepository, ILogger<StudentService> Logger) : IStudentService
     {
-        private readonly IStudentRepository _studentRepository;
+        private readonly IStudentRepository _studentRepository = StudentRepository;
 
-
-        public StudentService(IStudentRepository studentRepository, ILogger<StudentService> logger)
-        {
-            _studentRepository = studentRepository;
-
-        }
-
-        public async Task<Student> CreateStudent(Student student)
+        public async Task<Student> CreateStudent(Student Student)
         {
             try
             {
-                /*
-                if (!ValidateStudentDto(dto))
-                {
-                    _logger.LogWarning("Invalid student data: {SISId}", dto.SISId);
-                    continue;
-                }
-                */
-                return await _studentRepository.AddAsync(student);
+                return await _studentRepository.AddAsync(Student);
             }
             catch (Exception ex)
             {
-                return null;
+                Logger.LogError(ex, "An error occurred while creating the student");
+                throw new Exception("An error occurred while creating the student", ex);
             }
         }
 
-        public async Task<int> ImportStudentsAsync(StudentImportDto[] studentsDto)
+        public Task<int> ImportStudentsAsync(StudentImportDto[] StudentsDto)
         {
-            int newRecors = 0;
-            foreach (var dto in studentsDto)
+            var newRecords = 0;
+            foreach (StudentImportDto dto in StudentsDto)
             {
                 try
                 {
@@ -49,24 +35,20 @@ namespace Eras.Application.Services
                     {
                         continue;
                     }
-                    Student created = new Student();//await CreateStudent(dto.ToDomain());
-                    if (created != null) newRecors++;
+                    var created = new Student();
+                    if (created != null) newRecords++;
                 }
                 catch (Exception ex)
                 {
-                    //_logger.LogError(ex, "An error occurred during the import process");
+                    Logger.LogError(ex, "An error occurred during the import process");
                 }
-
-                return newRecors;
+                return Task.FromResult(newRecords);
             }
-            return newRecors;
+            return Task.FromResult(newRecords);
         }
 
-        private bool ValidateStudentDto(StudentImportDto dto)
-        {
-            return !string.IsNullOrWhiteSpace(dto.Name) 
-                && !string.IsNullOrWhiteSpace(dto.Email) 
-                && !string.IsNullOrWhiteSpace(dto.SISId);
-        }
+        private static bool ValidateStudentDto(StudentImportDto Dto) => !string.IsNullOrWhiteSpace(Dto.Name)
+                && !string.IsNullOrWhiteSpace(Dto.Email)
+                && !string.IsNullOrWhiteSpace(Dto.SISId);
     }
 }

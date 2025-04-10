@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Eras.Application.Models
 {
-    public class QueryManyResponse<T>: BaseResponse
+    public class QueryManyResponse<T> : BaseResponse
     {
         public IEnumerable<T> Entities { get; set; }
 

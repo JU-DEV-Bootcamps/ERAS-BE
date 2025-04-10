@@ -23,7 +23,7 @@ namespace Eras.Application.Services
             catch (Exception e)
             {
                 // todo pending custom exepcion? disscuss with team
-                throw new NotImplementedException("Error creating poll: "+e.Message);
+                throw new NotImplementedException("Error creating poll: " + e.Message);
             }
         }
         public async Task<Poll?> GetPollById(int pollId)

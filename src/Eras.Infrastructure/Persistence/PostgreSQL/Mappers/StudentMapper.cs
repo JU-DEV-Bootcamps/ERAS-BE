@@ -1,4 +1,4 @@
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
@@ -9,7 +9,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
         {
 
             ArgumentNullException.ThrowIfNull(entity);
-            StudentDetail stDetail = entity.StudentDetail != null? entity.StudentDetail.ToDomain() : new StudentDetail();
+            StudentDetail stDetail = entity.StudentDetail != null ? entity.StudentDetail.ToDomain() : new StudentDetail();
             return new Student
             {
                 Id = entity.Id,

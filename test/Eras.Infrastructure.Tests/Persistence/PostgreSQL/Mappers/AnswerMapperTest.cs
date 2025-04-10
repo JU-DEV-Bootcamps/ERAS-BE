@@ -1,11 +1,12 @@
-﻿    using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
 {

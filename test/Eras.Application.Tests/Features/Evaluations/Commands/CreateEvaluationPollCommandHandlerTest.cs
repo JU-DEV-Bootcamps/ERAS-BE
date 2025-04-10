@@ -1,10 +1,12 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Evaluations.Commands;
-using Microsoft.Extensions.Logging;
 using Eras.Application.Mappers;
-using Moq;
 using Eras.Domain.Entities;
+
+using Microsoft.Extensions.Logging;
+
+using Moq;
 
 namespace Eras.Application.Tests.Features.Evaluations.Commands
 {

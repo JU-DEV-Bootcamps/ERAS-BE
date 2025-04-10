@@ -1,7 +1,9 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Evaluations.Queries
@@ -9,7 +11,7 @@ namespace Eras.Application.Features.Evaluations.Queries
     class GetEvaluationProcessSummaryQueryHandler(
         IEvaluationRepository evaluationRepository,
         ILogger<GetEvaluationProcessSummaryQueryHandler> logger
-    ): IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>
+    ) : IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>
     {
         private readonly IEvaluationRepository _evaluationRepository = evaluationRepository;
         private readonly ILogger<GetEvaluationProcessSummaryQueryHandler> _logger = logger;

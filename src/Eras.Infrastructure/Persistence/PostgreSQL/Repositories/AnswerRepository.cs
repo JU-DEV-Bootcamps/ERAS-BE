@@ -1,8 +1,10 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -24,7 +26,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Where(answer => answer.PollInstanceId.Equals(lastPoll.Id))
                 .ToListAsync();
             var domainAnswers = new List<Answer>();
-            foreach(var answer in answers)
+            foreach (var answer in answers)
             {
                 domainAnswers.Add(answer.ToDomain());
             }
@@ -36,7 +38,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var answers = await _context.Answers
                 .Where(answer => answer.PollInstanceId.Equals(uuid)).ToListAsync();
             var domainAnswers = new List<Answer>();
-            foreach(var answer in answers)
+            foreach (var answer in answers)
             {
                 domainAnswers.Add(answer.ToDomain());
             }

@@ -2,7 +2,9 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.HeatMap;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByCohort;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatMapDetailsByCohort

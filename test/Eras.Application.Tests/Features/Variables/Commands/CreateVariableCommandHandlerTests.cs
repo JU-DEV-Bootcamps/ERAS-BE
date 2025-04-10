@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
@@ -12,7 +13,9 @@ using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Features.Variables.Commands.CreateVariable;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Variables.Commands
@@ -33,7 +36,7 @@ namespace Eras.Application.Tests.Features.Variables.Commands
         [Fact]
         public async Task Handle_Variable_CreatesNewVariable()
         {
-            var newVariableDto = new VariableDTO() { Name= "newVariable" };
+            var newVariableDto = new VariableDTO() { Name = "newVariable" };
             var command = new CreateVariableCommand { Variable = newVariableDto };
             var newVariable = newVariableDto.ToDomain;
 

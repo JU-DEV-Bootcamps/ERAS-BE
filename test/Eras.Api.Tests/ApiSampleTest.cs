@@ -1,35 +1,32 @@
 ﻿using Eras.Api.Controllers;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Eras.Api.Tests
+namespace Eras.Api.Tests;
+
+public class ApiSampleTest
 {
-    public class ApiSampleTest
+    [Fact]
+    public async Task CosmicApiIsHealthy_ShouldReturnOkResultWithExpectedStatusAsync()
     {
-        [Fact]
-        public async Task CosmicApiIsHealthy_ShouldReturnOkResultWithExpectedStatus()
-        {
-            //Arrange
+        //Arrange
 
-            var mockService = new Mock<ICosmicLatteAPIService>();
-            var expectedStatus = new CosmicLatteStatus(true);
+        var mockService = new Mock<ICosmicLatteAPIService>();
+        var expectedStatus = new CosmicLatteStatus(true);
 
-            mockService.Setup(service => service.CosmicApiIsHealthy())
-                .ReturnsAsync(expectedStatus);
+        mockService.Setup(Service => Service.CosmicApiIsHealthy())
+            .ReturnsAsync(expectedStatus);
 
-            var controller = new CosmicLatteController(mockService.Object);
+        var controller = new CosmicLatteController(mockService.Object);
 
-            // Act
-            // var result = await controller.CosmicApiIsHealthy();
+        // Act
+        // var result = await controller.CosmicApiIsHealthy();
 
-            // Assert
-            // var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            // var actualStatus = Assert.IsType<CosmicLatteStatus>(okResult.Value);
+        // Assert
+        // var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        // var actualStatus = Assert.IsType<CosmicLatteStatus>(okResult.Value);
 
-            // Assert.Equal(expectedStatus.Status, actualStatus.Status);
-        }
+        // Assert.Equal(expectedStatus.Status, actualStatus.Status);
     }
 }

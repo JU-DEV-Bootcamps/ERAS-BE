@@ -1,7 +1,9 @@
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
@@ -18,12 +20,14 @@ public class GetHigherRiskStudentByVariableQueryHandler(
     public async Task<GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>> Handle(GetHigherRiskStudentByVariableQuery request, CancellationToken cancellationToken)
     {
         int TakeNStudents = request.Take.HasValue && request.Take.Value > 0 ? request.Take.Value : DefaultTakeNumber;
-        try{
+        try
+        {
             var results = await _pollVariableRepository.GetByPollUuidAsync(request.PollInstanceUuid, request.VariableId);
             var orderedStudents = results.OrderByDescending(s => s.Answer.RiskLevel).Take(TakeNStudents).ToList();
             return new GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>(orderedStudents, "Success", true);
         }
-        catch(Exception e){
+        catch (Exception e)
+        {
             _logger.LogError(e, "An error occurred while calculating higher risk students: " + request);
             return new GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>(
                 new List<(Answer answer, Variable variable, Student student)>(),

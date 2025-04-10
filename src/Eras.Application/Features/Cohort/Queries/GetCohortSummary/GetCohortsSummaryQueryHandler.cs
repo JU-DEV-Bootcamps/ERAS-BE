@@ -1,6 +1,8 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Cohort.Queries
@@ -14,7 +16,7 @@ namespace Eras.Application.Features.Cohort.Queries
         private readonly ILogger<GetCohortsSummaryQuery> _logger = logger;
 
         public async Task<List<(Student Student, List<PollInstance> PollInstances)>> Handle(
-            GetCohortsSummaryQuery request, 
+            GetCohortsSummaryQuery request,
             CancellationToken cancellationToken)
         {
             var cohortSummary = await _screpository.GetCohortsSummaryAsync();

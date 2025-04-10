@@ -1,6 +1,8 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.HeatMap;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByCohort

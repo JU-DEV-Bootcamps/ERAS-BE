@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays
 {
-    internal class GetPollInstancesByLastDaysQueryHandler: IRequestHandler<GetPollInstancesByLastDaysQuery, QueryManyResponse<PollInstance>>
+    internal class GetPollInstancesByLastDaysQueryHandler : IRequestHandler<GetPollInstancesByLastDaysQuery, QueryManyResponse<PollInstance>>
     {
         private readonly IPollInstanceRepository _pollInstanceRepository;
         private readonly ILogger<GetPollInstancesByLastDaysQueryHandler> _logger;

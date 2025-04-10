@@ -1,7 +1,9 @@
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
@@ -24,7 +26,8 @@ public class GetHigherRiskStudentByCohortPollQueryHandler(
 
     public async Task<GetQueryResponse<List<(Student, List<Answer>?, double)>>> Handle(GetHigherRiskStudentByCohortPollQuery request, CancellationToken cancellationToken)
     {
-        try {
+        try
+        {
             int TakeNStudents = request.Take.HasValue && request.Take.Value > 0 ? request.Take.Value : DefaultTakeNumber;
             var poll = await _pollRepository.GetByNameAsync(request.PollName) ?? throw new KeyNotFoundException("Poll not found");
 
@@ -35,18 +38,20 @@ public class GetHigherRiskStudentByCohortPollQueryHandler(
                     : null
                 ) ?? throw new KeyNotFoundException("No students found for the cohort");
 
-            List<(Student Student,List<Answer>? Answers,double RiskIndex)> studentsAnswers = [];
-            foreach (var student in cohortStudents){
+            List<(Student Student, List<Answer>? Answers, double RiskIndex)> studentsAnswers = [];
+            foreach (var student in cohortStudents)
+            {
                 var answers = await _answerRepository.GetByStudentIdAsync(student.Uuid);
                 //Higher risk index calculator
                 double riskIndex = 0;
-                if(answers?.Count > 0) {
+                if (answers?.Count > 0)
+                {
                     riskIndex = answers.Average(a => a.RiskLevel);
                 }
                 studentsAnswers.Add((student, answers, riskIndex));
             }
             var topN = studentsAnswers.OrderByDescending(s => s.RiskIndex).Take(TakeNStudents).ToList();
-            return new GetQueryResponse<List<(Student Student, List<Answer>? Answers, double RiskIndex)>>( topN, "successful", true);
+            return new GetQueryResponse<List<(Student Student, List<Answer>? Answers, double RiskIndex)>>(topN, "successful", true);
         }
         catch (Exception ex)
         {

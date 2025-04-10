@@ -1,11 +1,12 @@
-﻿using Eras.Application.Dtos;
-using Eras.Domain.Common;
-using Eras.Domain.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Eras.Application.Dtos;
+using Eras.Domain.Common;
+using Eras.Domain.Entities;
 
 namespace Eras.Application.DTOs
 {

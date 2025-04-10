@@ -1,7 +1,9 @@
 ﻿
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.HeatMap;
+
 using Moq;
+
 using Component = Eras.Domain.Entities.Component;
 using Variable = Eras.Domain.Entities.Variable;
 
@@ -9,7 +11,8 @@ namespace Eras.Application.Tests.Mocks
 {
     public class RepositoryHeatmapMock
     {
-        public static Mock<IHeatMapRepository> GetHeatmapRepository() { 
+        public static Mock<IHeatMapRepository> GetHeatmapRepository()
+        {
             var mockupHeatmapRepository = new Mock<IHeatMapRepository>();
 
             var mockAnswers = new List<GetHeatMapByComponentsQueryResponse>
@@ -37,7 +40,8 @@ namespace Eras.Application.Tests.Mocks
             return mockupHeatmapRepository;
         }
 
-        public static Mock<IComponentRepository> GetComponentRepository() { 
+        public static Mock<IComponentRepository> GetComponentRepository()
+        {
             var mockupComponentRepository = new Mock<IComponentRepository>();
 
             var mockComponents = new List<Component>

@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Answers.Commands.CreateAnswer
@@ -30,12 +33,12 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswer
             {
                 Answer answer = request.Answer.ToDomain();
                 Answer createdAnswer = await _answerRepository.AddAsync(answer);
-                return new CreateCommandResponse<Answer>(createdAnswer,1, "Success", true);
+                return new CreateCommandResponse<Answer>(createdAnswer, 1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the Answer: " + request.Answer.Answer);
-                return new CreateCommandResponse<Answer>(null,0, "Error", false);
+                return new CreateCommandResponse<Answer>(null, 0, "Error", false);
             }
         }
     }

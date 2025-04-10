@@ -4,7 +4,9 @@ using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Components.Commands.CreateCommand
@@ -29,7 +31,7 @@ namespace Eras.Application.Features.Components.Commands.CreateCommand
                 if (componentnDB != null) return new CreateCommandResponse<Component>(componentnDB, 0, "Success", true);
 
                 Component? component = request.Component?.ToDomain();
-                if (component == null) return new CreateCommandResponse<Component>(null,0, "Error", false);
+                if (component == null) return new CreateCommandResponse<Component>(null, 0, "Error", false);
                 Component createdComponent = await _componentRepository.AddAsync(component);
 
                 return new CreateCommandResponse<Component>(createdComponent, 1, "Success", true);
@@ -37,7 +39,7 @@ namespace Eras.Application.Features.Components.Commands.CreateCommand
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the component: ");
-                return new CreateCommandResponse<Component>(null,0, "Error", false);
+                return new CreateCommandResponse<Component>(null, 0, "Error", false);
             }
         }
     }

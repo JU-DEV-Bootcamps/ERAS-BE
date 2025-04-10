@@ -1,15 +1,18 @@
+﻿using Eras.Api;
+using Eras.Api.Middleware;
+using Eras.Application.Services;
+using Eras.Infrastructure;
+using Eras.Infrastructure.External.CosmicLatteClient;
+using Eras.Infrastructure.Persistence.PostgreSQL;
+
+using HealthChecks.UI.Client;
+
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+
 using Serilog;
 using Serilog.Events;
-using Eras.Application.Services;
-using Eras.Infrastructure.Persistence.PostgreSQL;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Hosting;
-using Eras.Api;
-using Eras.Infrastructure;
-using Eras.Api.Middleware;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using HealthChecks.UI.Client;
-using Eras.Infrastructure.External.CosmicLatteClient;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,9 +40,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
-builder.Services.AddHealthChecks()                          
-    .AddCheck<CosmicLatteHealthCheck>("cosmicLatteApi");  
-                                                            
+builder.Services.AddHealthChecks()
+    .AddCheck<CosmicLatteHealthCheck>("cosmicLatteApi");
+
 var app = builder.Build();
 
 // Automitcally log HTTP requests

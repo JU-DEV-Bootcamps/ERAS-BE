@@ -1,4 +1,4 @@
-using Eras.Application.DTOs.Poll;
+﻿using Eras.Application.DTOs.Poll;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence

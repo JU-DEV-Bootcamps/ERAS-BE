@@ -1,34 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
+﻿using System.Text.Json.Serialization;
 
-namespace Eras.Application.DTOs.CosmicLatte
+namespace Eras.Application.DTOs.CosmicLatte;
+
+public class CLResponseForAllPollsDTO
 {
-    public class CLResponseForAllPollsDTO
-    {
 
-        [JsonPropertyName("@data")]
-        public List<PollDataItem> data { get; set; }
-    }
-    public class PollDataItem
-    {
-        public PollDataItem(string parent, string name, string status)
-        {
-            this.parent = parent;
-            this.name = name;
-            this.status = status;
-        }
+    [JsonPropertyName("@data")]
+    public List<PollDataItem>? data { get; set; }
+}
+public class PollDataItem(string Parent, string Name, string Status)
+{
+    [JsonPropertyName("parent")]
+    public string parent { get; set; } = Parent;
 
-        [JsonPropertyName("parent")]
-        public string parent { get; set; }
+    [JsonPropertyName("name")]
+    public string name { get; set; } = Name;
 
-        [JsonPropertyName("name")]
-        public string name { get; set; }
-
-        [JsonPropertyName("status")]
-        public string status { get; set; }
-    }
+    [JsonPropertyName("status")]
+    public string status { get; set; } = Status;
 }

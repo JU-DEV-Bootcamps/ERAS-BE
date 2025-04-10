@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Eras.Application.Models.HeatMap;
-using Eras.Application.Models;
-using MediatR;
+
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents;
-using Microsoft.Extensions.Logging;
 using Eras.Application.Exceptions;
+using Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents;
 using Eras.Application.Mappers;
+using Eras.Application.Models;
+using Eras.Application.Models.HeatMap;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
 {
@@ -33,7 +36,8 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
             {
                 throw new NotFoundException($"Poll instance ID cannot be null or empty");
             }
-            try {
+            try
+            {
                 var answersByComponents = await _heatMapRepository.GetHeatMapDataByComponentsAsync(request.PollInstanceUUID);
                 if (answersByComponents == null || !answersByComponents.Any())
                     throw new NotFoundException($"No data found for poll instance ID: {request.PollInstanceUUID}");

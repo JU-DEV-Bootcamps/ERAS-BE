@@ -1,16 +1,19 @@
-﻿using Eras.Application.Contracts.Persistence;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
 {
@@ -19,7 +22,7 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
         private readonly IStudentDetailRepository _studentDetailRepository;
         private readonly ILogger<CreateStudentDetailCommandHandler> _logger;
 
-        public CreateStudentDetailCommandHandler(IStudentDetailRepository studentDetailRepository, 
+        public CreateStudentDetailCommandHandler(IStudentDetailRepository studentDetailRepository,
             ILogger<CreateStudentDetailCommandHandler> logger)
         {
             _studentDetailRepository = studentDetailRepository;

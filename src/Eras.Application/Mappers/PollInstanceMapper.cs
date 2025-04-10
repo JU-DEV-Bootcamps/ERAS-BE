@@ -1,11 +1,12 @@
-﻿using Eras.Application.Dtos;
-using Eras.Application.DTOs;
-using Eras.Domain.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Eras.Application.Dtos;
+using Eras.Application.DTOs;
+using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers
 {
@@ -17,7 +18,7 @@ namespace Eras.Application.Mappers
             ICollection<Answer> answers = dto.Answers?.Select(ans => ans.ToDomain()).ToList() ?? [];
             return new PollInstance()
             {
-                Uuid = dto.Uuid,             
+                Uuid = dto.Uuid,
                 Student = dto.Student?.ToDomain() ?? new Student(),
                 Answers = answers,
                 Audit = dto.Audit,

@@ -1,11 +1,14 @@
-using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Eras.Application.Features.Consolidator.Queries.GetAvgRiskAnswer;
-using Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
-using Eras.Application.Features.Consolidator.Queries.GetByRuleset;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Diagnostics.CodeAnalysis;
+
+using Eras.Application.Features.Consolidator.Queries.GetAvgRiskAnswer;
+using Eras.Application.Features.Consolidator.Queries.GetByRuleset;
+using Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
+
+using MediatR;
+
+using Microsoft.AspNetCore.Mvc;
 namespace Eras.Api.Controllers;
 
 [ApiController]
@@ -54,23 +57,26 @@ public class ReportsController : ControllerBase
             {
                 StudentUuid = s.Student.Uuid,
                 StudentName = s.Student.Name,
-                Answers = s.Answers?.Select((a, i)=> new {
+                Answers = s.Answers?.Select((a, i) => new
+                {
                     answer = a.AnswerText,
                     answerId = a.Id,
                     answerRiskLevel = a.RiskLevel,
                     variableId = a.PollVariableId,
                     pollInstanceId = a.PollInstanceId
-                    }).ToList(),
+                }).ToList(),
                 s.RiskIndex
             }).ToList();
 
             return avgRisk.Success
-            ? Ok(new {
-                    status = "successful",
-                    message = $"Top risk students: {toprmessage}",
-                    body = result
-                })
-            : BadRequest(new { status = "error", message = avgRisk.Message });}
+            ? Ok(new
+            {
+                status = "successful",
+                message = $"Top risk students: {toprmessage}",
+                body = result
+            })
+            : BadRequest(new { status = "error", message = avgRisk.Message });
+        }
         catch (Exception ex)
         {
             return NotFound(new { status = "error", message = ex.Message });
@@ -118,10 +124,10 @@ public class ReportsController : ControllerBase
     {
         try
         {
-            GetHigherRiskStudentByPollQuery query = new() 
-            { 
+            GetHigherRiskStudentByPollQuery query = new()
+            {
                 PollInstanceUuid = pollInstanceUuid,
-                Take = take ,
+                Take = take,
                 VariableIds = variableIds
             };
             var avgRisk = await _mediator.Send(query);

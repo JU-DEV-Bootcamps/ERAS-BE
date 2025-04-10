@@ -1,4 +1,4 @@
-namespace Eras.Application.Contracts.Persistence
+﻿namespace Eras.Application.Contracts.Persistence
 {
     public interface IBaseRepository<T>
     {
@@ -9,6 +9,6 @@ namespace Eras.Application.Contracts.Persistence
         Task DeleteAsync(T entity);
         Task<T> UpdateAsync(T entity);
         Task<int> CountAsync();
-        
+
     }
 }

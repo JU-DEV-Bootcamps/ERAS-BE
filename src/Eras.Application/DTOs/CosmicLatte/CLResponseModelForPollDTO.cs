@@ -1,227 +1,218 @@
-﻿using Microsoft.Extensions.Primitives;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
-namespace Eras.Application.DTOs.CL
+namespace Eras.Application.DTOs.CL;
+public class AnswersListConverter : JsonConverter<string[]>
 {
-    public class AnswersListConverter : JsonConverter<string[]>
+    public override string[] Read(ref Utf8JsonReader Reader, Type TypeToConvert, JsonSerializerOptions Options)
     {
-        public override string[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        if (Reader.TokenType == JsonTokenType.StartArray)
         {
-            if (reader.TokenType == JsonTokenType.StartArray)
+            var result = new List<string>();
+            while (Reader.Read())
             {
-                var result = new List<string>();
-                while (reader.Read())
+                if (Reader.TokenType == JsonTokenType.EndArray)
+                    break;
+
+                if (Reader.TokenType == JsonTokenType.String)
                 {
-                    if (reader.TokenType == JsonTokenType.EndArray)
-                        break;
 
-                    if (reader.TokenType == JsonTokenType.String)
-                    {
-                        var value = reader.GetString();
-                        result.Add(value == "-" ? "Invalid string" : value);
-                    }
-                    else
-                    {
-                        throw new JsonException("A string value was expected in the array.");
-                    }
+                    var value = Reader.GetString();
+                    result.Add((value == "-" || value == null) ? "Invalid string" : value);
                 }
-                return result.ToArray();
+                else
+                {
+                    throw new JsonException("A string value was expected in the array.");
+                }
             }
-            else if (reader.TokenType == JsonTokenType.String)
-            {
-                var value = reader.GetString();
-                return new string[] { value };
-            }
-            throw new JsonException("An array or string was expected.");
+            return result.ToArray();
         }
-
-        public override void Write(Utf8JsonWriter writer, string[] value, JsonSerializerOptions options)
+        else if (Reader.TokenType == JsonTokenType.String)
         {
-            writer.WriteStartArray();
-            foreach (var item in value)
-            {
-                writer.WriteStringValue(item);
-            }
-            writer.WriteEndArray();
+            return [Reader.GetString() ?? "Null value"];
         }
-    } 
-    // this is a class only to serialize from Cosmic latte
-    public class CLResponseModelForPollDTO
-    {
-        [JsonPropertyName("@data")]
-        public Data Data { get; set; }
-
-        [JsonPropertyName("@meta")]
-        public Meta Meta { get; set; }
+        throw new JsonException("An array or string was expected.");
     }
 
-    // level 1  
-    public class Meta
+    public override void Write(Utf8JsonWriter Writer, string[] Value, JsonSerializerOptions Options)
     {
-        [JsonPropertyName("@selfLink")]
-        public string SelfLink { get; set; }
+        Writer.WriteStartArray();
+        foreach (var item in Value)
+        {
+            Writer.WriteStringValue(item);
+        }
+        Writer.WriteEndArray();
     }
-    public class Data
-    {
-        [JsonPropertyName("_id")]
-        public string _id { get; set; }
+}
+// this is a class only to serialize from Cosmic latte
+public class CLResponseModelForPollDTO
+{
+    [JsonPropertyName("@data")]
+    public Data? Data { get; set; }
 
-        [JsonPropertyName("evaluationSet")]
-        public EvaluationSet EvaluationSet { get; set; }
+    [JsonPropertyName("@meta")]
+    public Meta? Meta { get; set; }
+}
 
-        [JsonPropertyName("evaluator")]
-        public Evaluator Evaluator { get; set; }
+// level 1
+public class Meta
+{
+    [JsonPropertyName("@selfLink")]
+    public required string SelfLink { get; set; }
+}
+public class Data
+{
+    [JsonPropertyName("_id")]
+    public required string _id { get; set; }
 
-        [JsonPropertyName("evaluation")]
-        public Evaluation Evaluation { get; set; }
+    [JsonPropertyName("evaluationSet")]
+    public EvaluationSet? EvaluationSet { get; set; }
 
-        [JsonPropertyName("scores")]
-        public Scores Scores { get; set; }
+    [JsonPropertyName("evaluator")]
+    public Evaluator? Evaluator { get; set; }
 
-        [JsonPropertyName("answers")]
-        public Dictionary<int, Answers> Answers { get; set; }
+    [JsonPropertyName("evaluation")]
+    public required Evaluation Evaluation { get; set; }
 
-        [JsonPropertyName("inventory")]
-        public Inventory Inventory { get; set; }
+    [JsonPropertyName("scores")]
+    public required Scores Scores { get; set; }
 
-        [JsonPropertyName("owner")]
-        public Owner Owner { get; set; }
-    }
+    [JsonPropertyName("answers")]
+    public required Dictionary<int, Answers> Answers { get; set; }
 
-    // level 2 (inside Data) _id, evaluationSet, evaluator, evaluation, scores, answers, inventory, owner
-    public class EvaluationSet
-    {
-        [JsonPropertyName("_id")]
-        public string Id { get; set; }
+    [JsonPropertyName("inventory")]
+    public Inventory? Inventory { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-    }
-    public class Evaluator
-    {
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+    [JsonPropertyName("owner")]
+    public Owner? Owner { get; set; }
+}
 
-        [JsonPropertyName("email")]
-        public string Email { get; set; }
-    }
-    public class Evaluation
-    {
-        [JsonPropertyName("_id")]
-        public string Id { get; set; }
+// level 2 (inside Data) _id, evaluationSet, evaluator, evaluation, scores, answers, inventory, owner
+public class EvaluationSet
+{
+    [JsonPropertyName("_id")]
+    public string? Id { get; set; }
 
-        [JsonPropertyName("startedAt")]
-        public DateTime StartedAt { get; set; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+}
+public class Evaluator
+{
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 
-        [JsonPropertyName("finishedAt")]
-        public DateTime FinishedAt { get; set; }
+    [JsonPropertyName("email")]
+    public string? Email { get; set; }
+}
+public class Evaluation
+{
+    [JsonPropertyName("_id")]
+    public string? Id { get; set; }
 
-        [JsonPropertyName("elapsedTimeInSeconds")]
-        public int ElapsedTimeInSeconds { get; set; }
+    [JsonPropertyName("startedAt")]
+    public DateTime StartedAt { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-    } 
-    public class Scores
-    {
-        [JsonExtensionData]
-        public Dictionary<string, JsonElement> Traits { get; set; } = new();
-    }
+    [JsonPropertyName("finishedAt")]
+    public DateTime FinishedAt { get; set; }
 
-    public class Answers
-    { 
-        [JsonPropertyName("answer")]
-        [JsonConverter(typeof(AnswersListConverter))] 
-        public string[] AnswersList { get; set; }
+    [JsonPropertyName("elapsedTimeInSeconds")]
+    public int ElapsedTimeInSeconds { get; set; }
 
-        [JsonPropertyName("question")]
-        public Question Question { get; set; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+}
+public class Scores
+{
+    [JsonExtensionData]
+    public Dictionary<string, JsonElement> Traits { get; set; } = new();
+}
 
-        [JsonPropertyName("position")]
-        public int Position { get; set; }
+public class Answers
+{
+    [JsonPropertyName("answer")]
+    [JsonConverter(typeof(AnswersListConverter))]
+    public string[]? AnswersList { get; set; }
 
-        [JsonPropertyName("score")]
-        public double Score { get; set; }
+    [JsonPropertyName("question")]
+    public Question? Question { get; set; }
 
-        [JsonPropertyName("type")]
-        public string Type { get; set; }
+    [JsonPropertyName("position")]
+    public int Position { get; set; }
 
-        [JsonPropertyName("customSettings")]
-        public List<string> CustomSettings { get; set; } = new List<string>();
-    }
-    public class Inventory
-    {
-        [JsonPropertyName("_id")]
-        public string Id { get; set; }
+    [JsonPropertyName("score")]
+    public double Score { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+    [JsonPropertyName("type")]
+    public string? Type { get; set; }
 
-        [JsonPropertyName("key")]
-        public string Key { get; set; }
+    [JsonPropertyName("customSettings")]
+    public List<string> CustomSettings { get; set; } = new List<string>();
+}
+public class Inventory
+{
+    [JsonPropertyName("_id")]
+    public string? Id { get; set; }
 
-        [JsonPropertyName("access")]
-        public string Access { get; set; }
-    }
-    public class Owner
-    {
-        [JsonPropertyName("email")]
-        public string Email { get; set; }
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
-    }
+    [JsonPropertyName("key")]
+    public string? Key { get; set; }
 
-    // level 3 (inside Answers) question 
-    public class Question
-    {
-        [JsonPropertyName("body")]
-        public Dictionary<string, string> Body { get; set; }
-    }
+    [JsonPropertyName("access")]
+    public string? Access { get; set; }
+}
+public class Owner
+{
+    [JsonPropertyName("email")]
+    public string? Email { get; set; }
+
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+}
+
+// level 3 (inside Answers) question
+public class Question
+{
+    [JsonPropertyName("body")]
+    public required Dictionary<string, string> Body { get; set; }
+}
 
 
-    // -------------------------------------------------------------------------------------------
+// -------------------------------------------------------------------------------------------
 
-    // level 2 (inside scores)
-    public class DefaultTrait
-    {
-        [JsonPropertyName("avg")]
-        public double Avg { get; set; }
+// level 2 (inside scores)
+public class DefaultTrait
+{
+    [JsonPropertyName("avg")]
+    public double Avg { get; set; }
 
-        [JsonPropertyName("sum")]
-        public int Sum { get; set; }
+    [JsonPropertyName("sum")]
+    public int Sum { get; set; }
 
-        [JsonPropertyName("count")]
-        public int Count { get; set; }
+    [JsonPropertyName("count")]
+    public int Count { get; set; }
 
-        [JsonPropertyName("facets")]
-        public Facets Facets { get; set; }
-    }
+    [JsonPropertyName("facets")]
+    public Facets? Facets { get; set; }
+}
 
-    // level 3 (inside scores, DefaultTrait)
-    public class Facets
-    {
-        [JsonPropertyName("default-facet")]
-        public DefaultFacet DefaultFacet { get; set; }
-    }
+// level 3 (inside scores, DefaultTrait)
+public class Facets
+{
+    [JsonPropertyName("default-facet")]
+    public DefaultFacet? DefaultFacet { get; set; }
+}
 
-    // level 4 (inside scores, DefaultTrait, Facets)
-    public class DefaultFacet
-    {
-        [JsonPropertyName("avg")]
-        public double Avg { get; set; }
+// level 4 (inside scores, DefaultTrait, Facets)
+public class DefaultFacet
+{
+    [JsonPropertyName("avg")]
+    public double Avg { get; set; }
 
-        [JsonPropertyName("sum")]
-        public int Sum { get; set; }
+    [JsonPropertyName("sum")]
+    public int Sum { get; set; }
 
-        [JsonPropertyName("count")]
-        public int Count { get; set; }
-    }
-
+    [JsonPropertyName("count")]
+    public int Count { get; set; }
 }
