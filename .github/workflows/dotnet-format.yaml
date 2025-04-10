@@ -23,17 +23,15 @@ jobs:
       - name: Fetch all branches
         run: git fetch --all
 
-      # Step 3: Setup .NET environment
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0
+      # Step 3: Ensure the base branch is fetched
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.base_ref }}
 
       # Step 4: Get list of changed files
       - name: Get changed files
         id: changes
         run: |
-          git diff --name-only origin/main ${{ github.head_ref }} > changed-files.txt
+          git diff --name-only origin/${{ github.base_ref }} HEAD > changed-files.txt
           echo "CHANGED_FILES=$(cat changed-files.txt)" >> $GITHUB_ENV
 
       # Step 5: Run dotnet format on changed files
