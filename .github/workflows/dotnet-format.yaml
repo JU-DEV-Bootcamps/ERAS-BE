@@ -39,12 +39,12 @@ jobs:
         if: env.CHANGED_FILES != ''
         run: |
           echo "Formatting changed files..."
-          for file in $(cat changed-files.txt); do
+          while IFS= read -r file; do
             if [[ $file == *.cs ]]; then
               echo "Formatting $file"
               dotnet format $file --verify-no-changes || exit 1
             fi
-          done
+          done < changed-files.txt
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
