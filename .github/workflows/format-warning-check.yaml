@@ -46,15 +46,17 @@ jobs:
             echo "CHANGED_FILES=" >> $GITHUB_ENV
           fi
 
-      # Step 6: Run dotnet format on the entire solution and capture output
+# Step 6: Run dotnet format on the entire solution and capture output
       - name: Format Issues - Run dotnet format
         id: format
         run: |
           echo "Running dotnet format on the entire solution..."
           dotnet format --verify-no-changes > format-output.txt || true
           echo "Raw format-output.txt:"
-          cat format-output.txt
-          FORMAT_ISSUES=$(cat format-output.txt)
+          while IFS= read -r line; do
+            echo "$line"
+          done < format-output.txt
+          FORMAT_ISSUES=$(<format-output.txt)
           echo "FORMAT_ISSUES=$FORMAT_ISSUES" >> $GITHUB_ENV
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
