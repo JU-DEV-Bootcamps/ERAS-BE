@@ -42,7 +42,7 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         [FromQuery] int Limit
     )
     {
-        var result = await _mediator.Send(new GetHeatMapDetailsByComponentQuery(Component, Limit));
+        List<Application.DTOs.HeatMap.StudentHeatMapDetailDto> result = await _mediator.Send(new GetHeatMapDetailsByComponentQuery(Component, Limit));
         return Ok(result);
     }
 
@@ -53,20 +53,20 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
     [FromRoute] string CohortId,
     [FromQuery] int Limit = 5)
     {
-        var result = await _mediator.Send(new GetHeatMapDetailsByCohortQuery(CohortId, Limit));
+        List<Application.DTOs.HeatMap.StudentHeatMapDetailDto> result = await _mediator.Send(new GetHeatMapDetailsByCohortQuery(CohortId, Limit));
         return Ok(result);
     }
 
     [HttpGet("summary/filter")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetHeatMapSummaryByFiltersAsync([FromQuery] int CohortId, [FromQuery] int Days)
+    public async Task<IActionResult> GetHeatMapSummaryByFiltersAsync([FromQuery] int CohortId, [FromQuery] int days)
     {
-        var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(CohortId, Days);
-        var response = await _mediator.Send(getHeatMapSummaryByFiltersQuery);
+        var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(CohortId, days);
+        GetQueryResponse<Application.Models.HeatMap.HeatMapSummaryResponseVm> response = await _mediator.Send(getHeatMapSummaryByFiltersQuery);
         if (response.Success.Equals(true))
         {
-            _logger.LogInformation("Successfull request of heat map summary in {days} for cohort {cohortId}", Days, CohortId);
+            _logger.LogInformation("Successfull request of heat map summary in {days} for cohort {cohortId}", days, CohortId);
             return Ok(response);
         }
         else
