@@ -67,14 +67,7 @@ jobs:
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
-      # Step 8: Fail the workflow if build warnings or errors are found
-      - name: Check build result
-        if: failure()
-        run: |
-          echo "Build warnings or errors detected in changed files. Please fix them before merging."
-          exit 1
-
-      # Step 9: Final summary of changed files, format issues, and build warnings
+      # Step 8: Final summary of changed files, format issues, and build warnings
       - name: Final Summary
         run: |
           echo "Final Summary:"
@@ -82,7 +75,7 @@ jobs:
           echo "$CHANGED_FILES"
           echo ""
 
-          echo "Format Issues: $FORMAT_ISSUES | wc -l"
+          echo "Format Issues:
           if [ -n "$FORMAT_ISSUES" ]; then
             # Extract file names from CHANGED_FILES and filter FORMAT_ISSUES
             echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No format issues found for changed files."
@@ -91,10 +84,39 @@ jobs:
           fi
           echo ""
 
-          echo "Build Warnings: $BUILD_WARNINGS | wc -l"
+          echo "Build Warnings: $BUILD_WARNINGS"
           if [ -n "$BUILD_WARNINGS" ]; then
             # Extract file names from CHANGED_FILES and filter BUILD_WARNINGS
             echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No build warnings found for changed files."
           else
             echo "No build warnings found."
           fi
+
+      # Step 9: Fail the workflow if format issues or build warnings are found in changed files
+      - name: Fail Workflow on Issues
+        run: |
+          echo "Checking for issues to fail the workflow..."
+
+          # Check for format issues
+          if [ -n "$FORMAT_ISSUES" ]; then
+            FILTERED_FORMAT_ISSUES=$(echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename))
+            if [ -n "$FILTERED_FORMAT_ISSUES" ]; then
+              echo "Format issues detected:"
+              echo "$FILTERED_FORMAT_ISSUES"
+              echo "Failing the workflow due to format issues."
+              exit 1
+            fi
+          fi
+
+          # Check for build warnings
+          if [ -n "$BUILD_WARNINGS" ]; then
+            FILTERED_BUILD_WARNINGS=$(echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename))
+            if [ -n "$FILTERED_BUILD_WARNINGS" ]; then
+              echo "Build warnings detected:"
+              echo "$FILTERED_BUILD_WARNINGS"
+              echo "Failing the workflow due to build warnings."
+              exit 1
+            fi
+          fi
+
+          echo "No format issues or build warnings detected. Workflow will pass."
