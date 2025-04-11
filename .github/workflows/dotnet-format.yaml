@@ -46,17 +46,13 @@ jobs:
             echo "CHANGED_FILES=" >> $GITHUB_ENV
           fi
 
-      # Step 6: Run dotnet format on changed files
-      - name: Run dotnet format on changed files
-        if: env.CHANGED_FILES != ''
+      # Step 6: Run dotnet format on the entire solution
+      - name: Run dotnet format
         run: |
-          echo "Formatting changed files..."
-          for file in $CHANGED_FILES; do
-            if [[ $file == *.cs ]]; then
-              echo "Formatting $file"
-              dotnet format $file --verify-no-changes || exit 1
-            fi
-          done
+          echo "Running dotnet format on the entire solution..."
+          dotnet format --verify-no-changes
+        env:
+          PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
       # Step 7: Build the project and capture warnings for changed files
       - name: Build the project
