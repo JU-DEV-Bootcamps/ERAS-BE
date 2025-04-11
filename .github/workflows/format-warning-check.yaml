@@ -47,17 +47,20 @@ jobs:
           fi
 
       # Step 6: Run dotnet format on the entire solution and capture output
-      - name: Run dotnet format
+      - name: Format Issues - Run dotnet format
         id: format
         run: |
           echo "Running dotnet format on the entire solution..."
           dotnet format --verify-no-changes > format-output.txt || true
-          echo "FORMAT_ISSUES=$(cat format-output.txt | tr '\n' ' ' | sed 's/\"//g')" >> $GITHUB_ENV
+          echo "Raw format-output.txt:"
+          cat format-output.txt
+          FORMAT_ISSUES=$(cat format-output.txt)
+          echo "FORMAT_ISSUES=$FORMAT_ISSUES" >> $GITHUB_ENV
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
       # Step 7: Build the project and capture warnings for changed files
-      - name: Build the project
+      - name: Build Warnings - Build the project
         id: build
         if: env.CHANGED_FILES != ''
         run: |
