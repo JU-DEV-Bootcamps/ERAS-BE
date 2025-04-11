@@ -19,15 +19,21 @@ jobs:
         with:
           fetch-depth: 0 # Ensure full history is fetched to compare changes
 
-      # Step 2: Fetch all branches
+      # Step 2: Setup .NET environment
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0 # Specify the required .NET SDK version
+
+      # Step 3: Fetch all branches
       - name: Fetch all branches
         run: git fetch --all
 
-      # Step 3: Ensure the base branch is fetched
+      # Step 4: Ensure the base branch is fetched
       - name: Fetch base branch
         run: git fetch origin ${{ github.base_ref }}
 
-      # Step 4: Get list of changed files
+      # Step 5: Get list of changed files
       - name: Get changed files
         id: changes
         run: |
@@ -40,7 +46,7 @@ jobs:
             echo "CHANGED_FILES=" >> $GITHUB_ENV
           fi
 
-      # Step 5: Run dotnet format on changed files
+      # Step 6: Run dotnet format on changed files
       - name: Run dotnet format on changed files
         if: env.CHANGED_FILES != ''
         run: |
@@ -51,10 +57,8 @@ jobs:
               dotnet format $file --verify-no-changes || exit 1
             fi
           done
-        env:
-          PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
-      # Step 6: Build the project and capture warnings for changed files
+      # Step 7: Build the project and capture warnings for changed files
       - name: Build the project
         if: env.CHANGED_FILES != ''
         run: |
@@ -63,7 +67,7 @@ jobs:
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
-      # Step 7: Fail the workflow if build warnings or errors are found
+      # Step 8: Fail the workflow if build warnings or errors are found
       - name: Check build result
         if: failure()
         run: |
