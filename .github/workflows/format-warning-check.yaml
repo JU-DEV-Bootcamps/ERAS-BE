@@ -40,13 +40,14 @@ jobs:
           echo "Getting list of changed files..."
           git diff --name-only origin/${{ github.base_ref }} HEAD > changed-files.txt
           if [ -s changed-files.txt ]; then
-            echo "CHANGED_FILES=$(cat changed-files.txt | tr '\n' ' ')" >> $GITHUB_ENV
+            CHANGED_FILES=$(<changed-files.txt tr '\n' ' ')
+            echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
           else
             echo "No changed files detected."
             echo "CHANGED_FILES=" >> $GITHUB_ENV
           fi
 
-# Step 6: Run dotnet format on the entire solution and capture output
+      # Step 6: Run dotnet format on the entire solution and capture output
       - name: Format Issues - Run dotnet format
         id: format
         run: |
@@ -83,10 +84,9 @@ jobs:
           echo "$CHANGED_FILES"
           echo ""
 
-          echo "Format Issues: $FORMAT_ISSUES"
+          echo "Format Issues:"
           if [ -n "$FORMAT_ISSUES" ]; then
-            # Extract file names from CHANGED_FILES and filter FORMAT_ISSUES
-            echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No format issues found for changed files."
+            echo "$FORMAT_ISSUES"
           else
             echo "No format issues found."
           fi
@@ -94,8 +94,7 @@ jobs:
 
           echo "Build Warnings"
           if [ -n "$BUILD_WARNINGS" ]; then
-            # Extract file names from CHANGED_FILES and filter BUILD_WARNINGS
-            echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No build warnings found for changed files."
+            echo "$BUILD_WARNINGS"
           else
             echo "No build warnings found."
           fi
