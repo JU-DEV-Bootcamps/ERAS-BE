@@ -7,26 +7,22 @@ using Eras.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
+namespace Eras.Api.Controllers;
+
 [ApiController]
 [Route("api/v1/[controller]")]
-public class HeatMapController : ControllerBase
+public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Logger) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly ILogger<HeatMapController> _logger;
-
-    public HeatMapController(IMediator mediator, ILogger<HeatMapController> logger)
-    {
-        _mediator = mediator;
-        _logger = logger;
-    }
+    private readonly IMediator _mediator = Mediator;
+    private readonly ILogger<HeatMapController> _logger = Logger;
 
     [HttpGet("components/polls/{pollUUID}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetHeatMapDataByAllComponents([FromRoute] string pollUUID)
+    public async Task<IActionResult> GetHeatMapDataByAllComponentsAsync([FromRoute] string PollUUID)
     {
         BaseResponse response = await _mediator.Send(
-            new GetHeatMapDataByAllComponentsQuery(pollUUID)
+            new GetHeatMapDataByAllComponentsQuery(PollUUID)
         );
         return response.Success ? Ok(response) : BadRequest(response);
     }
@@ -34,43 +30,43 @@ public class HeatMapController : ControllerBase
     [HttpGet("summary/polls/{pollUUID}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetHeatMapSummary([FromRoute] string pollUUID)
+    public async Task<IActionResult> GetHeatMapSummaryAsync([FromRoute] string PollUUID)
     {
-        BaseResponse response = await _mediator.Send(new GetHeatMapSummaryQuery(pollUUID));
+        BaseResponse response = await _mediator.Send(new GetHeatMapSummaryQuery(PollUUID));
         return response.Success ? Ok(response) : BadRequest(response);
     }
 
     [HttpGet("heatmap-details")]
-    public async Task<IActionResult> GetStudentHeatMapDetailsByComponent(
-        [FromQuery] string component,
-        [FromQuery] int limit
+    public async Task<IActionResult> GetStudentHeatMapDetailsByComponentAsync(
+        [FromQuery] string Component,
+        [FromQuery] int Limit
     )
     {
-        var result = await _mediator.Send(new GetHeatMapDetailsByComponentQuery(component, limit));
+        var result = await _mediator.Send(new GetHeatMapDetailsByComponentQuery(Component, Limit));
         return Ok(result);
     }
 
     [HttpGet("cohort/{cohortId}/top-risk")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetStudentHeatMapDetailsByCohort(
-    [FromRoute] string cohortId,
-    [FromQuery] int limit = 5)
+    public async Task<IActionResult> GetStudentHeatMapDetailsByCohortAsync(
+    [FromRoute] string CohortId,
+    [FromQuery] int Limit = 5)
     {
-        var result = await _mediator.Send(new GetHeatMapDetailsByCohortQuery(cohortId, limit));
+        var result = await _mediator.Send(new GetHeatMapDetailsByCohortQuery(CohortId, Limit));
         return Ok(result);
     }
 
     [HttpGet("summary/filter")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetHeatMapSummaryByFilters([FromQuery] int cohortId, [FromQuery] int days)
+    public async Task<IActionResult> GetHeatMapSummaryByFiltersAsync([FromQuery] int CohortId, [FromQuery] int Days)
     {
-        var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(cohortId, days);
+        var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(CohortId, Days);
         var response = await _mediator.Send(getHeatMapSummaryByFiltersQuery);
         if (response.Success.Equals(true))
         {
-            _logger.LogInformation("Successfull request of heat map summary in {days} for cohort {cohortId}", days, cohortId);
+            _logger.LogInformation("Successfull request of heat map summary in {days} for cohort {cohortId}", Days, CohortId);
             return Ok(response);
         }
         else
