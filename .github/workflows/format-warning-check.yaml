@@ -52,7 +52,7 @@ jobs:
         run: |
           echo "Running dotnet format on the entire solution..."
           dotnet format --verify-no-changes > format-output.txt || true
-          echo "FORMAT_ISSUES=$(cat format-output.txt | tr '\n' ' ')" >> $GITHUB_ENV
+          echo "FORMAT_ISSUES=$(cat format-output.txt | tr '\n' ' ' | sed 's/\"//g')" >> $GITHUB_ENV
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
@@ -63,7 +63,7 @@ jobs:
         run: |
           echo "Building project for changed files..."
           dotnet build --configuration Release --no-restore /warnaserror > build-output.txt || true
-          echo "BUILD_WARNINGS=$(cat build-output.txt | tr '\n' ' ' | sed 's/\"//g')" >> $GITHUB_ENV
+          echo "BUILD_WARNINGS=$(cat build-output.txt | tr '\n' ' ' | sed 's/\"//g' | sed 's/:/ -/g')" >> $GITHUB_ENV
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
