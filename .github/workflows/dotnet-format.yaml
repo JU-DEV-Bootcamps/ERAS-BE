@@ -31,20 +31,26 @@ jobs:
       - name: Get changed files
         id: changes
         run: |
+          echo "Getting list of changed files..."
           git diff --name-only origin/${{ github.base_ref }} HEAD > changed-files.txt
-          echo "CHANGED_FILES=$(cat changed-files.txt)" >> $GITHUB_ENV
+          if [ -s changed-files.txt ]; then
+            echo "CHANGED_FILES=$(cat changed-files.txt | tr '\n' ' ')" >> $GITHUB_ENV
+          else
+            echo "No changed files detected."
+            echo "CHANGED_FILES=" >> $GITHUB_ENV
+          fi
 
       # Step 5: Run dotnet format on changed files
       - name: Run dotnet format on changed files
         if: env.CHANGED_FILES != ''
         run: |
           echo "Formatting changed files..."
-          while IFS= read -r file; do
+          for file in $CHANGED_FILES; do
             if [[ $file == *.cs ]]; then
               echo "Formatting $file"
               dotnet format $file --verify-no-changes || exit 1
             fi
-          done < changed-files.txt
+          done
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
