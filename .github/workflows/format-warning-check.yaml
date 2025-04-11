@@ -91,8 +91,8 @@ jobs:
           echo ""
 
           echo "Format Issues:"
-          if [ -n "FORMAT_ISSUES_SUMMARY" ]; then
-            echo "FORMAT_ISSUES_SUMMARY"
+          if [ -n "$FORMAT_ISSUES_SUMMARY" ]; then
+            echo "$FORMAT_ISSUES_SUMMARY found please solve them before merging."
           else
             echo "No format issues found."
           fi
