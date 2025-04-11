@@ -46,15 +46,13 @@ jobs:
             echo "CHANGED_FILES=" >> $GITHUB_ENV
           fi
 
- # Step 6: Run dotnet format on the entire solution and capture output
+      # Step 6: Run dotnet format on the entire solution and capture output
       - name: Run dotnet format
         id: format
         run: |
           echo "Running dotnet format on the entire solution..."
           dotnet format --verify-no-changes > format-output.txt || true
-          echo "Format output:"
-          cat format-output.txt
-          echo "FORMAT_ISSUES=$(cat format-output.txt)" >> $GITHUB_ENV
+          echo "FORMAT_ISSUES=$(cat format-output.txt | tr '\n' ' ' | sed 's/\"//g')" >> $GITHUB_ENV
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
@@ -84,31 +82,19 @@ jobs:
           echo "$CHANGED_FILES"
           echo ""
 
-          echo "Format Issues:"
+          echo "Format Issues: $FORMAT_ISSUES | wc -l"
           if [ -n "$FORMAT_ISSUES" ]; then
             # Extract file names from CHANGED_FILES and filter FORMAT_ISSUES
-            FILTERED_FORMAT_ISSUES=$(echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename))
-            if [ -n "$FILTERED_FORMAT_ISSUES" ]; then
-              echo "$FILTERED_FORMAT_ISSUES"
-              echo "Total Format Issues: $(echo "$FILTERED_FORMAT_ISSUES" | wc -l)"
-            else
-              echo "No format issues found for changed files."
-            fi
+            echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No format issues found for changed files."
           else
             echo "No format issues found."
           fi
           echo ""
 
-          echo "Build Warnings:"
+          echo "Build Warnings: $BUILD_WARNINGS | wc -l"
           if [ -n "$BUILD_WARNINGS" ]; then
             # Extract file names from CHANGED_FILES and filter BUILD_WARNINGS
-            FILTERED_BUILD_WARNINGS=$(echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename))
-            if [ -n "$FILTERED_BUILD_WARNINGS" ]; then
-              echo "$FILTERED_BUILD_WARNINGS"
-              echo "Total Build Warnings: $(echo "$FILTERED_BUILD_WARNINGS" | wc -l)"
-            else
-              echo "No build warnings found for changed files."
-            fi
+            echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No build warnings found for changed files."
           else
             echo "No build warnings found."
           fi
