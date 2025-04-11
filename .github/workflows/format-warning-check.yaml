@@ -84,7 +84,8 @@ jobs:
 
           echo "Format Issues:"
           if [ -n "$FORMAT_ISSUES" ]; then
-            echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | sed 's/^/.*\//') || echo "No format issues found for changed files."
+            # Extract file names from CHANGED_FILES and filter FORMAT_ISSUES
+            echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No format issues found for changed files."
           else
             echo "No format issues found."
           fi
@@ -92,8 +93,8 @@ jobs:
 
           echo "Build Warnings:"
           if [ -n "$BUILD_WARNINGS" ]; then
-            # Normalize CHANGED_FILES to match absolute paths in BUILD_WARNINGS
-            echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | sed "s|^|/home/runner/work/ERAS-BE/ERAS-BE/|") || echo "No build warnings found for changed files."
+            # Extract file names from CHANGED_FILES and filter BUILD_WARNINGS
+            echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No build warnings found for changed files."
           else
             echo "No build warnings found."
           fi
