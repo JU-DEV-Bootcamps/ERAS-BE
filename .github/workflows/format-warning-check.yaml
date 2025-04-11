@@ -68,7 +68,10 @@ jobs:
         run: |
           echo "Building project for changed files..."
           dotnet build --configuration Release --no-restore /warnaserror > build-output.txt || true
-          echo "BUILD_WARNINGS=$(cat build-output.txt | tr '\n' ' ' | sed 's/\"//g' | sed 's/:/ -/g')" >> $GITHUB_ENV
+
+          # Filter build warnings for changed files
+          FILTERED_BUILD_WARNINGS=$(grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) build-output.txt || true)
+          echo "BUILD_WARNINGS=$FILTERED_BUILD_WARNINGS" >> $GITHUB_ENV
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
@@ -89,7 +92,7 @@ jobs:
           fi
           echo ""
 
-          echo "Build Warnings: $BUILD_WARNINGS"
+          echo "Build Warnings"
           if [ -n "$BUILD_WARNINGS" ]; then
             # Extract file names from CHANGED_FILES and filter BUILD_WARNINGS
             echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No build warnings found for changed files."
