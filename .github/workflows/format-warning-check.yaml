@@ -57,8 +57,14 @@ jobs:
           while IFS= read -r line; do
             echo "$line"
           done < format-output.txt
-          FORMAT_ISSUES=$(<format-output.txt)
-          echo "FORMAT_ISSUES=$FORMAT_ISSUES" >> $GITHUB_ENV
+
+          # Count format issues for each changed file
+          FORMAT_ISSUES_SUMMARY=""
+          for file in $(echo "$CHANGED_FILES" | xargs -n1 basename); do
+            count=$(grep -c "$file" format-output.txt || true)
+            FORMAT_ISSUES_SUMMARY="$FORMAT_ISSUES_SUMMARY\n$file: $count issues"
+          done
+          echo -e "FORMAT_ISSUES_SUMMARY=$FORMAT_ISSUES_SUMMARY" >> $GITHUB_ENV
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
@@ -85,8 +91,8 @@ jobs:
           echo ""
 
           echo "Format Issues:"
-          if [ -n "$FORMAT_ISSUES" ]; then
-            echo "$FORMAT_ISSUES"
+          if [ -n "FORMAT_ISSUES_SUMMARY" ]; then
+            echo "FORMAT_ISSUES_SUMMARY"
           else
             echo "No format issues found."
           fi
