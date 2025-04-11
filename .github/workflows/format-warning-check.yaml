@@ -84,7 +84,7 @@ jobs:
 
           echo "Format Issues:"
           if [ -n "$FORMAT_ISSUES" ]; then
-            echo "$FORMAT_ISSUES" | grep -E "$(echo $CHANGED_FILES | tr ' ' '|')" || echo "No format issues found for changed files."
+            echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | sed 's/^/.*\//') || echo "No format issues found for changed files."
           else
             echo "No format issues found."
           fi
@@ -92,7 +92,7 @@ jobs:
 
           echo "Build Warnings:"
           if [ -n "$BUILD_WARNINGS" ]; then
-            echo "$BUILD_WARNINGS" | grep -E "$(echo $CHANGED_FILES | tr ' ' '|')" || echo "No build warnings found for changed files."
+            echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | sed 's/^/.*\//') || echo "No build warnings found for changed files."
           else
             echo "No build warnings found."
           fi
