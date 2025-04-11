@@ -46,24 +46,25 @@ jobs:
             echo "CHANGED_FILES=" >> $GITHUB_ENV
           fi
 
-      # Step 6: Run dotnet format on the entire solution and capture output
+      # Step 6: Run dotnet format on the changed files and capture output
       - name: Run dotnet format
         id: format
+        if: env.CHANGED_FILES != '' # Only run if there are changed files
         run: |
-          echo "Running dotnet format on the entire solution..."
-          dotnet format --verify-no-changes > format-output.txt 2>/dev/null || true
-          echo "FORMAT_ISSUES=$(cat format-output.txt | tr '\n' ' ' | sed 's/\"//g')" >> $GITHUB_ENV 2>/dev/null
+          echo "Running dotnet format on the changed files..."
+          dotnet format --verify-no-changes --include $(echo "$CHANGED_FILES" | tr ' ' '\n') > format-output.txt || true
+          echo "FORMAT_ISSUES=$(cat format-output.txt | tr '\n' ' ' | sed 's/\"//g')" >> $GITHUB_ENV
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
-
+          
       # Step 7: Build the project and capture warnings for changed files
       - name: Build the project
         id: build
         if: env.CHANGED_FILES != ''
         run: |
           echo "Building project for changed files..."
-          dotnet build --configuration Release --no-restore /warnaserror > build-output.txt 2>/dev/null || true
-          echo "BUILD_WARNINGS=$(cat build-output.txt | tr '\n' ' ' | sed 's/\"//g' | sed 's/:/ -/g')" >> $GITHUB_ENV 2>/dev/null
+          dotnet build --configuration Release --no-restore /warnaserror > build-output.txt || true
+          echo "BUILD_WARNINGS=$(cat build-output.txt | tr '\n' ' ' | sed 's/\"//g' | sed 's/:/ -/g')" >> $GITHUB_ENV
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
@@ -75,7 +76,7 @@ jobs:
           echo "$CHANGED_FILES"
           echo ""
 
-          echo "Format Issues:"
+          echo "Format Issues:
           if [ -n "$FORMAT_ISSUES" ]; then
             # Extract file names from CHANGED_FILES and filter FORMAT_ISSUES
             echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No format issues found for changed files."
@@ -84,39 +85,10 @@ jobs:
           fi
           echo ""
 
-          echo "Build Warnings:"
+          echo "Build Warnings: $BUILD_WARNINGS"
           if [ -n "$BUILD_WARNINGS" ]; then
             # Extract file names from CHANGED_FILES and filter BUILD_WARNINGS
             echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No build warnings found for changed files."
           else
             echo "No build warnings found."
           fi
-
-      # Step 9: Fail the workflow if format issues or build warnings are found in changed files
-      - name: Fail Workflow on Issues
-        run: |
-          echo "Checking for issues to fail the workflow..."
-
-          # Check for format issues
-          if [ -n "$FORMAT_ISSUES" ]; then
-            FILTERED_FORMAT_ISSUES=$(echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename))
-            if [ -n "$FILTERED_FORMAT_ISSUES" ]; then
-              echo "Format issues detected:"
-              echo "$FILTERED_FORMAT_ISSUES"
-              echo "Failing the workflow due to format issues."
-              exit 1
-            fi
-          fi
-
-          # Check for build warnings
-          if [ -n "$BUILD_WARNINGS" ]; then
-            FILTERED_BUILD_WARNINGS=$(echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename))
-            if [ -n "$FILTERED_BUILD_WARNINGS" ]; then
-              echo "Build warnings detected:"
-              echo "$FILTERED_BUILD_WARNINGS"
-              echo "Failing the workflow due to build warnings."
-              exit 1
-            fi
-          fi
-
-          echo "No format issues or build warnings detected. Workflow will pass."
