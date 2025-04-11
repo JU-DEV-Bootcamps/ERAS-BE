@@ -75,7 +75,7 @@ jobs:
           echo "$CHANGED_FILES"
           echo ""
 
-          echo "Format Issues:
+          echo "Format Issues:"
           if [ -n "$FORMAT_ISSUES" ]; then
             # Extract file names from CHANGED_FILES and filter FORMAT_ISSUES
             echo "$FORMAT_ISSUES" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No format issues found for changed files."
@@ -84,7 +84,7 @@ jobs:
           fi
           echo ""
 
-          echo "Build Warnings: $BUILD_WARNINGS"
+          echo "Build Warnings:"
           if [ -n "$BUILD_WARNINGS" ]; then
             # Extract file names from CHANGED_FILES and filter BUILD_WARNINGS
             echo "$BUILD_WARNINGS" | grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) || echo "No build warnings found for changed files."
