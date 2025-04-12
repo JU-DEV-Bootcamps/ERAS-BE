@@ -9,7 +9,8 @@ namespace Eras.Domain.Entities
         public string Status { get; set; } = string.Empty ;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public string PollName { get; set; }= string.Empty ;
+        public string PollName { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
         public int PollId { get; set; }
         public int EvaluationPollId { get; set; }
         public ICollection<Poll> Polls { get; set; } = [];

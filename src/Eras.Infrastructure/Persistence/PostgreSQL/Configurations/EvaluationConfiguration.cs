@@ -31,6 +31,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
             builder.Property(evaluation => evaluation.PollName)
                 .HasColumnName("poll_name");
+            builder.Property(evaluation => evaluation.Country)
+                .HasColumnName("country");
         }
     }
 }
