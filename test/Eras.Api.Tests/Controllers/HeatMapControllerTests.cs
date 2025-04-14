@@ -2,9 +2,12 @@
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents;
 using Eras.Application.Models;
 using Eras.Application.Models.HeatMap;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Api.Tests.Controllers;
