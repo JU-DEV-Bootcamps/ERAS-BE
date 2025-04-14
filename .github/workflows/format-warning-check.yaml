@@ -63,10 +63,10 @@ jobs:
             echo "$line"
           done < format-output.txt
 
-          echo "Checking if sed is available..."
-          sed --version || echo "sed is not available"
+          echo "Checking if printf is available..."
+          printf "test\n" || echo "printf is not available"
           # Filter format errors for changed files
-          FILTERED_FORMAT_ISSUES=$(sed ':a;N;$!ba;s/\n/\\n/g' < format-output.txt)
+          FILTERED_FORMAT_ISSUES=$(while IFS= read -r line; do printf "%s\\n" "$line"; done < format-output.txt)
           echo "Format issues found."
           echo "$FILTERED_FORMAT_ISSUES"
           echo "FORMAT_ISSUES=$FILTERED_FORMAT_ISSUES" >> $GITHUB_ENV
