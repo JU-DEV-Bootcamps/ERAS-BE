@@ -51,20 +51,20 @@ jobs:
       - name: Format Issues - Run dotnet format
         id: format
         run: |
-          echo "Running dotnet format on the entire solution..."
-          dotnet format --verify-no-changes > format-output.txt || true
+          echo "Running dotnet format on the changed files..."
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed files to format."
+            exit 0
+          fi
+          dotnet format --verify-no-changes --include $(echo "$CHANGED_FILES" | tr ' ' '\n') > format-output.txt  2>&1 || true
           echo "Raw format-output.txt:"
           while IFS= read -r line; do
             echo "$line"
           done < format-output.txt
 
-          # Count format issues for each changed file
-          FORMAT_ISSUES_SUMMARY=""
-          for file in $(echo "$CHANGED_FILES" | xargs -n1 basename); do
-            count=$(grep -c "$file" format-output.txt || true)
-            FORMAT_ISSUES_SUMMARY="$FORMAT_ISSUES_SUMMARY\n$file: $count issues"
-          done
-          echo -e "FORMAT_ISSUES_SUMMARY=$FORMAT_ISSUES_SUMMARY" >> $GITHUB_ENV
+          # Filter format errors for changed filesp
+          FILTERED_FORMAT_ISSUES=$(grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) format-output.txt || true)
+          echo "FORMAT_ISSUES=$FILTERED_FORMAT_ISSUES" >> $GITHUB_ENV
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
@@ -91,16 +91,16 @@ jobs:
           echo ""
 
           echo "Format Issues:"
-          if [ -n "$FORMAT_ISSUES_SUMMARY" ]; then
-            echo "$FORMAT_ISSUES_SUMMARY found please solve them before merging."
+          if [ -n "$FILTERED_FORMAT_ISSUES" ]; then
+            echo "Format issues found in the updated files. Please solve them before merging. $FILTERED_FORMAT_ISSUES""
           else
             echo "No format issues found."
           fi
           echo ""
 
           echo "Build Warnings"
-          if [ -n "$BUILD_WARNINGS" ]; then
-            echo "$BUILD_WARNINGS"
+          if [ -n "$FILTERED_BUILD_WARNINGS" ]; then
+            echo "Build warnings found in the updated files. Please solve them before merging. $FILTERED_BUILD_WARNINGS"
           else
             echo "No build warnings found."
           fi
