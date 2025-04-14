@@ -63,7 +63,7 @@ jobs:
             echo "$line"
           done < format-output.txt
 
-          # Filter format errors for changed filesp
+          # Filter format errors for changed files
           FILTERED_FORMAT_ISSUES=$(grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) format-output.txt || true)
           echo "Format issues found."
           echo "$FILTERED_FORMAT_ISSUES"
