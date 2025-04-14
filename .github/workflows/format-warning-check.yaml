@@ -56,7 +56,8 @@ jobs:
             echo "No changed files to format."
             exit 0
           fi
-          dotnet format --verify-no-changes --include $(echo "$CHANGED_FILES" | tr ' ' '\n') > format-output.txt  2>&1 || true
+          CHANGED_FILES_NEWLINE=$(echo "$CHANGED_FILES" | sed 's/ /\n/g')
+          dotnet format --verify-no-changes --include $CHANGED_FILES_NEWLINE > format-output.txt  2>&1 || true
           echo "Raw format-output.txt:"
           while IFS= read -r line; do
             echo "$line"
@@ -74,7 +75,7 @@ jobs:
         if: env.CHANGED_FILES != ''
         run: |
           echo "Building project for changed files..."
-          dotnet build --configuration Release --no-restore /warnaserror > build-output.txt || true
+          dotnet build --configuration Release --no-restore > build-output.txt || true
 
           # Filter build warnings for changed files
           FILTERED_BUILD_WARNINGS=$(grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) build-output.txt || true)
