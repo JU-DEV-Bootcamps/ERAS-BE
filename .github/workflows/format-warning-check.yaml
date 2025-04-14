@@ -66,7 +66,7 @@ jobs:
           done < format-output.txt
 
           # Filter format errors for changed files
-          FILTERED_FORMAT_ISSUES=$(grep -i -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) format-output.txt || true)
+          FILTERED_FORMAT_ISSUES=$(<format-output.txt)
           echo "Format issues found."
           echo "$FILTERED_FORMAT_ISSUES"
           echo "FORMAT_ISSUES=$FILTERED_FORMAT_ISSUES" >> $GITHUB_ENV
