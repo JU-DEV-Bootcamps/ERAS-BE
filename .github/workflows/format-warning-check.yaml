@@ -47,7 +47,7 @@ jobs:
             echo "CHANGED_FILES=" >> $GITHUB_ENV
           fi
           sudo apt-get update
-          sudo apt-get install -y grep
+          sudo apt-get install -y grep sed
 
       # Step 6: Run dotnet format on the entire solution and capture output
       - name: Format Issues - Run dotnet format
@@ -66,7 +66,7 @@ jobs:
           done < format-output.txt
 
           # Filter format errors for changed files
-          FILTERED_FORMAT_ISSUES=$(<format-output.txt)
+          FILTERED_FORMAT_ISSUES=$(echo "$FILTERED_FORMAT_ISSUES" | sed ':a;N;$!ba;s/\n/\\n/g')
           echo "Format issues found."
           echo "$FILTERED_FORMAT_ISSUES"
           echo "FORMAT_ISSUES=$FILTERED_FORMAT_ISSUES" >> $GITHUB_ENV
@@ -112,4 +112,10 @@ jobs:
             echo "$BUILD_WARNINGS"
           else
             echo "No build warnings found."
+          fi
+
+          # Fail the workflow if there are format issues or build warnings
+          if [ -n "$FORMAT_ISSUES" ] || [ -n "$BUILD_WARNINGS" ]; then
+            echo "Errors or warnings detected. Failing the workflow."
+            exit 1
           fi
