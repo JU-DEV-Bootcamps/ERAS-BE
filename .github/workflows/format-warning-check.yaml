@@ -63,20 +63,10 @@ jobs:
             echo "$line"
           done < format-output.txt
 
-          # Filter format errors for changed files
-          sudo apt-get update
-          sudo apt-get install -y grep sed
-          echo "Debugging Step 6..."
-          echo "CHANGED_FILES: $CHANGED_FILES"
-          echo "Checking if dotnet is installed..."
-          dotnet --version || echo "dotnet is not installed"
-          echo "Checking if dotnet format is available..."
-          dotnet format --version || echo "dotnet format is not available"
-          echo "Checking if printf is available..."
-          printf "test\n" || echo "printf is not available"
           echo "Checking if sed is available..."
           sed --version || echo "sed is not available"
-          FILTERED_FORMAT_ISSUES=$(echo "$FILTERED_FORMAT_ISSUES" | sed ':a;N;$!ba;s/\n/\\n/g')
+          # Filter format errors for changed files
+          FILTERED_FORMAT_ISSUES=$(sed ':a;N;$!ba;s/\n/\\n/g' < format-output.txt)
           echo "Format issues found."
           echo "$FILTERED_FORMAT_ISSUES"
           echo "FORMAT_ISSUES=$FILTERED_FORMAT_ISSUES" >> $GITHUB_ENV
