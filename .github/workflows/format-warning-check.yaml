@@ -56,7 +56,7 @@ jobs:
             echo "No changed files to format."
             exit 0
           fi
-          CHANGED_FILES_NEWLINE=$(echo "$CHANGED_FILES" | sed 's/ /\n/g')
+          CHANGED_FILES_NEWLINE=$(printf "%s\n" $CHANGED_FILES)
           dotnet format --verify-no-changes --include $CHANGED_FILES_NEWLINE > format-output.txt  2>&1 || true
           echo "Raw format-output.txt:"
           while IFS= read -r line; do
