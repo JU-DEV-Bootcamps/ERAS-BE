@@ -10,7 +10,6 @@ using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Features.Variables.Commands.CreatePollVariable;
 using Eras.Application.Features.Variables.Commands.CreateVariable;
 using Eras.Application.Mappers;
-using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -19,6 +18,8 @@ using Eras.Application.Features.Answers.Commands.CreateAnswerList;
 using Variable = Eras.Domain.Entities.Variable;
 using Component = Eras.Domain.Entities.Component;
 using Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStudentId;
+using Eras.Application.Models.Response.Common;
+using Eras.Application.Features.Students.Queries.GetByEmail;
 
 namespace Eras.Application.Services
 {
@@ -150,8 +151,17 @@ namespace Eras.Application.Services
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                 };
-                CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate };
-                CreateCommandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand);
+
+                GetStudentByEmailQuery getStudentByEmailQuery = new GetStudentByEmailQuery() { studentEmail = studentToCreate.Email };
+                GetQueryResponse<Student> studentResponse = await _mediator.Send(getStudentByEmailQuery);
+
+                CreateCommandResponse<Student> createdStudent = new CreateCommandResponse<Student>(studentResponse.Body
+                    , studentResponse.Message, studentResponse.Success);
+                if (studentResponse.Body == null)
+                {
+                    CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate };
+                    createdStudent = await _mediator.Send(createStudentCommand);
+                }
 
                 if (createdStudent.Success)
                 {

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models.HeatMap;
+using Eras.Application.Models.Response.HeatMap;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Microsoft.EntityFrameworkCore;

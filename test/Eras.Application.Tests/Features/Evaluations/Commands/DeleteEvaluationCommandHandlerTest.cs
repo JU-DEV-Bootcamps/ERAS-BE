@@ -4,7 +4,7 @@ using Eras.Application.DTOs.CL;
 using Eras.Application.Features.Evaluations.Commands;
 using Eras.Application.Features.Evaluations.Commands.DeleteEvaluation;
 using Eras.Application.Mappers;
-using Eras.Application.Models;
+using Eras.Application.Models.Response;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

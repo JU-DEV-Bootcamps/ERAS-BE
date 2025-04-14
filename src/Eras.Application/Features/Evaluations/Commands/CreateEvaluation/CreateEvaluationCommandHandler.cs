@@ -1,10 +1,10 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Eras.Application.Mappers;
 using Eras.Domain.Common;
+using Eras.Application.Models.Response.Common;
 
 namespace Eras.Application.Features.Evaluations.Commands
 {

@@ -1,7 +1,7 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Mappers;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using MediatR;

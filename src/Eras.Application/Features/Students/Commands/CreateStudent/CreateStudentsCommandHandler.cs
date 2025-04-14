@@ -8,12 +8,14 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Eras.Application.Models;
 using Eras.Domain.Entities;
 using Eras.Application.DTOs;
 using Eras.Domain.Common;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
+using Eras.Application.Models.Response.Common;
+using Eras.Application.Features.Students.Queries.GetByEmail;
+using Eras.Application.Features.Students.Commands.UpdateStudent;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
@@ -42,22 +44,39 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                 foreach (StudentImportDto dto in request.students)
                 {
                     StudentDTO studentDTO = dto.ExtractStudentDTO();
+                    studentDTO.IsImported = true;
                     studentDTO.Audit = new AuditInfo()
                     {
                         CreatedBy = "CSV import",
                         CreatedAt = DateTime.UtcNow,
                         ModifiedAt = DateTime.UtcNow,
                     };
-                    CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
-                    CreateCommandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand);
 
-                    if (! createdStudent.Success) {
-                        errorStudents.Add(createdStudent.Entity);
-                    } else if (createdStudent.Success)
+
+                    GetStudentByEmailQuery getStudentByEmailQuery = new GetStudentByEmailQuery() { studentEmail = studentDTO.Email };
+                    GetQueryResponse<Student> studentResponse = await _mediator.Send(getStudentByEmailQuery);
+
+                    CreateCommandResponse<Student> createdStudent = new CreateCommandResponse<Student>(studentResponse.Body,
+                        studentResponse.Message, studentResponse.Success);
+                    if (studentResponse == null)
                     {
-                        if(createdStudent.SuccessfullImports == 0)
+                        CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
+                        createdStudent = await _mediator.Send(createStudentCommand);
+                    }
+                    else {
+                        studentResponse.Body.IsImported = true;
+                        UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = studentResponse.Body.ToDto() };
+                        createdStudent = await _mediator.Send(updateStudentCommand);
+                    }
+                    if (!createdStudent.Success)
+                    {
+                        errorStudents.Add(createdStudent.Entity);
+                    }
+                    else if (createdStudent.Success)
+                    {
+                        if (createdStudent.SuccessfullImports == 0)
                             updatedStudents.Add(createdStudent.Entity);
-                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity,dto);
+                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity, dto);
                         createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
                         createdStudents.Add(createdStudent.Entity);
                     }

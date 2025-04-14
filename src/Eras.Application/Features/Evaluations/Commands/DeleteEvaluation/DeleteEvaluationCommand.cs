@@ -1,4 +1,4 @@
-﻿using Eras.Application.Models;
+﻿using Eras.Application.Models.Response;
 using MediatR;
 using System;
 using System.Collections.Generic;

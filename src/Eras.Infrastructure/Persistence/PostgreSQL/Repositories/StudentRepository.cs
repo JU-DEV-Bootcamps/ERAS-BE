@@ -181,5 +181,20 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return await query.OrderByDescending(x => x.AvgRiskLevel).ToListAsync();
         }
+
+        public new async Task<Student> UpdateAsync(Student entity)
+        {
+          
+            var existingEntity = await _context.Set<StudentEntity>().FindAsync(entity.Id);
+
+            if (existingEntity != null)
+            {
+                var updatedEntity = StudentMapper.ToPersistence(entity);
+                _context.Entry(existingEntity).CurrentValues.SetValues(updatedEntity);
+                await _context.SaveChangesAsync();
+            }
+
+            return entity;
+        }
     }
 }

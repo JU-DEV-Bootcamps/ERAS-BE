@@ -16,6 +16,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Name = entity.Name,
                 StudentDetail = stDetail,
                 Email = entity.Email,
+                IsImported = entity.IsImported,
                 Uuid = entity.Uuid,
                 Audit = entity.Audit
             };
@@ -30,6 +31,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Name = model.Name,
                 StudentDetail = model.StudentDetail.ToPersistence(),
                 Email = model.Email,
+                IsImported = model.IsImported,
                 Uuid = model.Uuid,
                 Audit = model.Audit
             };

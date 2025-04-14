@@ -10,7 +10,7 @@ namespace Eras.Api.Tests
     public class ApiSampleTest
     {
         [Fact]
-        public async Task CosmicApiIsHealthy_ShouldReturnOkResultWithExpectedStatus()
+        public void CosmicApiIsHealthy_ShouldReturnOkResultWithExpectedStatus()
         {
             //Arrange
 

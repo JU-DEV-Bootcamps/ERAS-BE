@@ -2,7 +2,7 @@
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
 using Eras.Application.DTOs.CosmicLatte;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Configuration;

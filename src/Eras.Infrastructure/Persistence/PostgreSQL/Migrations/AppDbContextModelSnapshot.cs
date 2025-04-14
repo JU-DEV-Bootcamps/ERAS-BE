@@ -267,6 +267,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("text")
                         .HasColumnName("email");
 
+                    b.Property<bool>("IsImported")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_imported");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")

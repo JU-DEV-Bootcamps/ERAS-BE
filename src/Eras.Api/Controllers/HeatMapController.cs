@@ -3,9 +3,9 @@ using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByComponent;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByCohort;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
-using Eras.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Eras.Application.Models.Response;
 
 [ApiController]
 [Route("api/v1/[controller]")]

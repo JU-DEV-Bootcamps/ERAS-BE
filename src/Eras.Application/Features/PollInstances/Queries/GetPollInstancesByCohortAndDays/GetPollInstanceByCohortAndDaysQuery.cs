@@ -1,6 +1,6 @@
 ﻿
 using Eras.Application.DTOs;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using MediatR;
 
 namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays

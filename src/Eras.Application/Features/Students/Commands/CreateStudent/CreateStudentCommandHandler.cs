@@ -1,6 +1,6 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -25,7 +25,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             try
             {
                 Student? studentDB = await _studentRepository.GetByEmailAsync(request.StudentDTO.Email);
-                if (studentDB != null) return new CreateCommandResponse<Student>(studentDB, 0, "Success", true);
+                if (studentDB != null) return new CreateCommandResponse<Student>(null, 0, "Student Already Exist", false);
 
                 Student student = request.StudentDTO.ToDomain();
                 Student studentCreated = await _studentRepository.AddAsync(student);

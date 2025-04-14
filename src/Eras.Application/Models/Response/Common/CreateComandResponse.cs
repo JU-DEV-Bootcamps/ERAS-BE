@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Eras.Application.Models
+namespace Eras.Application.Models.Response.Common
 {
     public class CreateCommandResponse<T> : BaseResponse
     {
