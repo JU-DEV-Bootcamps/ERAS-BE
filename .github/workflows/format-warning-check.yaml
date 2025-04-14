@@ -1,0 +1,104 @@
+name: Enforce .editorconfig Rules and Check Build Warnings (Changed Files Only)
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  format-and-build-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # Ensure full history is fetched to compare changes
+
+      # Step 2: Setup .NET environment
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0 # Specify the required .NET SDK version
+
+      # Step 3: Fetch all branches
+      - name: Fetch all branches
+        run: git fetch --all
+
+      # Step 4: Ensure the base branch is fetched
+      - name: Fetch base branch
+        run: git fetch origin ${{ github.base_ref }}
+
+      # Step 5: Get list of changed files
+      - name: Get changed files
+        id: changes
+        run: |
+          echo "Getting list of changed files..."
+          git diff --name-only origin/${{ github.base_ref }} HEAD > changed-files.txt
+          if [ -s changed-files.txt ]; then
+            CHANGED_FILES=$(<changed-files.txt tr '\n' ' ')
+            echo "CHANGED_FILES=$CHANGED_FILES" >> $GITHUB_ENV
+          else
+            echo "No changed files detected."
+            echo "CHANGED_FILES=" >> $GITHUB_ENV
+          fi
+
+      # Step 6: Run dotnet format on the entire solution and capture output
+      - name: Format Issues - Run dotnet format
+        id: format
+        run: |
+          echo "Running dotnet format on the changed files..."
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed files to format."
+            exit 0
+          fi
+          CHANGED_FILES_NEWLINE=$(printf "%s\n" $CHANGED_FILES)
+          dotnet format --verify-no-changes --include $CHANGED_FILES_NEWLINE > format-output.txt  2>&1 || true
+          echo "Raw format-output.txt:"
+          while IFS= read -r line; do
+            echo "$line"
+          done < format-output.txt
+
+          FORMAT_ISSUES=$(while IFS= read -r line; do printf "%s\\n" "$line"; done < format-output.txt)
+          if [ -n "$FORMAT_ISSUES" ]; then
+            echo "Format issues found in the updated files. Please solve them before merging."
+            echo "FORMAT_ISSUES=1" >> $GITHUB_ENV
+          else
+            echo "No format issues found."
+          fi
+        env:
+          PATH: ${{ runner.tool_cache }}/dotnet:$PATH
+
+      # Step 7: Build the project and capture warnings for changed files
+      - name: Build Warnings - Build the project
+        id: build
+        if: env.CHANGED_FILES != ''
+        run: |
+          echo "Building project for changed files..."
+          dotnet build --configuration Release --no-restore > build-output.txt || true
+
+          # Filter build warnings for changed files
+          BUILD_WARNINGS=$(grep -i -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) build-output.txt || true)
+          echo "Build warnings found."
+          if [ -n "$BUILD_WARNINGS" ]; then
+            echo "Build warnings found in the updated files. Please solve them before merging."
+            echo "$BUILD_WARNINGS"
+            echo "BUILD_WARNINGS=1" >> $GITHUB_ENV
+          else
+            echo "No build warnings found."
+          fi
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
+
+      # Step 8: Fail if format issues or build warnings are found
+      - name: Fail if format issues or build warnings are found
+        run: |
+          # Fail the workflow if there are format issues or build warnings
+          if [ -n "$FORMAT_ISSUES" ] || [ -n "$BUILD_WARNINGS" ]; then
+            echo "Errors or warnings detected. Failing the workflow."
+            exit 1
+          fi

@@ -11,6 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public string Status { get; set; } = string.Empty;
         public string CurrentStatus => GetStatus().ToString();
         public string PollName {  get; set; } = string.Empty ;
+        public string Country { get; set; } = string.Empty;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public ICollection<EvaluationPollJoin> EvaluationPolls { get; set; } = [];
