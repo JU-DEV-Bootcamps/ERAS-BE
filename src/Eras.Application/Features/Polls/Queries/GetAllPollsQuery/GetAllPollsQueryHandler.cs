@@ -1,6 +1,8 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
@@ -23,7 +25,7 @@ public class GetAllPollsQueryHandler : IRequestHandler<GetAllPollsQuery, List<Po
     {
         try
         {
-            return [.._pollRepository.GetAllAsync().Result];
+            return [.. _pollRepository.GetAllAsync().Result];
         }
         catch (Exception ex)
         {
