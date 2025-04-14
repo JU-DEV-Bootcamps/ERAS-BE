@@ -46,8 +46,6 @@ jobs:
             echo "No changed files detected."
             echo "CHANGED_FILES=" >> $GITHUB_ENV
           fi
-          sudo apt-get update
-          sudo apt-get install -y grep sed
 
       # Step 6: Run dotnet format on the entire solution and capture output
       - name: Format Issues - Run dotnet format
@@ -66,6 +64,18 @@ jobs:
           done < format-output.txt
 
           # Filter format errors for changed files
+          sudo apt-get update
+          sudo apt-get install -y grep sed
+          echo "Debugging Step 6..."
+          echo "CHANGED_FILES: $CHANGED_FILES"
+          echo "Checking if dotnet is installed..."
+          dotnet --version || echo "dotnet is not installed"
+          echo "Checking if dotnet format is available..."
+          dotnet format --version || echo "dotnet format is not available"
+          echo "Checking if printf is available..."
+          printf "test\n" || echo "printf is not available"
+          echo "Checking if sed is available..."
+          sed --version || echo "sed is not available"
           FILTERED_FORMAT_ISSUES=$(echo "$FILTERED_FORMAT_ISSUES" | sed ':a;N;$!ba;s/\n/\\n/g')
           echo "Format issues found."
           echo "$FILTERED_FORMAT_ISSUES"
