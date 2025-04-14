@@ -7,12 +7,12 @@ using Microsoft.Extensions.Logging;
 namespace Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 
 public class GetHigherRiskStudentByVariableQueryHandler(
-    ILogger<GetHigherRiskStudentByVariableQueryHandler> logger,
-    IPollVariableRepository pollVariableRepository
+    ILogger<GetHigherRiskStudentByVariableQueryHandler> Logger,
+    IPollVariableRepository PollVariableRepository
   ) : IRequestHandler<GetHigherRiskStudentByVariableQuery, GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>>
 {
-    private readonly ILogger<GetHigherRiskStudentByVariableQueryHandler> _logger = logger;
-    private readonly IPollVariableRepository _pollVariableRepository = pollVariableRepository;
+    private readonly ILogger<GetHigherRiskStudentByVariableQueryHandler> _logger = Logger;
+    private readonly IPollVariableRepository _pollVariableRepository = PollVariableRepository;
     public int DefaultTakeNumber = 5;
 
     public async Task<GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>> Handle(GetHigherRiskStudentByVariableQuery request, CancellationToken cancellationToken)
