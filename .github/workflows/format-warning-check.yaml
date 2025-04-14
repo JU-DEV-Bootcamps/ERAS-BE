@@ -65,6 +65,8 @@ jobs:
 
           # Filter format errors for changed filesp
           FILTERED_FORMAT_ISSUES=$(grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) format-output.txt || true)
+          echo "Format issues found."
+          echo "$FILTERED_FORMAT_ISSUES"
           echo "FORMAT_ISSUES=$FILTERED_FORMAT_ISSUES" >> $GITHUB_ENV
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
@@ -79,6 +81,8 @@ jobs:
 
           # Filter build warnings for changed files
           FILTERED_BUILD_WARNINGS=$(grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) build-output.txt || true)
+          echo "Build warnings found."
+          echo "$FILTERED_BUILD_WARNINGS"
           echo "BUILD_WARNINGS=$FILTERED_BUILD_WARNINGS" >> $GITHUB_ENV
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: 1
