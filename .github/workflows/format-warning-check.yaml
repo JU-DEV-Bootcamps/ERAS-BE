@@ -46,6 +46,8 @@ jobs:
             echo "No changed files detected."
             echo "CHANGED_FILES=" >> $GITHUB_ENV
           fi
+          sudo apt-get update
+          sudo apt-get install -y grep
 
       # Step 6: Run dotnet format on the entire solution and capture output
       - name: Format Issues - Run dotnet format
@@ -64,7 +66,7 @@ jobs:
           done < format-output.txt
 
           # Filter format errors for changed files
-          FILTERED_FORMAT_ISSUES=$(grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) format-output.txt || true)
+          FILTERED_FORMAT_ISSUES=$(grep -i -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) format-output.txt || true)
           echo "Format issues found."
           echo "$FILTERED_FORMAT_ISSUES"
           echo "FORMAT_ISSUES=$FILTERED_FORMAT_ISSUES" >> $GITHUB_ENV
@@ -80,7 +82,7 @@ jobs:
           dotnet build --configuration Release --no-restore > build-output.txt || true
 
           # Filter build warnings for changed files
-          FILTERED_BUILD_WARNINGS=$(grep -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) build-output.txt || true)
+          FILTERED_BUILD_WARNINGS=$(grep -i -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) build-output.txt || true)
           echo "Build warnings found."
           echo "$FILTERED_BUILD_WARNINGS"
           echo "BUILD_WARNINGS=$FILTERED_BUILD_WARNINGS" >> $GITHUB_ENV
@@ -92,7 +94,7 @@ jobs:
         run: |
           echo "Final Summary:"
           echo "Changed Files:"
-          echo "$CHANGED_FILES"
+          echo "$CHANGED_FILES" | xargs -n1 basename
           echo ""
 
           echo "Format Issues:"
