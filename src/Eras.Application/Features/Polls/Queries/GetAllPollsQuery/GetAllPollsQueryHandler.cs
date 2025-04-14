@@ -1,41 +1,34 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery
+namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
+
+public class GetAllPollsQueryHandler : IRequestHandler<GetAllPollsQuery, List<Poll>>
 {
-    public class GetAllPollsQueryHandler : IRequestHandler<GetAllPollsQuery, List<Poll>>
+    private readonly IPollRepository _pollRepository;
+    private readonly ILogger<GetAllPollsQuery> _logger;
+
+    public GetAllPollsQueryHandler(
+        IPollRepository PollRepository,
+        ILogger<GetAllPollsQuery> Logger
+    )
     {
-        private readonly IPollRepository _pollRepository;
-        private readonly ILogger<GetAllPollsQuery> _logger;
+        _pollRepository = PollRepository;
+        _logger = Logger;
+    }
 
-        public GetAllPollsQueryHandler(
-            IPollRepository pollRepository,
-            ILogger<GetAllPollsQuery> logger
-        )
+    public async Task<List<Poll>> Handle(GetAllPollsQuery Request, CancellationToken CancellationToken)
+    {
+        try
         {
-            _pollRepository = pollRepository;
-            _logger = logger;
+            return [.._pollRepository.GetAllAsync().Result];
         }
-
-        public async Task<List<Poll>> Handle(GetAllPollsQuery request, CancellationToken cancellationToken)
+        catch (Exception ex)
         {
-            try
-            { 
-                return _pollRepository.GetAllAsync().Result.ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred while getting polls: " + ex.Message);
-                return new List<Poll>();
-            }
+            _logger.LogError(ex, "An error occurred while getting polls");
+            return [];
         }
     }
 }
