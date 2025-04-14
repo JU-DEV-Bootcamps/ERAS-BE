@@ -92,18 +92,18 @@ jobs:
           echo ""
 
           echo "Format Issues:"
-          if [ -n "$FILTERED_FORMAT_ISSUES" ]; then
+          if [ -n "$FORMAT_ISSUES" ]; then
             echo "Format issues found in the updated files. Please solve them before merging."
-            echo "$FILTERED_FORMAT_ISSUES"
+            echo "$FORMAT_ISSUES"
           else
             echo "No format issues found."
           fi
           echo ""
 
           echo "Build Warnings:"
-          if [ -n "$FILTERED_BUILD_WARNINGS" ]; then
+          if [ -n "$BUILD_WARNINGS" ]; then
             echo "Build warnings found in the updated files. Please solve them before merging."
-            echo "$FILTERED_BUILD_WARNINGS"
+            echo "$BUILD_WARNINGS"
           else
             echo "No build warnings found."
           fi
