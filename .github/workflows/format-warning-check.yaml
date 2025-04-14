@@ -63,13 +63,12 @@ jobs:
             echo "$line"
           done < format-output.txt
 
-          echo "Checking if printf is available..."
-          printf "test\n" || echo "printf is not available"
-          # Filter format errors for changed files
-          FILTERED_FORMAT_ISSUES=$(while IFS= read -r line; do printf "%s\\n" "$line"; done < format-output.txt)
-          echo "Format issues found."
-          echo "$FILTERED_FORMAT_ISSUES"
-          echo "FORMAT_ISSUES=$FILTERED_FORMAT_ISSUES" >> $GITHUB_ENV
+          if [ -n "$FORMAT_ISSUES" ]; then
+            echo "Format issues found in the updated files. Please solve them before merging."
+            echo "FORMAT_ISSUES=1" >> $GITHUB_ENV
+          else
+            echo "No format issues found."
+          fi
         env:
           PATH: ${{ runner.tool_cache }}/dotnet:$PATH
 
@@ -82,38 +81,21 @@ jobs:
           dotnet build --configuration Release --no-restore > build-output.txt || true
 
           # Filter build warnings for changed files
-          FILTERED_BUILD_WARNINGS=$(grep -i -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) build-output.txt || true)
+          BUILD_WARNINGS=$(grep -i -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) build-output.txt || true)
           echo "Build warnings found."
-          echo "$FILTERED_BUILD_WARNINGS"
-          echo "BUILD_WARNINGS=$FILTERED_BUILD_WARNINGS" >> $GITHUB_ENV
-        env:
-          DOTNET_CLI_TELEMETRY_OPTOUT: 1
-
-      # Step 8: Final summary of changed files, format issues, and build warnings
-      - name: Final Summary
-        run: |
-          echo "Final Summary:"
-          echo "Changed Files:"
-          echo "$CHANGED_FILES" | xargs -n1 basename
-          echo ""
-
-          echo "Format Issues:"
-          if [ -n "$FORMAT_ISSUES" ]; then
-            echo "Format issues found in the updated files. Please solve them before merging."
-            echo "$FORMAT_ISSUES"
-          else
-            echo "No format issues found."
-          fi
-          echo ""
-
-          echo "Build Warnings:"
           if [ -n "$BUILD_WARNINGS" ]; then
             echo "Build warnings found in the updated files. Please solve them before merging."
             echo "$BUILD_WARNINGS"
+            echo "BUILD_WARNINGS=1" >> $GITHUB_ENV
           else
             echo "No build warnings found."
           fi
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
 
+      # Step 8: Fail if format issues or build warnings are found
+      - name: Fail if format issues or build warnings are found
+        run: |
           # Fail the workflow if there are format issues or build warnings
           if [ -n "$FORMAT_ISSUES" ] || [ -n "$BUILD_WARNINGS" ]; then
             echo "Errors or warnings detected. Failing the workflow."
