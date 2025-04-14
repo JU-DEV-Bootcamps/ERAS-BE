@@ -59,9 +59,11 @@ jobs:
           CHANGED_FILES_NEWLINE=$(printf "%s\n" $CHANGED_FILES)
           dotnet format --verify-no-changes --include $CHANGED_FILES_NEWLINE > format-output.txt  2>&1 || true
           echo "Raw format-output.txt:"
-          while IFS= read -r line; do
+          FORMAT_ISSUES=$(while IFS= read -r line; do
             echo "$line"
           done < format-output.txt
+
+          FORMAT_ISSUES=$(while IFS= read -r line; do printf "%s\\n" "$line"; done < format-output.txt)
 
           if [ -n "$FORMAT_ISSUES" ]; then
             echo "Format issues found in the updated files. Please solve them before merging."
