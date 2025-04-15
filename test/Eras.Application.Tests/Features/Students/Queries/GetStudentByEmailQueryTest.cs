@@ -23,7 +23,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
         }
 
         [Fact]
-        public async Task Handle_Should_Return_Success_Response()
+        public async Task Handle_Should_Return_Success_ResponseAsync()
         {
             // Arrange
             var query = new GetStudentByEmailQuery() {
@@ -41,10 +41,10 @@ namespace Eras.Application.Tests.Features.Students.Queries
             };
 
             _mockStudentRepository
-                .Setup(repo => repo.GetByEmailAsync(It.Is<string>(Email => Email == "StudentTest")))
+                .Setup(Repo => Repo.GetByEmailAsync(It.Is<string>(Email => Email == "StudentTest")))
                 .ReturnsAsync(studentExpected);
             _mockStudentRepository
-                .Setup(repo => repo.GetByEmailAsync(It.Is<string>(Email => Email == "StudentTest2")))
+                .Setup(Repo => Repo.GetByEmailAsync(It.Is<string>(Email => Email == "StudentTest2")))
                 .ReturnsAsync(studentUnexpected);
 
             var result = await _handler.Handle(query, CancellationToken.None);

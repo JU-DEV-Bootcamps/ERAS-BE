@@ -24,7 +24,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
         }
 
         [Fact]
-        public async Task Handle_Should_Return_Success_Response()
+        public async Task Handle_Should_Return_Success_ResponseAsync()
         {
             // Arrange
             var query = new GetAllStudentsQuery(new Utils.Pagination());
