@@ -1,5 +1,6 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Exceptions;
+using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Application.Models.Consolidator;
 
@@ -11,33 +12,28 @@ namespace Eras.Application.Features.Consolidator.Queries.Polls;
 
 public class PollAvgHandler(
     ILogger<PollAvgHandler> Logger,
-    IComponentRepository CompRepository,
     IPollInstanceRepository PollInstanceRepository
-    ) : IRequestHandler<PollAvgQuery, GetQueryResponse<AvgConsolidatorResponseVm>>
+    ) : IRequestHandler<PollAvgQuery, GetQueryResponse<AvgReportResponseVm>>
 {
-    private readonly IComponentRepository _compRepo = CompRepository;
     private readonly IPollInstanceRepository _pollInstanceRepository = PollInstanceRepository;
     private readonly ILogger<PollAvgHandler> _logger = Logger;
 
-    public async Task<GetQueryResponse<AvgConsolidatorResponseVm>> Handle(PollAvgQuery Req, CancellationToken CancToken)
+    public async Task<GetQueryResponse<AvgReportResponseVm>> Handle(PollAvgQuery Req, CancellationToken CancToken)
     {
         try
         {
-            var answersByFilters = await _pollInstanceRepository.GetByUuidAsync(Req.PollUuid.ToString())
+            IEnumerable<Domain.Entities.Answer> answersByFilters = await _pollInstanceRepository.GetAnswersByPollInstanceUuidAsync(Req.PollUuid.ToString())
                 ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}");
 
             if (answersByFilters == null) // Returns empty response
-                return new GetQueryResponse<AvgConsolidatorResponseVm>(new AvgConsolidatorResponseVm(), "Success: No answered polls with that Uuid", true);
-
-            var mappedReport = Mappe
-            var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByFilters);
-
-            return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
+                return new GetQueryResponse<AvgReportResponseVm>(new AvgReportResponseVm(), "Success: No answered polls with that Uuid", true);
+            AvgReportResponseVm avgRes = ReportMapper.MaptToVmResponse(answersByFilters);
+            return new GetQueryResponse<AvgReportResponseVm>(avgRes, "Success", true);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred getting the heat map summary data by filters");
-            return new GetQueryResponse<HeatMapSummaryResponseVm>(body: null, "Failed", false);
+            return new GetQueryResponse<AvgReportResponseVm>(new AvgReportResponseVm(), "Failed", false);
         }
     }
 }

@@ -6,7 +6,7 @@ namespace Eras.Application.Mappers;
 
 public static class ReportMapper
 {
-    public static AvgConsolidatorResponseVm MaptToVmResponse(
+    public static AvgReportResponseVm MaptToVmResponse(
         IEnumerable<Answer> PollAnswers
     )
     {
@@ -15,26 +15,26 @@ public static class ReportMapper
             .Select(AnsPerComponent =>
             {
                 var averageRisk = Math.Round(AnsPerComponent.Average(A => A.RiskLevel), 2);
-                return new ReportComponent
+                return new AvgReportComponent
                 {
-                    Description = AnsPerComponent.Key.Name,
+                    Description = AnsPerComponent.Key.Name.ToUpper(),
                     AverageRisk = averageRisk,
-                    Variables = AnsPerComponent
+                    Questions = [.. AnsPerComponent
                         .GroupBy(A => new { A.Variable.Id, A.AnswerText })
                         .Select(AnswersPerVar =>
                         {
                             var averageRisk = Math.Round(AnswersPerVar.Average(A => A.RiskLevel), 2);
                             var closestRisk = Math.Round(averageRisk, 0);
-                            return new AvgVariable {
+                            return new AvgReportQuestions {
                                 Question = AnswersPerVar.FirstOrDefault(A => A.RiskLevel == closestRisk)?.Variable.Name ?? "Should be a valid variable name",
                                 Answer = AnswersPerVar.FirstOrDefault(A => A.RiskLevel == closestRisk)?.AnswerText ?? "Should be a valid answer",
                                 AverageRisk = averageRisk,
                                 Count = AnsPerComponent.Count(),
                             };
-                        }).ToList()
+                        })]
                 };
 
             }).ToList();
-        return new AvgConsolidatorResponseVm(){Components = components};
+        return new AvgReportResponseVm(){Components = components};
     }
 }

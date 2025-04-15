@@ -70,6 +70,6 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             .Where(Answer => Answer.PollInstance.Uuid == PollUuid)
             .ToListAsync();
 
-        return [.. answers.Select(AnswerMapper.ToDomain)];
+        return [.. answers.Select(AnswerMapper.ToDomainWithRelations)];
     }
 }

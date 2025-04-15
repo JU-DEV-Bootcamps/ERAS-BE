@@ -2,7 +2,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 using System.Diagnostics.CodeAnalysis;
-using Eras.Application.Features.Consolidator.Queries;
 using Eras.Application.Features.Consolidator.Queries.Polls;
 namespace Eras.Api.Controllers;
 
@@ -21,7 +20,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             var pollGuid = new Guid(PollInstanceUuid);
             var query = new PollAvgQuery() { PollUuid = pollGuid };
-            Application.Models.BaseResponse avgRisk = await _mediator.Send(query);
+            var avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
             {
@@ -115,6 +114,27 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         catch (Exception ex)
         {
             return NotFound(new { status = "error", message = ex.Message });
+        }
+    }
+
+    [HttpGet("polls/avg/")]
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromQuery] string PollInstanceUuid){
+        try
+        {
+            var pollGuid = new Guid(PollInstanceUuid);
+            var query = new PollAvgQuery() { PollUuid = pollGuid };
+            var avgRisk = await _mediator.Send(query);
+            return avgRisk.Success
+            ? Ok(new
+            {
+                status = "successful",
+                body = avgRisk.Body,
+            })
+            : BadRequest(new { status = "error", message = avgRisk.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { status = "error", message = ex.Message });
         }
     }
 }
