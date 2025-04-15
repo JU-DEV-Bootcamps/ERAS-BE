@@ -8,6 +8,7 @@ namespace Eras.Domain.Entities
         public string Type { get; set; } = string.Empty;
         public AuditInfo Audit { get; set; } = default!;
         public int IdComponent { get; set; }
+        public Component Component { get; set; } = default!;
         public int PollVariableId {  get; set; }
         public int IdPoll { get; set; }
     }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Features.Consolidator.Queries;
+using Eras.Application.Features.Consolidator.Queries.Polls;
 namespace Eras.Api.Controllers;
 
 [ApiController]
@@ -85,27 +86,29 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     {
         try
         {
-            PollTopQuery query = new() {
+            GetPollTopQuery query = new()
+            {
                 PollUuid = new Guid(PollInstanceUuid),
                 Take = Take ,
                 VariableIds = VariableIds
             };
-            Application.Models.BaseResponse avgRisk = await _mediator.Send(query);
-            // var topRiskMessage = string.Join(", ", avgRisk.Body.Select(Student =>
-            //     $"{Student.student.Uuid} - {Student.student.Name} - RISK = {Student.answer.RiskLevel}"
-            // ).ToList());
-            // var result = avgRisk.Body.Select(Students => new
-            // {
-            //     Students.student,
-            //     Students.variable,
-            //     Students.answer,
-            // }).ToList();
+            Application.Models.GetQueryResponse<List<(Domain.Entities.Answer answer, Domain.Entities.Variable variable, Domain.Entities.Student student)>> avgRisk = await _mediator.Send(query);
+            var topRiskMessage = string.Join(", ", avgRisk.Body.Select(Stud =>
+                $"{Stud.student.Uuid} - {Stud.student.Name} - RISK = {Stud.answer.RiskLevel}"
+            ).ToList());
+            var result = avgRisk.Body.Select(Stud => new
+            {
+                Stud.student,
+                Stud.variable,
+                Stud.answer,
+            }).ToList();
 
             return avgRisk.Success
             ? Ok(new
             {
                 status = "successful",
-                body = avgRisk.Message
+                message = $"Top risk students: {topRiskMessage}",
+                body = result
             })
             : BadRequest(new { status = "error", message = avgRisk.Message });
         }

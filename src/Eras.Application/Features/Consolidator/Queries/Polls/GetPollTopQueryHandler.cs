@@ -1,7 +1,9 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Consolidator.Queries.Polls;
@@ -23,12 +25,12 @@ public class GetPollTopQueryHandler(
         try
         {
             List<(Answer Answer, Variable Variable, Student Student)> results = await _pollVariableRepository.GetByPollUuidAsync(Request.PollUuid.ToString(), Request.VariableIds);
-            var orderedStudents = results.OrderByDescending(S => S.Answer.RiskLevel).Take(TakeNStudents).ToList();
+            var orderedStudents = results.OrderByDescending(Stud => Stud.Answer.RiskLevel).Take(TakeNStudents).ToList();
             return new GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>(orderedStudents, "Success", true);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while calculating higher risk students: " + Request);
+            _logger.LogError(e, "An error occurred while calculating higher risk students: ");
             return new GetQueryResponse<List<(Answer answer, Variable variable, Student student)>>(
                 [],
                 $"Failed to retrieve top risk students by variable. Error {e.Message}",

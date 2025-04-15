@@ -1,32 +1,43 @@
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Exceptions;
 using Eras.Application.Models;
-using Eras.Domain.Entities;
+using Eras.Application.Models.Consolidator;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Consolidator.Queries;
+namespace Eras.Application.Features.Consolidator.Queries.Polls;
 
-public class PollAvgHandler(ILogger<PollAvgHandler> Logger, IPollInstanceRepository PollInstanceRepository) : IRequestHandler<PollAvgQuery, BaseResponse>
+public class PollAvgHandler(
+    ILogger<PollAvgHandler> Logger,
+    IComponentRepository CompRepository,
+    IPollInstanceRepository PollInstanceRepository
+    ) : IRequestHandler<PollAvgQuery, GetQueryResponse<AvgConsolidatorResponseVm>>
 {
+    private readonly IComponentRepository _compRepo = CompRepository;
     private readonly IPollInstanceRepository _pollInstanceRepository = PollInstanceRepository;
     private readonly ILogger<PollAvgHandler> _logger = Logger;
 
-    public async Task<BaseResponse> Handle(PollAvgQuery Req, CancellationToken CancToken)
+    public async Task<GetQueryResponse<AvgConsolidatorResponseVm>> Handle(PollAvgQuery Req, CancellationToken CancToken)
     {
         try
         {
-            Guid pollUuid = Req.PollUuid;
-            //Need to construct a response with a list of components, their quetions-answers and the average risk level
-            PollInstance allFromPoll = await _pollInstanceRepository.GetAllByPollUuidAsync(pollUuid) ?? throw new KeyNotFoundException("Poll not found");
+            var answersByFilters = await _pollInstanceRepository.GetByUuidAsync(Req.PollUuid.ToString())
+                ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}");
 
+            if (answersByFilters == null) // Returns empty response
+                return new GetQueryResponse<AvgConsolidatorResponseVm>(new AvgConsolidatorResponseVm(), "Success: No answered polls with that Uuid", true);
 
-            //var averageRisk = answers.Average(a => a.RiskLevel);
-            return new BaseResponse(allFromPoll.ToString() ?? "No results found", true);
+            var mappedReport = Mappe
+            var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByFilters);
+
+            return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while calculating the average risk by poll");
-            return new BaseResponse(false);
+            _logger.LogError(ex, "An error occurred getting the heat map summary data by filters");
+            return new GetQueryResponse<HeatMapSummaryResponseVm>(body: null, "Failed", false);
         }
     }
 }

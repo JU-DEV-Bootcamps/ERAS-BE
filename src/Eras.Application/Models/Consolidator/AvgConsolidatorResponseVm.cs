@@ -1,10 +1,12 @@
 namespace Eras.Application.Models.Consolidator;
 public class AvgConsolidatorResponseVm : ConsolidatorResponseVm
 {
-    public IEnumerable<AvgVariable> Variables { get; set; } = [];
-
-    public class AvgVariable : Variable
+    public AvgConsolidatorResponseVm() : base()
     {
-        public double AverageRisk { get; set; }
     }
+}
+
+public class AvgVariable : ReportVariable
+{
+    public double AverageRisk { get; set; }
 }

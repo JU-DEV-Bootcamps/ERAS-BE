@@ -2,18 +2,20 @@ namespace Eras.Application.Models.Consolidator;
 
 public abstract class ConsolidatorResponseVm
 {
-    public IEnumerable<Component> Components { get; set; } = [];
+    public required IEnumerable<ReportComponent> Components { get; set; } = [];
 }
 
-public class Component
+public class ReportComponent
 {
     public required string Description { get; set; }
-    public IEnumerable<Variable> Variables { get; set; } = new List<Variable>();
+    public required IEnumerable<ReportVariable> Variables { get; set; } = [];
+
+    public required double AverageRisk { get; set; }
 }
 
-public abstract class Variable
+public abstract class ReportVariable
 {
     public required string Question { get; set; }
     public required string Answer { get; set; }
-    public int Count { get; set; }
+    public required int Count { get; set; }
 }
