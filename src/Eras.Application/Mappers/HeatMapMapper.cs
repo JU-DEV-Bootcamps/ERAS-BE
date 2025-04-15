@@ -83,7 +83,7 @@ namespace Eras.Application.Mappers
                     Name = c.Description,
                     Data = c.Variables
                     .Select(va => new DataPointSummary
-                    {
+                    { 
                         X = va.Description,
                         Y = Math.Round(Math.Min(va.AverageScore, 5), 2) // Limit the maxValue to 5, should be fixed
                     })

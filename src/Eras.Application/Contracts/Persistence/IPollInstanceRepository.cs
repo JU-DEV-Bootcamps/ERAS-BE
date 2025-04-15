@@ -1,15 +1,16 @@
 using Eras.Domain.Entities;
 
-namespace Eras.Application.Contracts.Persistence;
-
-public interface IPollInstanceRepository : IBaseRepository<PollInstance>
+namespace Eras.Application.Contracts.Persistence
 {
-    Task<PollInstance?> GetByUuidAsync(string Uuid);
-    Task<PollInstance?> GetByUuidAndStudentIdAsync(string Uuid, int StudentId);
+    public interface IPollInstanceRepository : IBaseRepository<PollInstance>
+    {
+        Task<PollInstance?> GetByUuidAsync(string uuid);
+        Task<PollInstance?> GetByUuidAndStudentIdAsync(string uuid, int studentId);
 
-    Task<IEnumerable<PollInstance>> GetByLastDays(int Days);
+        Task<IEnumerable<PollInstance>> GetByLastDays(int days);
 
-    Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? CohortId, int? Days);
+        Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? cohortId, int? days);
 
-    Task<PollInstance?> GetAllByPollUuidAsync(Guid PollUuid);
+
+    }
 }

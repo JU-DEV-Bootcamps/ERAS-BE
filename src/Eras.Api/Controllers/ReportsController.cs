@@ -77,7 +77,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
 
-    [HttpGet("higherrisk/byPoll/")]
+    [HttpGet("polls/top/")]
     public async Task<IActionResult> GetHigherRiskStudentsByPollAsync(
     [FromQuery] string PollInstanceUuid,
     [FromQuery] int Take,
@@ -85,7 +85,11 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     {
         try
         {
-            PollTopQuery query = new() {PollUuid = new Guid(PollInstanceUuid)};
+            PollTopQuery query = new() {
+                PollUuid = new Guid(PollInstanceUuid),
+                Take = Take ,
+                VariableIds = VariableIds
+            };
             Application.Models.BaseResponse avgRisk = await _mediator.Send(query);
             // var topRiskMessage = string.Join(", ", avgRisk.Body.Select(Student =>
             //     $"{Student.student.Uuid} - {Student.student.Name} - RISK = {Student.answer.RiskLevel}"

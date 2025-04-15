@@ -14,5 +14,5 @@ public class GetHigherRiskStudentByCohortPollQuery: IRequest<GetQueryResponse<Li
 {
     public required string CohortName { get; set; }
     public required string PollName { get; set; }
-    public int? Take { get; set; }
+    public int? Take { get; set; } = 5;
 }

@@ -1,80 +1,68 @@
+using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
 
-namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
-
-public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollInstance, PollInstanceEntity>(Context, PollInstanceMapper.ToDomain, PollInstanceMapper.ToPersistence), IPollInstanceRepository
+namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public async Task<PollInstance?> GetByUuidAsync(string Uuid)
+    public class PollInstanceRepository : BaseRepository<PollInstance, PollInstanceEntity>, IPollInstanceRepository
     {
-        PollInstanceEntity? pollInstance = await _context.PollInstances
-            .FirstOrDefaultAsync(PollInstance => PollInstance.Uuid == Uuid);
-
-        return pollInstance?.ToDomain();
-    }
-
-    public async Task<PollInstance?> GetByUuidAndStudentIdAsync(string Uuid, int StudentId)
-    {
-        PollInstanceEntity? results = await _context.PollInstances.FirstOrDefaultAsync(Poll => Poll.Uuid.Equals(Uuid) && Poll.StudentId.Equals(StudentId));
-        return results?.ToDomain();
-    }
-
-
-    public async Task<IEnumerable<PollInstance>> GetByLastDays(int Days)
-    {
-        DateTime dateLimit = DateTime.UtcNow.AddDays(-Days);
-        List<PollInstanceEntity> pollInstanceCounts = await _context.PollInstances
-        .Include(PollI => PollI.Student)
-        .Where(PollI => PollI.FinishedAt >= dateLimit)
-        .ToListAsync();
-
-        return pollInstanceCounts.Select(PollInstanceMapper.ToDomain);
-    }
-
-    public async Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? CohortId, int? Days)
-    {
-        IQueryable<PollInstanceEntity> query = _context.PollInstances.Include(PollI => PollI.Student);
-
-        if (CohortId.HasValue && CohortId != 0)
+        public PollInstanceRepository(AppDbContext context) 
+            : base(context, PollInstanceMapper.ToDomain, PollInstanceMapper.ToPersistence)
         {
-            query = query
-                .Join(_context.StudentCohorts,
-                    PollI => PollI.StudentId,
-                    StudCohort => StudCohort.StudentId,
-                    (PollI, StudCoh) => new { pollInstance= PollI, studentCohort=StudCoh })
-                .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value)
-                .Select(Joined => Joined.pollInstance);
         }
 
-        if (Days.HasValue && Days != 0)
+        public async Task<PollInstance?> GetByUuidAsync(string uuid)
         {
-            DateTime dateLimit = DateTime.UtcNow.AddDays(-Days.Value);
-            query = query.Where(PollI => PollI.FinishedAt >= dateLimit);
+            var pollInstance = await _context.PollInstances 
+                .FirstOrDefaultAsync(pollInstance => pollInstance.Uuid == uuid);
+        
+            return pollInstance?.ToDomain();
         }
 
-        List<PollInstanceEntity> pollInstances = await query.Distinct().ToListAsync();
-        return [.. pollInstances.Select(PollInstanceMapper.ToDomain)];
-    }
-    public async Task<PollInstance?> GetAllByPollUuidAsync(Guid PollUuid)
-    {
-        var pollInstances = _context.PollInstances
-            //Get Student name; Get
-            .Include(PollI => PollI.Student)
-            .ThenInclude(Stud => Stud.StudentCohorts)
-            //Get Cohort name; Get Cohort Id
-            .ThenInclude(StudCoh => StudCoh.Cohort)
-            //Get Risk level; Get Answer text;
-            .Include(PollI => PollI.Answers)
-            .ThenInclude(Ans => Ans.PollVariable)
-            //Get Question text; Component Id
-            .ThenInclude(PollV => PollV.Variable)
-            //Get Component Name
-            .ThenInclude(Var => Var.Component)
-            .Where(PollI => PollI.Uuid == PollUuid.ToString()).ToList();
+        public async Task<PollInstance?> GetByUuidAndStudentIdAsync(string uuid, int studentId)
+        {
+            var results = await _context.PollInstances.FirstOrDefaultAsync(poll => poll.Uuid.Equals(uuid) && poll.StudentId.Equals(studentId));
+            return results?.ToDomain();
+        }
 
-        return pollInstances.Select(PI => PI.ToDomain()).FirstOrDefault();
+
+        public async Task<IEnumerable<PollInstance>> GetByLastDays(int days)
+        {
+            var dateLimit = DateTime.UtcNow.AddDays(-days);
+            var pollInstanceCounts = await _context.PollInstances
+            .Include(pi => pi.Student)
+            .Where(pi => pi.FinishedAt >= dateLimit)
+            .ToListAsync();
+
+            return pollInstanceCounts.Select(entity => PollInstanceMapper.ToDomain(entity));
+        }
+
+        public async Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? cohortId, int? days)
+        {
+            IQueryable<PollInstanceEntity> query = _context.PollInstances.Include(pi => pi.Student);
+
+            if (cohortId.HasValue && cohortId != 0)
+            {
+                query = query
+                    .Join(_context.StudentCohorts,
+                        pollInstance => pollInstance.StudentId,
+                        studentCohort => studentCohort.StudentId,
+                        (pollInstance, studentCohort) => new { pollInstance, studentCohort })
+                    .Where(joined => joined.studentCohort.CohortId == cohortId.Value)
+                    .Select(joined => joined.pollInstance);
+            }
+
+            if (days.HasValue && days != 0)
+            {
+                var dateLimit = DateTime.UtcNow.AddDays(-days.Value);
+                query = query.Where(pi => pi.FinishedAt >= dateLimit);
+            }
+
+            var pollInstances = await query.Distinct().ToListAsync();
+            return pollInstances.Select(pi => PollInstanceMapper.ToDomain(pi)).ToList();
+        }
     }
 }
