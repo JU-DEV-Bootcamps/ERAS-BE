@@ -10,7 +10,7 @@ using MediatR;
 
 namespace Eras.Application.Features.Students.Queries.GetByEmail
 {
-    public class GetStudentByEmailQuery : IRequest<GetQueryResponse<Student?>>
+    public class GetStudentByEmailQuery : IRequest<GetQueryResponse<Student>>
     {
         public string studentEmail = string.Empty;
     }

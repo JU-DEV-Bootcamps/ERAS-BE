@@ -11,8 +11,8 @@ using MediatR;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
-    public class CreateStudentCommand : IRequest<CreateCommandResponse<Student>>
+    public class CreateStudentCommand : IRequest<CreateCommandResponse<Student?>>
     {
-        public StudentDTO? StudentDTO;
+        public required StudentDTO StudentDTO;
     }
 }

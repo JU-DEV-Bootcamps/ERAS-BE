@@ -57,11 +57,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
 
 
-        public async Task<CreatedPollDTO> SavePreviewPolls(List<PollDTO> pollsDtos)
+        public async Task<CreatedPollDTO> SavePreviewPolls(List<PollDTO> PollsDtos)
         {
             try
             {
-                CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstances(pollsDtos);
+                CreateCommandResponse<CreatedPollDTO?> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos);
                 return createdPoll.Entity;
             }
             catch (Exception e)

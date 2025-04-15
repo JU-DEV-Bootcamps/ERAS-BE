@@ -8,29 +8,29 @@ using Microsoft.Extensions.Logging;
 namespace Eras.Application.Features.Students.Queries.GetByEmail
 {
     public class GetStudentByEmailQueryHandler
-        : IRequestHandler<GetStudentByEmailQuery, GetQueryResponse<Student?>>
+        : IRequestHandler<GetStudentByEmailQuery, GetQueryResponse<Student>>
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ILogger<GetStudentByEmailQueryHandler> _logger;
 
-        public GetStudentByEmailQueryHandler(IStudentRepository studentRepository, ILogger<GetStudentByEmailQueryHandler> logger)
+        public GetStudentByEmailQueryHandler(IStudentRepository StudentRepository, ILogger<GetStudentByEmailQueryHandler> Logger)
         {
-            _studentRepository = studentRepository;
-            _logger = logger;
+            _studentRepository = StudentRepository;
+            _logger = Logger;
         }
 
-        public async Task<GetQueryResponse<Student>> Handle(GetStudentByEmailQuery request, CancellationToken cancellationToken)
+        public async Task<GetQueryResponse<Student>> Handle(GetStudentByEmailQuery Request, CancellationToken CancellationToken)
         {
             try
             {
-                Student student = await _studentRepository.GetByEmailAsync(request.studentEmail);
+                Student? student = await _studentRepository.GetByEmailAsync(Request.studentEmail);
                 if (student == null) {
-                    return new GetQueryResponse<Student>(null, "Student dont exist", true);
+                    return new GetQueryResponse<Student>(new Student(), "Student dont exist", false);
                 }
                 return new GetQueryResponse<Student>(student, "Success", true);
             }
             catch (Exception ex) {
-                return new GetQueryResponse<Student>(null, "Unexpected error getting the user by email", false);
+                return new GetQueryResponse<Student>(new Student(), "Unexpected error getting the user by email", false);
             }
 
         }

@@ -12,6 +12,6 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
     public class CreateStudentsCommand: IRequest<CreateCommandResponse<Student[]>>
     {
-        public StudentImportDto[] students;
+        public required StudentImportDto[] students;
     }
 }

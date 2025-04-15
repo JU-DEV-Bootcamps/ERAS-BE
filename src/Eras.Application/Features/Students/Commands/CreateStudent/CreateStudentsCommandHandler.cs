@@ -25,14 +25,14 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
         private readonly ILogger<CreateStudentsCommandHandler> _logger;
         private readonly IMediator _mediator;
 
-        public CreateStudentsCommandHandler(IStudentRepository studentRepository, ILogger<CreateStudentsCommandHandler> logger, IMediator mediator)
+        public CreateStudentsCommandHandler(IStudentRepository StudentRepository, ILogger<CreateStudentsCommandHandler> Logger, IMediator Mediator)
         {
-            _studentRepository = studentRepository;
-            _logger = logger;
-            _mediator = mediator;
+            _studentRepository = StudentRepository;
+            _logger = Logger;
+            _mediator = Mediator;
         }
 
-        public async Task<CreateCommandResponse<Student[]>> Handle(CreateStudentsCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Student[]>> Handle(CreateStudentsCommand Request, CancellationToken CancellationToken)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                 List<Student> updatedStudents = [];
                 List<Student> errorStudents = [];
 
-                foreach (StudentImportDto dto in request.students)
+                foreach (StudentImportDto dto in Request.students)
                 {
                     StudentDTO studentDTO = dto.ExtractStudentDTO();
                     studentDTO.IsImported = true;
@@ -54,31 +54,30 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 
 
                     GetStudentByEmailQuery getStudentByEmailQuery = new GetStudentByEmailQuery() { studentEmail = studentDTO.Email };
-                    GetQueryResponse<Student> studentResponse = await _mediator.Send(getStudentByEmailQuery);
+                    GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
 
-                    CreateCommandResponse<Student> createdStudent = new CreateCommandResponse<Student>(studentResponse.Body,
-                        studentResponse.Message, studentResponse.Success);
-                    if (studentResponse == null)
+                    CreateCommandResponse<Student> studentCreatedOrChanged;
+                    if (!getStudentResponse.Success && getStudentResponse.Message == "Student dont exist")
                     {
                         CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
-                        createdStudent = await _mediator.Send(createStudentCommand);
+                        studentCreatedOrChanged = await _mediator.Send(createStudentCommand);
                     }
                     else {
-                        studentResponse.Body.IsImported = true;
-                        UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = studentResponse.Body.ToDto() };
-                        createdStudent = await _mediator.Send(updateStudentCommand);
+                        getStudentResponse.Body.IsImported = true;
+                        UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = getStudentResponse.Body.ToDto() };
+                        studentCreatedOrChanged = await _mediator.Send(updateStudentCommand);
                     }
-                    if (!createdStudent.Success)
+                    if (!studentCreatedOrChanged.Success)
                     {
-                        errorStudents.Add(createdStudent.Entity);
+                        errorStudents.Add(studentCreatedOrChanged.Entity);
                     }
-                    else if (createdStudent.Success)
+                    else if (studentCreatedOrChanged.Success)
                     {
-                        if (createdStudent.SuccessfullImports == 0)
-                            updatedStudents.Add(createdStudent.Entity);
-                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity, dto);
-                        createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
-                        createdStudents.Add(createdStudent.Entity);
+                        if (studentCreatedOrChanged.SuccessfullImports == 0)
+                            updatedStudents.Add(studentCreatedOrChanged.Entity);
+                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(studentCreatedOrChanged.Entity, dto);
+                        studentCreatedOrChanged.Entity.StudentDetail = createdStudentDetail.Entity;
+                        createdStudents.Add(studentCreatedOrChanged.Entity);
                     }
                 }
                 return new CreateCommandResponse<Student[]>(createdStudents.ToArray(), createdStudents.Count, $"{createdStudents.Count} new students, {updatedStudents.Count} updated, and {errorStudents.Count} with errors.", true);
@@ -86,21 +85,21 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the massive import process");
-                return new CreateCommandResponse<Student[]>(null,0, "Error", false);
+                return new CreateCommandResponse<Student[]>([new Student()],0, "Error", false);
             }
         }
-        public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetail(Student student, StudentImportDto dto)
+        public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetailAsync(Student Student, StudentImportDto Dto)
         {
-            student.StudentDetail.EnrolledCourses = dto.EnrolledCourses;
-            student.StudentDetail.GradedCourses = dto.GradedCourses;
-            student.StudentDetail.TimeDeliveryRate = dto.TimelySubmissions;
-            student.StudentDetail.AvgScore = dto.AverageScore;
-            student.StudentDetail.CoursesUnderAvg = dto.CoursesBelowAverage;
-            student.StudentDetail.PureScoreDiff = dto.RawScoreDifference;
-            student.StudentDetail.StandardScoreDiff = dto.StandardScoreDifference;
-            student.StudentDetail.LastAccessDays = dto.DaysSinceLastAccess;
-            student.StudentDetail.Audit.ModifiedAt = DateTime.UtcNow;
-            StudentDetailDTO studentDetailDTO = student.StudentDetail.ToDto();
+            Student.StudentDetail.EnrolledCourses = Dto.EnrolledCourses;
+            Student.StudentDetail.GradedCourses = Dto.GradedCourses;
+            Student.StudentDetail.TimeDeliveryRate = Dto.TimelySubmissions;
+            Student.StudentDetail.AvgScore = Dto.AverageScore;
+            Student.StudentDetail.CoursesUnderAvg = Dto.CoursesBelowAverage;
+            Student.StudentDetail.PureScoreDiff = Dto.RawScoreDifference;
+            Student.StudentDetail.StandardScoreDiff = Dto.StandardScoreDifference;
+            Student.StudentDetail.LastAccessDays = Dto.DaysSinceLastAccess;
+            Student.StudentDetail.Audit.ModifiedAt = DateTime.UtcNow;
+            StudentDetailDTO studentDetailDTO = Student.StudentDetail.ToDto();
             studentDetailDTO.Audit = new AuditInfo()
             {
                 CreatedBy = "Csv latte import",
