@@ -35,7 +35,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
             };
 
             _mockStudentRepository
-                .Setup(Repo => Repo.GetPagedAsync(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(students);
+                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(students);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 
