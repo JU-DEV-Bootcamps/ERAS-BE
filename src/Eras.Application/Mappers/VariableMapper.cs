@@ -5,22 +5,22 @@ namespace Eras.Application.Mappers
 {
     public static class VariableMapper
     {
-        public static Variable ToDomain(this VariableDTO dto)
+        public static Variable ToDomain(this VariableDTO Dto)
         {
-            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(Dto);
             return new Variable
             {
-                Name = dto.Name,    
-                Audit = dto.Audit,
+                Name = Dto.Name,
+                Audit = Dto.Audit?? new(),
             };
         }
-        public static VariableDTO ToDto(this Variable domain)
+        public static VariableDTO ToDto(this Variable Domain)
         {
-            ArgumentNullException.ThrowIfNull(domain);
+            ArgumentNullException.ThrowIfNull(Domain);
             return new VariableDTO
             {
-                Name = domain.Name,
-                Audit = domain.Audit,
+                Name = Domain.Name,
+                Audit = Domain.Audit,
             };
         }
     }
