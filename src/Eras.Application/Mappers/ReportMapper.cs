@@ -35,6 +35,6 @@ public static class ReportMapper
                 };
 
             }).ToList();
-        return new AvgReportResponseVm(){Components = components};
+        return new AvgReportResponseVm() { Components = components };
     }
 }

@@ -100,5 +100,7 @@ jobs:
           # Fail the workflow if there are format issues or build warnings
           if [ -n "$FORMAT_ISSUES" ] || [ -n "$BUILD_WARNINGS" ]; then
             echo "Errors or warnings detected. Failing the workflow."
+            echo "You can run dotnet format for the changed files CHANGED_FILES"
+            echo "dotnet format --include $CHANGED_FILES"
             exit 1
           fi

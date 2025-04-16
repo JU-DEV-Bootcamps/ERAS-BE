@@ -1,8 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
 using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Features.Consolidator.Queries.Polls;
+using Eras.Application.Features.Consolidator.Queries.Students;
 namespace Eras.Api.Controllers;
 
 [ApiController]
@@ -43,7 +43,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     {
         try
         {
-            GetHigherRiskStudentByCohortPollQuery query = new() { CohortName = CohortName, PollName = PollName, Take = Take };
+            GetStudentTopQuery query = new() { CohortName = CohortName, PollName = PollName, Take = Take };
             var avgRisk = await _mediator.Send(query);
             var toprmessage = string.Join(", ", avgRisk.Body.Select(St => $"{St.Student.Uuid} - {St.Student.Name} - RISK = {St.RiskIndex}").ToList());
             var result = avgRisk.Body.Select(St => new
@@ -88,7 +88,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
             GetPollTopQuery query = new()
             {
                 PollUuid = new Guid(PollInstanceUuid),
-                Take = Take ,
+                Take = Take,
                 VariableIds = VariableIds
             };
             Application.Models.GetQueryResponse<List<(Domain.Entities.Answer answer, Domain.Entities.Variable variable, Domain.Entities.Student student)>> avgRisk = await _mediator.Send(query);
@@ -118,7 +118,8 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
     [HttpGet("polls/avg/")]
-    public async Task<IActionResult> GetAvgRiskByPollAsync([FromQuery] string PollInstanceUuid){
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromQuery] string PollInstanceUuid)
+    {
         try
         {
             var pollGuid = new Guid(PollInstanceUuid);

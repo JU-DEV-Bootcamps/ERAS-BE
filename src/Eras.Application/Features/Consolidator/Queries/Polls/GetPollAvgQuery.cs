@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Eras.Application.Features.Consolidator.Queries.Polls;
 
-public class PollAvgQuery: IRequest<GetQueryResponse<AvgReportResponseVm>>
+public class PollAvgQuery : IRequest<GetQueryResponse<AvgReportResponseVm>>
 {
     public required Guid PollUuid { get; set; }
 }

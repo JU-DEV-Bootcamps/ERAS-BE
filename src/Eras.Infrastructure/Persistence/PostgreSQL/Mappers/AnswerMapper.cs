@@ -22,9 +22,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             AnswerText = Entity.AnswerText,
             Audit = Entity.Audit,
             PollInstanceId = Entity.PollInstanceId,
-            PollInstance = Entity.PollInstance.ToDomain(),
+            PollInstance = Entity.PollInstance?.ToDomain() ?? new PollInstance(),
             PollVariableId = Entity.PollVariableId,
-            Variable = Entity.PollVariable.Variable.ToDomain(),
+            Variable = Entity.PollVariable.Variable?.ToDomain() ?? new Variable(),
         };
 
         public static AnswerEntity ToPersistence(this Answer Model) => new()

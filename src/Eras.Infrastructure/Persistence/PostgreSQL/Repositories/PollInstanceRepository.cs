@@ -2,6 +2,7 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
@@ -44,7 +45,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 .Join(_context.StudentCohorts,
                     PollInstance => PollInstance.StudentId,
                     StudentCohort => StudentCohort.StudentId,
-                    (PollInstance, StudentCohort) => new { pollInstance= PollInstance, studentCohort=StudentCohort })
+                    (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort })
                 .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value)
                 .Select(Joined => Joined.pollInstance);
         }
