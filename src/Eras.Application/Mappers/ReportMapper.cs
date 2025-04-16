@@ -25,7 +25,8 @@ public static class ReportMapper
                         {
                             var averageRisk = Math.Round(AnswersPerVar.Average(A => A.RiskLevel), 2);
                             var closestRisk = Math.Round(averageRisk, 0);
-                            return new AvgReportQuestions {
+                            return new AvgReportQuestions
+                            {
                                 Question = AnswersPerVar.FirstOrDefault(A => A.RiskLevel == closestRisk)?.Variable.Name ?? "Should be a valid variable name",
                                 Answer = AnswersPerVar.FirstOrDefault(A => A.RiskLevel == closestRisk)?.AnswerText ?? "Should be a valid answer",
                                 AverageRisk = averageRisk,
