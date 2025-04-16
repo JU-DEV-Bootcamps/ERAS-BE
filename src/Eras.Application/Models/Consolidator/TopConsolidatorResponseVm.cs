@@ -1,4 +1,4 @@
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 
 namespace Eras.Application.Models.Consolidator;
 

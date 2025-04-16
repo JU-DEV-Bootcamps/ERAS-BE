@@ -1,4 +1,4 @@
-
+﻿
 using Eras.Application.Models.Consolidator;
 using Eras.Domain.Entities;
 

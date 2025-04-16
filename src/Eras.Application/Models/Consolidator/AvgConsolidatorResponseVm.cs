@@ -1,4 +1,4 @@
-namespace Eras.Application.Models.Consolidator;
+﻿namespace Eras.Application.Models.Consolidator;
 
 public class AvgReportResponseVm
 {

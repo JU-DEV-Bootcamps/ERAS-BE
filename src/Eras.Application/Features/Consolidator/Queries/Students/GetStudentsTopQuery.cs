@@ -1,4 +1,4 @@
-using Eras.Application.Models;
+﻿using Eras.Application.Models;
 using Eras.Domain.Entities;
 
 using MediatR;
