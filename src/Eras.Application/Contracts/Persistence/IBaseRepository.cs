@@ -1,4 +1,4 @@
-namespace Eras.Application.Contracts.Persistence
+﻿namespace Eras.Application.Contracts.Persistence
 {
     public interface IBaseRepository<T>
     {
