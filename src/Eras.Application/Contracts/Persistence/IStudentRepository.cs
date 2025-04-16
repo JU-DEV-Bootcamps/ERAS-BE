@@ -6,28 +6,29 @@ namespace Eras.Application.Contracts.Persistence
 {
     public interface IStudentRepository : IBaseRepository<Student>
     {
-        Task<Student?> GetByNameAsync(string name);
-        Task<Student?> GetByUuidAsync(string uuid);
-        Task<Student?> GetByEmailAsync(string email);
-        Task<int> CountAsync();
+        Task<Student?> GetByNameAsync(string Name);
+        Task<Student?> GetByUuidAsync(string Uuid);
+        Task<Student?> GetByEmailAsync(string Email);
+        new Task<int> CountAsync();
 
         Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByComponent(
-            string componentName,
-            int limit
+            string ComponentName,
+            int Limit
         );
 
         Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByCohort(
-            string cohortId,
-            int limit
+            string CohortId,
+            int Limit
         );
 
         Task<(IEnumerable<Student> Students, int TotalCount)> GetAllStudentsByPollUuidAndDaysQuery(
-            int page,
-            int pageSize,
-            string pollUuid,
-            int? days
+            int Page,
+            int PageSize,
+            string PollUuid,
+            int? Days
         );
 
-        Task<List<StudentAverageRiskDto>> GetStudentAverageRiskAsync(int cohortId, int pollId);
+        Task<List<StudentAverageRiskDto>> GetStudentAverageRiskAsync(int CohortId, int pollId);
+        Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize);
     }
 }

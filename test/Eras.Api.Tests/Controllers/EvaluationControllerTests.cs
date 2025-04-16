@@ -7,7 +7,7 @@ using Eras.Api.Controllers;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Evaluations.Commands;
 using Eras.Application.Mappers;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;

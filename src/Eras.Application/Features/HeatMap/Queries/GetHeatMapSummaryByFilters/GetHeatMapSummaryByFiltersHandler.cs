@@ -1,11 +1,10 @@
-﻿
-using Eras.Application.Models.HeatMap;
-using Eras.Application.Models;
-using MediatR;
+﻿using MediatR;
 using Eras.Application.Contracts.Persistence;
 using Microsoft.Extensions.Logging;
 using Eras.Application.Exceptions;
 using Eras.Application.Mappers;
+using Eras.Application.Models.Response.Common;
+using Eras.Application.Models.Response.HeatMap;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
 {

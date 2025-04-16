@@ -10,7 +10,6 @@ using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Features.Variables.Commands.CreatePollVariable;
 using Eras.Application.Features.Variables.Commands.CreateVariable;
 using Eras.Application.Mappers;
-using Eras.Application.Models;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -19,6 +18,8 @@ using Eras.Application.Features.Answers.Commands.CreateAnswerList;
 using Variable = Eras.Domain.Entities.Variable;
 using Component = Eras.Domain.Entities.Component;
 using Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStudentId;
+using Eras.Application.Models.Response.Common;
+using Eras.Application.Features.Students.Queries.GetByEmail;
 
 namespace Eras.Application.Services
 {
@@ -27,55 +28,58 @@ namespace Eras.Application.Services
         private readonly IMediator _mediator;
         ILogger<PollOrchestratorService> _logger;
 
-        public PollOrchestratorService(IMediator mediator, ILogger<PollOrchestratorService> logger )
+        public PollOrchestratorService(IMediator Mediator, ILogger<PollOrchestratorService> Logger )
         {
-            _logger = logger;
-            _mediator = mediator;
+            _logger = Logger;
+            _mediator = Mediator;
         }
 
-        public async Task<CreateCommandResponse<CreatedPollDTO>> ImportPollInstances(List<PollDTO> pollsToCreate)
+        public async Task<CreateCommandResponse<CreatedPollDTO?>> ImportPollInstancesAsync(List<PollDTO> PollsToCreate)
         {
             try
             {
                 // Create poll
-                PollDTO pollDTO = pollsToCreate[0];
-                CreateCommandResponse<Poll> createdPollResponse = await CreatePoll(pollDTO);
+                PollDTO pollDTO = PollsToCreate[0];
+                CreateCommandResponse<Poll> createdPollResponse = await CreatePollAsync(pollDTO);
                 int createdPollsInstances = 0;
                 CreatedPollDTO createdPoll = new CreatedPollDTO();
 
                 if (createdPollResponse.Entity != null)
                 {
                     // Create components, variables and poll_variables (intermediate table)
-                    List<Component> createdComponents = await CreateComponentsAndVariables(pollsToCreate[0].Components, createdPollResponse.Entity.Id);
+                    List<Component> createdComponents = await CreateComponentsAndVariablesAsync(PollsToCreate[0].Components, createdPollResponse.Entity.Id);
 
-                    foreach (PollDTO pollToCreate in pollsToCreate)
+                    foreach (PollDTO pollToCreate in PollsToCreate)
                     {
                         // Create students
-                        CreateCommandResponse<Student> createdStudent = await CreateStudentFromPoll(pollToCreate);
-                        createdPoll.studentDTOs.Add(createdStudent.Entity.ToDto());
-                        // Create poll instances
-                        CreateCommandResponse<PollInstance> createdPollInstance = await CreatePollInstance(createdStudent.Entity, createdPollResponse.Entity.Uuid, pollToCreate.FinishedAt);
-
-                        // Create asnswers
-                        if (createdPollInstance.Success)
+                        CreateCommandResponse<Student> createdStudent = await CreateStudentFromPollAsync(pollToCreate);
+                        if (createdStudent.Success)
                         {
-                            await CreateAnswers(pollToCreate, createdComponents, createdPollInstance);
+                            createdPoll.studentDTOs.Add(createdStudent.Entity.ToDto());
+                            // Create poll instances
+                            CreateCommandResponse<PollInstance?> createdPollInstance = await CreatePollInstanceAsync(createdStudent.Entity, createdPollResponse.Entity.Uuid, pollToCreate.FinishedAt);
+                            // Create asnswers
+                            if (createdPollInstance.Success)
+                            {
+                                await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
+                            }
+                            createdPollsInstances++;
                         }
-                        createdPollsInstances++;
+                        
                     }
                 }
-                return new CreateCommandResponse<CreatedPollDTO>(createdPoll, createdPollsInstances, "Success", true);
+                return new CreateCommandResponse<CreatedPollDTO?>(createdPoll, createdPollsInstances, "Success", true);
             }
             catch (Exception ex)
             {
-                return new CreateCommandResponse<CreatedPollDTO>(null, 0, $"Error during import process {ex.Message}", false);
+                return new CreateCommandResponse<CreatedPollDTO?>(null, 0, $"Error during import process {ex.Message}", false);
             }
         }
-        public async Task<CreateCommandResponse<PollInstance>> CreatePollInstance(Student student, string pollUuid, DateTime finishedAt)
+        public async Task<CreateCommandResponse<PollInstance?>> CreatePollInstanceAsync(Student Student, string PollUuid, DateTime FinishedAt)
         {
             try
             {
-                PollInstance pollInstance = new PollInstance() { Uuid = pollUuid, Student = student, FinishedAt = finishedAt};
+                PollInstance pollInstance = new PollInstance() { Uuid = PollUuid, Student = Student, FinishedAt = FinishedAt};
 
                 pollInstance.Audit = new AuditInfo()
                 {
@@ -89,14 +93,14 @@ namespace Eras.Application.Services
             catch (Exception ex)
             {
                 _logger.LogError($"Error creating poll instance: {ex.Message}");
-                return new CreateCommandResponse<PollInstance>(null, 0, "Error", false);
+                return new CreateCommandResponse<PollInstance?>(null, 0, "Error", false);
             }
         }
-        public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetail(int studentId)
+        public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetailAsync(int StudentId)
         {
             GetStudentDetailByStudentIdQuery query = new GetStudentDetailByStudentIdQuery()
             {
-                StudentId = studentId
+                StudentId = StudentId
             };
             GetQueryResponse<StudentDetail> createdStudentDetail = await _mediator.Send(query);
             if(createdStudentDetail.Success && createdStudentDetail.Body != null)
@@ -107,7 +111,7 @@ namespace Eras.Application.Services
             }
             else
             {
-                StudentDetailDTO studentDetailDTO = new StudentDetailDTO() { StudentId = studentId };
+                StudentDetailDTO studentDetailDTO = new StudentDetailDTO() { StudentId = StudentId };
                 studentDetailDTO.Audit = new AuditInfo()
                 {
                     CreatedBy = "Cosmic latte import",
@@ -118,30 +122,30 @@ namespace Eras.Application.Services
                 return await _mediator.Send(createStudentDetailCommand);
             }
         }
-        public async Task<CreateCommandResponse<Cohort>> CreateAndSetStudentCohort(StudentDTO studentDto,CohortDTO cohort)
+        public async Task<CreateCommandResponse<Cohort>> CreateAndSetStudentCohortAsync(StudentDTO StudentDto,CohortDTO Cohort)
         {
-            cohort.Audit = new AuditInfo()
+            Cohort.Audit = new AuditInfo()
             {
                 CreatedBy = "Cosmic latte import",
                 CreatedAt = DateTime.UtcNow,
                 ModifiedAt = DateTime.UtcNow,
             };
-            CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = cohort };
+            CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = Cohort };
             CreateCommandResponse <Cohort> createdCohort = await _mediator.Send(createCohortCommand);
 
             if (createdCohort.Success)
             {
-                CreateStudentCohortCommand createStudentCohortCommand = new CreateStudentCohortCommand() { CohortId = createdCohort.Entity.Id, StudentId = studentDto.Id };
+                CreateStudentCohortCommand createStudentCohortCommand = new CreateStudentCohortCommand() { CohortId = createdCohort.Entity.Id, StudentId = StudentDto.Id };
                 CreateCommandResponse<Student> createdStudentCohort = await _mediator.Send(createStudentCohortCommand);
             }
 
             return createdCohort;
         }
-        public async Task<CreateCommandResponse<Student>> CreateStudentFromPoll(PollDTO pollToCreate)
+        public async Task<CreateCommandResponse<Student>> CreateStudentFromPollAsync(PollDTO PollToCreate)
         {
             try
             {
-                StudentDTO studentToCreate = (pollToCreate.Components.FirstOrDefault()?.Variables.FirstOrDefault()?.Answer?.Student)
+                StudentDTO studentToCreate = (PollToCreate.Components.FirstOrDefault()?.Variables.FirstOrDefault()?.Answer?.Student)
                     ?? throw new ArgumentNullException("Student information not found");
                 studentToCreate.Uuid = Guid.NewGuid().ToString();
                 studentToCreate.Audit = new AuditInfo()
@@ -150,16 +154,22 @@ namespace Eras.Application.Services
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                 };
-                CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate };
-                CreateCommandResponse<Student> createdStudent = await _mediator.Send(createStudentCommand);
 
-                if (createdStudent.Success)
+                GetStudentByEmailQuery getStudentByEmailQuery = new GetStudentByEmailQuery() { studentEmail = studentToCreate.Email };
+                GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
+                CreateCommandResponse<Student> createdStudent = new CreateCommandResponse<Student>(new Student(),"Empty Student",false);
+                if (!getStudentResponse.Success && getStudentResponse.Message == "Student dont exist")
                 {
-                    CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetail(createdStudent.Entity.Id);
-                    CohortDTO cohortToCreate = studentToCreate.Cohort;
-                    createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
-                    CreateCommandResponse<Cohort> createdCohort = await CreateAndSetStudentCohort(createdStudent.Entity.ToDto(), cohortToCreate);
-                    createdStudent.Entity.Cohort = createdCohort.Entity;
+                    CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate };
+                    createdStudent = await _mediator.Send(createStudentCommand);
+                    if (createdStudent.Success)
+                    {
+                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(createdStudent.Entity.Id);
+                        CohortDTO cohortToCreate = studentToCreate.Cohort;
+                        createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
+                        CreateCommandResponse<Cohort> createdCohort = await CreateAndSetStudentCohortAsync(createdStudent.Entity.ToDto(), cohortToCreate);
+                        createdStudent.Entity.Cohort = createdCohort.Entity;
+                    }
                 }
                 return createdStudent;
             }
@@ -169,17 +179,17 @@ namespace Eras.Application.Services
                 return new CreateCommandResponse<Student>(null,0, "Error", false);
             }
         }
-        public async Task<CreateCommandResponse<Poll>> CreatePoll(PollDTO pollToCreate)
+        public async Task<CreateCommandResponse<Poll>> CreatePollAsync(PollDTO PollToCreate)
         {
             try
             {
-                pollToCreate.Audit = new AuditInfo()
+                PollToCreate.Audit = new AuditInfo()
                 {
                     CreatedBy = "Cosmic latte import",
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                 };
-                CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = pollToCreate };
+                CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = PollToCreate };
                 return await _mediator.Send(createPollCommand);
             }
             catch (Exception ex)
@@ -188,15 +198,15 @@ namespace Eras.Application.Services
                 return new CreateCommandResponse<Poll>(null, 0, "Error", false);
             }
         }
-        public async Task<CreateCommandResponse<Variable>> CreateRelationshipPollVariable(VariableDTO variable, int asociatedPollId, int asociatedVariableId)
+        public async Task<CreateCommandResponse<Variable>> CreateRelationshipPollVariableAsync(VariableDTO Variable, int AsociatedPollId, int AsociatedVariableId)
         {
             try
             {
                 CreatePollVariableCommand createPollVariableCommand = new CreatePollVariableCommand()
                 {
-                    Variable = variable,
-                    PollId = asociatedPollId,
-                    VariableId = asociatedVariableId,
+                    Variable = Variable,
+                    PollId = AsociatedPollId,
+                    VariableId = AsociatedVariableId,
                 };
                 return await _mediator.Send(createPollVariableCommand);
             }
@@ -206,14 +216,14 @@ namespace Eras.Application.Services
                 return new CreateCommandResponse<Variable>(null, 0, "Error", false);
             }
         }
-        public async Task<List<Variable>> CreateVariables(ICollection<VariableDTO> variablesDtos, int asociatedPollId, int asociatedComponentId)
+        public async Task<List<Variable>> CreateVariablesAsync(ICollection<VariableDTO> VariablesDtos, int AsociatedPollId, int AsociatedComponentId)
         {
             try
             {
                 List <Variable> createdVariables = new List <Variable>();
-                if (variablesDtos == null) return createdVariables;
+                if (VariablesDtos == null) return createdVariables;
 
-                foreach (VariableDTO variableDto in variablesDtos)
+                foreach (VariableDTO variableDto in VariablesDtos)
                 {
                     variableDto.Audit = new AuditInfo()
                     {
@@ -224,15 +234,15 @@ namespace Eras.Application.Services
                     CreateVariableCommand createVariableCommand = new CreateVariableCommand()
                     {
                         Variable = variableDto,
-                        PollId = asociatedPollId,
-                        ComponentId = asociatedComponentId
+                        PollId = AsociatedPollId,
+                        ComponentId = AsociatedComponentId
                     };
                     CreateCommandResponse<Variable> createdVariable = await _mediator.Send(createVariableCommand);
 
                     if (createdVariable.Success)
                     {   // Add manual relationship between poll_variable
                         int asociatedVariableId = createdVariable.Entity.Id;
-                        CreateCommandResponse<Variable> createdPollVariable = await CreateRelationshipPollVariable(variableDto, asociatedPollId, asociatedVariableId);
+                        CreateCommandResponse<Variable> createdPollVariable = await CreateRelationshipPollVariableAsync(variableDto, AsociatedPollId, asociatedVariableId);
                         createdVariable.Entity.PollVariableId = createdPollVariable.Entity.PollVariableId;
                         createdVariables.Add(createdVariable.Entity);
                     }
@@ -245,18 +255,18 @@ namespace Eras.Application.Services
                 return [];
             }
         }
-        public async Task CreateAnswers(PollDTO pollToCreate, List<Component> createdComponents, CreateCommandResponse<PollInstance> createdPollInstance)
+        public async Task CreateAnswersAsync(PollDTO PollToCreate, List<Component> CreatedComponents, CreateCommandResponse<PollInstance> CreatedPollInstance)
         {
-            var componentDict = createdComponents.ToDictionary(c => c.Name, c => c);
+            var componentDict = CreatedComponents.ToDictionary(c => c.Name, c => c);
 
             List<AnswerDTO> answersToCreate = [];
 
-            foreach (ComponentDTO component in pollToCreate.Components)
+            foreach (ComponentDTO component in PollToCreate.Components)
             {
                 componentDict.TryGetValue(component.Name, out var componentByName);
                 if (componentByName != null)
                 {
-                    var variableDict = componentByName.Variables.ToDictionary(v => v.Name, v => v);
+                    var variableDict = componentByName.Variables.ToDictionary(V => V.Name, V => V);
 
                     foreach (VariableDTO variable in component.Variables)
                     {
@@ -266,7 +276,7 @@ namespace Eras.Application.Services
                             {
                                 AnswerDTO answerToCreate = variable.Answer != null ? variable.Answer : new AnswerDTO();
                                 answerToCreate.PollVariableId = variableByName.PollVariableId;
-                                answerToCreate.PollInstanceId = createdPollInstance.Entity.Id;
+                                answerToCreate.PollInstanceId = CreatedPollInstance.Entity.Id;
                                 answerToCreate.Audit = new AuditInfo()
                                 {
                                     CreatedBy = "Cosmic latte import",
@@ -286,17 +296,17 @@ namespace Eras.Application.Services
             CreateAnswerListCommand createAnswerListCommand = new CreateAnswerListCommand() { Answers = answersToCreate };
             await _mediator.Send(createAnswerListCommand);
         }
-        public async Task<CreateCommandResponse<Component>> CreateComponent(ComponentDTO componentDto)
+        public async Task<CreateCommandResponse<Component>> CreateComponentAsync(ComponentDTO ComponentDto)
         {
             try
             {
-                componentDto.Audit = new AuditInfo()
+                ComponentDto.Audit = new AuditInfo()
                 {
                     CreatedBy = "Cosmic latte import",
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                 };
-                CreateComponentCommand createComponentCommand = new CreateComponentCommand() { Component = componentDto };
+                CreateComponentCommand createComponentCommand = new CreateComponentCommand() { Component = ComponentDto };
                 return await _mediator.Send(createComponentCommand);
             }
             catch (Exception ex)
@@ -305,18 +315,18 @@ namespace Eras.Application.Services
                 return new CreateCommandResponse<Component>(null, 0, "Error", false);
             }
         }
-        public async Task<List<Component>> CreateComponentsAndVariables(ICollection<ComponentDTO> componentDtoList, int asociatedPollId)
+        public async Task<List<Component>> CreateComponentsAndVariablesAsync(ICollection<ComponentDTO> ComponentDtoList, int AsociatedPollId)
         {
             List<Component> createdComponents = [];
-            foreach (ComponentDTO componentDto in componentDtoList)
+            foreach (ComponentDTO componentDto in ComponentDtoList)
             {
                 try
                 {
-                    CreateCommandResponse<Component> createdComponent = await CreateComponent(componentDto);
+                    CreateCommandResponse<Component> createdComponent = await CreateComponentAsync(componentDto);
                     if (createdComponent.Success)
                     {
                         int asociatedComponentId = createdComponent.Entity.Id;
-                        List<Variable> createdVariables = await CreateVariables(componentDto.Variables, asociatedPollId, asociatedComponentId);
+                        List<Variable> createdVariables = await CreateVariablesAsync(componentDto.Variables, AsociatedPollId, asociatedComponentId);
                         createdComponent.Entity.Variables = createdVariables;
                         createdComponents.Add(createdComponent.Entity);
                     }
