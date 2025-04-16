@@ -31,7 +31,7 @@ namespace Eras.Application.Features.Students.Commands.UpdateStudent
             try
             {
                 Student? studentDB = await _studentRepository.GetByEmailAsync(request.StudentDTO.Email);
-                if (studentDB == null) return new CreateCommandResponse<Student>(null, 0, "Student Dont Exist", false);
+                if (studentDB == null) return new CreateCommandResponse<Student>(null, 0, "Student Not Found", false);
 
                 Student student = request.StudentDTO.ToDomain();
                 Student studentUpdated = await _studentRepository.UpdateAsync(student);

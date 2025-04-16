@@ -21,10 +21,7 @@ namespace Eras.Application.Features.Students.Queries.GetByEmail
 
         public async Task<GetQueryResponse<Student>> Handle(GetStudentByEmailQuery Request, CancellationToken CancellationToken)
         {
-            Student? student = await _studentRepository.GetByEmailAsync(Request.studentEmail);
-            if (student == null) {
-                throw new EntityNotFoundException("Student not found");
-            }
+            Student? student = await _studentRepository.GetByEmailAsync(Request.studentEmail) ?? throw new EntityNotFoundException("Student not found"); ;
             return new GetQueryResponse<Student>(student, "Success", true);
         }
     }
