@@ -16,6 +16,7 @@ using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Features.Students.Queries.GetByEmail;
 using Eras.Application.Features.Students.Commands.UpdateStudent;
+using Eras.Domain.Common.Exceptions;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
@@ -51,21 +52,17 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         CreatedAt = DateTime.UtcNow,
                         ModifiedAt = DateTime.UtcNow,
                     };
-
-
                     GetStudentByEmailQuery getStudentByEmailQuery = new GetStudentByEmailQuery() { studentEmail = studentDTO.Email };
-                    GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
-
                     CreateCommandResponse<Student> studentCreatedOrChanged;
-                    if (!getStudentResponse.Success && getStudentResponse.Message == "Student dont exist")
+                    try
                     {
+                        GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
+                        UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = studentDTO };
+                        studentCreatedOrChanged = await _mediator.Send(updateStudentCommand);
+                    }
+                    catch (EntityNotFoundException Ex) {
                         CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
                         studentCreatedOrChanged = await _mediator.Send(createStudentCommand);
-                    }
-                    else {
-                        getStudentResponse.Body.IsImported = true;
-                        UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = getStudentResponse.Body.ToDto() };
-                        studentCreatedOrChanged = await _mediator.Send(updateStudentCommand);
                     }
                     if (!studentCreatedOrChanged.Success)
                     {
