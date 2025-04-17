@@ -1,37 +1,39 @@
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Eras.Application.Features.Consolidator.Queries.Polls;
+using Eras.Application.Features.Consolidator.Queries.Students;
+using Eras.Application.Models.Response.Common;
+using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
-using Eras.Application.Features.Consolidator.Queries.GetAvgRiskAnswer;
-using Eras.Application.Features.Consolidator.Queries.GetHigherRiskStudent;
-using Eras.Application.Features.Consolidator.Queries.GetByRuleset;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Diagnostics.CodeAnalysis;
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
 [ExcludeFromCodeCoverage]
-public class ReportsController : ControllerBase
+public class ReportsController(IMediator Mediator) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly JsonSerializerOptions SerializeOptions = new() { IncludeFields = true };
+    private readonly IMediator _mediator = Mediator;
 
-    public ReportsController(IMediator mediator)
+    [HttpGet("students/avg")]
+    public async Task<IActionResult> GetAvgRiskStudentsAsync(
+        [FromQuery] string PollInstanceUuid,
+        [FromQuery] int? CohortId)
     {
-        _mediator = mediator;
-    }
-
-    [HttpGet("avgrisk/students/")]
-    public async Task<IActionResult> GetAvgRiskStudents([FromBody] List<List<int>> studentIdsanswerIds)
-    {
-        List<int> studentIds = studentIdsanswerIds[0];
-        List<int> answerIds = studentIdsanswerIds[1];
         try
         {
-            //TODO: Domain Implementation pending
-            GetAvgRiskAnswerQuery query = new() { StudentIds = studentIds, AnswerIds = answerIds };
+            var pollGuid = new Guid(PollInstanceUuid);
+            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId ?? 0 };
             var avgRisk = await _mediator.Send(query);
-            return StatusCode(501, new { status = "not implemented", message = "Implementation to get avgRisk Pending" });
+            return avgRisk.Success
+            ? Ok(new
+            {
+                status = "successful",
+                body = avgRisk
+            })
+            : BadRequest(new { status = "error", message = avgRisk.Message });
         }
         catch (Exception ex)
         {
@@ -39,60 +41,30 @@ public class ReportsController : ControllerBase
         }
     }
 
-    [HttpGet("higherrisk/byCohortPoll/")]
-    public async Task<IActionResult> GetHigherRiskStudentsByCohort(
-        [FromQuery] string cohortName,
-        [FromQuery] string pollName,
-        [FromQuery] int take)
+    [HttpGet("students/top")]
+    public async Task<IActionResult> GetHigherRiskStudentsByCohortAsync(
+        [FromQuery] string CohortName,
+        [FromQuery] string PollName,
+        [FromQuery] int Take)
     {
         try
         {
-            GetHigherRiskStudentByCohortPollQuery query = new() { CohortName = cohortName, PollName = pollName, Take = take };
+            GetStudentTopQuery query = new() { CohortName = CohortName, PollName = PollName, Take = Take };
             var avgRisk = await _mediator.Send(query);
-            var toprmessage = string.Join(", ", avgRisk.Body.Select(s => $"{s.Student.Uuid} - {s.Student.Name} - RISK = {s.RiskIndex}").ToList());
-            var result = avgRisk.Body.Select(s => new
+            var toprmessage = string.Join(", ", avgRisk.Body.Select(St => $"{St.Student.Uuid} - {St.Student.Name} - RISK = {St.RiskIndex}").ToList());
+            var result = avgRisk.Body.Select(St => new
             {
-                StudentUuid = s.Student.Uuid,
-                StudentName = s.Student.Name,
-                Answers = s.Answers?.Select((a, i)=> new {
-                    answer = a.AnswerText,
-                    answerId = a.Id,
-                    answerRiskLevel = a.RiskLevel,
-                    variableId = a.PollVariableId,
-                    pollInstanceId = a.PollInstanceId
-                    }).ToList(),
-                s.RiskIndex
-            }).ToList();
-
-            return avgRisk.Success
-            ? Ok(new {
-                    status = "successful",
-                    message = $"Top risk students: {toprmessage}",
-                    body = result
-                })
-            : BadRequest(new { status = "error", message = avgRisk.Message });}
-        catch (Exception ex)
-        {
-            return NotFound(new { status = "error", message = ex.Message });
-        }
-    }
-
-    [HttpGet("higherrisk/byVariable/")]
-    public async Task<IActionResult> GetHigherRiskStudentsByVariable(
-        [FromQuery] int variableId,
-        [FromQuery] string pollInstanceUuid,
-        [FromQuery] int take)
-    {
-        try
-        {
-            GetHigherRiskStudentByVariableQuery query = new() { VariableId = variableId, PollInstanceUuid = pollInstanceUuid, Take = take };
-            var avgRisk = await _mediator.Send(query);
-            var toprmessage = string.Join(", ", avgRisk.Body.Select(s => $"{s.student.Uuid} - {s.student.Name} - RISK = {s.answer.RiskLevel}").ToList());
-            var result = avgRisk.Body.Select(s => new
-            {
-                s.student,
-                s.variable,
-                s.answer,
+                StudentUuid = St.Student.Uuid,
+                StudentName = St.Student.Name,
+                Answers = St.Answers?.Select((Ans) => new
+                {
+                    answer = Ans.AnswerText,
+                    answerId = Ans.Id,
+                    answerRiskLevel = Ans.RiskLevel,
+                    variableId = Ans.PollVariableId,
+                    pollInstanceId = Ans.PollInstanceId
+                }).ToList(),
+                St.RiskIndex
             }).ToList();
 
             return avgRisk.Success
@@ -110,29 +82,30 @@ public class ReportsController : ControllerBase
         }
     }
 
-    [HttpGet("higherrisk/byPoll/")]
-    public async Task<IActionResult> GetHigherRiskStudentsByPoll(
-    [FromQuery] string pollInstanceUuid,
-    [FromQuery] int take,
-    [FromQuery] string variableIds)
+
+    [HttpGet("polls/top/")]
+    public async Task<IActionResult> GetHigherRiskStudentsByPollAsync(
+    [FromQuery] string PollInstanceUuid,
+    [FromQuery] int Take,
+    [FromQuery] string VariableIds)
     {
         try
         {
-            GetHigherRiskStudentByPollQuery query = new() 
-            { 
-                PollInstanceUuid = pollInstanceUuid,
-                Take = take ,
-                VariableIds = variableIds
-            };
-            var avgRisk = await _mediator.Send(query);
-            var topRiskMessage = string.Join(", ", avgRisk.Body.Select(s =>
-                $"{s.student.Uuid} - {s.student.Name} - RISK = {s.answer.RiskLevel}"
-            ).ToList());
-            var result = avgRisk.Body.Select(s => new
+            GetPollTopQuery query = new()
             {
-                s.student,
-                s.variable,
-                s.answer,
+                PollUuid = new Guid(PollInstanceUuid),
+                Take = Take,
+                VariableIds = VariableIds
+            };
+            GetQueryResponse<List<(Answer answer, Variable variable, Student student)>> avgRisk = await _mediator.Send(query);
+            var topRiskMessage = string.Join(", ", avgRisk.Body.Select(Stud =>
+                $"{Stud.student.Uuid} - {Stud.student.Name} - RISK = {Stud.answer.RiskLevel}"
+            ).ToList());
+            var result = avgRisk.Body.Select(Stud => new
+            {
+                Stud.student,
+                Stud.variable,
+                Stud.answer,
             }).ToList();
 
             return avgRisk.Success
@@ -150,16 +123,21 @@ public class ReportsController : ControllerBase
         }
     }
 
-
-    [HttpGet("byruleset/")]
-    public async Task<IActionResult> GetReportByRuleset([FromBody] List<(int AnswerId, int Weight)> ruleset)
+    [HttpGet("polls/avg/")]
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromQuery] string PollInstanceUuid, [FromQuery] int CohortId)
     {
         try
         {
-            //TODO: Domain Implementation pending
-            GetByRulesetQuery query = new() { RulesetVariablesWeight = ruleset };
-            var report = await _mediator.Send(query);
-            return StatusCode(501, new { status = "not implemented", message = "Implementation to get by ruleset Pending" });
+            var pollGuid = new Guid(PollInstanceUuid);
+            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId };
+            var avgRisk = await _mediator.Send(query);
+            return avgRisk.Success
+            ? Ok(new
+            {
+                status = "successful",
+                body = avgRisk.Body,
+            })
+            : BadRequest(new { status = "error", message = avgRisk.Message });
         }
         catch (Exception ex)
         {

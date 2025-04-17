@@ -6,7 +6,7 @@
 # dotenv files
 .env
 appsettings.Development.json
-
+.vscode
 # Coverlet
 CoverletReport/
 
