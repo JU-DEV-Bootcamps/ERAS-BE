@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Eras.Application.Features.Variables.Queries.GetVariablesByPollId;
+using Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndComponent;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +24,7 @@ public class VariablesController : ControllerBase
     )
     {
         var result = await _mediator.Send(
-            new GetVariablesByPollIdAndComponentQuery(pollUuid, component)
+            new GetVariablesByPollUuidAndComponentQuery(pollUuid, component)
         );
         return Ok(result);
     }

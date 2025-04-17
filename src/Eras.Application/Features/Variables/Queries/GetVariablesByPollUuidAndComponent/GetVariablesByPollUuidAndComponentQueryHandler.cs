@@ -3,17 +3,17 @@ using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Variables.Queries.GetVariablesByPollId
+namespace Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndComponent
 {
-    public class GetVariablesByPollIdQueryHandler
-        : IRequestHandler<GetVariablesByPollIdAndComponentQuery, List<Variable>>
+    public class GetVariablesByPollUuidAndComponentQueryHandler
+        : IRequestHandler<GetVariablesByPollUuidAndComponentQuery, List<Variable>>
     {
         private readonly IVariableRepository _variableRepository;
-        private readonly ILogger<GetVariablesByPollIdQueryHandler> _logger;
+        private readonly ILogger<GetVariablesByPollUuidAndComponentQueryHandler> _logger;
 
-        public GetVariablesByPollIdQueryHandler(
+        public GetVariablesByPollUuidAndComponentQueryHandler(
             IVariableRepository variableRepository,
-            ILogger<GetVariablesByPollIdQueryHandler> logger
+            ILogger<GetVariablesByPollUuidAndComponentQueryHandler> logger
         )
         {
             _variableRepository = variableRepository;
@@ -21,7 +21,7 @@ namespace Eras.Application.Features.Variables.Queries.GetVariablesByPollId
         }
 
         public async Task<List<Variable>> Handle(
-            GetVariablesByPollIdAndComponentQuery request,
+            GetVariablesByPollUuidAndComponentQuery request,
             CancellationToken cancellationToken
         )
         {

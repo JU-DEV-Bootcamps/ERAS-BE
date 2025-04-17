@@ -1,22 +1,22 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Variables.Queries.GetVariablesByPollId;
+using Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndComponent;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Eras.Application.Tests.Features.Variables.Queries.GetVariblesByPollId
+namespace Eras.Application.Tests.Features.Variables.Queries.GetVariablesByPollIdAndComponent
 {
-    public class GetVariablesByPollIdQueryHandlerTests
+    public class GetVariablesByPollUuidAndComponentQueryHandlerTests
     {
         private readonly Mock<IVariableRepository> _mockVariableRepository;
-        private readonly Mock<ILogger<GetVariablesByPollIdQueryHandler>> _mockLogger;
-        private readonly GetVariablesByPollIdQueryHandler _handler;
+        private readonly Mock<ILogger<GetVariablesByPollUuidAndComponentQueryHandler>> _mockLogger;
+        private readonly GetVariablesByPollUuidAndComponentQueryHandler _handler;
 
-        public GetVariablesByPollIdQueryHandlerTests()
+        public GetVariablesByPollUuidAndComponentQueryHandlerTests()
         {
-            _mockLogger = new Mock<ILogger<GetVariablesByPollIdQueryHandler>>();
+            _mockLogger = new Mock<ILogger<GetVariablesByPollUuidAndComponentQueryHandler>>();
             _mockVariableRepository = new Mock<IVariableRepository>();
-            _handler = new GetVariablesByPollIdQueryHandler(
+            _handler = new GetVariablesByPollUuidAndComponentQueryHandler(
                 _mockVariableRepository.Object,
                 _mockLogger.Object
             );
@@ -27,7 +27,7 @@ namespace Eras.Application.Tests.Features.Variables.Queries.GetVariblesByPollId
         {
             var polluuid = $"{Guid.NewGuid()}";
             var components = new List<string> { "academico" };
-            var request = new GetVariablesByPollIdAndComponentQuery(polluuid, components);
+            var request = new GetVariablesByPollUuidAndComponentQuery(polluuid, components);
 
             var variablesData = new List<Variable>
             {
