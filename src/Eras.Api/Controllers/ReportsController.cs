@@ -2,6 +2,8 @@
 
 using Eras.Application.Features.Consolidator.Queries.Polls;
 using Eras.Application.Features.Consolidator.Queries.Students;
+using Eras.Application.Models;
+using Eras.Domain.Entities;
 
 using MediatR;
 
@@ -16,13 +18,14 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     private readonly IMediator _mediator = Mediator;
 
     [HttpGet("students/avg")]
-    public async Task<IActionResult> GetAvgRiskStudentsAsync([FromQuery] string PollInstanceUuid)
-
+    public async Task<IActionResult> GetAvgRiskStudentsAsync(
+        [FromQuery] string PollInstanceUuid,
+        [FromQuery] int? CohortId)
     {
         try
         {
             var pollGuid = new Guid(PollInstanceUuid);
-            var query = new PollAvgQuery() { PollUuid = pollGuid };
+            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId ?? 0 };
             var avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
@@ -94,7 +97,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
                 Take = Take,
                 VariableIds = VariableIds
             };
-            Application.Models.GetQueryResponse<List<(Domain.Entities.Answer answer, Domain.Entities.Variable variable, Domain.Entities.Student student)>> avgRisk = await _mediator.Send(query);
+            GetQueryResponse<List<(Answer answer, Variable variable, Student student)>> avgRisk = await _mediator.Send(query);
             var topRiskMessage = string.Join(", ", avgRisk.Body.Select(Stud =>
                 $"{Stud.student.Uuid} - {Stud.student.Name} - RISK = {Stud.answer.RiskLevel}"
             ).ToList());
@@ -121,12 +124,12 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
     [HttpGet("polls/avg/")]
-    public async Task<IActionResult> GetAvgRiskByPollAsync([FromQuery] string PollInstanceUuid)
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromQuery] string PollInstanceUuid, [FromQuery] int CohortId)
     {
         try
         {
             var pollGuid = new Guid(PollInstanceUuid);
-            var query = new PollAvgQuery() { PollUuid = pollGuid };
+            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId };
             var avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new

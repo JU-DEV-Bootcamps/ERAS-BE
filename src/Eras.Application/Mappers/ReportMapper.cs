@@ -29,13 +29,14 @@ public static class ReportMapper
                             {
                                 Question = AnswersPerVar.FirstOrDefault(A => A.RiskLevel == closestRisk)?.Variable.Name ?? "Should be a valid variable name",
                                 Answer = AnswersPerVar.FirstOrDefault(A => A.RiskLevel == closestRisk)?.AnswerText ?? "Should be a valid answer",
-                                AverageRisk = averageRisk,
-                                Count = AnsPerComponent.Count(),
+                                AverageRisk = averageRisk
                             };
                         })]
                 };
 
             }).ToList();
-        return new AvgReportResponseVm() { Components = components };
-    }
+        return new AvgReportResponseVm() {
+            PollCount = PollAnswers.Select(A => A.PollInstanceId).Distinct().Count(),
+            Components = components };
+        }
 }

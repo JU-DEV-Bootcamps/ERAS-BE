@@ -11,5 +11,5 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
 
     Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? CohortId, int? Days);
 
-    Task<IEnumerable<Answer>> GetAnswersByPollInstanceUuidAsync(string PollUuid);
+    Task<IEnumerable<Answer>> GetAnswersByPollInstanceUuidAsync(string PollUuid, int CohortId);
 }

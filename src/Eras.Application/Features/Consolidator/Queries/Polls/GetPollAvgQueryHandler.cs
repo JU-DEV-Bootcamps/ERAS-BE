@@ -3,6 +3,7 @@ using Eras.Application.Exceptions;
 using Eras.Application.Mappers;
 using Eras.Application.Models;
 using Eras.Application.Models.Consolidator;
+using Eras.Domain.Entities;
 
 using MediatR;
 
@@ -22,8 +23,8 @@ public class PollAvgHandler(
     {
         try
         {
-            IEnumerable<Domain.Entities.Answer> answersByFilters = await _pollInstanceRepository.GetAnswersByPollInstanceUuidAsync(Req.PollUuid.ToString())
-                ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}");
+            IEnumerable<Answer> answersByFilters = await _pollInstanceRepository.GetAnswersByPollInstanceUuidAsync(Req.PollUuid.ToString(), Req.CohortId)
+                ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortId}");
 
             if (answersByFilters == null) // Returns empty response
                 return new GetQueryResponse<AvgReportResponseVm>(new AvgReportResponseVm(), "Success: No answered polls with that Uuid", true);

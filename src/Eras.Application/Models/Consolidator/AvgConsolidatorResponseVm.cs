@@ -2,6 +2,7 @@
 
 public class AvgReportResponseVm
 {
+    public int PollCount { get; set; } = 0;
     public IEnumerable<AvgReportComponent> Components { get; set; } = [];
 }
 
@@ -17,6 +18,5 @@ public class AvgReportQuestions
 {
     public required string Question { get; set; }
     public required string Answer { get; set; }
-    public required int Count { get; set; }
     public double AverageRisk { get; set; }
 }
