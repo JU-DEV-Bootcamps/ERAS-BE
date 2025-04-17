@@ -1,7 +1,7 @@
-using Eras.Application.Dtos;
+﻿using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Domain.Common;
-using Eras.Domain.Entities; 
+using Eras.Domain.Entities;
 using System.Globalization;
 
 namespace Eras.Application.Mappers;
@@ -40,6 +40,7 @@ public static class StudentMapper
             Uuid = dto.Uuid,
             Name = dto.Name,
             Email = dto.Email,
+            IsImported = dto.IsImported,
             Cohort = cohort,
             CohortId = cohort!=null ? cohort.Id : 0,
             StudentDetail = details,
@@ -57,6 +58,7 @@ public static class StudentMapper
             Name = domain.Name,
             Email = domain.Email,
             Cohort = domain.Cohort?.ToDto(),
+            IsImported = domain.IsImported,
             StudentDetail = domain.StudentDetail?.ToDto(),
             Audit = domain.Audit,
         };

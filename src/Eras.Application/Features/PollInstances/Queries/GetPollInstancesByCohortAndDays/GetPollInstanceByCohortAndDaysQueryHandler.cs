@@ -2,7 +2,7 @@
 using Eras.Application.DTOs;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
 using Eras.Application.Mappers;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

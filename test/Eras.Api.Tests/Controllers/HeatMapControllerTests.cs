@@ -1,8 +1,8 @@
 ﻿using Eras.Api.Controllers;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents;
-using Eras.Application.Models;
-using Eras.Application.Models.HeatMap;
-
+using Eras.Application.Models.Response;
+using Eras.Application.Models.Response.Common;
+using Eras.Application.Models.Response.HeatMap;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;

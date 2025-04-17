@@ -27,6 +27,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             builder.Property(student => student.Uuid)
                 .HasColumnName("uuid")
                 .IsRequired();
+            builder.Property(student => student.IsImported)
+                .HasColumnName("is_imported")
+                .IsRequired();
         }
 
         private static void ConfigureRelationShips(EntityTypeBuilder<StudentEntity> builder)

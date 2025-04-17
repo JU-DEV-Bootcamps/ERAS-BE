@@ -1,4 +1,4 @@
-﻿using Eras.Application.Models;
+﻿using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Consolidator;
 
 using MediatR;

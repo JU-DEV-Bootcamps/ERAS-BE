@@ -1,7 +1,7 @@
 ﻿
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
-using Eras.Application.Models.HeatMap;
+using Eras.Application.Models.Response.HeatMap;
 using Microsoft.Extensions.Logging;
 using Moq;
 

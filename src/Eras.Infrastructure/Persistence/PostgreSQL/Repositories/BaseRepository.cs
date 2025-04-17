@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Microsoft.EntityFrameworkCore;

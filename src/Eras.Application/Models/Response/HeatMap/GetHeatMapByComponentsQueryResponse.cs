@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Eras.Application.Models.HeatMap
+namespace Eras.Application.Models.Response.HeatMap
 {
     public class GetHeatMapByComponentsQueryResponse
     {
