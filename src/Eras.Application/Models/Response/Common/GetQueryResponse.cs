@@ -1,4 +1,4 @@
-﻿namespace Eras.Application.Models
+﻿namespace Eras.Application.Models.Response.Common
 {
     public class GetQueryResponse<T> : BaseResponse
     {

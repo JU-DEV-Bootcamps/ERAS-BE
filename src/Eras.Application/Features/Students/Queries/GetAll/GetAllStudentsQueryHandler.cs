@@ -1,4 +1,4 @@
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using MediatR;
@@ -28,7 +28,7 @@ namespace Eras.Application.Features.Students.Queries.GetAll
         {
             try
             {
-                var students = await _studentRepository.GetPagedAsync(
+                var students = await _studentRepository.GetPagedAsyncWithJoins(
                     request.Query.Page,
                     request.Query.PageSize
                 );

@@ -6,6 +6,9 @@ using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByComponent;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
 using Eras.Application.Models;
+using Eras.Application.Models.Response;
+using Eras.Application.Models.Response.Common;
+
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -74,8 +77,7 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
     )
     {
         var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(CohortId, Days);
-        GetQueryResponse<Application.Models.HeatMap.HeatMapSummaryResponseVm> response =
-            await _mediator.Send(getHeatMapSummaryByFiltersQuery);
+        GetQueryResponse<Application.Models.Response.HeatMap.HeatMapSummaryResponseVm> response = await _mediator.Send(getHeatMapSummaryByFiltersQuery);
         if (response.Success.Equals(true))
         {
             _logger.LogInformation(

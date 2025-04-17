@@ -20,7 +20,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
         }
 
         [Fact]
-        public async Task Handle_Should_Return_Success_Response()
+        public async Task Handle_Should_Return_Success_ResponseAsync()
         {
             // Arrange
             var query = new GetPollInstanceByCohortAndDaysQuery(1, 10);
@@ -31,7 +31,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
             };
 
             _mockPollInstanceRepository
-                .Setup(repo => repo.GetByCohortIdAndLastDays(It.IsAny<int?>(), It.IsAny<int?>()))
+                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int?>(), It.IsAny<int?>()))
                 .ReturnsAsync(pollInstances);
 
             // Act
@@ -44,13 +44,13 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
         }
 
         [Fact]
-        public async Task Handle_Should_Return_Failure_Response_On_Exception()
+        public async Task Handle_Should_Return_Failure_Response_On_ExceptionAsync()
         {
             // Arrange
             var query = new GetPollInstanceByCohortAndDaysQuery(1, 10);
 
             _mockPollInstanceRepository
-                .Setup(repo => repo.GetByCohortIdAndLastDays(It.IsAny<int?>(), It.IsAny<int?>()))
+                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int?>(), It.IsAny<int?>()))
                 .ThrowsAsync(new Exception("Database error"));
 
             // Act

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -30,8 +30,8 @@ namespace Eras.Api.Controllers
 
             _logger.LogInformation("Getting poll instances in the last {days}", lastDays);
 
-            GetPollInstancesByLastDaysQuery createStudentCommand = new GetPollInstancesByLastDaysQuery() { LastDays = int.Parse(lastDays)};
-            QueryManyResponse<PollInstance> response = await _mediator.Send(createStudentCommand);
+            GetPollInstancesByLastDaysQuery getPollInstancesQuery = new GetPollInstancesByLastDaysQuery() { LastDays = int.Parse(lastDays)};
+            QueryManyResponse<PollInstance> response = await _mediator.Send(getPollInstancesQuery);
 
             if (response.Success.Equals(true))
             {

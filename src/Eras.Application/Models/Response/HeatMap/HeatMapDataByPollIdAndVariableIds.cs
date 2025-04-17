@@ -1,4 +1,4 @@
-﻿namespace Eras.Application.Models.HeatMap
+﻿namespace Eras.Application.Models.Response.HeatMap
 {
     public class HeatMapBaseData
     {

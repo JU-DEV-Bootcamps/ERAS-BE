@@ -1,5 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models.HeatMap;
+using Eras.Application.Models.Response.HeatMap;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

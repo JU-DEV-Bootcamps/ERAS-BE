@@ -1,5 +1,5 @@
 ﻿using Eras.Application.DTOs.CL;
-using Eras.Application.Models.HeatMap;
+using Eras.Application.Models.Response.HeatMap;
 namespace Eras.Application.Mappers
 {
     public static class HeatMapMapper

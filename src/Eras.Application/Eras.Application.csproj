@@ -30,7 +30,6 @@
     <Folder Include="Features\Polls\Commands\DeletePoll\" />
     <Folder Include="Features\Polls\Commands\UpdatePoll\" />
     <Folder Include="Features\Students\Commands\DeleteStudent\" />
-    <Folder Include="Features\Students\Commands\UpdateStudent\" />
     <Folder Include="Features\Students\Queries\GetStudentsList\" />
     <Folder Include="Features\HeatMap\Queries\GetHeatMapDetailsByCohort\" />
   </ItemGroup>
