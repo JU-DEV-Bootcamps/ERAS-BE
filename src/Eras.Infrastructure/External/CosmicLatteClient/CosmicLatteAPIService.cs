@@ -70,15 +70,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             }
         }
 
-        public async Task<List<PollDTO>> GetAllPollsPreview(string name, string startDate, string endDate)
+        public async Task<List<PollDTO>> GetAllPollsPreview(string ParentId, string StartDate, string EndDate)
         {
             string path = _apiUrl + PathEvalaution;
-            if (name != "" || startDate != "" || endDate != "")
+            if (ParentId != "" || StartDate != "" || EndDate != "")
             {
                 path += "?$filter=";
-                if (name != "") path += $"contains(name,'{name}')";
-                if (startDate != "") path += $" and startedAt ge {ConvertStringToIsoExtendedDate(startDate)}";
-                if (endDate != "") path += $" and startedAt le {ConvertStringToIsoExtendedDate(endDate)}";
+                if (ParentId != "") path += $"contains(parent,'evaluationSets:{ParentId}')";
+                if (StartDate != "") path += $" and startedAt ge {ConvertStringToIsoExtendedDate(StartDate)}";
+                if (EndDate != "") path += $" and startedAt le {ConvertStringToIsoExtendedDate(EndDate)}";
             }
 
             int newRegisters = 0;

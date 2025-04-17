@@ -17,29 +17,29 @@ namespace Eras.Api.Controllers
     {
         private readonly ICosmicLatteAPIService _cosmicLatteService;
 
-        public CosmicLatteController(ICosmicLatteAPIService cosmicLatteService)
+        public CosmicLatteController(ICosmicLatteAPIService CosmicLatteService)
         {
-            _cosmicLatteService = cosmicLatteService;
+            _cosmicLatteService = CosmicLatteService;
         }
 
         [HttpGet("polls/")]
-        public async Task<IActionResult> GetPreviewPolls(
-        [FromQuery] string name = "",
-        [FromQuery] string startDate = "",
-        [FromQuery] string endDate = ""
+        public async Task<IActionResult> GetPreviewPollsAsync(
+        [FromQuery] string ParentId = "",
+        [FromQuery] string StartDate = "",
+        [FromQuery] string EndDate = ""
         )
         {
-            return Ok(await _cosmicLatteService.GetAllPollsPreview(name, startDate, endDate));
+            return Ok(await _cosmicLatteService.GetAllPollsPreview(ParentId, StartDate, EndDate));
         }
 
         [HttpPost("polls/")]
-        public async Task<IActionResult> SavePreviewPolls([FromBody] List<PollDTO> pollsInstances)
+        public async Task<IActionResult> SavePreviewPollsAsync([FromBody] List<PollDTO> PollsInstances)
         {
-            return Ok(await _cosmicLatteService.SavePreviewPolls(pollsInstances));
+            return Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances));
         }
 
         [HttpGet("polls/names")]
-        public async Task<IActionResult> GetPollsNameList()
+        public async Task<IActionResult> GetPollsNameListAsync()
         {
             List<PollDataItem> pollList = await _cosmicLatteService.GetPollsNameList();
             return Ok(pollList);
