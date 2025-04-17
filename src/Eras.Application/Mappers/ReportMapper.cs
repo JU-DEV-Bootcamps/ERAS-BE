@@ -1,5 +1,4 @@
-﻿
-using Eras.Application.Models.Consolidator;
+﻿using Eras.Application.Models.Consolidator;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers;
@@ -35,8 +34,10 @@ public static class ReportMapper
                 };
 
             }).ToList();
-        return new AvgReportResponseVm() {
+        return new AvgReportResponseVm()
+        {
             PollCount = PollAnswers.Select(A => A.PollInstanceId).Distinct().Count(),
-            Components = components };
-        }
+            Components = components
+        };
+    }
 }
