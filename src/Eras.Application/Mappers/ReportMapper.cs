@@ -30,10 +30,10 @@ public static class ReportMapper
                                 Answer = AnswersPerVar.FirstOrDefault(A => A.RiskLevel == closestRisk)?.AnswerText ?? "Should be a valid answer",
                                 AverageRisk = averageRisk
                             };
-                        })]
+                        }).OrderBy(Q => Q.AverageRisk)]
                 };
 
-            }).ToList();
+            }).OrderBy(C => C.AverageRisk).ToList();
         return new AvgReportResponseVm()
         {
             PollCount = PollAnswers.Select(A => A.PollInstanceId).Distinct().Count(),
