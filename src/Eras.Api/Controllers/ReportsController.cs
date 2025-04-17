@@ -2,7 +2,7 @@
 
 using Eras.Application.Features.Consolidator.Queries.Polls;
 using Eras.Application.Features.Consolidator.Queries.Students;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 
 using MediatR;
