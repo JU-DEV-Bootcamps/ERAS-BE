@@ -1,10 +1,6 @@
 # Root EditorConfig file
 root = true
 
-# All files
-[*]
-charset = utf-8-bom
-
 # C# files
 [*.cs]
 indent_style = space
