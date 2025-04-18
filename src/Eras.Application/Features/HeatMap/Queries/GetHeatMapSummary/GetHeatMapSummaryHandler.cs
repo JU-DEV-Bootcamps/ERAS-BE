@@ -38,7 +38,9 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
                 if (answersByComponents == null || !answersByComponents.Any())
                     throw new NotFoundException($"No data found for poll instance ID: {request.PollInstanceUUID}");
 
-                var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByComponents);
+                var answersPercentage = await _heatMapRepository.GetHeatMapAnswersPercentageByVariableAsync(request.PollInstanceUUID);
+
+                var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByComponents, answersPercentage);
 
                 return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
             }
