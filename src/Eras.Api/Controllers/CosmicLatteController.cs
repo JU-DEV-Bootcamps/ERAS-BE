@@ -24,12 +24,12 @@ namespace Eras.Api.Controllers
 
         [HttpGet("polls/")]
         public async Task<IActionResult> GetPreviewPollsAsync(
-        [FromQuery] string ParentId = "",
+        [FromQuery] string EvaluationSetName = "",
         [FromQuery] string StartDate = "",
         [FromQuery] string EndDate = ""
         )
         {
-            return Ok(await _cosmicLatteService.GetAllPollsPreview(ParentId, StartDate, EndDate));
+            return Ok(await _cosmicLatteService.GetAllPollsPreview(EvaluationSetName, StartDate, EndDate));
         }
 
         [HttpPost("polls/")]

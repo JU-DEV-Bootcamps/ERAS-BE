@@ -23,7 +23,7 @@ using Eras.Application.Features.Students.Queries.GetByEmail;
 
 namespace Eras.Application.Services
 {
-    public class PollOrchestratorService // Create interface or comand
+    public class PollOrchestratorService
     {
         private readonly IMediator _mediator;
         ILogger<PollOrchestratorService> _logger;
@@ -65,7 +65,6 @@ namespace Eras.Application.Services
                             }
                             createdPollsInstances++;
                         }
-                        
                     }
                 }
                 return new CreateCommandResponse<CreatedPollDTO?>(createdPoll, createdPollsInstances, "Success", true);
@@ -240,7 +239,7 @@ namespace Eras.Application.Services
                     CreateCommandResponse<Variable> createdVariable = await _mediator.Send(createVariableCommand);
 
                     if (createdVariable.Success)
-                    {   // Add manual relationship between poll_variable
+                    {
                         int asociatedVariableId = createdVariable.Entity.Id;
                         CreateCommandResponse<Variable> createdPollVariable = await CreateRelationshipPollVariableAsync(variableDto, AsociatedPollId, asociatedVariableId);
                         createdVariable.Entity.PollVariableId = createdPollVariable.Entity.PollVariableId;
@@ -257,7 +256,7 @@ namespace Eras.Application.Services
         }
         public async Task CreateAnswersAsync(PollDTO PollToCreate, List<Component> CreatedComponents, CreateCommandResponse<PollInstance> CreatedPollInstance)
         {
-            var componentDict = CreatedComponents.ToDictionary(c => c.Name, c => c);
+            var componentDict = CreatedComponents.ToDictionary(C => C.Name, C => C);
 
             List<AnswerDTO> answersToCreate = [];
 
