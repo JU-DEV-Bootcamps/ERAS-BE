@@ -20,6 +20,7 @@ using Component = Eras.Domain.Entities.Component;
 using Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStudentId;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Features.Students.Queries.GetByEmail;
+using Eras.Domain.Common.Exceptions;
 
 namespace Eras.Application.Services
 {
@@ -155,20 +156,25 @@ namespace Eras.Application.Services
                 };
 
                 GetStudentByEmailQuery getStudentByEmailQuery = new GetStudentByEmailQuery() { studentEmail = studentToCreate.Email };
-                GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
-                CreateCommandResponse<Student> createdStudent = new CreateCommandResponse<Student>(new Student(),"Empty Student",false);
-                if (!getStudentResponse.Success && getStudentResponse.Message == "Student dont exist")
+                CreateCommandResponse<Student> createdStudent;
+                try
+                {
+                    GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
+                    createdStudent = new CreateCommandResponse<Student>(getStudentResponse.Body, "Success", true);
+                }
+                catch (EntityNotFoundException Ex)
                 {
                     CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate };
                     createdStudent = await _mediator.Send(createStudentCommand);
-                    if (createdStudent.Success)
-                    {
-                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(createdStudent.Entity.Id);
-                        CohortDTO cohortToCreate = studentToCreate.Cohort;
-                        createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
-                        CreateCommandResponse<Cohort> createdCohort = await CreateAndSetStudentCohortAsync(createdStudent.Entity.ToDto(), cohortToCreate);
-                        createdStudent.Entity.Cohort = createdCohort.Entity;
-                    }
+                }
+                if (createdStudent.Success)
+                {
+                    CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(createdStudent.Entity.Id);
+                    CohortDTO cohortToCreate = studentToCreate.Cohort;
+                    createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
+                    CreateCommandResponse<Cohort> createdCohort = await CreateAndSetStudentCohortAsync(createdStudent.Entity.ToDto(), cohortToCreate);
+
+                    createdStudent.Entity.Cohort = createdCohort.Entity;
                 }
                 return createdStudent;
             }
