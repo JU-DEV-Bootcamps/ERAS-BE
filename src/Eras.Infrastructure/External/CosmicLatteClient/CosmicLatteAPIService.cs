@@ -156,8 +156,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 {
                     apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    this._logger.LogError("Error Deserializing Components");
                     throw new InvalidCastException("Unable to deserialize response from cosmic latte");
                 }
 
