@@ -62,22 +62,6 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return [.. pollInstances.Select(PollInstanceMapper.ToDomain)];
     }
 
-    // public async Task<IEnumerable<Answer>> GetAnswersByPollInstanceUuidAsync(string PollUuid, int CohortId)
-    // {
-    //     List<AnswerEntity> answers = await _context.Answers
-    //         .Include(Answer => Answer.PollInstance)
-    //             .ThenInclude(PollInstance => PollInstance.Student)
-    //                 .ThenInclude(Student => Student.StudentCohorts)
-    //         .Include(Answer => Answer.PollVariable)
-    //             .ThenInclude(PollV => PollV.Variable)
-    //                 .ThenInclude(Var => Var.Component)
-    //         .Where(Answer => Answer.PollInstance.Uuid == PollUuid &&
-    //                         (CohortId == 0 || Answer.PollInstance.Student.StudentCohorts.Any(Cohort => Cohort.CohortId == CohortId)))
-    //         .ToListAsync();
-
-    //     return [.. answers.Select(AnswerMapper.ToDomain)];
-    // }
-
     public async Task<AvgReportResponseVm> GetAnswersByPollInstanceUuidAsync(
     string PollUuid, string CohortId)
     {
@@ -112,10 +96,10 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         List<AvgReportComponent> report = await query
         .GroupBy(A => A.Component)
         .Select(AnsPerComp => new AvgReportComponent
-            {
-                Description = AnsPerComp.Key,
-                AverageRisk = AnsPerComp.Average(Ans => Ans.RiskLevel),
-                Questions = AnsPerComp
+        {
+            Description = AnsPerComp.Key,
+            AverageRisk = AnsPerComp.Average(Ans => Ans.RiskLevel),
+            Questions = AnsPerComp
                 .OrderByDescending(Ans => Ans.RiskLevel)
                 .GroupBy(A => A.Question)
                 .Select(AnsPerVar => new AvgReportQuestions
@@ -124,7 +108,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                     AverageRisk = AnsPerVar.Average(Ans => Ans.RiskLevel),
                     Answer = AnsPerVar.First(A => A.RiskLevel < AnsPerComp.Average(Ans => Ans.RiskLevel)).AnswerText,
                 }).ToList()
-            }).ToListAsync();
+        }).ToListAsync();
         var pollCount = await _context.PollInstances.CountAsync(PollInstance => PollInstance.Uuid == PollUuid);
         return new AvgReportResponseVm { Components = report, PollCount = pollCount };
     }
