@@ -119,12 +119,16 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 join s in _context.Students on pi.StudentId equals s.Id
                 join sc in _context.StudentCohorts on s.Id equals sc.StudentId
                 where pi.Uuid == pollUuid && variableIds.Contains(v.Id)
-                group new { a } by v.Name into g
+                group new
+                {
+                    v.Name,
+                    a.AnswerText,
+                    a.RiskLevel,
+                } by v.Name into g
                 select new HeatMapBaseData
                 {
                     Name = g.Key,
-                    Data = g.Select(x => new Serie { x = x.a.AnswerText, y = x.a.RiskLevel })
-                        .ToList(),
+                    Data = g.Select(x => new Serie { X = x.AnswerText, Y = x.RiskLevel }).ToList(),
                 }
             ).ToListAsync();
 

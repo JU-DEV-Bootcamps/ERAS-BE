@@ -8,7 +8,7 @@
 
     public class Serie
     {
-        public required string x;
-        public required int y;
+        public required string X { get; set; }
+        public required int Y { get; set; }
     }
 }
