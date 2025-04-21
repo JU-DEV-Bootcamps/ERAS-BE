@@ -1,5 +1,6 @@
 ﻿
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
 using Eras.Application.Models.Response.HeatMap;
 using Microsoft.Extensions.Logging;
@@ -54,5 +55,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapSummaryByFil
             Assert.Empty(result.Body.Components);
             _mockHeatMapRepository.Verify(repo => repo.GetHeatMapDataByCohortAndDaysAsync(1, 7), Times.Once);
         }
+
+
     }
 }
