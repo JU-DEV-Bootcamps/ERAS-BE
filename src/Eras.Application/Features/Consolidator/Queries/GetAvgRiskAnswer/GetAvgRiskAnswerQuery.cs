@@ -1,4 +1,4 @@
-using Eras.Application.Models;
+using Eras.Application.Models.Response;
 using MediatR;
 
 namespace Eras.Application.Features.Consolidator.Queries.GetAvgRiskAnswer;

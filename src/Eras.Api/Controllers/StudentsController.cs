@@ -5,7 +5,7 @@ using Eras.Application.Features.Students.Queries.GetAll;
 using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAndPoll;
 using Eras.Application.Features.Students.Queries.GetAllByPollAndDate;
 using Eras.Application.Features.Students.Queries.GetStudentDetails;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using MediatR;
@@ -30,11 +30,11 @@ public class StudentsController : ControllerBase
     {
         _logger.LogInformation("Importing {Count} students", students?.Length ?? 0);
 
-        CreateStudentsCommand createStudentCommand = new CreateStudentsCommand()
+        CreateStudentsCommand createStudentsCommand = new CreateStudentsCommand()
         {
             students = students,
         };
-        CreateCommandResponse<Student[]> response = await _mediator.Send(createStudentCommand);
+        CreateCommandResponse<Student[]> response = await _mediator.Send(createStudentsCommand);
 
         if (response.Success.Equals(true))
         {

@@ -1,5 +1,5 @@
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models;
+using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;

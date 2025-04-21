@@ -1,6 +1,6 @@
 ﻿
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models.HeatMap;
+using Eras.Application.Models.Response.HeatMap;
 using Moq;
 using Component = Eras.Domain.Entities.Component;
 using Variable = Eras.Domain.Entities.Variable;

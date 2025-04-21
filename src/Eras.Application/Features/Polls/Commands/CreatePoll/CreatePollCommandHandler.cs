@@ -9,8 +9,8 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Eras.Domain.Entities;
 using Eras.Domain.Common;
-using Eras.Application.Models;
 using Eras.Application.Dtos;
+using Eras.Application.Models.Response.Common;
 
 namespace Eras.Application.Features.Polls.Commands.CreatePoll
 {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Eras.Application.Models.HeatMap;
+namespace Eras.Application.Models.Response.HeatMap;
 public class GetHeatMapAnswersPercentageByVariableQueryResponse
 {
     [Column("component_name")]

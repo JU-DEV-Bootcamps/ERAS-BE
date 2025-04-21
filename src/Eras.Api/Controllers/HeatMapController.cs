@@ -3,10 +3,10 @@ using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByCohort;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByComponent;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
-using Eras.Application.Models;
+using Eras.Application.Models.Response;
+using Eras.Application.Models.Response.Common;
 
 using MediatR;
-
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
@@ -65,7 +65,7 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
     public async Task<IActionResult> GetHeatMapSummaryByFiltersAsync([FromQuery] int CohortId, [FromQuery] int Days)
     {
         var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(CohortId, Days);
-        GetQueryResponse<Application.Models.HeatMap.HeatMapSummaryResponseVm> response = await _mediator.Send(getHeatMapSummaryByFiltersQuery);
+        GetQueryResponse<Application.Models.Response.HeatMap.HeatMapSummaryResponseVm> response = await _mediator.Send(getHeatMapSummaryByFiltersQuery);
         if (response.Success.Equals(true))
         {
             _logger.LogInformation("Successfull request of heat map summary in {days} for cohort {cohortId}", Days, CohortId);
