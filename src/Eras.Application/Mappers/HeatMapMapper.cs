@@ -60,6 +60,62 @@ namespace Eras.Application.Mappers
         }
 
         public static HeatMapSummaryResponseVm MapToSummaryVmResponse(
+            IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses)
+        {
+            var components = queryResponses
+                .GroupBy(q => new { q.ComponentId, q.ComponentName })
+                .Select(cg => new Component
+                {
+                    Description = cg.Key.ComponentName.ToUpper(),
+                    Variables = cg
+                    .GroupBy(v => v.VariableId)
+                    .Select(vg => new ComponentVars
+                    {
+                        Description = vg.First().VariableName,
+                        AverageScore = vg.Average(v => v.AnswerRiskLevel)
+                    })
+                    .ToList()
+                })
+                .ToList();
+
+            var series = components
+                .Select(c => new SeriesSummary
+                {
+                    Name = c.Description,
+                    Data = c.Variables
+                    .Select(va => new DataPointSummary
+                    {
+                        X = va.Description,
+                        Y = Math.Round(Math.Min(va.AverageScore, 5), 2),
+                        Z = ""
+                    })
+                    .OrderBy(dp => dp.Y)
+                    .ToList()
+                })
+                .ToList();
+
+            int maxDataCount = series
+                .Max(s => s.Data.Count);
+
+            foreach (var serie in series)
+            {
+                while (serie.Data.Count() < maxDataCount)
+                {
+                    serie.Data.Insert(0, new DataPointSummary { X = "No Answer", Y = -1.0 , Z = ""});
+                }
+            }
+
+
+            return new HeatMapSummaryResponseVm
+            {
+                Components = components,
+                Series = series
+            };
+
+        }
+
+
+        public static HeatMapSummaryResponseVm MapToSummaryVmResponse(
     IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses,
     IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse> answersPercentage)
         {

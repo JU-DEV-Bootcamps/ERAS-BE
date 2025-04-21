@@ -34,7 +34,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
                 if (!answersByFilters.Any()) // Returns empty response
                     return new GetQueryResponse<HeatMapSummaryResponseVm>(new HeatMapSummaryResponseVm(), "Success", true);
 
-                var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByFilters, null);
+                var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByFilters);
 
                 return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
             }

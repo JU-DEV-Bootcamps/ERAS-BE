@@ -101,12 +101,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             if (string.IsNullOrWhiteSpace(pollUUID))
             {
-                throw new ArgumentException("El UUID de la encuesta no puede ser nulo o vacío.", nameof(pollUUID));
+                throw new ArgumentException("The Poll UUID can't be null or empty.", nameof(pollUUID));
             }
 
             try
             {
-                // Calcular el total de respuestas por poll_variable_id en la base de datos
+                // Calculate the total answers
                 var totalAnswersByVariable = await _context.Answers
                     .Join(_context.PollVariables, a => a.PollVariableId, pv => pv.Id, (a, pv) => new { a, pv })
                     .Join(_context.Polls, apv => apv.pv.PollId, p => p.Id, (apv, p) => new { apv.a, apv.pv, p })
@@ -117,7 +117,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                         group => group.Count()
                     );
 
-                // Obtener los datos y calcular el porcentaje en el cliente
+                // Calculate percentage
                 var query = await _context.Answers
                     .Join(_context.PollVariables, a => a.PollVariableId, pv => pv.Id, (a, pv) => new { a, pv })
                     .Join(_context.Variables, apv => apv.pv.VariableId, v => v.Id, (apv, v) => new { apv.a, apv.pv, v })
@@ -126,9 +126,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     .Where(apvp => apvp.p.Uuid == pollUUID)
                     .GroupBy(apvp => new
                     {
-                        ComponentName = apvp.c.Name,   // Nombre único para Component.Name
+                        ComponentName = apvp.c.Name,   
                         PollVariableId = apvp.a.PollVariableId,
-                        VariableName = apvp.v.Name,   // Nombre único para Variable.Name
+                        VariableName = apvp.v.Name,   
                         apvp.a.AnswerText
                     })
                     .Select(group => new
@@ -158,8 +158,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al ejecutar la consulta para el UUID de encuesta: {pollUUID} el error es {ex}");
-                throw new ApplicationException("Error al procesar los datos del mapa de calor.", ex);
+                Console.WriteLine($"There is an error while running the query for the poll: {pollUUID} with the exception {ex}");
+                throw new ApplicationException("Error Processing the data for the heatmap.", ex);
             }
         }
     }
