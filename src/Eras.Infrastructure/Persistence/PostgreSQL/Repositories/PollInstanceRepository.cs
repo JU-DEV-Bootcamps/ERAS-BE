@@ -78,7 +78,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             join Stud in _context.Students on PI.StudentId equals Stud.Id
             join SC in _context.StudentCohorts on Stud.Id equals SC.StudentId
             //Filter only the answers related to the cohort to look for
-            where SC.CohortId == cohortInt
+            where cohortInt == 0 || SC.CohortId == cohortInt
             join PV in _context.PollVariables on A.PollVariableId equals PV.Id
             join Var in _context.Variables on PV.VariableId equals Var.Id
             join Component in _context.Components on Var.ComponentId equals Component.Id
@@ -97,7 +97,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         .GroupBy(A => A.Component)
         .Select(AnsPerComp => new AvgReportComponent
         {
-            Description = AnsPerComp.Key,
+            Description = AnsPerComp.Key.ToUpper() + " = " + Math.Round(AnsPerComp.Average(Ans => Ans.RiskLevel), 2),
             AverageRisk = AnsPerComp.Average(Ans => Ans.RiskLevel),
             Questions = AnsPerComp
                 .OrderByDescending(Ans => Ans.RiskLevel)
@@ -107,7 +107,9 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                     Question = AnsPerVar.Key,
                     AverageRisk = AnsPerVar.Average(Ans => Ans.RiskLevel),
                     Answer = AnsPerVar.First(A => A.RiskLevel < AnsPerComp.Average(Ans => Ans.RiskLevel)).AnswerText,
-                }).ToList()
+                })
+                .OrderBy(Q => Q.AverageRisk)
+                .ToList()
         }).ToListAsync();
         var pollCount = await _context.PollInstances.CountAsync(PollInstance => PollInstance.Uuid == PollUuid);
         return new AvgReportResponseVm { Components = report, PollCount = pollCount };
