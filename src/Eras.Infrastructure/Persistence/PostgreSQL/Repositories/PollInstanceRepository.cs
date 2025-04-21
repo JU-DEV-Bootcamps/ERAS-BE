@@ -97,7 +97,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         .GroupBy(A => A.Component)
         .Select(AnsPerComp => new AvgReportComponent
         {
-            Description = AnsPerComp.Key.ToUpper() + " = " + Math.Round(AnsPerComp.Average(Ans => Ans.RiskLevel), 2),
+            Description = AnsPerComp.Key.ToUpper(),
             AverageRisk = AnsPerComp.Average(Ans => Ans.RiskLevel),
             Questions = AnsPerComp
                 .OrderByDescending(Ans => Ans.RiskLevel)
