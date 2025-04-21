@@ -57,7 +57,8 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                     try
                     {
                         GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
-                        UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = studentDTO };
+                        getStudentResponse.Body.IsImported = true;
+                        UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = getStudentResponse.Body.ToDto() };
                         studentCreatedOrChanged = await _mediator.Send(updateStudentCommand);
                     }
                     catch (EntityNotFoundException Ex) {
