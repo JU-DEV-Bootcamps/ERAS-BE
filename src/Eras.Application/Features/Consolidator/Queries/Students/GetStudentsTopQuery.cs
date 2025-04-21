@@ -11,7 +11,7 @@ namespace Eras.Application.Features.Consolidator.Queries.Students;
 // If {CohortName} is provided, it will return the students in the cohort.
 // {PollName} is required to get the poll answers.
 /// </summary>
-public class GetStudentTopQuery : IRequest<GetQueryResponse<List<(Student Student, List<Answer>? Answers, double RiskIndex)>>>
+public class GetStudentTopQuery : IRequest<GetQueryResponse<List<(Student Student, List<Answer> Answers, double RiskIndex)>>>
 {
     public required string CohortName { get; set; }
     public required string PollName { get; set; }

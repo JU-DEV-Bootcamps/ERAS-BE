@@ -10,7 +10,6 @@ public static class VariableMapper
         Id = Entity.Id,
         Name = Entity.Name,
         Audit = Entity.Audit,
-        Component = Entity.Component?.ToDomain() ?? new Component(),
     };
     public static VariableEntity ToPersistence(this Variable Model) => new()
     {

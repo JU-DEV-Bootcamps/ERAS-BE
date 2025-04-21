@@ -2,6 +2,7 @@
 using Eras.Application.Models.Consolidator;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 using Microsoft.EntityFrameworkCore;
@@ -61,59 +62,70 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return [.. pollInstances.Select(PollInstanceMapper.ToDomain)];
     }
 
-    public async Task<IEnumerable<Answer>> GetAnswersByPollInstanceUuidAsync(string PollUuid, int CohortId)
-    {
-        List<AnswerEntity> answers = await _context.Answers
-            .Include(Answer => Answer.PollInstance)
-                .ThenInclude(PollInstance => PollInstance.Student)
-                    .ThenInclude(Student => Student.StudentCohorts)
-            .Include(Answer => Answer.PollVariable)
-                .ThenInclude(PollV => PollV.Variable)
-                    .ThenInclude(Var => Var.Component)
-            .Where(Answer => Answer.PollInstance.Uuid == PollUuid &&
-                            (CohortId == 0 || Answer.PollInstance.Student.StudentCohorts.Any(Cohort => Cohort.CohortId == CohortId)))
-            .ToListAsync();
+    // public async Task<IEnumerable<Answer>> GetAnswersByPollInstanceUuidAsync(string PollUuid, int CohortId)
+    // {
+    //     List<AnswerEntity> answers = await _context.Answers
+    //         .Include(Answer => Answer.PollInstance)
+    //             .ThenInclude(PollInstance => PollInstance.Student)
+    //                 .ThenInclude(Student => Student.StudentCohorts)
+    //         .Include(Answer => Answer.PollVariable)
+    //             .ThenInclude(PollV => PollV.Variable)
+    //                 .ThenInclude(Var => Var.Component)
+    //         .Where(Answer => Answer.PollInstance.Uuid == PollUuid &&
+    //                         (CohortId == 0 || Answer.PollInstance.Student.StudentCohorts.Any(Cohort => Cohort.CohortId == CohortId)))
+    //         .ToListAsync();
 
-        return [.. answers.Select(AnswerMapper.ToDomainWithRelations)];
-    }
+    //     return [.. answers.Select(AnswerMapper.ToDomain)];
+    // }
 
-    public async Task<AvgReportResponseVm> GetAvgReportByCohortAsync(
-    string CohortId,
-    string PollUuid)
+    public async Task<AvgReportResponseVm> GetAnswersByPollInstanceUuidAsync(
+    string PollUuid, string CohortId)
     {
         if (!int.TryParse(CohortId, out var cohortInt))
         {
             throw new ArgumentException("Invalid cohort Id format", nameof(CohortId));
         }
 
-        IQueryable<AvgReportResponseVm> query =
+        var query =
             from A in _context.Answers
             join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
             //Filter only answers related to the poll Uuid to look for
-            where PI.Uuid == PollUuid.ToString()
+            where PI.Uuid == PollUuid
             join Stud in _context.Students on PI.StudentId equals Stud.Id
             join SC in _context.StudentCohorts on Stud.Id equals SC.StudentId
-            join Cohort in _context.Cohorts on SC.CohortId equals Cohort.Id
             //Filter only the answers related to the cohort to look for
-            where Cohort.Id == cohortInt
-            join PV in _context.PollVariables on A.PollInstanceId equals PV.PollId
+            where SC.CohortId == cohortInt
+            join PV in _context.PollVariables on A.PollVariableId equals PV.Id
             join Var in _context.Variables on PV.VariableId equals Var.Id
-            join Comp in _context.Components on Var.ComponentId equals Comp.Id
-            group A by new { Comp.Id, Comp.Name } into answersByComponents
-            select (new AvgReportResponseVm
+            join Component in _context.Components on Var.ComponentId equals Component.Id
+            select new
             {
-                Components = answersByComponents.Select(Comp => new AvgReportComponent
+                Component = Component.Name,
+                PollInstanceId = PI.Id,
+                Question = Var.Name,
+                A.AnswerText,
+                A.RiskLevel,
+                StudentEmail = Stud.Email
+            };
+        var results = await query.ToListAsync();
+
+        List<AvgReportComponent> report = await query
+        .GroupBy(A => A.Component)
+        .Select(AnsPerComp => new AvgReportComponent
+            {
+                Description = AnsPerComp.Key,
+                AverageRisk = AnsPerComp.Average(Ans => Ans.RiskLevel),
+                Questions = AnsPerComp
+                .OrderByDescending(Ans => Ans.RiskLevel)
+                .GroupBy(A => A.Question)
+                .Select(AnsPerVar => new AvgReportQuestions
                 {
-                    Description = answersByComponents.Key.Name,
-                    AverageRisk = answersByComponents.Average(Ans => Ans.RiskLevel),
-                    Questions = answersByComponents.Select(Ans => new AvgReportQuestions
-                    {
-                        Question = Ans.PollVariable.Variable.Name,
-                        Answer = Ans.AnswerText,
-                        AverageRisk = answersByComponents.Average(Ans => Ans.RiskLevel)
-                    }).ToList()
-                })
-            });
-        return await query.FirstOrDefaultAsync() ?? new AvgReportResponseVm { Components = [] };
+                    Question = AnsPerVar.Key,
+                    AverageRisk = AnsPerVar.Average(Ans => Ans.RiskLevel),
+                    Answer = AnsPerVar.First(A => A.RiskLevel < AnsPerComp.Average(Ans => Ans.RiskLevel)).AnswerText,
+                }).ToList()
+            }).ToListAsync();
+        var pollCount = await _context.PollInstances.CountAsync(PollInstance => PollInstance.Uuid == PollUuid);
+        return new AvgReportResponseVm { Components = report, PollCount = pollCount };
     }
 }

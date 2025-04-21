@@ -1,5 +1,6 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Consolidator.Queries.Polls;
+using Eras.Application.Models.Consolidator;
 using Eras.Domain.Entities;
 
 using Microsoft.Extensions.Logging;
@@ -32,8 +33,8 @@ public class GetPollAvgQueryTest
 
         // Mock the repository to return an empty list of Answers and map to AvgReportResponseVm
         _mockPollInstanceRepo
-            .Setup(Repo => Repo.GetAnswersByPollInstanceUuidAsync(query.PollUuid.ToString(), query.CohortId))
-            .Returns(Task.FromResult<IEnumerable<Answer>>([])); // Simulate no data
+            .Setup(Repo => Repo.GetAnswersByPollInstanceUuidAsync(query.PollUuid.ToString(), query.CohortId.ToString()))
+            .Returns(Task.FromResult(new AvgReportResponseVm())); // Simulate no data
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);

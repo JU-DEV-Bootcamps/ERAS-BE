@@ -23,13 +23,12 @@ public class PollAvgHandler(
     {
         try
         {
-            IEnumerable<Answer> answersByFilters = await _pollInstanceRepository.GetAnswersByPollInstanceUuidAsync(Req.PollUuid.ToString(), Req.CohortId)
+            var answersByFilters = await _pollInstanceRepository.GetAnswersByPollInstanceUuidAsync(Req.PollUuid.ToString(), Req.CohortId.ToString())
                 ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortId}");
 
             if (answersByFilters == null) // Returns empty response
                 return new GetQueryResponse<AvgReportResponseVm>(new AvgReportResponseVm(), "Success: No answered polls with that Uuid", true);
-            AvgReportResponseVm avgRes = ReportMapper.MaptToVmResponse(answersByFilters);
-            return new GetQueryResponse<AvgReportResponseVm>(avgRes, "Success", true);
+            return new GetQueryResponse<AvgReportResponseVm>(answersByFilters, "Success", true);
         }
         catch (Exception ex)
         {

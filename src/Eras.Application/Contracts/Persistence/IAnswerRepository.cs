@@ -4,8 +4,8 @@ namespace Eras.Application.Contracts.Persistence
 {
     public interface IAnswerRepository : IBaseRepository<Answer>
     {
-        Task<List<Answer>?> GetByPollInstanceIdAsync(string uuid);
-        Task<List<Answer>?> GetByStudentIdAsync(string uuid);
-        Task SaveManyAnswersAsync(List<Answer> answers);
+        Task<List<Answer>> GetByPollInstanceIdAsync(string Uuid);
+        Task<List<Answer>> GetByStudentIdAsync(string Uuid);
+        Task SaveManyAnswersAsync(List<Answer> Answers);
     }
 }

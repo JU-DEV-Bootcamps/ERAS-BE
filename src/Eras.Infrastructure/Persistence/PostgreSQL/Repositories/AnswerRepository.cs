@@ -8,46 +8,44 @@ using Microsoft.EntityFrameworkCore;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
     [ExcludeFromCodeCoverage]
-    public class AnswerRepository(AppDbContext context) : BaseRepository<Answer, AnswerEntity>
-        (context, AnswerMapper.ToDomain, AnswerMapper.ToPersistence), IAnswerRepository
+    public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, AnswerEntity>
+        (Context, AnswerMapper.ToDomain, AnswerMapper.ToPersistence), IAnswerRepository
     {
-        public async Task<List<Answer>?> GetByStudentIdAsync(string uuid)
+        public async Task<List<Answer>> GetByStudentIdAsync(string Uuid)
         {
-            var student = await _context.Students.FirstOrDefaultAsync(student => student.Uuid == uuid);
-            if (student == null) return null;
-            var pollsOfStudent = await _context.PollInstances.Where(pollInstance => pollInstance.StudentId.Equals(student.Id)).ToListAsync();
-            var lastPoll = pollsOfStudent.OrderByDescending(poll => poll.FinishedAt).FirstOrDefault();
-            //If no answers found returns null
-            if (lastPoll == null) return null;
-
-            var answers = await _context.Answers
-                .Where(answer => answer.PollInstanceId.Equals(lastPoll.Id))
+            StudentEntity? student = await _context.Students.FirstOrDefaultAsync(Student => Student.Uuid == Uuid);
+            if (student == null) return [];
+            List<PollInstanceEntity> pollsOfStudent = await _context.PollInstances.Where(PollInstance => PollInstance.StudentId.Equals(student.Id)).ToListAsync();
+            PollInstanceEntity? lastPoll = pollsOfStudent.OrderByDescending(Poll => Poll.FinishedAt).FirstOrDefault();
+            if (lastPoll == null) return [];
+            List<AnswerEntity> answers = await _context.Answers
+                .Where(Ans => Ans.PollInstanceId.Equals(lastPoll.Id))
                 .ToListAsync();
             var domainAnswers = new List<Answer>();
-            foreach(var answer in answers)
+            foreach(AnswerEntity answer in answers)
             {
                 domainAnswers.Add(answer.ToDomain());
             }
             return domainAnswers;
         }
 
-        public async Task<List<Answer>?> GetByPollInstanceIdAsync(string uuid)
+        public async Task<List<Answer>> GetByPollInstanceIdAsync(string Uuid)
         {
-            var answers = await _context.Answers
-                .Where(answer => answer.PollInstanceId.Equals(uuid)).ToListAsync();
+            List<AnswerEntity> answers = await _context.Answers
+                .Where(Answ => Answ.PollInstanceId.Equals(Uuid)).ToListAsync();
             var domainAnswers = new List<Answer>();
-            foreach(var answer in answers)
+            foreach(AnswerEntity answer in answers)
             {
                 domainAnswers.Add(answer.ToDomain());
             }
             return domainAnswers;
         }
-        public async Task SaveManyAnswersAsync(List<Answer> answers)
+        public async Task SaveManyAnswersAsync(List<Answer> Answers)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                foreach (var ans in answers)
+                foreach (Answer ans in Answers)
                 {
                     await _context.Answers.AddAsync(ans.ToPersistence());
                 }
