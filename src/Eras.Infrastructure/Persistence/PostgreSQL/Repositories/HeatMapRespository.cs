@@ -143,7 +143,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     .ThenByDescending(result => result.AnswerCount)
                     .ToListAsync();
 
-                // Calcular el porcentaje en el cliente
+                // Calculate answer percentage
                 var results = query.Select(item => new GetHeatMapAnswersPercentageByVariableQueryResponse
                 {
                     ComponentName = item.ComponentName,
