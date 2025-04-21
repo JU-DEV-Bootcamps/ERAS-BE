@@ -34,5 +34,6 @@ namespace Eras.Application.Models.Response.HeatMap
     {
         public required string X { get; set; }
         public double Y { get; set; }
+        public required string Z { get; set; }
     }
 }

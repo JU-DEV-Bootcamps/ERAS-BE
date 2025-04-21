@@ -26,7 +26,7 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async void ImportPoll_Should_Return_Array ()
         {
-            var result = await controller.GetPreviewPolls("Encuesta");
+            var result = await controller.GetPreviewPollsAsync("Encuesta");
             var okResult = Assert.IsType<OkObjectResult>(result);
             var polls = okResult.Value as List<PollDTO>;
             Assert.NotNull(polls);
@@ -35,7 +35,7 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async void ImportPoll_Should_Return_Empty()
         {
-            var result = await controller.GetPreviewPolls("Name not found");
+            var result = await controller.GetPreviewPollsAsync("Name not found");
             var okResult = Assert.IsType<OkObjectResult>(result);
             var polls = okResult.Value as List<PollDTO>;
             Assert.Empty(polls);

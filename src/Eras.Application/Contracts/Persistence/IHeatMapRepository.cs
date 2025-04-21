@@ -16,5 +16,6 @@ namespace Eras.Application.Contracts.Persistence
             string pollUuid,
             List<int> variableIds
         );
+        Task<IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse>> GetHeatMapAnswersPercentageByVariableAsync(string pollUUID);
     }
 }

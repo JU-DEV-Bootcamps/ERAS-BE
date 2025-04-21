@@ -14,7 +14,7 @@ using Eras.Application.Models.Response.HeatMap;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
 {
-    internal class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
+    public class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
     {
         private readonly IHeatMapRepository _heatMapRepository;
         private readonly ILogger<GetHeatMapSummaryHandler> _logger;
@@ -38,7 +38,9 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
                 if (answersByComponents == null || !answersByComponents.Any())
                     throw new NotFoundException($"No data found for poll instance ID: {request.PollInstanceUUID}");
 
-                var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByComponents);
+                var answersPercentage = await _heatMapRepository.GetHeatMapAnswersPercentageByVariableAsync(request.PollInstanceUUID);
+
+                var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByComponents, answersPercentage);
 
                 return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
             }
