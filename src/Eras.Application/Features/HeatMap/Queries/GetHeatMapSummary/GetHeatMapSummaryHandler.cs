@@ -14,7 +14,7 @@ using Eras.Application.Models.Response.HeatMap;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
 {
-    internal class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
+    public class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
     {
         private readonly IHeatMapRepository _heatMapRepository;
         private readonly ILogger<GetHeatMapSummaryHandler> _logger;
