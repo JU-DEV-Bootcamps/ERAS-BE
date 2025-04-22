@@ -2,7 +2,6 @@
 using Eras.Application.Models.Consolidator;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 using Microsoft.EntityFrameworkCore;
