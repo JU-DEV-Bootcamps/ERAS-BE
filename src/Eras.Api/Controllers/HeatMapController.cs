@@ -7,11 +7,14 @@ using Eras.Application.Models.Response;
 using Eras.Application.Models.Response.Common;
 
 using MediatR;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/v1/[controller]")]
 public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Logger) : ControllerBase
 {

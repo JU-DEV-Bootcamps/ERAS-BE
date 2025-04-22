@@ -1,10 +1,13 @@
 ﻿﻿using Eras.Application.Features.Cohort.Queries;
 using MediatR;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/v1/[controller]")]
     public class CohortsController : ControllerBase
     {

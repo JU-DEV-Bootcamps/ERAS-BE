@@ -4,9 +4,12 @@ using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
 using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using Eras.Application.Features.Polls.Queries.GetPollsByStudent;
 using MediatR;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
+[Authorize]
 [Route("api/v1/[controller]")]
 [ExcludeFromCodeCoverage]
 public class PollsController : ControllerBase

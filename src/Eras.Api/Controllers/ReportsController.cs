@@ -7,10 +7,12 @@ using Eras.Domain.Entities;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 namespace Eras.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route("api/[controller]")]
 [ExcludeFromCodeCoverage]
 public class ReportsController(IMediator Mediator) : ControllerBase

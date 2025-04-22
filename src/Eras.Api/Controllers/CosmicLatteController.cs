@@ -1,17 +1,14 @@
-﻿using Eras.Application.Contracts.Infrastructure;
-using Eras.Application.Dtos;
-using Eras.Application.DTOs;
+﻿using Eras.Application.Dtos;
 using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Services;
-using Eras.Domain.Entities;
-using MediatR;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
-using System.Xml.Linq;
 
 namespace Eras.Api.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/v1/CosmicLatte/")]
     public class CosmicLatteController : ControllerBase
     {
@@ -33,6 +30,7 @@ namespace Eras.Api.Controllers
         }
 
         [HttpPost("polls/")]
+        [Authorize(Roles = "Administrator")]
         public async Task<IActionResult> SavePreviewPollsAsync([FromBody] List<PollDTO> PollsInstances)
         {
             return Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances));

@@ -4,11 +4,14 @@ using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAn
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using MediatR;
+
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers
 {
     [Route("api/v1/[controller]")]
+    [Authorize]
     [ApiController]
     [ExcludeFromCodeCoverage]
     public class PollInstanceController : ControllerBase
