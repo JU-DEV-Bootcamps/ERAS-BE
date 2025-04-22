@@ -10,5 +10,6 @@
     {
         public required string X { get; set; }
         public required int Y { get; set; }
+        public required int Count { get; set; }
     }
 }
