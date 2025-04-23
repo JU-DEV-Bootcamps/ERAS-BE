@@ -1,4 +1,4 @@
-﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Exceptions;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Consolidator;
@@ -11,22 +11,21 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Consolidator.Queries.Polls;
 
-public class PollAvgHandler(
-    ILogger<PollAvgHandler> Logger,
+public class VariableAvgQueryHandler(
+    ILogger<VariableAvgQueryHandler> Logger,
     IAnswerRepository ARepo
-    ) : IRequestHandler<PollAvgQuery, GetQueryResponse<AvgReportResponseVm>>
+    ) : IRequestHandler<VariableAvgQuery, GetQueryResponse<AvgReportResponseVm>>
 {
     private readonly IAnswerRepository _answerRepository = ARepo;
-    private readonly ILogger<PollAvgHandler> _logger = Logger;
+    private readonly ILogger<VariableAvgQueryHandler> _logger = Logger;
 
-    public async Task<GetQueryResponse<AvgReportResponseVm>> Handle(PollAvgQuery Req, CancellationToken CancToken)
+    public async Task<GetQueryResponse<AvgReportResponseVm>> Handle(VariableAvgQuery Req, CancellationToken CancToken)
     {
         try
         {
-            List<AnswersReportQueryResponse> answersByFilters = await _answerRepository.GetAnswersByPollInstanceUuidCohortAsync(Req.PollUuid.ToString(), Req.CohortId.ToString())
-                ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortId}");
-
-            var report = ReportMapper.MapToVmResponse(answersByFilters);
+            List<AnswersReportQueryResponse> answersByFilters = await _answerRepository.GetAnswersByPollVariablesAsync(Req.PollVariableIds)
+                ?? throw new NotFoundException($"Error in query for filters: {Req.PollVariableIds}");
+            AvgReportResponseVm report = ReportMapper.MapToVmResponse(answersByFilters);
 
             return new GetQueryResponse<AvgReportResponseVm>(report, "Success", true);
         }

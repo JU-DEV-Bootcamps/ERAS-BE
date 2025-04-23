@@ -2,6 +2,7 @@
 
 using Eras.Application.Features.Consolidator.Queries.Polls;
 using Eras.Application.Features.Consolidator.Queries.Students;
+using Eras.Application.Models.Consolidator;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 
@@ -26,7 +27,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             var pollGuid = new Guid(PollInstanceUuid);
             var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId ?? 0 };
-            var avgRisk = await _mediator.Send(query);
+            GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
             {
@@ -50,7 +51,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         try
         {
             GetStudentTopQuery query = new() { CohortName = CohortName, PollName = PollName, Take = Take };
-            var avgRisk = await _mediator.Send(query);
+            GetQueryResponse<List<(Student Student, List<Answer> Answers, double RiskIndex)>> avgRisk = await _mediator.Send(query);
             var toprmessage = string.Join(", ", avgRisk.Body.Select(St => $"{St.Student.Uuid} - {St.Student.Name} - RISK = {St.RiskIndex}").ToList());
             var result = avgRisk.Body.Select(St => new
             {
@@ -124,13 +125,42 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
     [HttpGet("polls/avg/")]
-    public async Task<IActionResult> GetAvgRiskByPollAsync([FromQuery] string PollInstanceUuid, [FromQuery] int CohortId)
+    public async Task<IActionResult> GetAvgRiskByPollAsync(
+        [FromQuery] string PollInstanceUuid,
+        [FromQuery] int CohortId
+        )
     {
         try
         {
             var pollGuid = new Guid(PollInstanceUuid);
             var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId };
-            var avgRisk = await _mediator.Send(query);
+            GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
+            return avgRisk.Success
+            ? Ok(new
+            {
+                status = "successful",
+                body = avgRisk.Body,
+            })
+            : BadRequest(new { status = "error", message = avgRisk.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { status = "error", message = ex.Message });
+        }
+    }
+
+        [HttpGet("variables/avg/")]
+    public async Task<IActionResult> GetAvgRiskByVariablesAsync([FromQuery] string PollVariableIds)
+    {
+        try
+        {
+            List<int> pollVarIds = [..PollVariableIds.Split(',').Select(int.Parse)];
+            if(pollVarIds.Count == 0 || pollVarIds == null)
+            {
+                return BadRequest(new { status = "error", message = "PollVariableIds is empty" });
+            }
+            var query = new VariableAvgQuery() { PollVariableIds = pollVarIds };
+            GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
             {
