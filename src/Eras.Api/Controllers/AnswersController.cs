@@ -12,19 +12,19 @@ namespace Eras.Api.Controllers
     {
         private readonly IMediator _mediator;
 
-        public AnswersController(IMediator mediator)
+        public AnswersController(IMediator Mediator)
         {
-            _mediator = mediator;
+            _mediator = Mediator;
         }
 
         [HttpGet("answers")]
-        public async Task<IActionResult> GetStudentAnswersByPoll(
-            [FromQuery] int studentId,
-            [FromQuery] int pollId
+        public async Task<IActionResult> GetStudentAnswersByPollAsync(
+            [FromQuery] int StudentId,
+            [FromQuery] int PollId
         )
         {
             GetStudentAnswersByPollQuery getStudentAnswersByPoll =
-                new GetStudentAnswersByPollQuery() { StudentId = studentId, PollId = pollId };
+                new GetStudentAnswersByPollQuery() { StudentId = StudentId, PollId = PollId };
             return Ok(await _mediator.Send(getStudentAnswersByPoll));
         }
     }

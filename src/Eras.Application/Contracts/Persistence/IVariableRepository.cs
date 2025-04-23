@@ -4,8 +4,8 @@ namespace Eras.Application.Contracts.Persistence
 {
     public interface IVariableRepository : IBaseRepository<Variable>
     {
-        Task<List<Variable>> GetAllAsync(int pollId);
-        Task<Variable?> GetByNameAsync(string name);
-        Task<List<Variable>> GetAllByPollUuidAsync(string pollUuid, List<string> component);
+        Task<List<Variable>> GetAllAsync(int PollId);
+        Task<Variable?> GetByNameAsync(string Name);
+        Task<List<Variable>> GetAllByPollUuidAsync(string PollUuid, List<string> Component);
     }
 }

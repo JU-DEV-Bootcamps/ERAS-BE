@@ -14,20 +14,20 @@ public class VariablesController : ControllerBase
     private readonly IMediator _mediator;
     private readonly ILogger<VariablesController> _logger;
 
-    public VariablesController(IMediator mediator, ILogger<VariablesController> logger)
+    public VariablesController(IMediator Mediator, ILogger<VariablesController> Logger)
     {
-        _mediator = mediator;
-        _logger = logger;
+        _mediator = Mediator;
+        _logger = Logger;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllByPollIdAndComponents(
-        [FromQuery] string pollUuid,
-        [FromQuery] List<string> component
+    public async Task<IActionResult> GetAllByPollIdAndComponentsAsync(
+        [FromQuery] string PollUuid,
+        [FromQuery] List<string> Component
     )
     {
         var result = await _mediator.Send(
-            new GetVariablesByPollUuidAndComponentQuery(pollUuid, component)
+            new GetVariablesByPollUuidAndComponentQuery(PollUuid, Component)
         );
         return Ok(result);
     }

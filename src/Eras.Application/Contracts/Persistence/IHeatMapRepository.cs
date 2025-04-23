@@ -5,17 +5,17 @@ namespace Eras.Application.Contracts.Persistence
     public interface IHeatMapRepository
     {
         Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> GetHeatMapDataByComponentsAsync(
-            string pollUUID
+            string PollUUID
         );
         Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> GetHeatMapDataByCohortAndDaysAsync(
-            int? cohortId,
-            int? days
+            int? CohortId,
+            int? Days
         );
 
         Task<List<HeatMapBaseData>> GetHeatMapByPollUuidAndVariableIds(
-            string pollUuid,
-            List<int> variableIds
+            string PollUuid,
+            List<int> VariableIds
         );
-        Task<IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse>> GetHeatMapAnswersPercentageByVariableAsync(string pollUUID);
+        Task<IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse>> GetHeatMapAnswersPercentageByVariableAsync(string PollUUID);
     }
 }

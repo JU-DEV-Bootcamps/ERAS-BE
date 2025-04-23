@@ -11,14 +11,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     {
         protected readonly AppDbContext _context;
 
-        public HeatMapRespository(AppDbContext context)
+        public HeatMapRespository(AppDbContext Context)
         {
-            _context = context;
+            _context = Context;
         }
 
         public async Task<
             IEnumerable<GetHeatMapByComponentsQueryResponse>
-        > GetHeatMapDataByComponentsAsync(string pollUUID)
+        > GetHeatMapDataByComponentsAsync(string PollUUID)
         {
             var query =
                 from v in _context.Variables
@@ -26,7 +26,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 join pv in _context.Set<PollVariableJoin>() on v.Id equals pv.VariableId
                 join a in _context.Answers on pv.Id equals a.PollVariableId
                 join pi in _context.PollInstances on a.PollInstanceId equals pi.Id
-                where pi.Uuid == pollUUID
+                where pi.Uuid == PollUUID
                 select new GetHeatMapByComponentsQueryResponse
                 {
                     ComponentId = c.Id,
@@ -38,19 +38,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 };
 
             return await query
-                .OrderBy(c => c.ComponentId)
-                .ThenBy(v => v.VariableId)
-                .ThenBy(a => a.AnswerText)
+                .OrderBy(C => C.ComponentId)
+                .ThenBy(V => V.VariableId)
+                .ThenBy(A => A.AnswerText)
                 .ToListAsync();
         }
 
         public async Task<
             IEnumerable<GetHeatMapByComponentsQueryResponse>
-        > GetHeatMapDataByCohortAndDaysAsync(int? cohortId, int? days)
+        > GetHeatMapDataByCohortAndDaysAsync(int? CohortId, int? Days)
         {
-            var pollInstances = await GetPollInstancesByCohortIdAndLastDays(cohortId, days);
+            var pollInstances = await GetPollInstancesByCohortIdAndLastDaysAsync(CohortId, Days);
 
-            var pollInstanceIds = pollInstances.Select(pi => pi.Id).ToList();
+            var pollInstanceIds = pollInstances.Select(Pi => Pi.Id).ToList();
 
             var query =
                 from v in _context.Variables
@@ -70,46 +70,46 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 };
 
             return await query
-                .OrderBy(c => c.ComponentId)
-                .ThenBy(v => v.VariableId)
-                .ThenBy(a => a.AnswerText)
+                .OrderBy(C => C.ComponentId)
+                .ThenBy(V => V.VariableId)
+                .ThenBy(A => A.AnswerText)
                 .ToListAsync();
         }
 
-        internal async Task<IEnumerable<PollInstanceEntity>> GetPollInstancesByCohortIdAndLastDays(
-            int? cohortId,
-            int? days
+        internal async Task<IEnumerable<PollInstanceEntity>> GetPollInstancesByCohortIdAndLastDaysAsync(
+            int? CohortId,
+            int? Days
         )
         {
             IQueryable<PollInstanceEntity> query = _context
-                .PollInstances.Include(pi => pi.Student)
-                .Include(pi => pi.Answers);
+                .PollInstances.Include(Pi => Pi.Student)
+                .Include(Pi => Pi.Answers);
 
-            if (cohortId.HasValue && cohortId != 0)
+            if (CohortId.HasValue && CohortId != 0)
             {
                 query = query
                     .Join(
                         _context.StudentCohorts,
-                        pollInstance => pollInstance.StudentId,
-                        studentCohort => studentCohort.StudentId,
-                        (pollInstance, studentCohort) => new { pollInstance, studentCohort }
+                        PollInstance => PollInstance.StudentId,
+                        StudentCohort => StudentCohort.StudentId,
+                        (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort }
                     )
-                    .Where(joined => joined.studentCohort.CohortId == cohortId.Value)
-                    .Select(joined => joined.pollInstance);
+                    .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value)
+                    .Select(Joined => Joined.pollInstance);
             }
 
-            if (days.HasValue && days != 0)
+            if (Days.HasValue && Days != 0)
             {
-                var dateLimit = DateTime.UtcNow.AddDays(-days.Value);
-                query = query.Where(pi => pi.FinishedAt >= dateLimit);
+                var dateLimit = DateTime.UtcNow.AddDays(-Days.Value);
+                query = query.Where(Pi => Pi.FinishedAt >= dateLimit);
             }
 
             return await query.Distinct().ToListAsync();
         }
 
         public async Task<List<HeatMapBaseData>> GetHeatMapByPollUuidAndVariableIds(
-            string pollUuid,
-            List<int> variableIds
+            string PollUuid,
+            List<int> VariableIds
         )
         {
             var heatmap = await (
@@ -119,7 +119,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 join pi in _context.PollInstances on a.PollInstanceId equals pi.Id
                 join s in _context.Students on pi.StudentId equals s.Id
                 join sc in _context.StudentCohorts on s.Id equals sc.StudentId
-                where pi.Uuid == pollUuid && variableIds.Contains(v.Id)
+                where pi.Uuid == PollUuid && VariableIds.Contains(v.Id)
                 group new
                 {
                     v.Name,
@@ -129,12 +129,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 select new HeatMapBaseData
                 {
                     Name = g.Key,
-                    Data = g.GroupBy(x => x.AnswerText)
-                        .Select(g => new Serie
+                    Data = g.GroupBy(X => X.AnswerText)
+                        .Select(G => new Serie
                         {
-                            X = g.Key,
-                            Y = (int)Math.Round(g.Average(x => x.RiskLevel)),
-                            Count = g.Count(),
+                            X = G.Key,
+                            Y = (int)Math.Round(G.Average(X => X.RiskLevel)),
+                            Count = G.Count(),
                         })
                         .ToList(),
                 }
@@ -145,13 +145,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<
             IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse>
-        > GetHeatMapAnswersPercentageByVariableAsync(string pollUUID)
+        > GetHeatMapAnswersPercentageByVariableAsync(string PollUUID)
         {
-            if (string.IsNullOrWhiteSpace(pollUUID))
+            if (string.IsNullOrWhiteSpace(PollUUID))
             {
                 throw new ArgumentException(
                     "The Poll UUID can't be null or empty.",
-                    nameof(pollUUID)
+                    nameof(PollUUID)
                 );
             }
 
@@ -161,104 +161,104 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 var totalAnswersByVariable = await _context
                     .Answers.Join(
                         _context.PollVariables,
-                        a => a.PollVariableId,
-                        pv => pv.Id,
-                        (a, pv) => new { a, pv }
+                        A => A.PollVariableId,
+                        Pv => Pv.Id,
+                        (A, Pv) => new { a = A, pv = Pv }
                     )
                     .Join(
                         _context.Polls,
-                        apv => apv.pv.PollId,
-                        p => p.Id,
-                        (apv, p) =>
+                        Apv => Apv.pv.PollId,
+                        P => P.Id,
+                        (Apv, P) =>
                             new
                             {
-                                apv.a,
-                                apv.pv,
-                                p,
+                                Apv.a,
+                                Apv.pv,
+                                P,
                             }
                     )
-                    .Where(apvp => apvp.p.Uuid == pollUUID)
-                    .GroupBy(apvp => apvp.a.PollVariableId)
-                    .ToDictionaryAsync(group => group.Key, group => group.Count());
+                    .Where(Apvp => Apvp.P.Uuid == PollUUID)
+                    .GroupBy(Apvp => Apvp.a.PollVariableId)
+                    .ToDictionaryAsync(Group => Group.Key, Group => Group.Count());
 
                 // Calculate percentage
                 var query = await _context
                     .Answers.Join(
                         _context.PollVariables,
-                        a => a.PollVariableId,
-                        pv => pv.Id,
-                        (a, pv) => new { a, pv }
+                        A => A.PollVariableId,
+                        Pv => Pv.Id,
+                        (A, Pv) => new { a = A, pv = Pv }
                     )
                     .Join(
                         _context.Variables,
-                        apv => apv.pv.VariableId,
-                        v => v.Id,
-                        (apv, v) =>
+                        Apv => Apv.pv.VariableId,
+                        V => V.Id,
+                        (Apv, V) =>
                             new
                             {
-                                apv.a,
-                                apv.pv,
-                                v,
+                                Apv.a,
+                                Apv.pv,
+                                v = V,
                             }
                     )
                     .Join(
                         _context.Components,
-                        apv => apv.v.ComponentId,
-                        c => c.Id,
-                        (apv, c) =>
+                        Apv => Apv.v.ComponentId,
+                        C => C.Id,
+                        (Apv, C) =>
                             new
                             {
-                                apv.a,
-                                apv.pv,
-                                apv.v,
-                                c,
+                                Apv.a,
+                                Apv.pv,
+                                Apv.v,
+                                c = C,
                             }
                     )
                     .Join(
                         _context.Polls,
-                        apv => apv.pv.PollId,
-                        p => p.Id,
-                        (apv, p) =>
+                        Apv => Apv.pv.PollId,
+                        P => P.Id,
+                        (Apv, P) =>
                             new
                             {
-                                apv.a,
-                                apv.v,
-                                apv.c,
-                                p,
+                                Apv.a,
+                                Apv.v,
+                                Apv.c,
+                                p = P,
                             }
                     )
-                    .Where(apvp => apvp.p.Uuid == pollUUID)
-                    .GroupBy(apvp => new
+                    .Where(Apvp => Apvp.p.Uuid == PollUUID)
+                    .GroupBy(Apvp => new
                     {
-                        ComponentName = apvp.c.Name,
-                        PollVariableId = apvp.a.PollVariableId,
-                        VariableName = apvp.v.Name,
-                        apvp.a.AnswerText,
+                        ComponentName = Apvp.c.Name,
+                        PollVariableId = Apvp.a.PollVariableId,
+                        VariableName = Apvp.v.Name,
+                        Apvp.a.AnswerText,
                     })
-                    .Select(group => new
+                    .Select(Group => new
                     {
-                        group.Key.ComponentName,
-                        group.Key.PollVariableId,
-                        group.Key.VariableName,
-                        group.Key.AnswerText,
-                        AnswerCount = group.Count(),
+                        Group.Key.ComponentName,
+                        Group.Key.PollVariableId,
+                        Group.Key.VariableName,
+                        Group.Key.AnswerText,
+                        AnswerCount = Group.Count(),
                     })
-                    .OrderBy(result => result.PollVariableId)
-                    .ThenByDescending(result => result.AnswerCount)
+                    .OrderBy(Result => Result.PollVariableId)
+                    .ThenByDescending(Result => Result.AnswerCount)
                     .ToListAsync();
 
                 // Calculate answer percentage
                 var results = query.Select(
-                    item => new GetHeatMapAnswersPercentageByVariableQueryResponse
+                    Item => new GetHeatMapAnswersPercentageByVariableQueryResponse
                     {
-                        ComponentName = item.ComponentName,
-                        PollVariableId = item.PollVariableId,
-                        Name = item.VariableName,
-                        AnswerText = item.AnswerText,
-                        AnswerCount = item.AnswerCount,
+                        ComponentName = Item.ComponentName,
+                        PollVariableId = Item.PollVariableId,
+                        Name = Item.VariableName,
+                        AnswerText = Item.AnswerText,
+                        AnswerCount = Item.AnswerCount,
                         Percentage = Math.Round(
-                            (item.AnswerCount * 100.0)
-                                / totalAnswersByVariable[item.PollVariableId],
+                            (Item.AnswerCount * 100.0)
+                                / totalAnswersByVariable[Item.PollVariableId],
                             2
                         ),
                     }
@@ -269,7 +269,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             catch (Exception ex)
             {
                 Console.WriteLine(
-                    $"There is an error while running the query for the poll: {pollUUID} with the exception {ex}"
+                    $"There is an error while running the query for the poll: {PollUUID} with the exception {ex}"
                 );
                 throw new ApplicationException("Error Processing the data for the heatmap.", ex);
             }

@@ -5,7 +5,6 @@ using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByCohort;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByComponent;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
-using Eras.Application.Models;
 using Eras.Application.Models.Response;
 using Eras.Application.Models.Response.Common;
 
@@ -101,14 +100,14 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
     [HttpPost("generate")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetHeatMapDataByPollUuidAndVariableIds(
-        [FromBody] HeatMapBaseDataRequestDto request
+    public async Task<IActionResult> GetHeatMapDataByPollUuidAndVariableIdsAsync(
+        [FromBody] HeatMapBaseDataRequestDto Request
     )
     {
         var result = await _mediator.Send(
             new GetHeatMapByPollIdAndVariableIdsQuery(
-                request.pollInstanceUuid,
-                request.VariablesIds
+                Request.pollInstanceUuid,
+                Request.VariablesIds
             )
         );
         return Ok(result);

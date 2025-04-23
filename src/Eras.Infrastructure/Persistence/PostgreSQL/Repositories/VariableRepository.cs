@@ -12,21 +12,21 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     [ExcludeFromCodeCoverage]
     public class VariableRepository : BaseRepository<Variable, VariableEntity>, IVariableRepository
     {
-        public VariableRepository(AppDbContext context)
-            : base(context, VariableMapper.ToDomain, VariableMapper.ToPersistence) { }
+        public VariableRepository(AppDbContext Context)
+            : base(Context, VariableMapper.ToDomain, VariableMapper.ToPersistence) { }
 
-        public async Task<Variable?> GetByNameAsync(string name)
+        public async Task<Variable?> GetByNameAsync(string Name)
         {
-            var variable = await _context.Variables.FirstOrDefaultAsync(variable =>
-                variable.Name == name
+            var variable = await _context.Variables.FirstOrDefaultAsync(Variable =>
+                Variable.Name == Name
             );
 
             return variable?.ToDomain();
         }
 
-        public async Task<Variable> AddAsync(Variable variable)
+        public async Task<Variable> AddAsync(Variable Variable)
         {
-            VariableEntity variableEntity = variable.ToPersistence();
+            VariableEntity variableEntity = Variable.ToPersistence();
             var response = await _context.Set<VariableEntity>().AddAsync(variableEntity);
             await _context.SaveChangesAsync();
 
@@ -35,24 +35,24 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return variableCreated;
         }
 
-        public Task<Variable> Add(Variable componentVariable)
+        public Task<Variable> Add(Variable ComponentVariable)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Variable>> GetAllAsync(int pollId)
+        public Task<List<Variable>> GetAllAsync(int PollId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Variable> GetComponentVariableByName(string name)
+        public Task<Variable> GetComponentVariableByName(string Name)
         {
             throw new NotImplementedException();
         }
 
         public async Task<List<Variable>> GetAllByPollUuidAsync(
-            string pollUuid,
-            List<string> components
+            string PollUuid,
+            List<string> Components
         )
         {
             var variables =
@@ -60,7 +60,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 join pv in _context.PollVariables on v.Id equals pv.VariableId
                 join p in _context.Polls on pv.PollId equals p.Id
                 join c in _context.Components on v.ComponentId equals c.Id
-                where p.Uuid == pollUuid && components.Contains(c.Name)
+                where p.Uuid == PollUuid && Components.Contains(c.Name)
                 select new Variable { Id = v.Id, Name = v.Name };
 
             return await variables.ToListAsync();

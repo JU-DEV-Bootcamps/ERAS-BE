@@ -14,22 +14,22 @@ namespace Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndC
         private readonly ILogger<GetVariablesByPollUuidAndComponentQueryHandler> _logger;
 
         public GetVariablesByPollUuidAndComponentQueryHandler(
-            IVariableRepository variableRepository,
-            ILogger<GetVariablesByPollUuidAndComponentQueryHandler> logger
+            IVariableRepository VariableRepository,
+            ILogger<GetVariablesByPollUuidAndComponentQueryHandler> Logger
         )
         {
-            _variableRepository = variableRepository;
-            _logger = logger;
+            _variableRepository = VariableRepository;
+            _logger = Logger;
         }
 
         public async Task<List<Variable>> Handle(
-            GetVariablesByPollUuidAndComponentQuery request,
-            CancellationToken cancellationToken
+            GetVariablesByPollUuidAndComponentQuery Request,
+            CancellationToken CancellationToken
         )
         {
             var variables = await _variableRepository.GetAllByPollUuidAsync(
-                request.pollUuid,
-                request.component
+                Request.pollUuid,
+                Request.component
             );
             return variables;
         }

@@ -14,22 +14,22 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapByPollIdAndVariabl
         private readonly ILogger<GetHeatMapByPollIdAndVariableIdsQueryHandler> _logger;
 
         public GetHeatMapByPollIdAndVariableIdsQueryHandler(
-            IHeatMapRepository heatmapRepository,
-            ILogger<GetHeatMapByPollIdAndVariableIdsQueryHandler> logger
+            IHeatMapRepository HeatmapRepository,
+            ILogger<GetHeatMapByPollIdAndVariableIdsQueryHandler> Logger
         )
         {
-            _logger = logger;
-            _heatMapRepository = heatmapRepository;
+            _logger = Logger;
+            _heatMapRepository = HeatmapRepository;
         }
 
         public async Task<List<HeatMapBaseData>> Handle(
-            GetHeatMapByPollIdAndVariableIdsQuery request,
-            CancellationToken cancellationToken
+            GetHeatMapByPollIdAndVariableIdsQuery Request,
+            CancellationToken CancellationToken
         )
         {
             var heatmap = await _heatMapRepository.GetHeatMapByPollUuidAndVariableIds(
-                request.pollUuid,
-                request.variableIds
+                Request.pollUuid,
+                Request.variableIds
             );
             return heatmap;
         }
