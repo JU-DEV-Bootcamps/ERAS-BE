@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndComponent;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]

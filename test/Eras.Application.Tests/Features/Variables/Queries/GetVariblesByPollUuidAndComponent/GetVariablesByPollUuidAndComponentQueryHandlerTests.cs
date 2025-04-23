@@ -1,7 +1,9 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndComponent;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Variables.Queries.GetVariablesByPollIdAndComponent

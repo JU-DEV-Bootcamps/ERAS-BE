@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Models.Response.HeatMap;
+
 using MediatR;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapByPollIdAndVariableIds

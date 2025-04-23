@@ -10,6 +10,7 @@ using Eras.Application.Models.Response;
 using Eras.Application.Models.Response.Common;
 
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
