@@ -157,112 +157,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             try
             {
-                // Calculate the total answers
-                var totalAnswersByVariable = await _context
-                    .Answers.Join(
-                        _context.PollVariables,
-                        A => A.PollVariableId,
-                        Pv => Pv.Id,
-                        (A, Pv) => new { a = A, pv = Pv }
-                    )
-                    .Join(
-                        _context.Polls,
-                        Apv => Apv.pv.PollId,
-                        P => P.Id,
-                        (Apv, P) =>
-                            new
+                var results = await _context.ErasCalculationsByPoll
+                            .Where(e => e.PollUuid == PollUUID)
+                            .Select(e => new GetHeatMapAnswersPercentageByVariableQueryResponse
                             {
-                                Apv.a,
-                                Apv.pv,
-                                P,
-                            }
-                    )
-                    .Where(Apvp => Apvp.P.Uuid == PollUUID)
-                    .GroupBy(Apvp => Apvp.a.PollVariableId)
-                    .ToDictionaryAsync(Group => Group.Key, Group => Group.Count());
-
-                // Calculate percentage
-                var query = await _context
-                    .Answers.Join(
-                        _context.PollVariables,
-                        A => A.PollVariableId,
-                        Pv => Pv.Id,
-                        (A, Pv) => new { a = A, pv = Pv }
-                    )
-                    .Join(
-                        _context.Variables,
-                        Apv => Apv.pv.VariableId,
-                        V => V.Id,
-                        (Apv, V) =>
-                            new
-                            {
-                                Apv.a,
-                                Apv.pv,
-                                v = V,
-                            }
-                    )
-                    .Join(
-                        _context.Components,
-                        Apv => Apv.v.ComponentId,
-                        C => C.Id,
-                        (Apv, C) =>
-                            new
-                            {
-                                Apv.a,
-                                Apv.pv,
-                                Apv.v,
-                                c = C,
-                            }
-                    )
-                    .Join(
-                        _context.Polls,
-                        Apv => Apv.pv.PollId,
-                        P => P.Id,
-                        (Apv, P) =>
-                            new
-                            {
-                                Apv.a,
-                                Apv.v,
-                                Apv.c,
-                                p = P,
-                            }
-                    )
-                    .Where(Apvp => Apvp.p.Uuid == PollUUID)
-                    .GroupBy(Apvp => new
-                    {
-                        ComponentName = Apvp.c.Name,
-                        PollVariableId = Apvp.a.PollVariableId,
-                        VariableName = Apvp.v.Name,
-                        Apvp.a.AnswerText,
-                    })
-                    .Select(Group => new
-                    {
-                        Group.Key.ComponentName,
-                        Group.Key.PollVariableId,
-                        Group.Key.VariableName,
-                        Group.Key.AnswerText,
-                        AnswerCount = Group.Count(),
-                    })
-                    .OrderBy(Result => Result.PollVariableId)
-                    .ThenByDescending(Result => Result.AnswerCount)
-                    .ToListAsync();
-
-                // Calculate answer percentage
-                var results = query.Select(
-                    Item => new GetHeatMapAnswersPercentageByVariableQueryResponse
-                    {
-                        ComponentName = Item.ComponentName,
-                        PollVariableId = Item.PollVariableId,
-                        Name = Item.VariableName,
-                        AnswerText = Item.AnswerText,
-                        AnswerCount = Item.AnswerCount,
-                        Percentage = Math.Round(
-                            (Item.AnswerCount * 100.0)
-                                / totalAnswersByVariable[Item.PollVariableId],
-                            2
-                        ),
-                    }
-                );
+                                ComponentName = e.ComponentName,
+                                PollVariableId = e.PollVariableId,
+                                Name = e.Question,
+                                AnswerText = e.AnswerText,
+                                Percentage = e.Percentage,
+                                VariableAverageRisk = e.VariableAverageRisk
+                            })
+                            .Distinct()
+                            .ToListAsync();
 
                 return results;
             }

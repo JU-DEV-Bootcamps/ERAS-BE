@@ -114,22 +114,20 @@ namespace Eras.Application.Mappers
 
         }
 
-
-        public static HeatMapSummaryResponseVm MapToSummaryVmResponse(
-    IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses,
-    IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse> answersPercentage)
+        public static HeatMapSummaryResponseVm MapToSummaryAndPercentageVmResponse(
+    IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse> queryResponses)
         {
             var components = queryResponses
-                .GroupBy(q => new { q.ComponentId, q.ComponentName })
+                .GroupBy(q => new { q.ComponentName })
                 .Select(cg => new Component
                 {
-                    Description = cg.Key.ComponentName.ToUpper(),
+                    Description = cg.Key.ComponentName?.ToUpper(),
                     Variables = cg
-                        .GroupBy(v => v.VariableId)
+                        .GroupBy(v => v.Name)
                         .Select(vg => new ComponentVars
                         {
-                            Description = vg.First().VariableName,
-                            AverageScore = vg.Average(v => v.AnswerRiskLevel)
+                            Description = vg.Key,
+                            AverageScore = (double) vg.First().VariableAverageRisk 
                         })
                         .ToList()
                 })
@@ -144,8 +142,8 @@ namespace Eras.Application.Mappers
                         {
                             X = va.Description, 
                             Y = Math.Round(Math.Min(va.AverageScore, 5), 2), 
-                            Z = string.Join("\n", answersPercentage
-                                .Where(ap => ap.Name == va.Description && ap.ComponentName?.ToUpper() == c.Description) 
+                            Z = string.Join("\n", queryResponses
+                                .Where(ap => ap.Name == va.Description && ap.ComponentName?.ToUpper() == c.Description)
                                 .Select(ap => $"{ap.AnswerText} : {Math.Round(ap.Percentage, 2)}%")) 
                         })
                         .OrderBy(dp => dp.Y)
@@ -159,5 +157,7 @@ namespace Eras.Application.Mappers
                 Series = series
             };
         }
+
+
     }
 }

@@ -20,10 +20,10 @@ public class GetHeatMapAnswersPercentageByVariableQueryResponse
     [Column("answer_text")]
     public string? AnswerText { get; set; }
 
-    [Column("answer_count")]
-    public int AnswerCount { get; set; }
+    [Column("variable_average_risk")]
+    public decimal VariableAverageRisk { get; set; }
 
     [Column("percentage")]
-    public double Percentage { get; set; }
+    public decimal Percentage { get; set; }
 
 }
