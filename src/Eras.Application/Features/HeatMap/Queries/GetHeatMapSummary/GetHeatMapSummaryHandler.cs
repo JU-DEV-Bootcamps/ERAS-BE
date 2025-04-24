@@ -1,50 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents;
 using Microsoft.Extensions.Logging;
 using Eras.Application.Exceptions;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.HeatMap;
 
-namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
+namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary;
+
+public class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
 {
-    public class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
+    private readonly IHeatMapRepository _heatMapRepository;
+    private readonly ILogger<GetHeatMapSummaryHandler> _logger;
+
+    public GetHeatMapSummaryHandler(
+        IHeatMapRepository HeatMapRepository,
+        ILogger<GetHeatMapSummaryHandler> Logger)
     {
-        private readonly IHeatMapRepository _heatMapRepository;
-        private readonly ILogger<GetHeatMapSummaryHandler> _logger;
+        _heatMapRepository = HeatMapRepository;
+        _logger = Logger;
+    }
 
-        public GetHeatMapSummaryHandler(
-            IHeatMapRepository heatMapRepository,
-            ILogger<GetHeatMapSummaryHandler> logger)
+    public async Task<GetQueryResponse<HeatMapSummaryResponseVm>> Handle(GetHeatMapSummaryQuery Request, CancellationToken CancellationToken)
+    {
+        if (string.IsNullOrEmpty(Request.PollInstanceUUID))
         {
-            _heatMapRepository = heatMapRepository;
-            _logger = logger;
+            throw new NotFoundException($"Poll instance ID cannot be null or empty");
         }
+        try {
+            IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse> answersPercentage = await _heatMapRepository.GetHeatMapAnswersPercentageByVariableAsync(Request.PollInstanceUUID);
 
-        public async Task<GetQueryResponse<HeatMapSummaryResponseVm>> Handle(GetHeatMapSummaryQuery request, CancellationToken cancellationToken)
+            HeatMapSummaryResponseVm mappedData = HeatMapMapper.MapToSummaryAndPercentageVmResponse(answersPercentage);
+
+            return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
+        }
+        catch (Exception ex)
         {
-            if (string.IsNullOrEmpty(request.PollInstanceUUID))
-            {
-                throw new NotFoundException($"Poll instance ID cannot be null or empty");
-            }
-            try {
-                var answersPercentage = await _heatMapRepository.GetHeatMapAnswersPercentageByVariableAsync(request.PollInstanceUUID);
-
-                var mappedData = HeatMapMapper.MapToSummaryAndPercentageVmResponse(answersPercentage);
-
-                return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred getting the heat map summary data ");
-                return new GetQueryResponse<HeatMapSummaryResponseVm>(body: null, "Failed", false);
-            }
+            _logger.LogError(ex, "An error occurred getting the heat map summary data ");
+            return new GetQueryResponse<HeatMapSummaryResponseVm>(body: new HeatMapSummaryResponseVm(), "Failed", false);
         }
     }
 }
