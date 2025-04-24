@@ -34,13 +34,9 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
                 throw new NotFoundException($"Poll instance ID cannot be null or empty");
             }
             try {
-                var answersByComponents = await _heatMapRepository.GetHeatMapDataByComponentsAsync(request.PollInstanceUUID);
-                if (answersByComponents == null || !answersByComponents.Any())
-                    throw new NotFoundException($"No data found for poll instance ID: {request.PollInstanceUUID}");
-
                 var answersPercentage = await _heatMapRepository.GetHeatMapAnswersPercentageByVariableAsync(request.PollInstanceUUID);
 
-                var mappedData = HeatMapMapper.MapToSummaryVmResponse(answersByComponents, answersPercentage);
+                var mappedData = HeatMapMapper.MapToSummaryAndPercentageVmResponse(answersPercentage);
 
                 return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
             }

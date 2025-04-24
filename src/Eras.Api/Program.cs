@@ -50,6 +50,28 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.Migrate();
+
+    // Read the view definition
+    var sqlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                                   "Persistence/PostgreSQL/Views/vErasCalculationByPoll.sql");
+
+    if (!File.Exists(sqlFilePath))
+    {
+        throw new FileNotFoundException($"SQL File not found: {sqlFilePath}");
+    }
+
+    var sqlScript = File.ReadAllText(sqlFilePath);
+    // Execute the SQL query
+    using (var connection = dbContext.Database.GetDbConnection())
+    {
+        connection.Open();
+        using (var command = connection.CreateCommand())
+        {
+            command.CommandText = sqlScript;
+            command.ExecuteNonQuery();
+        }
+    }
+
 }
 
 // Enable CORS
