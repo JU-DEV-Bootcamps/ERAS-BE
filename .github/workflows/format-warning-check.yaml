@@ -82,7 +82,7 @@ jobs:
           dotnet build --configuration Release --no-restore > build-output.txt || true
 
           # Filter build warnings for changed files
-          BUILD_WARNINGS=$(grep -i -F -f <(echo "$CHANGED_FILES" | xargs -n1 basename) build-output.txt || true)
+          BUILD_WARNINGS=$(grep -i -F -f <(echo "$CHANGED_FILES") build-output.txt || true)
           echo "Build warnings found."
           if [ -n "$BUILD_WARNINGS" ]; then
             echo "Build warnings found in the updated files. Please solve them before merging."
@@ -100,5 +100,7 @@ jobs:
           # Fail the workflow if there are format issues or build warnings
           if [ -n "$FORMAT_ISSUES" ] || [ -n "$BUILD_WARNINGS" ]; then
             echo "Errors or warnings detected. Failing the workflow."
+            echo "You can run dotnet format for the changed files CHANGED_FILES"
+            echo "dotnet format --include $CHANGED_FILES"
             exit 1
           fi

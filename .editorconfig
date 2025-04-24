@@ -1,14 +1,6 @@
 # Root EditorConfig file
 root = true
 
-# All files
-[*]
-charset = utf-8-bom
-# Ubuntu seems to have issues with endings in the guthub actions. Disable it for now.
-# end_of_line = crlf
-insert_final_newline = true
-trim_trailing_whitespace = true
-
 # C# files
 [*.cs]
 indent_style = space

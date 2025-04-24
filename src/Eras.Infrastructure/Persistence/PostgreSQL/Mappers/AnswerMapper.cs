@@ -5,31 +5,23 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
     public static class AnswerMapper
     {
-        public static Answer ToDomain(this AnswerEntity Entity)
+        public static Answer ToDomain(this AnswerEntity Entity) => new()
         {
-            return new Answer
-            {
-                Id = Entity.Id,
-                RiskLevel = Entity.RiskLevel,
-                AnswerText = Entity.AnswerText,
-                Audit = Entity.Audit,
-                PollInstanceId = Entity.PollInstanceId,
-                PollVariableId = Entity.PollVariableId
-            };
-        }
-
-        public static AnswerEntity ToPersistence(this Answer Model)
+            Id = Entity.Id,
+            RiskLevel = Entity.RiskLevel,
+            AnswerText = Entity.AnswerText,
+            Audit = Entity.Audit,
+            PollInstanceId = Entity.PollInstanceId,
+            PollVariableId = Entity.PollVariableId
+        };
+        public static AnswerEntity ToPersistence(this Answer Model) => new()
         {
-            return new AnswerEntity
-            {
-                Id = Model.Id,
-                AnswerText = Model.AnswerText,
-                RiskLevel = Model.RiskLevel,
-                PollInstanceId = Model.PollInstanceId,
-                PollVariableId = Model.PollVariableId,
-                Audit = Model.Audit
-
-            };
-        }
+            Id = Model.Id,
+            AnswerText = Model.AnswerText,
+            RiskLevel = Model.RiskLevel,
+            PollInstanceId = Model.PollInstanceId,
+            PollVariableId = Model.PollVariableId,
+            Audit = Model.Audit
+        };
     }
 }
