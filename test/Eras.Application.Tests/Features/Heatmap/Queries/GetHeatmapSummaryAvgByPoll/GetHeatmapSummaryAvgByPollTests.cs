@@ -34,19 +34,25 @@ public class GetHeatMapSummaryAvgByPollTests
     {        
         var query = new GetHeatMapSummaryQuery("3dbce0ff-21a1-484c-ab1c-e2e4fe78eca5");
 
-        _mockHeatMapRepository.Setup(repo => repo.GetHeatMapDataByComponentsAsync(query.PollInstanceUUID))
-            .ReturnsAsync(new List<GetHeatMapByComponentsQueryResponse>
+        _mockHeatMapRepository.Setup(repo => repo.GetHeatMapAnswersPercentageByVariableAsync(query.PollInstanceUUID))
+            .ReturnsAsync(new List<GetHeatMapAnswersPercentageByVariableQueryResponse>
             {
-                new GetHeatMapByComponentsQueryResponse { ComponentId = 1, ComponentName = "Component1" }
+                new GetHeatMapAnswersPercentageByVariableQueryResponse { 
+                    ComponentName = "Component1",
+                    PollVariableId = 1,
+                    Name = "student name",
+                    AnswerText = "Name",
+                    VariableAverageRisk = 15,
+                    Percentage = 1
+                }
             });
 
         var result = await _handler.Handle(query, CancellationToken.None);
-
+        
         Assert.True(result.Success);
         Assert.NotNull(result.Body);
         Assert.NotEmpty(result.Body.Components);
 
-        _mockHeatMapRepository.Verify(repo => repo.GetHeatMapDataByComponentsAsync(query.PollInstanceUUID), Times.Once);
         _mockHeatMapRepository.Verify(repo => repo.GetHeatMapAnswersPercentageByVariableAsync(query.PollInstanceUUID), Times.Once);
     }
 }
