@@ -1,4 +1,4 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,32 +6,32 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class PollInstanceConfiguration : IEntityTypeConfiguration<PollInstanceEntity>
     {
-        public void Configure(EntityTypeBuilder<PollInstanceEntity> builder)
+        public void Configure(EntityTypeBuilder<PollInstanceEntity> Builder)
         {
-            builder.ToTable("poll_instances");
+            Builder.ToTable("poll_instances");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
-            AuditConfiguration.Configure(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
+            AuditConfiguration.Configure(Builder);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<PollInstanceEntity> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<PollInstanceEntity> Builder)
         {
-            builder.HasKey(pollInstance => pollInstance.Id);
-            builder.Property(pollInstance => pollInstance.Uuid)
+            Builder.HasKey(PollInstance => PollInstance.Id);
+            Builder.Property(PollInstance => PollInstance.Uuid)
                 .HasColumnName("uuid")
                 .IsRequired();
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<PollInstanceEntity> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<PollInstanceEntity> Builder)
         {
-            builder.HasMany(pollInstance => pollInstance.Answers)
-                .WithOne(answer => answer.PollInstance)
-                .HasForeignKey(answer => answer.PollInstanceId);
+            Builder.HasMany(PollInstance => PollInstance.Answers)
+                .WithOne(Answer => Answer.PollInstance)
+                .HasForeignKey(Answer => Answer.PollInstanceId);
             
-            builder.HasOne(pollInstance => pollInstance.Student)
-                .WithMany(student => student.PollInstances)
-                .HasForeignKey(pollInstance => pollInstance.StudentId);
+            Builder.HasOne(PollInstance => PollInstance.Student)
+                .WithMany(Student => Student.PollInstances)
+                .HasForeignKey(PollInstance => PollInstance.StudentId);
         }
     }
 }

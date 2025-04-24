@@ -16,15 +16,15 @@ namespace Eras.Application.Features.Answers.Queries
         private readonly IStudentAnswersRepository _studentAnswersRepository;
         private readonly ILogger<GetStudentAnswersByPollQueryHandler> _logger;
 
-        public GetStudentAnswersByPollQueryHandler(IStudentAnswersRepository studentAnswersRepository, ILogger<GetStudentAnswersByPollQueryHandler> logger)
+        public GetStudentAnswersByPollQueryHandler(IStudentAnswersRepository StudentAnswersRepos00itory, ILogger<GetStudentAnswersByPollQueryHandler> logger)
         {
-            _studentAnswersRepository = studentAnswersRepository;
+            _studentAnswersRepository = StudentAnswersRepos00itory;
             _logger = logger;
         }
 
-        public async Task<List<StudentAnswer>> Handle(GetStudentAnswersByPollQuery request, CancellationToken cancellationToken)
+        public async Task<List<StudentAnswer>> Handle(GetStudentAnswersByPollQuery Request, CancellationToken CancellationToken)
         {
-            var listOfAnswers = await _studentAnswersRepository.GetStudentAnswersAsync(request.StudentId, request.PollId);
+            var listOfAnswers = await _studentAnswersRepository.GetStudentAnswersAsync(Request.StudentId, Request.PollId);
             return listOfAnswers;
         }
     }

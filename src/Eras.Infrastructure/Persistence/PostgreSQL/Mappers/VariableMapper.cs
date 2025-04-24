@@ -1,4 +1,4 @@
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using System.ComponentModel;
 
@@ -6,23 +6,23 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
     public static class VariableMapper
     {
-        public static Variable ToDomain(this VariableEntity entity)
+        public static Variable ToDomain(this VariableEntity Entity)
         {
             return new Variable
             {
-                Id = entity.Id,
-                Name = entity.Name,
-                Audit = entity.Audit
+                Id = Entity.Id,
+                Name = Entity.Name,
+                Audit = Entity.Audit
             };
         }
-        public static VariableEntity ToPersistence(this Variable model)
+        public static VariableEntity ToPersistence(this Variable Model)
         {
             return new VariableEntity
             {
-                Id = model.Id,
-                Name = model.Name,
-                Audit = model.Audit,
-                ComponentId = model.IdComponent
+                Id = Model.Id,
+                Name = Model.Name,
+                Audit = Model.Audit,
+                ComponentId = Model.IdComponent
             };
         }
     }

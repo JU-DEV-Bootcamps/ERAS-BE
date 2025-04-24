@@ -7,6 +7,6 @@ namespace Eras.Application.Features.Cohort.Commands.CreateCohort
 {
     public class CreateCohortCommand : IRequest<CreateCommandResponse<Domain.Entities.Cohort>>
     {
-        public CohortDTO? CohortDto;
+        public required CohortDTO CohortDto;
     }
 }

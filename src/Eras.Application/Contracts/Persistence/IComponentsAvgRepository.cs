@@ -9,6 +9,6 @@ namespace Eras.Application.Contracts.Persistence
 {
     public interface IComponentsAvgRepository
     {
-        Task<List<ComponentsAvg>> ComponentsAvgByStudent(int studentId, int pollId);
+        Task<List<ComponentsAvg>> ComponentsAvgByStudent(int StudentId, int PollId);
     }
 }

@@ -35,7 +35,7 @@ namespace Eras.Application.Services
             _mediator = Mediator;
         }
 
-        public async Task<CreateCommandResponse<CreatedPollDTO?>> ImportPollInstancesAsync(List<PollDTO> PollsToCreate)
+        public async Task<CreateCommandResponse<CreatedPollDTO>> ImportPollInstancesAsync(List<PollDTO> PollsToCreate)
         {
             try
             {
@@ -68,11 +68,11 @@ namespace Eras.Application.Services
                         }
                     }
                 }
-                return new CreateCommandResponse<CreatedPollDTO?>(createdPoll, createdPollsInstances, "Success", true);
+                return new CreateCommandResponse<CreatedPollDTO>(createdPoll, createdPollsInstances, "Success", true);
             }
             catch (Exception ex)
             {
-                return new CreateCommandResponse<CreatedPollDTO?>(null, 0, $"Error during import process {ex.Message}", false);
+                return new CreateCommandResponse<CreatedPollDTO>(null, 0, $"Error during import process {ex.Message}", false);
             }
         }
         public async Task<CreateCommandResponse<PollInstance?>> CreatePollInstanceAsync(Student Student, string PollUuid, DateTime FinishedAt)
@@ -162,7 +162,7 @@ namespace Eras.Application.Services
                     GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
                     createdStudent = new CreateCommandResponse<Student>(getStudentResponse.Body, "Success", true);
                 }
-                catch (EntityNotFoundException Ex)
+                catch (EntityNotFoundException)
                 {
                     CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate };
                     createdStudent = await _mediator.Send(createStudentCommand);

@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
@@ -10,23 +10,23 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     [ExcludeFromCodeCoverage]
     public class CohortRepository : BaseRepository<Cohort, CohortEntity>, ICohortRepository
     {
-        public CohortRepository(AppDbContext context) 
-            : base(context, CohortMapper.ToDomain, CohortMapper.ToPersistence)
+        public CohortRepository(AppDbContext Context)
+            : base(Context, CohortMapper.ToDomain, CohortMapper.ToPersistence)
         {
         }
 
-        public async Task<Cohort?> GetByNameAsync(string name)
+        public async Task<Cohort?> GetByNameAsync(string Name)
         {
             var cohort = await _context.Cohorts
-                .FirstOrDefaultAsync(cohort => cohort.Name == name);
+                .FirstOrDefaultAsync(Cohort => Cohort.Name == Name);
             
             return cohort?.ToDomain();
         }
 
-        public async Task<Cohort?> GetByCourseCodeAsync(string courseCode)
+        public async Task<Cohort?> GetByCourseCodeAsync(string Name)
         {
             var cohort = await _context.Cohorts
-                .FirstOrDefaultAsync(cohort => cohort.CourseCode == courseCode);
+                .FirstOrDefaultAsync(Cohort => Cohort.CourseCode == Name);
             
             return cohort?.ToDomain();
         }
@@ -35,7 +35,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var cohorts = await _context.Cohorts
                 .ToListAsync();
-            return cohorts.Select(p => p.ToDomain()).ToList();
+            return cohorts.Select(P => P.ToDomain()).ToList();
         }
 
     }

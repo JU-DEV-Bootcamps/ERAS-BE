@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
@@ -16,53 +10,50 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     public class StudentPollsRepository : BaseRepository<Poll, PollEntity>, IStudentPollsRepository
     {
 
-        public StudentPollsRepository(AppDbContext context)
-            : base(context, Mappers.PollMapper.ToDomain, Mappers.PollMapper.ToPersistence)
+        public StudentPollsRepository(AppDbContext Context)
+            : base(Context, Mappers.PollMapper.ToDomain, Mappers.PollMapper.ToPersistence)
         {
         }
 
-        public async Task<List<Poll>> GetPollsByStudentIdAsync(int studentId)
+        public async Task<List<Poll>> GetPollsByStudentIdAsync(int StudentId)
         {
-            var polls = _context.Polls
-                    .Where(p => p.PollVariables
-                        .Any(pv => pv.Answers
-                            .Any(a => a.PollInstance.StudentId == studentId)))
-                    .Select(p => new
+            var pollsAsync = await _context.Polls
+                .Where(P => P.PollVariables
+                    .Any(Pv => Pv.Answers
+                        .Any(A => A.PollInstance.StudentId == StudentId)))
+                .Select(P => new
+                {
+                    P.Id,
+                    P.Uuid,
+                    P.Name,
+                    P.Version
+                })
+                .Distinct()
+                .ToListAsync();
+            var polls = pollsAsync.Select(P => new PollEntity
+            {
+                Id = P.Id,
+                Uuid = P.Uuid,
+                Name = P.Name,
+                Version = P.Version,
+                PollVariables = _context.PollVariables
+                .Where(Pv => Pv.PollId == P.Id)
+                .Select(Pv => new PollVariableJoin
+                {
+                    Id = Pv.Id,
+                    Answers = Pv.Answers
+                    .Where(A => A.PollInstance.StudentId == StudentId)
+                    .Select(A => new AnswerEntity
                     {
-                        p.Id,
-                        p.Uuid,
-                        p.Name,
-                        p.Version
-                    })
-                    .Distinct()
-                    .ToList()
-                    .Select(p => new PollEntity
-                    {
-                        Id = p.Id,
-                        Uuid = p.Uuid,
-                        Name = p.Name,
-                        Version = p.Version,
-                        PollVariables = _context.PollVariables
-                            .Where(pv => pv.PollId == p.Id)
-                            .Select(pv => new PollVariableJoin
-                            {
-                                Id = pv.Id,
-                                Answers = pv.Answers
-                                    .Where(a => a.PollInstance.StudentId == studentId)
-                                    .Select(a => new AnswerEntity
-                                    {
-                                        Id = a.Id,
-                                        AnswerText = a.AnswerText,
-                                        PollInstanceId = a.PollInstanceId
-                                    })
-                                    .ToList()
-                            })
-                            .ToList()
-                    })
-                    .ToList();
+                        Id = A.Id,
+                        AnswerText = A.AnswerText,
+                        PollInstanceId = A.PollInstanceId
+                    }).ToList()
+                }).ToList()
+            }).ToList();
 
 
-            return polls.Select(p => p.ToDomain()).ToList();
+            return polls.Select(P => P.ToDomain()).ToList();
         }
     }
 }

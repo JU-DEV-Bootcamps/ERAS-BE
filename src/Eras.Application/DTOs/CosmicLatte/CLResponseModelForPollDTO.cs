@@ -11,19 +11,19 @@ namespace Eras.Application.DTOs.CL
 {
     public class AnswersListConverter : JsonConverter<string[]>
     {
-        public override string[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override string[] Read(ref Utf8JsonReader Reader, Type TypeToConvert, JsonSerializerOptions Options)
         {
-            if (reader.TokenType == JsonTokenType.StartArray)
+            if (Reader.TokenType == JsonTokenType.StartArray)
             {
                 var result = new List<string>();
-                while (reader.Read())
+                while (Reader.Read())
                 {
-                    if (reader.TokenType == JsonTokenType.EndArray)
+                    if (Reader.TokenType == JsonTokenType.EndArray)
                         break;
 
-                    if (reader.TokenType == JsonTokenType.String)
+                    if (Reader.TokenType == JsonTokenType.String)
                     {
-                        var value = reader.GetString();
+                        var value = Reader.GetString();
                         result.Add(value == "-" ? "Invalid string" : value);
                     }
                     else
@@ -33,9 +33,9 @@ namespace Eras.Application.DTOs.CL
                 }
                 return result.ToArray();
             }
-            else if (reader.TokenType == JsonTokenType.String)
+            else if (Reader.TokenType == JsonTokenType.String)
             {
-                var value = reader.GetString();
+                var value = Reader.GetString();
                 return new string[] { value };
             }
             throw new JsonException("An array or string was expected.");

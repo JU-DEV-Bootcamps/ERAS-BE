@@ -9,6 +9,6 @@ namespace Eras.Application.Contracts.Persistence
 {
     public interface IStudentAnswersRepository
     {
-        Task<List<StudentAnswer>> GetStudentAnswersAsync(int studentId, int pollId);
+        Task<List<StudentAnswer>> GetStudentAnswersAsync(int StudentId, int PollId);
     }
 }

@@ -1,4 +1,4 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,31 +6,31 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class VariableConfiguration : IEntityTypeConfiguration<VariableEntity>
     {
-        public void Configure(EntityTypeBuilder<VariableEntity> builder)
+        public void Configure(EntityTypeBuilder<VariableEntity> Builder)
         {
-            builder.ToTable("variables");
+            Builder.ToTable("variables");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
-            AuditConfiguration.Configure(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
+            AuditConfiguration.Configure(Builder);
         }
 
-        private void ConfigureColumns(EntityTypeBuilder<VariableEntity> builder)
+        private void ConfigureColumns(EntityTypeBuilder<VariableEntity> Builder)
         {
-            builder.HasKey(variable => variable.Id);
-            builder.Property(variable => variable.Name)
+            Builder.HasKey(Variable => Variable.Id);
+            Builder.Property(Variable => Variable.Name)
                 .HasColumnName("name")
                 .IsRequired();
-            builder.Property(variable => variable.ComponentId)
+            Builder.Property(Variable => Variable.ComponentId)
                 .HasColumnName("component_id")
                 .IsRequired();
         }
 
-        private void ConfigureRelationShips(EntityTypeBuilder<VariableEntity> builder)
+        private void ConfigureRelationShips(EntityTypeBuilder<VariableEntity> Builder)
         {
-            builder.HasOne(variable => variable.Component)
-                .WithMany(component => component.Variables)
-                .HasForeignKey(variable => variable.ComponentId)
+            Builder.HasOne(Variable => Variable.Component)
+                .WithMany(Component => Component.Variables)
+                .HasForeignKey(Variable => Variable.ComponentId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

@@ -1,39 +1,39 @@
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
     public static class StudentMapper
     {
-        public static Student ToDomain(this StudentEntity entity)
+        public static Student ToDomain(this StudentEntity Entity)
         {
 
-            ArgumentNullException.ThrowIfNull(entity);
-            StudentDetail stDetail = entity.StudentDetail != null? entity.StudentDetail.ToDomain() : new StudentDetail();
+            ArgumentNullException.ThrowIfNull(Entity);
+            StudentDetail stDetail = Entity.StudentDetail != null? Entity.StudentDetail.ToDomain() : new StudentDetail();
             return new Student
             {
-                Id = entity.Id,
-                Name = entity.Name,
+                Id = Entity.Id,
+                Name = Entity.Name,
                 StudentDetail = stDetail,
-                Email = entity.Email,
-                IsImported = entity.IsImported,
-                Uuid = entity.Uuid,
-                Audit = entity.Audit
+                Email = Entity.Email,
+                IsImported = Entity.IsImported,
+                Uuid = Entity.Uuid,
+                Audit = Entity.Audit
             };
         }
 
-        public static StudentEntity ToPersistence(this Student model)
+        public static StudentEntity ToPersistence(this Student Model)
         {
-            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(Model);
             return new StudentEntity
             {
-                Id = model.Id,
-                Name = model.Name,
-                StudentDetail = model.StudentDetail.ToPersistence(),
-                Email = model.Email,
-                IsImported = model.IsImported,
-                Uuid = model.Uuid,
-                Audit = model.Audit
+                Id = Model.Id,
+                Name = Model.Name,
+                StudentDetail = Model.StudentDetail.ToPersistence(),
+                Email = Model.Email,
+                IsImported = Model.IsImported,
+                Uuid = Model.Uuid,
+                Audit = Model.Audit
             };
         }
     }

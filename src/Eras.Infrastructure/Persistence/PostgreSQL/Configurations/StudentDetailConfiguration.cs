@@ -1,4 +1,4 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,49 +6,49 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class StudentDetailConfiguration : IEntityTypeConfiguration<StudentDetailEntity>
     {
-        public void Configure(EntityTypeBuilder<StudentDetailEntity> builder)
+        public void Configure(EntityTypeBuilder<StudentDetailEntity> Builder)
         {
-            builder.ToTable("student_details");
+            Builder.ToTable("student_details");
             
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
-            AuditConfiguration.Configure(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
+            AuditConfiguration.Configure(Builder);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<StudentDetailEntity> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<StudentDetailEntity> Builder)
         {
-            builder.HasKey(detail => detail.Id);
-            builder.Property(detail => detail.EnrolledCourses)
+            Builder.HasKey(Detail => Detail.Id);
+            Builder.Property(Detail => Detail.EnrolledCourses)
                 .HasColumnName("enrolled_courses")
                 .IsRequired();
-            builder.Property(detail => detail.GradedCourses)
+            Builder.Property(Detail => Detail.GradedCourses)
                 .HasColumnName("graded_courses")
                 .IsRequired();
-            builder.Property(detail => detail.TimeDeliveryRate)
+            Builder.Property(Detail => Detail.TimeDeliveryRate)
                 .HasColumnName("time_delivery_rate")
                 .IsRequired();
-            builder.Property(detail => detail.AvgScore)
+            Builder.Property(Detail => Detail.AvgScore)
                 .HasColumnName("avg_score")
                 .IsRequired();
-            builder.Property(detail => detail.CoursesUnderAvg)
+            Builder.Property(Detail => Detail.CoursesUnderAvg)
                 .HasColumnName("courses_under_avg")
                 .IsRequired();
-            builder.Property(detail => detail.PureScoreDiff)
+            Builder.Property(Detail => Detail.PureScoreDiff)
                 .HasColumnName("pure_score_diff")
                 .IsRequired();
-            builder.Property(detail => detail.StandardScoreDiff)
+            Builder.Property(Detail => Detail.StandardScoreDiff)
                 .HasColumnName("standard_score_diff")
                 .IsRequired();
-            builder.Property(detail => detail.LastAccessDays)
+            Builder.Property(Detail => Detail.LastAccessDays)
                 .HasColumnName("last_access_days")
                 .IsRequired();
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<StudentDetailEntity> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<StudentDetailEntity> Builder)
         {
-            builder.HasOne(detail => detail.Student)
-                .WithOne(student => student.StudentDetail)
-                .HasForeignKey<StudentDetailEntity>(detail => detail.StudentId)
+            Builder.HasOne(Detail => Detail.Student)
+                .WithOne(Student => Student.StudentDetail)
+                .HasForeignKey<StudentDetailEntity>(Detail => Detail.StudentId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

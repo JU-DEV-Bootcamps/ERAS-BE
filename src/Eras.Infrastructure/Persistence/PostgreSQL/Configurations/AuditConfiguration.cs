@@ -1,4 +1,4 @@
-using Eras.Domain.Common;
+﻿using Eras.Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,39 +6,39 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public static class AuditConfiguration
     {
-        public static void Configure<T>(EntityTypeBuilder<T> builder) 
+        public static void Configure<T>(EntityTypeBuilder<T> Builder)
             where T : class, IAuditableEntity
         {
-            builder.OwnsOne(entity => entity.Audit, audit =>
+            Builder.OwnsOne(Entity => Entity.Audit, Audit =>
             {
-                audit.Property(a => a.CreatedBy)
+                Audit.Property(A => A.CreatedBy)
                     .HasColumnName("created_by")
                     .IsRequired();
                 
-                audit.Property(a => a.ModifiedBy)
+                Audit.Property(A => A.ModifiedBy)
                     .HasColumnName("modified_by")
                     .IsRequired(false);
 
-                audit.Property(a => a.CreatedAt)
+                Audit.Property(A => A.CreatedAt)
                     .HasColumnName("created_at")
                     .HasConversion(
-                        valueToInsert => valueToInsert.ToUniversalTime(),
-                        valueToReturn => DateTime.SpecifyKind(
-                            valueToReturn,
+                        ValueToInsert => ValueToInsert.ToUniversalTime(),
+                        ValueToReturn => DateTime.SpecifyKind(
+                            ValueToReturn,
                             DateTimeKind.Utc
                         )
                     )
                     .IsRequired();
                     
-                audit.Property(a => a.ModifiedAt)
+                Audit.Property(A => A.ModifiedAt)
                     .HasColumnName("updated_at")
                     .HasConversion(
-                        valueToInsert => valueToInsert.HasValue 
-                            ? valueToInsert.Value.ToUniversalTime()
+                        ValueToInsert => ValueToInsert.HasValue
+                            ? ValueToInsert.Value.ToUniversalTime()
                             : (DateTime?)null,
-                        valueToReturn => valueToReturn.HasValue 
+                        ValueToReturn => ValueToReturn.HasValue
                             ? DateTime.SpecifyKind(
-                                valueToReturn.Value,
+                                ValueToReturn.Value,
                                 DateTimeKind.Utc
                             ) 
                             : (DateTime?)null

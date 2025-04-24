@@ -19,29 +19,29 @@ namespace Eras.Application.Features.Cohort.Commands.CreateCohort
         private readonly ICohortRepository _cohortRepository;
         private readonly ILogger<CreateCohortCommandHandler> _logger;
 
-        public CreateCohortCommandHandler(ICohortRepository cohortRepository, ILogger<CreateCohortCommandHandler> logger)
+        public CreateCohortCommandHandler(ICohortRepository CohortRepository, ILogger<CreateCohortCommandHandler> Logger)
         {
-            _cohortRepository = cohortRepository;
-            _logger = logger;
+            _cohortRepository = CohortRepository;
+            _logger = Logger;
         }
 
 
-        public async Task<CreateCommandResponse<Domain.Entities.Cohort>> Handle(CreateCohortCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Domain.Entities.Cohort>> Handle(CreateCohortCommand Request, CancellationToken CancellationToken)
         {
 
             try
             {
-                Domain.Entities.Cohort cohort = await _cohortRepository.GetByNameAsync(request.CohortDto.Name);
+                Domain.Entities.Cohort? cohort = await _cohortRepository.GetByNameAsync(Request.CohortDto.Name);
                 if (cohort != null)
                     return new CreateCommandResponse<Domain.Entities.Cohort>(cohort, 0, "Success", true);
-                Domain.Entities.Cohort cohortToCreate = request.CohortDto.ToDomain();
+                Domain.Entities.Cohort cohortToCreate = Request.CohortDto.ToDomain();
                 Domain.Entities.Cohort cohortCreated = await _cohortRepository.AddAsync(cohortToCreate);
                 return new CreateCommandResponse<Domain.Entities.Cohort>(cohortCreated, 1, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred creating cohort {request.CohortDto}: {ex.Message}");
-                return new CreateCommandResponse<Domain.Entities.Cohort>(null, 0, "Error", false);
+                _logger.LogError($"An error occurred creating cohort {Request.CohortDto}: {ex.Message}");
+                return new CreateCommandResponse<Domain.Entities.Cohort>(new Domain.Entities.Cohort(), 0, "Error", false);
             }
         }
     }

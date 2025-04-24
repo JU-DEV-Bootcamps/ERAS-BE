@@ -1,4 +1,4 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,48 +6,48 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class AnswerConfiguration : IEntityTypeConfiguration<AnswerEntity>
     {
-        public void Configure(EntityTypeBuilder<AnswerEntity> builder)
+        public void Configure(EntityTypeBuilder<AnswerEntity> Builder)
         {
-            builder.ToTable("answers");
+            Builder.ToTable("answers");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
-            ConfigureConstraints(builder);
-            AuditConfiguration.Configure(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
+            ConfigureConstraints(Builder);
+            AuditConfiguration.Configure(Builder);
         }
 
-        private void ConfigureColumns(EntityTypeBuilder<AnswerEntity> builder)
+        private void ConfigureColumns(EntityTypeBuilder<AnswerEntity> Builder)
         {
-            builder.HasKey(answer => answer.Id);
-            builder.Property(answer => answer.AnswerText)
+            Builder.HasKey(Answer => Answer.Id);
+            Builder.Property(Answer => Answer.AnswerText)
                 .HasColumnName("answer_text")
                 .IsRequired();
-            builder.Property(answer => answer.RiskLevel)
+            Builder.Property(Answer => Answer.RiskLevel)
                 .HasColumnName("risk_level")
                 .IsRequired();
-            builder.Property(answer => answer.PollInstanceId)
+            Builder.Property(Answer => Answer.PollInstanceId)
                 .HasColumnName("poll_instance_id")
                 .IsRequired();
-            builder.Property(answer => answer.PollVariableId)
+            Builder.Property(Answer => Answer.PollVariableId)
                 .HasColumnName("poll_variable_id")
                 .IsRequired();
         }
 
-        private void ConfigureRelationShips(EntityTypeBuilder<AnswerEntity> builder)
+        private void ConfigureRelationShips(EntityTypeBuilder<AnswerEntity> Builder)
         {
-            builder.HasOne(answer => answer.PollInstance)
-                .WithMany(pollInstance => pollInstance.Answers)
-                .HasForeignKey(answer => answer.PollInstanceId)
+            Builder.HasOne(Answer => Answer.PollInstance)
+                .WithMany(PollInstance => PollInstance.Answers)
+                .HasForeignKey(Answer => Answer.PollInstanceId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(answer => answer.PollVariable)
-                .WithMany(pollVariable => pollVariable.Answers)
-                .HasForeignKey(answer => answer.PollVariableId)
+            Builder.HasOne(Answer => Answer.PollVariable)
+                .WithMany(PollVariable => PollVariable.Answers)
+                .HasForeignKey(Answer => Answer.PollVariableId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        private void ConfigureConstraints(EntityTypeBuilder<AnswerEntity> builder)
+        private void ConfigureConstraints(EntityTypeBuilder<AnswerEntity> Builder)
         {
-            builder.HasAlternateKey(answer => new { answer.PollInstanceId, answer.PollVariableId, answer.AnswerText })
+            Builder.HasAlternateKey(Answer => new { Answer.PollInstanceId, Answer.PollVariableId, Answer.AnswerText })
                 .HasName("Unique_PollInstanceId_PollVariableId_AnswerText");
         }
     }

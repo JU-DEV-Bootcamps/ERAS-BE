@@ -1,4 +1,4 @@
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
@@ -11,22 +11,22 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     public class VariableRepository : BaseRepository<Variable, VariableEntity>, IVariableRepository
     {
 
-        public VariableRepository(AppDbContext context)
-            : base(context, VariableMapper.ToDomain, VariableMapper.ToPersistence)
+        public VariableRepository(AppDbContext Context)
+            : base(Context, VariableMapper.ToDomain, VariableMapper.ToPersistence)
         {
         }
 
-        public async Task<Variable?> GetByNameAsync(string name)
+        public async Task<Variable?> GetByNameAsync(string Name)
         {
             var variable = await _context.Variables
-                .FirstOrDefaultAsync(variable => variable.Name == name);
+                .FirstOrDefaultAsync(Variable => Variable.Name == Name);
 
             return variable?.ToDomain();
         }
-        public async Task<Variable> AddAsync(Variable variable)
+        public new async Task<Variable> AddAsync(Variable Variable)
         {
 
-            VariableEntity variableEntity = variable.ToPersistence();
+            VariableEntity variableEntity = Variable.ToPersistence();
             var response = await _context.Set<VariableEntity>().AddAsync(variableEntity);
             await _context.SaveChangesAsync();
 
@@ -37,17 +37,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return variableCreated;
         }
-        public Task<Variable> Add(Variable componentVariable)
+        public Task<Variable> Add(Variable ComponentVariable)
         {
             throw new NotImplementedException();
         }
 
-        public Task<List<Variable>> GetAllAsync(int pollId)
+        public Task<List<Variable>> GetAllAsync(int PollId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<Variable> GetComponentVariableByName(string name)
+        public Task<Variable> GetComponentVariableByName(string Name)
         {
             throw new NotImplementedException();
         }

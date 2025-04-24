@@ -19,15 +19,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private string _API_URL;
         private readonly HttpClient _httpClient;
 
-        public CosmicLatteHealthCheck(IConfiguration configuration, HttpClient httpClient)
+        public CosmicLatteHealthCheck(IConfiguration Configuration, HttpClient HttpClient)
         {
-            _API_KEY = configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found"); // this should be move to .env
-            _API_URL = configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found"); // this should be move to .env
-            _httpClient = httpClient;
+            _API_KEY = Configuration.GetSection("CosmicLatte:ApiKey").Value ?? throw new Exception("Cosmic latte api key not found"); // this should be move to .env
+            _API_URL = Configuration.GetSection("CosmicLatte:BaseUrl").Value ?? throw new Exception("Cosmic latte Url not found"); // this should be move to .env
+            _httpClient = HttpClient;
 
         }
 
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext Context, CancellationToken cancellationToken = default)
         {
             string path = _API_URL + _PATH_EVALUATION;
             var request = new HttpRequestMessage(HttpMethod.Get, path + "?$filter=contains(name,' ')");

@@ -11,20 +11,20 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     {
         protected readonly AppDbContext _context;
 
-        public HeatMapRespository(AppDbContext context)
+        public HeatMapRespository(AppDbContext Context)
         {
-            _context = context;
+            _context = Context;
         }
 
         public async Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> 
-            GetHeatMapDataByComponentsAsync(string pollUUID)
+            GetHeatMapDataByComponentsAsync(string PollUUID)
         {
             var query = from v in _context.Variables
                         join c in _context.Components on v.ComponentId equals c.Id
                         join pv in _context.Set<PollVariableJoin>() on v.Id equals pv.VariableId
                         join a in _context.Answers on pv.Id equals a.PollVariableId
                         join pi in _context.PollInstances on a.PollInstanceId equals pi.Id
-                        where pi.Uuid == pollUUID
+                        where pi.Uuid == PollUUID
                         select new GetHeatMapByComponentsQueryResponse
                         {
                             ComponentId = c.Id,
@@ -35,18 +35,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                             AnswerRiskLevel = a.RiskLevel
                         };
 
-            return await query.OrderBy(c => c.ComponentId)
-                              .ThenBy(v => v.VariableId)
-                              .ThenBy(a => a.AnswerText)
+            return await query.OrderBy(C => C.ComponentId)
+                              .ThenBy(V => V.VariableId)
+                              .ThenBy(A => A.AnswerText)
                               .ToListAsync();
         }
 
         public async Task<IEnumerable<GetHeatMapByComponentsQueryResponse>> 
-            GetHeatMapDataByCohortAndDaysAsync(int? cohortId, int? days)
+            GetHeatMapDataByCohortAndDaysAsync(int? CohortId, int? Days)
         {
-            var pollInstances = await GetPollInstancesByCohortIdAndLastDays(cohortId, days);
+            var pollInstances = await GetPollInstancesByCohortIdAndLastDaysAsync(CohortId, Days);
 
-            var pollInstanceIds = pollInstances.Select(pi => pi.Id).ToList();
+            var pollInstanceIds = pollInstances.Select(Pi => Pi.Id).ToList();
 
             var query = from v in _context.Variables
                         join c in _context.Components on v.ComponentId equals c.Id
@@ -64,34 +64,34 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                             AnswerRiskLevel = a.RiskLevel
                         };
 
-            return await query.OrderBy(c => c.ComponentId)
-                              .ThenBy(v => v.VariableId)
-                              .ThenBy(a => a.AnswerText)
+            return await query.OrderBy(C => C.ComponentId)
+                              .ThenBy(V => V.VariableId)
+                              .ThenBy(A => A.AnswerText)
                               .ToListAsync();
         }
 
         internal async Task<IEnumerable<PollInstanceEntity>> 
-            GetPollInstancesByCohortIdAndLastDays(int? cohortId, int? days)
+            GetPollInstancesByCohortIdAndLastDaysAsync(int? CohortId, int? Days)
         {
             IQueryable<PollInstanceEntity> query = _context.PollInstances
-                .Include(pi => pi.Student)
-                .Include(pi => pi.Answers);
+                .Include(Pi => Pi.Student)
+                .Include(Pi => Pi.Answers);
 
-            if (cohortId.HasValue && cohortId != 0)
+            if (CohortId.HasValue && CohortId != 0)
             {
                 query = query
                     .Join(_context.StudentCohorts,
-                        pollInstance => pollInstance.StudentId,
-                        studentCohort => studentCohort.StudentId,
-                        (pollInstance, studentCohort) => new { pollInstance, studentCohort })
-                    .Where(joined => joined.studentCohort.CohortId == cohortId.Value)
-                    .Select(joined => joined.pollInstance);
+                        PollInstance => PollInstance.StudentId,
+                        StudentCohort => StudentCohort.StudentId,
+                        (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort=StudentCohort })
+                    .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value)
+                    .Select(Joined => Joined.pollInstance);
             }
 
-            if (days.HasValue && days != 0)
+            if (Days.HasValue && Days != 0)
             {
-                var dateLimit = DateTime.UtcNow.AddDays(-days.Value);
-                query = query.Where(pi => pi.FinishedAt >= dateLimit);
+                var dateLimit = DateTime.UtcNow.AddDays(-Days.Value);
+                query = query.Where(Pi => Pi.FinishedAt >= dateLimit);
             }
 
             return await query.Distinct().ToListAsync();

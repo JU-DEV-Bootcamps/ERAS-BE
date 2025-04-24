@@ -1,4 +1,4 @@
-using Eras.Application.Contracts.Infrastructure;
+﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Services;
 using Eras.Infrastructure.External.CosmicLatteClient;
 using Eras.Infrastructure.External.KeycloakClient;
@@ -12,42 +12,42 @@ namespace Eras.Infrastructure
     public static class InfrastructureServiceRegistration
     {
         public static IServiceCollection AddInfrastructureServices(
-            this IServiceCollection services,
-            IConfiguration configuration)
+            this IServiceCollection Services,
+            IConfiguration Configuration)
         {
-            services.AddScoped<IKeycloakAuthService<TokenResponse>, KeycloakAuthService>();
-            services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
+            Services.AddScoped<IKeycloakAuthService<TokenResponse>, KeycloakAuthService>();
+            Services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
             
-            AddAuthentication(services, configuration);
+            AddAuthentication(Services, Configuration);
 
-            return services;
+            return Services;
         }
 
         private static void GetKeycloakConfiguration(
-            IConfiguration configuration,
-            out string? keycloakBaseUrl,
-            out string? keycloakRealm)
+            IConfiguration Configuration,
+            out string? KeycloakBaseUrl,
+            out string? KeycloakRealm)
         {
-            keycloakBaseUrl = Environment.GetEnvironmentVariable("KEYCLOAK_BASE_URL") ?? configuration["Keycloak:BaseUrl"];
-            keycloakRealm = Environment.GetEnvironmentVariable("KEYCLOAK_REALM") ?? configuration["Keycloak:Realm"];
+            KeycloakBaseUrl = Environment.GetEnvironmentVariable("KEYCLOAK_BASE_URL") ?? Configuration["Keycloak:BaseUrl"];
+            KeycloakRealm = Environment.GetEnvironmentVariable("KEYCLOAK_REALM") ?? Configuration["Keycloak:Realm"];
         }
 
-         private static void AddAuthentication(IServiceCollection services, IConfiguration configuration)
+        private static void AddAuthentication(IServiceCollection services, IConfiguration Configuration)
         {
             GetKeycloakConfiguration(
-                configuration,
+                Configuration,
                 out string? keycloakBaseUrl,
                 out string? keycloakRealm);
 
             services.AddAuthorization();
-            services.AddAuthentication(options =>
+            services.AddAuthentication(Options =>
             {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             })
-            .AddJwtBearer(options =>
+            .AddJwtBearer(Options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
+                Options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidIssuer = $"{keycloakBaseUrl}/realms/{keycloakRealm}",
@@ -58,10 +58,10 @@ namespace Eras.Infrastructure
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = false,
 
-                    IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+                    IssuerSigningKeyResolver = (Token, SecurityToken, Kid, Parameters) =>
                     {
                         var client = new HttpClient();
-                        var keyUri = $"{parameters.ValidIssuer}/protocol/openid-connect/certs";
+                        var keyUri = $"{Parameters.ValidIssuer}/protocol/openid-connect/certs";
                         var response = client.GetAsync(keyUri).Result;
                         var keys = new JsonWebKeySet(response.Content.ReadAsStringAsync().Result);
 
@@ -69,8 +69,8 @@ namespace Eras.Infrastructure
                     }
                 };
 
-                options.RequireHttpsMetadata = false; // Only in develop environment
-                options.SaveToken = true;
+                Options.RequireHttpsMetadata = false; // Only in develop environment
+                Options.SaveToken = true;
             });
         }
     }

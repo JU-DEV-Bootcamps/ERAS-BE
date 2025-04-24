@@ -15,7 +15,7 @@ namespace Eras.Application.DTOs.CL
         public List<DataItem> data { get; set; } = new List<DataItem>();
 
         [JsonPropertyName("@meta")]
-        public MetaAllEvaluations meta { get; set; }
+        public MetaAllEvaluations meta { get; set; } = new MetaAllEvaluations();
     }
 
     // level 1

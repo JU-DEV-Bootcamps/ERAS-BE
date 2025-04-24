@@ -11,15 +11,15 @@ namespace Eras.Application.DTOs.CosmicLatte
     {
 
         [JsonPropertyName("@data")]
-        public List<PollDataItem> data { get; set; }
+        public required List<PollDataItem> data { get; set; }
     }
     public class PollDataItem
     {
-        public PollDataItem(string parent, string name, string status)
+        public PollDataItem(string Parent, string Name, string Status)
         {
-            this.parent = parent;
-            this.name = name;
-            this.status = status;
+            this.parent = Parent;
+            this.name = Name;
+            this.status = Status;
         }
 
         [JsonPropertyName("parent")]

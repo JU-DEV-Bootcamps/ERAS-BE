@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    internal class EvaluationPollRepository(AppDbContext context) : BaseRepository<Evaluation, EvaluationPollJoin>(context, EvaluationPollMapper.ToDomain, EvaluationPollMapper.ToPersistence), IEvaluationPollRepository
+    internal class EvaluationPollRepository(AppDbContext Context) : BaseRepository<Evaluation, EvaluationPollJoin>(Context, EvaluationPollMapper.ToDomain, EvaluationPollMapper.ToPersistence), IEvaluationPollRepository
     {
     }
 }

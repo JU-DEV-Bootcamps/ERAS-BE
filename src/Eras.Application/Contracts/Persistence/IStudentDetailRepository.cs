@@ -1,9 +1,9 @@
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence
 {
     public interface IStudentDetailRepository : IBaseRepository<StudentDetail>
     {
-        Task<StudentDetail?> GetByStudentId(int studentId);
+        Task<StudentDetail?> GetByStudentId(int StudentId);
     }
 }

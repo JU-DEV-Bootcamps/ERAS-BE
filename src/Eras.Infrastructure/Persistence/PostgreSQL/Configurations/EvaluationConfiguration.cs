@@ -6,32 +6,32 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     internal class EvaluationConfiguration : IEntityTypeConfiguration<EvaluationEntity>
     {
-        public void Configure(EntityTypeBuilder<EvaluationEntity> builder)
+        public void Configure(EntityTypeBuilder<EvaluationEntity> Builder)
         {
-            builder.ToTable("evaluation");
+            Builder.ToTable("evaluation");
 
-            ConfigureColumns(builder);
-            AuditConfiguration.Configure(builder);
+            ConfigureColumns(Builder);
+            AuditConfiguration.Configure(Builder);
         }
 
-        private void ConfigureColumns(EntityTypeBuilder<EvaluationEntity> builder)
+        private void ConfigureColumns(EntityTypeBuilder<EvaluationEntity> Builder)
         {
-            builder.HasKey(evaluation => evaluation.Id);
-            builder.Property(evaluation => evaluation.Name)
+            Builder.HasKey(Evaluation => Evaluation.Id);
+            Builder.Property(Evaluation => Evaluation.Name)
                 .HasColumnName("name")
                 .IsRequired();
-            builder.Property(evaluation => evaluation.Status)
+            Builder.Property(Evaluation => Evaluation.Status)
                 .HasColumnName("status")
                 .IsRequired();
-            builder.Property(evaluation => evaluation.StartDate)
+            Builder.Property(Evaluation => Evaluation.StartDate)
                 .HasColumnName("start_date")
                 .IsRequired();
-            builder.Property(evaluation => evaluation.EndDate)
+            Builder.Property(Evaluation => Evaluation.EndDate)
                 .HasColumnName("end_date")
                 .IsRequired();
-            builder.Property(evaluation => evaluation.PollName)
+            Builder.Property(Evaluation => Evaluation.PollName)
                 .HasColumnName("poll_name");
-            builder.Property(evaluation => evaluation.Country)
+            Builder.Property(Evaluation => Evaluation.Country)
                 .HasColumnName("country");
         }
     }
