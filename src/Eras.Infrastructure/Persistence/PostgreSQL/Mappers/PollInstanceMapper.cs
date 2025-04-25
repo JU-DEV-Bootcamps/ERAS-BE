@@ -1,45 +1,45 @@
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
     public static class PollInstanceMapper
     {
-        public static PollInstance ToDomain(this PollInstanceEntity entity)
+        public static PollInstance ToDomain(this PollInstanceEntity Entity)
         {
             return new PollInstance
             {
-                Id = entity.Id,
-                Uuid = entity.Uuid,
-                Student = entity.Student?.ToDomain() ?? new Student(),
-                Answers = entity.Answers?.Select(ans => ans.ToDomain()).ToList() ?? [],
-                Audit = entity.Audit,
-                FinishedAt = entity.FinishedAt
-             
+                Id = Entity.Id,
+                Uuid = Entity.Uuid,
+                Student = Entity.Student?.ToDomain() ?? new Student(),
+                Answers = Entity.Answers?.Select(Ans => Ans.ToDomain()).ToList() ?? [],
+                Audit = Entity.Audit,
+                FinishedAt = Entity.FinishedAt
+
             };
         }
 
-        public static PollInstance ToSummaryDomain(this PollInstanceEntity entity)
+        public static PollInstance ToSummaryDomain(this PollInstanceEntity Entity)
         {
             return new PollInstance
             {
-                Id = entity.Id,
-                Uuid = entity.Uuid,
-                Student = entity.Student?.ToDomain() ?? new Student(),
-                FinishedAt = entity.FinishedAt,
-                Answers = [.. entity.Answers.Select(a => a.ToDomain())],
+                Id = Entity.Id,
+                Uuid = Entity.Uuid,
+                Student = Entity.Student?.ToDomain() ?? new Student(),
+                FinishedAt = Entity.FinishedAt,
+                Answers = [.. Entity.Answers.Select(A => A.ToDomain())],
             };
         }
 
-        public static PollInstanceEntity ToPersistence(this PollInstance model)
+        public static PollInstanceEntity ToPersistence(this PollInstance Model)
         {
             return new PollInstanceEntity
             {
-                Id = model.Id,
-                Uuid = model.Uuid,
-                StudentId = model.Student.Id,
-                Audit = model.Audit,
-                FinishedAt = model.FinishedAt                
+                Id = Model.Id,
+                Uuid = Model.Uuid,
+                StudentId = Model.Student != null ? Model.Student.Id : 0,
+                Audit = Model.Audit,
+                FinishedAt = Model.FinishedAt
             };
         }
     }

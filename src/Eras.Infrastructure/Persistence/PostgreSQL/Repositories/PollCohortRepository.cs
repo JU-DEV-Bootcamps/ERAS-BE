@@ -1,10 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Poll;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -12,55 +14,55 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     [ExcludeFromCodeCoverage]
     public class PollCohortRepository : BaseRepository<Poll, PollEntity>, IPollCohortRepository
     {
-        public PollCohortRepository(AppDbContext context)
-            : base(context, Mappers.PollMapper.ToDomain, Mappers.PollMapper.ToPersistence) { }
+        public PollCohortRepository(AppDbContext Context)
+            : base(Context, Mappers.PollMapper.ToDomain, Mappers.PollMapper.ToPersistence) { }
 
-        public async Task<List<Poll>> GetPollsByCohortIdAsync(int cohortId)
+        public async Task<List<Poll>> GetPollsByCohortIdAsync(int CohortId)
         {
             var polls = await _context
-                .Cohorts.Where(c => c.Id == cohortId)
+                .Cohorts.Where(C => C.Id == CohortId)
                 .Join(
                     _context.StudentCohorts,
-                    cohort => cohort.Id,
-                    studentCohort => studentCohort.CohortId,
-                    (cohort, studentCohort) => studentCohort
+                    Cohort => Cohort.Id,
+                    StudentCohort => StudentCohort.CohortId,
+                    (Cohort, StudentCohort) => StudentCohort
                 )
                 .Join(
                     _context.Students,
                     sc => sc.StudentId,
-                    student => student.Id,
-                    (sc, student) => student
+                    Student => Student.Id,
+                    (Sc, Student) => Student
                 )
                 .Join(
                     _context.PollInstances,
-                    student => student.Id,
-                    pollInstance => pollInstance.StudentId,
-                    (student, pollInstance) => pollInstance
+                    Student => Student.Id,
+                    PollInstance => PollInstance.StudentId,
+                    (Student, PollInstance) => PollInstance
                 )
                 .Join(
                     _context.Answers,
-                    pollInstance => pollInstance.Id,
-                    answer => answer.PollInstanceId,
-                    (pollInstance, answer) => answer
+                    PollInstance => PollInstance.Id,
+                    Answer => Answer.PollInstanceId,
+                    (PollInstance, Answer) => Answer
                 )
                 .Join(
                     _context.PollVariables,
-                    answer => answer.PollVariableId,
-                    pollVariable => pollVariable.Id,
-                    (answer, pollVariable) => pollVariable
+                    Answer => Answer.PollVariableId,
+                    PollVariable => PollVariable.Id,
+                    (Answer, PollVariable) => PollVariable
                 )
                 .Join(
                     _context.Polls,
-                    pollVariable => pollVariable.PollId,
-                    poll => poll.Id,
-                    (pollVariable, poll) => poll
+                    PollVariable => PollVariable.PollId,
+                    Poll => Poll.Id,
+                    (PollVariable, poll) => poll
                 )
                 .Distinct()
                 .ToListAsync();
-            return polls.Select(p => p.ToDomain()).ToList();
+            return polls.Select(P => P.ToDomain()).ToList();
         }
 
-        public async Task<List<PollVariableDto>> GetPollVariablesAsync(int pollId, int cohortId)
+        public async Task<List<PollVariableDto>> GetPollVariablesAsync(int PollId, int CohortId)
         {
             var query =
                 from pv in _context.PollVariables
@@ -69,7 +71,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 join pi in _context.PollInstances on a.PollInstanceId equals pi.Id
                 join sc in _context.StudentCohorts on pi.StudentId equals sc.StudentId
                 join c in _context.Cohorts on sc.CohortId equals c.Id
-                where pv.PollId == pollId && c.Id == cohortId
+                where pv.PollId == PollId && c.Id == CohortId
                 orderby pv.PollId, v.Id
                 select new PollVariableDto
                 {

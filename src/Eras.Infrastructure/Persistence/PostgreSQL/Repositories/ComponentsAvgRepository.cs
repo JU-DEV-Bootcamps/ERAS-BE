@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -12,39 +14,39 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     public class ComponentsAvgRepository : IComponentsAvgRepository
     {
         private readonly AppDbContext _context;
-        
-        public ComponentsAvgRepository(AppDbContext context)
+
+        public ComponentsAvgRepository(AppDbContext Context)
         {
-            _context = context;
+            _context = Context;
         }
 
-        public async Task<List<ComponentsAvg>> ComponentsAvgByStudent(int studentId, int pollId)
+        public async Task<List<ComponentsAvg>> ComponentsAvgByStudent(int StudentId, int PollId)
         {
             List<ComponentsAvg> result = await _context.Components
                                     .Join(_context.Variables,
-                                        c => c.Id,
-                                        v => v.ComponentId,
-                                        (c, v) => new { c, v })
+                                        C => C.Id,
+                                        V => V.ComponentId,
+                                        (C, V) => new { c = C, v = V })
                                     .Join(_context.PollVariables,
-                                        cv => cv.v.Id,
-                                        pv => pv.VariableId,
-                                        (cv, pv) => new { cv.c, cv.v, pv })
+                                        Cv => Cv.v.Id,
+                                        Pv => Pv.VariableId,
+                                        (Cv, Pv) => new { Cv.c, Cv.v, pv = Pv })
                                     .Join(_context.Answers,
-                                        cvpv => cvpv.pv.VariableId,
-                                        a => a.PollVariableId,
-                                        (cvpv, a) => new { cvpv.c, cvpv.pv, a })
+                                        Cvpv => Cvpv.pv.VariableId,
+                                        A => A.PollVariableId,
+                                        (Cvpv, A) => new { Cvpv.c, Cvpv.pv, a = A })
                                     .Join(_context.PollInstances,
-                                        temp => temp.a.PollInstanceId,
-                                        pi => pi.Id,
-                                        (temp, pi) => new { temp.c, temp.pv, temp.a, pi })
-                                    .Where(x => x.pi.StudentId == studentId && x.pv.PollId == pollId)
-                                    .GroupBy(x => new { x.c.Id, x.c.Name })
-                                    .Select(g => new ComponentsAvg
+                                        Temp => Temp.a.PollInstanceId,
+                                        Pi => Pi.Id,
+                                        (Temp, Pi) => new { Temp.c, Temp.pv, Temp.a, Pi })
+                                    .Where(X => X.Pi.StudentId == StudentId && X.pv.PollId == PollId)
+                                    .GroupBy(X => new { X.c.Id, X.c.Name })
+                                    .Select(G => new ComponentsAvg
                                     {
-                                        PollId = pollId,
-                                        ComponentId = g.Key.Id,
-                                        Name = g.Key.Name,
-                                        ComponentAvg = (float)g.Average(x => x.a.RiskLevel)
+                                        PollId = PollId,
+                                        ComponentId = G.Key.Id,
+                                        Name = G.Key.Name,
+                                        ComponentAvg = (float)G.Average(X => X.a.RiskLevel)
                                     })
                                     .ToListAsync();
             return result;

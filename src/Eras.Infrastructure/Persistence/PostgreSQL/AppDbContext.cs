@@ -1,5 +1,6 @@
 ﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
@@ -20,8 +21,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<EvaluationPollJoin> EvaluationPolls { get; set; }
         public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options)
+        public AppDbContext(DbContextOptions<AppDbContext> Options)
+            : base(Options)
         {
         }
 

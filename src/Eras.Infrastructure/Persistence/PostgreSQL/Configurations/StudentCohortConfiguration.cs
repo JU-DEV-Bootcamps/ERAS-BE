@@ -1,4 +1,5 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,34 +7,34 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class StudentCohortConfiguration : IEntityTypeConfiguration<StudentCohortJoin>
     {
-        public void Configure(EntityTypeBuilder<StudentCohortJoin> builder)
+        public void Configure(EntityTypeBuilder<StudentCohortJoin> Builder)
         {
-            builder.ToTable("student_cohort");
+            Builder.ToTable("student_cohort");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<StudentCohortJoin> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<StudentCohortJoin> Builder)
         {
-            builder.HasOne(studentCohort => studentCohort.Student)
-                .WithMany(student => student.StudentCohorts)
-                .HasForeignKey(studentCohort => studentCohort.StudentId)
+            Builder.HasOne(StudentCohort => StudentCohort.Student)
+                .WithMany(Student => Student.StudentCohorts)
+                .HasForeignKey(StudentCohort => StudentCohort.StudentId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(studentCohort => studentCohort.Cohort)
-                .WithMany(cohort => cohort.StudentCohorts)
-                .HasForeignKey(studentCohort => studentCohort.CohortId)
+            Builder.HasOne(StudentCohort => StudentCohort.Cohort)
+                .WithMany(Cohort => Cohort.StudentCohorts)
+                .HasForeignKey(StudentCohort => StudentCohort.CohortId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<StudentCohortJoin> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<StudentCohortJoin> Builder)
         {
 
-            builder.HasKey(studentCohort => studentCohort.Id);
-            builder.Property(studentCohort => studentCohort.StudentId)
+            Builder.HasKey(StudentCohort => StudentCohort.Id);
+            Builder.Property(StudentCohort => StudentCohort.StudentId)
                 .HasColumnName("student_id")
                 .IsRequired();
-            builder.Property(studentCohort => studentCohort.CohortId)
+            Builder.Property(StudentCohort => StudentCohort.CohortId)
                 .HasColumnName("cohort_id")
                 .IsRequired();
         }

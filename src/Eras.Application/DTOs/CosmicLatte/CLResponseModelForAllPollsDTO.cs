@@ -15,7 +15,7 @@ namespace Eras.Application.DTOs.CL
         public List<DataItem> data { get; set; } = new List<DataItem>();
 
         [JsonPropertyName("@meta")]
-        public MetaAllEvaluations meta { get; set; }
+        public MetaAllEvaluations meta { get; set; } = new MetaAllEvaluations();
     }
 
     // level 1
@@ -30,40 +30,40 @@ namespace Eras.Application.DTOs.CL
     public class DataItem
     {
         [JsonPropertyName("_id")]
-        public string _id { get; set; }
+        public string Id { get; set; }
 
         [JsonPropertyName("name")]
-        public string name { get; set; }
+        public required string name { get; set; }
 
         [JsonPropertyName("parent")]
-        public string parent { get; set; }
+        public required string parent { get; set; }
 
         [JsonPropertyName("configuration")]
-        public Configuration configuration { get; set; }
+        public required Configuration configuration { get; set; }
 
         [JsonPropertyName("access")]
-        public string access { get; set; }
+        public required string access { get; set; }
 
         [JsonPropertyName("inventoryKey")]
-        public string inventoryKey { get; set; }
+        public required string inventoryKey { get; set; }
 
         [JsonPropertyName("inventoryAccess")]
-        public string inventoryAccess { get; set; }
+        public required string inventoryAccess { get; set; }
 
         [JsonPropertyName("inventoryId")]
-        public string inventoryId { get; set; }
+        public required string inventoryId { get; set; }
 
         [JsonPropertyName("owner")]
-        public string owner { get; set; }
+        public required string owner { get; set; }
 
         [JsonPropertyName("customFieldsSchema")]
-        public List<string> customFieldsSchema { get; set; }
+        public required List<string> customFieldsSchema { get; set; }
 
         [JsonPropertyName("_tenantName")]
-        public string _tenantName { get; set; }
+        public required string TenantName { get; set; }
 
         [JsonPropertyName("changeHistory")]
-        public List<ChangeHistoryItem> changeHistory { get; set; }
+        public required List<ChangeHistoryItem> changeHistory { get; set; }
 
         [JsonPropertyName("createdAt")]
         public DateTime createdAt { get; set; }
@@ -72,13 +72,13 @@ namespace Eras.Application.DTOs.CL
         public DateTime updatedAt { get; set; }
 
         [JsonPropertyName("customFields")]
-        public List<string> customFields { get; set; }
+        public required List<string> customFields { get; set; }
 
         [JsonPropertyName("status")]
-        public string status { get; set; }
+        public required string status { get; set; }
 
         [JsonPropertyName("accessToken")]
-        public string accessToken { get; set; }
+        public required string accessToken { get; set; }
 
         [JsonPropertyName("startedAt")]
         public DateTime startedAt { get; set; }
@@ -90,7 +90,7 @@ namespace Eras.Application.DTOs.CL
         public DateTime finishedAt { get; set; }
 
         [JsonPropertyName("score")]
-        public Score score { get; set; }
+        public required Score score { get; set; }
     }
 
     // level 2
@@ -102,26 +102,26 @@ namespace Eras.Application.DTOs.CL
     public class ChangeHistoryItem
     {
         [JsonPropertyName("action")]
-        public string action { get; set; }
+        public required string action { get; set; }
 
         [JsonPropertyName("when")]
         public DateTime when { get; set; }
 
         [JsonPropertyName("userId")]
-        public string userId { get; set; }
+        public required string userId { get; set; }
 
         [JsonPropertyName("ipAddress")]
-        public string ipAddress { get; set; }
+        public required string ipAddress { get; set; }
     }
 
     // level 3
     public class Score
     {
         [JsonPropertyName("byPosition")]
-        public List<ByPosition> byPosition { get; set; }
+        public required List<ByPosition> byPosition { get; set; }
 
         [JsonPropertyName("byTrait")]
-        public ByTrait byTrait { get; set; }
+        public required ByTrait byTrait { get; set; }
     }
 
     // level 4
@@ -136,21 +136,21 @@ namespace Eras.Application.DTOs.CL
     public class ByTrait
     {
         [JsonExtensionData]
-        public Dictionary<string, JsonElement> traits { get; set; }
+        public required Dictionary<string, JsonElement> traits { get; set; }
 
 
-        private static Dictionary<string, TraitData> DeserializeTraits(Dictionary<string, JsonElement> traits)
+        private static Dictionary<string, TraitData> DeserializeTraits(Dictionary<string, JsonElement> Traits)
         {
             var result = new Dictionary<string, TraitData>();
 
-            foreach (var kvp in traits)
+            foreach (var kvp in Traits)
             {
-                TraitData traitData = kvp.Value.Deserialize<TraitData>(new JsonSerializerOptions
+                TraitData? traitData = kvp.Value.Deserialize<TraitData>(new JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true
                 });
-
-                result[kvp.Key] = traitData;
+                if (traitData != null)
+                    result[kvp.Key] = traitData;
             }
 
             return result;
@@ -185,7 +185,7 @@ namespace Eras.Application.DTOs.CL
         public int Count { get; set; }
         public int Min { get; set; }
         public int Max { get; set; }
-        public Dictionary<string, Facet> Facets { get; set; }
+        public required Dictionary<string, Facet> Facets { get; set; }
     }
 
     public class Facet
@@ -193,7 +193,7 @@ namespace Eras.Application.DTOs.CL
         public int Sum { get; set; }
         public double Avg { get; set; }
         public int Count { get; set; }
-        public List<ScoreDetail> Scores { get; set; }
+        public required List<ScoreDetail> Scores { get; set; }
     }
 
     public class ScoreDetail
@@ -201,35 +201,4 @@ namespace Eras.Application.DTOs.CL
         public int Score { get; set; }
         public int Position { get; set; }
     }
-
-
-
-    /*
-    // level 5
-    public class Facet
-    {
-        [JsonPropertyName("facets")]
-        public Dictionary<string, FacetValue> facets { get; set; }
-    }
-    public class FacetValue
-    {
-        [JsonPropertyName("sum")]
-        public int sum { get; set; }
-
-        [JsonPropertyName("avg")]
-        public double avg { get; set; }
-
-        [JsonPropertyName("count")]
-        public int count { get; set; }
-
-        [JsonPropertyName("min")]
-        public int min { get; set; }
-
-        [JsonPropertyName("max")]
-        public int max { get; set; }
-
-        [JsonPropertyName("scores")]
-        public List<FacetValue> scores { get; set; }
-    }
-    */
 }
