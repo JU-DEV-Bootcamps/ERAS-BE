@@ -27,7 +27,8 @@ public class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, 
         {
             throw new NotFoundException($"Poll instance ID cannot be null or empty");
         }
-        try {
+        try
+        {
             IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse> answersPercentage = await _heatMapRepository.GetHeatMapAnswersPercentageByVariableAsync(Request.PollInstanceUUID);
 
             HeatMapSummaryResponseVm mappedData = HeatMapMapper.MapToSummaryAndPercentageVmResponse(answersPercentage);
