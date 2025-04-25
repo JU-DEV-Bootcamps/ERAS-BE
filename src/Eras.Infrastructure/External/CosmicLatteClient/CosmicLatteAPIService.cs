@@ -116,13 +116,13 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(validatedEvaluations[0]);
 
-            List<ComponentDTO> componentsAndVariables = GetComponentsAndVariablesAsync(validatedEvaluations[0]._id, variablesPositionByComponents).Result;
+            List<ComponentDTO> componentsAndVariables = GetComponentsAndVariablesAsync(validatedEvaluations[0].Id, variablesPositionByComponents).Result;
 
             if (componentsAndVariables.Count > 0)
             {
                 foreach (var responseToPollInstace in apiResponse.data)
                 {
-                    ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstanceAsync(componentsAndVariables, responseToPollInstace._id, responseToPollInstace.score);
+                    ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstanceAsync(componentsAndVariables, responseToPollInstace.Id, responseToPollInstace.score);
 
                     if (populatedComponents.Count > 0)
                     {

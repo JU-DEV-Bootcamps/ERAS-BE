@@ -65,7 +65,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 EndDate = Entity.EndDate,
                 Audit = Entity.Audit,
                 Polls = [.. evaluationPolls.Where(Ep => Ep.EvaluationId == Entity.Id).Select(Ep => PollMapper.ToDomain(Ep.Poll))],
-                PollInstances = [.. pollInstances.Where(Pi => evaluationPolls.Any( Ep => Ep.Poll.Uuid == Pi.Uuid && Ep.EvaluationId == Entity.Id)).Select(Pi => PollInstanceMapper.ToDomain(Pi))]
+                PollInstances = [.. pollInstances.Where(Pi => evaluationPolls.Any(Ep => Ep.Poll.Uuid == Pi.Uuid && Ep.EvaluationId == Entity.Id)).Select(Pi => PollInstanceMapper.ToDomain(Pi))]
             })];
         }
     }

@@ -24,7 +24,7 @@ namespace Eras.Application.Features.Cohort.Queries.GetCohortsList
             _logger = Logger;
         }
 
-        public async Task<List<Domain.Entities.Cohort>> Handle(GetCohortsListQuery Request, CancellationToken cancellationToken)
+        public async Task<List<Domain.Entities.Cohort>> Handle(GetCohortsListQuery Request, CancellationToken CancellationToken)
         {
             var listOfCohorts = await _repository.GetCohortsAsync();
             return listOfCohorts;
