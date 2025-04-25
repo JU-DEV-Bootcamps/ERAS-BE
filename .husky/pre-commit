@@ -66,6 +66,16 @@ else
   echo "No formatting issues detected."
 fi
 
+echo "Building project with warnings as errors..."
+BUILD_OUTPUT=$(dotnet build -warnaserror 2>&1 || true)
+# Filter build output for warnings related to changed files
+WARNINGS=$(echo "$BUILD_OUTPUT" | grep -F -f <(echo $CHANGED_FILES | tr ' ' '\n'))
+if [ -n "$WARNINGS" ]; then
+echo -e "\e[33mBuild warnings detected in changed files:\e[0m"
+echo "$WARNINGS"
+BUILD_FAILED=1
+fi
+
 if [ "$BUILD_FAILED" -eq 1 ]; then
   echo -e "\e[31mCommit aborted due to build warnings in changed files.\e[0m"
   exit 1
