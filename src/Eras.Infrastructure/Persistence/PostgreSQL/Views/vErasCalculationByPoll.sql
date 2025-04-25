@@ -41,7 +41,8 @@ RiskAverageByVariable AS (
 RiskCountByPollInstance AS (
     SELECT
         a.poll_instance_id,
-        s."name",
+        s."name" AS student_name,
+        s."email" AS student_email,
         SUM(a.risk_level) AS poll_instance_risk_sum,
         COUNT(a.risk_level) AS poll_instance_answers_count
     FROM
@@ -49,7 +50,7 @@ RiskCountByPollInstance AS (
     join poll_instances pi2 on pi2."Id"  = a.poll_instance_id
     join students s on s."Id" = pi2."StudentId"
     GROUP BY
-        a.poll_instance_id, s."name"
+        a.poll_instance_id, s."name", s."email"
 )
 SELECT
     p."uuid" AS poll_uuid,
@@ -58,7 +59,8 @@ SELECT
     v."name" AS question,
     pc.answer_text,
     a.poll_instance_id,
-    rcbi."name",
+    rcbi.student_name,
+    rcbi.student_email,
     a.risk_level AS answer_risk,
     rcbi.poll_instance_risk_sum,
     rcbi.poll_instance_answers_count,
@@ -77,6 +79,6 @@ JOIN RiskAverageByComponent rac ON c."name" = rac.component_name
 JOIN RiskAverageByVariable rav ON v."Id" = rav.variable_id
 JOIN RiskCountByPollInstance rcbi ON a.poll_instance_id = rcbi.poll_instance_id
 GROUP BY
-    poll_uuid, component_name, pc.poll_variable_id, question, pc.answer_text, a.poll_instance_id, rcbi."name", pc.answer_count, pc.answer_percentage, rcbi.poll_instance_risk_sum, rcbi.poll_instance_answers_count , rac.average_risk, rav.average_risk, c."name", a.risk_level
+    poll_uuid, component_name, pc.poll_variable_id, question, pc.answer_text, a.poll_instance_id, pc.answer_count, pc.answer_percentage, rcbi.poll_instance_risk_sum, rcbi.poll_instance_answers_count , rac.average_risk, rav.average_risk, c."name", a.risk_level, rcbi.student_name, rcbi.student_email
 ORDER BY
     pc.poll_variable_id, pc.answer_percentage DESC;

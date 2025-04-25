@@ -165,7 +165,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                                 PollVariableId = Calc.PollVariableId,
                                 Name = Calc.Question,
                                 AnswerText = Calc.AnswerText,
-                                Percentage = Calc.Percentage,
+                                Percentage = Calc.AnswerPercentage,
                                 VariableAverageRisk = Calc.VariableAverageRisk
                             })
                             .Distinct()

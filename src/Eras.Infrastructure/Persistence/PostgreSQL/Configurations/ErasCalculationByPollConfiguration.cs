@@ -1,63 +1,58 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Models.Views;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
 public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasCalculationsByPollEntity>
 {
-    public void Configure(EntityTypeBuilder<ErasCalculationsByPollEntity> builder)
+    public void Configure(EntityTypeBuilder<ErasCalculationsByPollEntity> Builder)
     {
-        builder.ToView("verascalculationbypoll");
+        Builder.ToView("verascalculationbypoll");
 
-        builder.HasNoKey();
+        Builder.HasNoKey();
 
-        builder.Property(a => a.PollUuid)
+        Builder.Property(A => A.PollUuid)
             .HasColumnName("poll_uuid");
 
-        builder.Property(a => a.ComponentName)
+        Builder.Property(A => A.ComponentName)
             .HasColumnName("component_name");
 
-        builder.Property(a => a.PollVariableId)
+        Builder.Property(A => A.PollVariableId)
             .HasColumnName("poll_variable_id");
 
-        builder.Property(a => a.Question)
+        Builder.Property(A => A.Question)
             .HasColumnName("question");
 
-        builder.Property(a => a.AnswerText)
+        Builder.Property(A => A.AnswerText)
             .HasColumnName("answer_text");
 
-        builder.Property(a => a.PollInstanceId)
+        Builder.Property(A => A.PollInstanceId)
             .HasColumnName("poll_instance_id");
 
-        builder.Property(a => a.Name)
-            .HasColumnName("name");
+        Builder.Property(A => A.StudentName)
+            .HasColumnName("student_name");
 
-        builder.Property(a => a.RiskSum)
-            .HasColumnName("risk_sum");
+        Builder.Property(A => A.StudentEmail)
+            .HasColumnName("student_email");
 
-        builder.Property(a => a.RiskCount)
-            .HasColumnName("risk_count");
+        Builder.Property(A => A.AnswerRisk)
+            .HasColumnName("answer_risk");
 
-        builder.Property(a => a.AverageRisk)
-            .HasColumnName("average_risk");
+        Builder.Property(A => A.PollInstanceRiskSum)
+            .HasColumnName("poll_instance_answer_count");
 
-        builder.Property(a => a.VariableAverageRisk)
+        Builder.Property(A => A.ComponentAverageRisk)
+            .HasColumnName("component_average_risk");
+
+        Builder.Property(A => A.VariableAverageRisk)
             .HasColumnName("variable_average_risk");
 
-        builder.Property(a => a.AnswerCount)
+        Builder.Property(A => A.AnswerCount)
             .HasColumnName("answer_count");
 
-        builder.Property(a => a.Percentage)
-            .HasColumnName("percentage");
+        Builder.Property(A => A.AnswerPercentage)
+            .HasColumnName("answer_percentage");
 
 
     }
 }
-

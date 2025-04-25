@@ -1,23 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Eras.Application.DTOs.Views;
+﻿namespace Eras.Application.DTOs.Views;
 public class ErasCalculationsByPollDTO
 {
-    public string PollUuid { get; set; }
-    public string ComponentName { get; set; }
+    public required string PollUuid { get; set; }
+    public required string ComponentName { get; set; }
     public int PollVariableId { get; set; }
-    public string Question { get; set; }
-    public string AnswerText { get; set; }
+    public required string Question { get; set; }
+    public required string AnswerText { get; set; }
     public int PollInstanceId { get; set; }
-    public string Name { get; set; }
-    public int RiskSum { get; set; }
-    public int RiskCount { get; set; }
-    public decimal AverageRisk { get; set; }
+    public required string StudentName { get; set; }
+    public required string StudentEmail { get; set; }
+    public int AnswerRisk { get; set; }
+    public int PollInstanceRiskSum { get; set; }
+    public int PollInstanceAnswersCount { get; set; }
+    public decimal ComponentAverageRisk { get; set; }
     public decimal VariableAverageRisk { get; set; }
     public int AnswerCount { get; set; }
-    public decimal Percentage { get; set; }
+    public decimal AnswerPercentage { get; set; }
 }
