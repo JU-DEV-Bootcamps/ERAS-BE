@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {

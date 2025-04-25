@@ -1,10 +1,11 @@
-﻿using Eras.Domain.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
@@ -17,7 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Id = PollVariableJoin.VariableId,
                 IdPoll = PollVariableJoin.PollId,
                 IdComponent = PollVariableJoin.Variable.ComponentId,
-                PollVariableId = PollVariableJoin.Id 
+                PollVariableId = PollVariableJoin.Id
 
             };
         }
@@ -27,7 +28,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 VariableId = Variable.Id,
                 PollId = Variable.IdPoll,
-                
+
             };
         }
     }

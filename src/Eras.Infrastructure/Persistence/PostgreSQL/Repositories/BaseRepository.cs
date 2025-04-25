@@ -1,12 +1,14 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
     [ExcludeFromCodeCoverage]
-    public class BaseRepository<TDomain, TPersist> : IBaseRepository<TDomain> 
+    public class BaseRepository<TDomain, TPersist> : IBaseRepository<TDomain>
         where TDomain : class
         where TPersist : class
     {
@@ -28,7 +30,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var response = await _context.Set<TPersist>().AddAsync(_toPersistence(Entity));
             await _context.SaveChangesAsync();
-            
+
             return _toDomain(response.Entity);
         }
         public async Task DeleteAsync(TDomain Entity)
@@ -42,7 +44,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var persistenceEntity = await _context.Set<TPersist>().FindAsync(Id);
 
 
-            return persistenceEntity != null 
+            return persistenceEntity != null
                 ? _toDomain(persistenceEntity)
                 : null;
         }
@@ -59,7 +61,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize)
                 .ToListAsync();
-            
+
             return persistenceEntity.Select(Entity => _toDomain(Entity));
         }
         public async Task<int> CountAsync()
@@ -71,7 +73,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             _context.Set<TPersist>().Update(_toPersistence(Entity));
             await _context.SaveChangesAsync();
-            
+
             return Entity;
         }
     }

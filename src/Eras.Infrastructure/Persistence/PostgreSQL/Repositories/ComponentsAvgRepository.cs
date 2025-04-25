@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -12,7 +14,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     public class ComponentsAvgRepository : IComponentsAvgRepository
     {
         private readonly AppDbContext _context;
-        
+
         public ComponentsAvgRepository(AppDbContext Context)
         {
             _context = Context;
@@ -24,15 +26,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                                     .Join(_context.Variables,
                                         C => C.Id,
                                         V => V.ComponentId,
-                                        (C, V) => new { c= C, v = V })
+                                        (C, V) => new { c = C, v = V })
                                     .Join(_context.PollVariables,
                                         Cv => Cv.v.Id,
                                         Pv => Pv.VariableId,
-                                        (Cv, Pv) => new { Cv.c, Cv.v, pv= Pv })
+                                        (Cv, Pv) => new { Cv.c, Cv.v, pv = Pv })
                                     .Join(_context.Answers,
                                         Cvpv => Cvpv.pv.VariableId,
                                         A => A.PollVariableId,
-                                        (Cvpv, A) => new { Cvpv.c, Cvpv.pv, a=A })
+                                        (Cvpv, A) => new { Cvpv.c, Cvpv.pv, a = A })
                                     .Join(_context.PollInstances,
                                         Temp => Temp.a.PollInstanceId,
                                         Pi => Pi.Id,

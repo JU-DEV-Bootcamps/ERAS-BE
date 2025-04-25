@@ -2,7 +2,9 @@
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -34,7 +36,7 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
             }
             catch (DbUpdateException ex)
             {
-                if (ex.InnerException!=null)
+                if (ex.InnerException != null)
                 {
                     _logger.LogError(ex.InnerException.Message, "Create error on Answer");
                 }

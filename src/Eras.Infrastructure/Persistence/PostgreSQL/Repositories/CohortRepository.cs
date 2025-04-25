@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -19,7 +21,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var cohort = await _context.Cohorts
                 .FirstOrDefaultAsync(Cohort => Cohort.Name == Name);
-            
+
             return cohort?.ToDomain();
         }
 
@@ -27,7 +29,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var cohort = await _context.Cohorts
                 .FirstOrDefaultAsync(Cohort => Cohort.CourseCode == Name);
-            
+
             return cohort?.ToDomain();
         }
 

@@ -1,4 +1,5 @@
 ﻿using Eras.Domain.Common;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,7 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 Audit.Property(A => A.CreatedBy)
                     .HasColumnName("created_by")
                     .IsRequired();
-                
+
                 Audit.Property(A => A.ModifiedBy)
                     .HasColumnName("modified_by")
                     .IsRequired(false);
@@ -29,7 +30,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                         )
                     )
                     .IsRequired();
-                    
+
                 Audit.Property(A => A.ModifiedAt)
                     .HasColumnName("updated_at")
                     .HasConversion(
@@ -40,7 +41,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                             ? DateTime.SpecifyKind(
                                 ValueToReturn.Value,
                                 DateTimeKind.Utc
-                            ) 
+                            )
                             : (DateTime?)null
                     )
                     .IsRequired(false);

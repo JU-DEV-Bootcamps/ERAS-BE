@@ -1,16 +1,18 @@
-﻿using Eras.Application.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+
+using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
 using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
 
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
@@ -98,7 +100,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             try
             {
                 apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody);
-                if(apiResponse == null)
+                if (apiResponse == null)
                     throw new InvalidCastException("Unable to deserialize response from cosmic latte");
             }
             catch (Exception ex)
@@ -116,7 +118,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             List<ComponentDTO> componentsAndVariables = GetComponentsAndVariablesAsync(validatedEvaluations[0]._id, variablesPositionByComponents).Result;
 
-            if (componentsAndVariables.Count > 0) {
+            if (componentsAndVariables.Count > 0)
+            {
                 foreach (var responseToPollInstace in apiResponse.data)
                 {
                     ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstanceAsync(componentsAndVariables, responseToPollInstace._id, responseToPollInstace.score);
@@ -191,7 +194,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 {
                     foreach (ComponentDTO component in clonedListComponents)
                     {
-                        foreach(VariableDTO variable in component.Variables)
+                        foreach (VariableDTO variable in component.Variables)
                         {
                             if (variable.Position == answerCL.Value.Position)
                             {
@@ -278,7 +281,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         public StudentDTO CreateStudent(string Name, string Email, string Cohort)
         {
             StudentDTO studentDTO = new StudentDTO { Name = Name, Email = Email, Uuid = null };
-            CohortDTO cohortDTO = new CohortDTO() { Name = Cohort};
+            CohortDTO cohortDTO = new CohortDTO() { Name = Cohort };
             studentDTO.Cohort = cohortDTO;
             return studentDTO;
         }
@@ -324,7 +327,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 List<PollDataItem> pollsData = [.. apiResponse.data.Select(Poll => new PollDataItem(Poll.parent, Poll.name, Poll.status))];
                 return pollsData;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 throw new InvalidCastException($"Invalid Cosmic Latte poll, not supported for this version. {e.Message}");
             }

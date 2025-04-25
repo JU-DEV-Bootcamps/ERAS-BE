@@ -1,5 +1,6 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;

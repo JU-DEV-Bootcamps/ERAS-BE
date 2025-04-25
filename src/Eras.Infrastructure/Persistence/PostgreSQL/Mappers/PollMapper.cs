@@ -3,7 +3,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
-    public static class PollMapper 
+    public static class PollMapper
     {
         public static Poll ToDomain(this PollEntity Entity)
         {

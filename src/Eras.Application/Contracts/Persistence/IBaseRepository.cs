@@ -9,6 +9,6 @@
         Task DeleteAsync(T Entity);
         Task<T> UpdateAsync(T Entity);
         Task<int> CountAsync();
-        
+
     }
 }

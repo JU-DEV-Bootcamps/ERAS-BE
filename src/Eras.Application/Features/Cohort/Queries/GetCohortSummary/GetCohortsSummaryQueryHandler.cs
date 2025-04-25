@@ -1,6 +1,8 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Cohort.Queries

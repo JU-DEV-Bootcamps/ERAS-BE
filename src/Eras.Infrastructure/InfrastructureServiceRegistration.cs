@@ -2,6 +2,7 @@
 using Eras.Application.Services;
 using Eras.Infrastructure.External.CosmicLatteClient;
 using Eras.Infrastructure.External.KeycloakClient;
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,7 +18,7 @@ namespace Eras.Infrastructure
         {
             Services.AddScoped<IKeycloakAuthService<TokenResponse>, KeycloakAuthService>();
             Services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
-            
+
             AddAuthentication(Services, Configuration);
 
             return Services;

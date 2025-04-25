@@ -9,7 +9,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
         {
 
             ArgumentNullException.ThrowIfNull(Entity);
-            StudentDetail stDetail = Entity.StudentDetail != null? Entity.StudentDetail.ToDomain() : new StudentDetail();
+            StudentDetail stDetail = Entity.StudentDetail != null ? Entity.StudentDetail.ToDomain() : new StudentDetail();
             return new Student
             {
                 Id = Entity.Id,
