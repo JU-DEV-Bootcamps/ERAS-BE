@@ -1,6 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+ 
 using Microsoft.EntityFrameworkCore;
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
 public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasCalculationsByPollEntity>

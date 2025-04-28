@@ -2,8 +2,6 @@
 
 namespace Eras.Application.Models.Response.HeatMap;
 
-[Obsolete("This class is deprecated. Use ErasCalculationsByPoll instead.")]
-
 public class GetHeatMapByComponentsQueryResponse
 {
     [Column("component_id")]

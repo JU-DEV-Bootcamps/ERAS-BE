@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eras.Application.Models.Response.HeatMap;
-[Obsolete("This class is deprecated. Use ErasCalculationsByPoll instead.")]
 public class GetHeatMapAnswersPercentageByVariableQueryResponse
 {
     [Column("component_name")]
