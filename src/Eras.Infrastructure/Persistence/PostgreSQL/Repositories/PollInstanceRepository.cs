@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.DTOs.Views;
 using Eras.Application.Models.Consolidator;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
@@ -62,54 +63,66 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return [.. pollInstances.Select(PollInstanceMapper.ToDomain)];
     }
 
-    public async Task<AvgReportResponseVm> GetAnswersByPollInstanceUuidAsync(
-    string PollUuid, string CohortId)
+    public async Task<AvgReportResponseVm> GetReportByPollCohortAsync(
+    string PollUuid, int CohortId)
     {
-        if (!int.TryParse(CohortId, out var cohortInt))
+        List<string> emailsInCohort = await _context.StudentCohorts
+            .Where(SC => SC.CohortId == 0 || SC.CohortId == CohortId)
+            .Join(_context.Students,
+                SC => SC.StudentId,
+                S => S.Id,
+                (SC, S) => new { SC, S })
+            .Select(SC => SC.S.Email)
+            .ToListAsync();
+
+        IQueryable<ErasCalculationsByPollDTO> reportQuery = from A in _context.ErasCalculationsByPoll
+        where A.PollUuid == PollUuid
+        where emailsInCohort.Contains(A.StudentEmail)
+        select new ErasCalculationsByPollDTO
         {
-            throw new ArgumentException("Invalid cohort Id format", nameof(CohortId));
-        }
+            PollUuid = A.PollUuid,
+            ComponentName = A.ComponentName,
+            PollVariableId = A.PollVariableId,
+            Question = A.Question,
+            AnswerText = A.AnswerText,
+            PollInstanceId = A.PollInstanceId,
+            StudentName = A.StudentName,
+            StudentEmail = A.StudentEmail,
+            AnswerRisk = A.AnswerRisk,
+            PollInstanceRiskSum = A.PollInstanceRiskSum,
+            PollInstanceAnswersCount = A.PollInstanceAnswersCount,
+            ComponentAverageRisk = A.ComponentAverageRisk,
+            VariableAverageRisk = A.VariableAverageRisk,
+            AnswerCount = A.AnswerCount,
+            AnswerPercentage = A.AnswerPercentage
+        };
 
-        var query =
-            from A in _context.Answers
-            join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
-            //Filter only answers related to the poll Uuid to look for
-            where PI.Uuid == PollUuid
-            join Stud in _context.Students on PI.StudentId equals Stud.Id
-            join SC in _context.StudentCohorts on Stud.Id equals SC.StudentId
-            //Filter only the answers related to the cohort to look for
-            where SC.CohortId == cohortInt
-            join PV in _context.PollVariables on A.PollVariableId equals PV.Id
-            join Var in _context.Variables on PV.VariableId equals Var.Id
-            join Component in _context.Components on Var.ComponentId equals Component.Id
-            select new
-            {
-                Component = Component.Name,
-                PollInstanceId = PI.Id,
-                Question = Var.Name,
-                A.AnswerText,
-                A.RiskLevel,
-                StudentEmail = Stud.Email
-            };
-        var results = await query.ToListAsync();
+        List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 
-        List<AvgReportComponent> report = await query
-        .GroupBy(A => A.Component)
+        List<AvgReportComponent> report = [.. results
+        .GroupBy(A => A.ComponentName)
         .Select(AnsPerComp => new AvgReportComponent
         {
             Description = AnsPerComp.Key,
-            AverageRisk = AnsPerComp.Average(Ans => Ans.RiskLevel),
-            Questions = AnsPerComp
-                .OrderByDescending(Ans => Ans.RiskLevel)
+            AverageRisk = AnsPerComp.First().ComponentAverageRisk,
+            Questions = [.. AnsPerComp
+                .OrderByDescending(Ans => Ans.AnswerRisk)
                 .GroupBy(A => A.Question)
                 .Select(AnsPerVar => new AvgReportQuestions
                 {
                     Question = AnsPerVar.Key,
-                    AverageRisk = AnsPerVar.Average(Ans => Ans.RiskLevel),
-                    Answer = AnsPerVar.First(A => A.RiskLevel < AnsPerComp.Average(Ans => Ans.RiskLevel)).AnswerText,
-                }).ToList()
-        }).ToListAsync();
-        var pollCount = await _context.PollInstances.CountAsync(PollInstance => PollInstance.Uuid == PollUuid);
-        return new AvgReportResponseVm { Components = report, PollCount = pollCount };
+                    AverageAnswer = AnsPerVar.GroupBy(A => A.AnswerText).OrderByDescending(A => A.Count()).First().Key,
+                    AverageRisk = AnsPerVar.First().VariableAverageRisk,
+                    AnswersDetails = [.. AnsPerVar
+                        .GroupBy(A => A.AnswerText)
+                        .Select(AnsPerVar => new AnswerDetails
+                        {
+                            AnswerText = AnsPerVar.Key,
+                            AnswerPercentage = AnsPerVar.First().AnswerPercentage,
+                            StudentsEmails = [.. AnsPerVar.Select(A => A.StudentEmail)]
+                        })]
+                })]
+        })];
+        return new AvgReportResponseVm { Components = report, PollCount = results.DistinctBy(R => R.StudentEmail).Count() };
     }
 }
