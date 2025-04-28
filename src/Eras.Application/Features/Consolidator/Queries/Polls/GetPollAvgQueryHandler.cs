@@ -32,7 +32,7 @@ public class PollAvgHandler(
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred getting the heat map summary data by filters");
-            return new GetQueryResponse<AvgReportResponseVm>(new AvgReportResponseVm(), "Failed", false);
+            return new GetQueryResponse<AvgReportResponseVm>(new AvgReportResponseVm(), "Failed: " + ex.Message, false);
         }
     }
 }

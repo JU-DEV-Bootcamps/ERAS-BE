@@ -76,26 +76,26 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             .ToListAsync();
 
         IQueryable<ErasCalculationsByPollDTO> reportQuery = from A in _context.ErasCalculationsByPoll
-        where A.PollUuid == PollUuid
-        where emailsInCohort.Contains(A.StudentEmail)
-        select new ErasCalculationsByPollDTO
-        {
-            PollUuid = A.PollUuid,
-            ComponentName = A.ComponentName,
-            PollVariableId = A.PollVariableId,
-            Question = A.Question,
-            AnswerText = A.AnswerText,
-            PollInstanceId = A.PollInstanceId,
-            StudentName = A.StudentName,
-            StudentEmail = A.StudentEmail,
-            AnswerRisk = A.AnswerRisk,
-            PollInstanceRiskSum = A.PollInstanceRiskSum,
-            PollInstanceAnswersCount = A.PollInstanceAnswersCount,
-            ComponentAverageRisk = A.ComponentAverageRisk,
-            VariableAverageRisk = A.VariableAverageRisk,
-            AnswerCount = A.AnswerCount,
-            AnswerPercentage = A.AnswerPercentage
-        };
+                                                            where A.PollUuid == PollUuid
+                                                            where emailsInCohort.Contains(A.StudentEmail)
+                                                            select new ErasCalculationsByPollDTO
+                                                            {
+                                                                PollUuid = A.PollUuid,
+                                                                ComponentName = A.ComponentName,
+                                                                PollVariableId = A.PollVariableId,
+                                                                Question = A.Question,
+                                                                AnswerText = A.AnswerText,
+                                                                PollInstanceId = A.PollInstanceId,
+                                                                StudentName = A.StudentName,
+                                                                StudentEmail = A.StudentEmail,
+                                                                AnswerRisk = A.AnswerRisk,
+                                                                PollInstanceRiskSum = A.PollInstanceRiskSum,
+                                                                PollInstanceAnswersCount = A.PollInstanceAnswersCount,
+                                                                ComponentAverageRisk = A.ComponentAverageRisk,
+                                                                VariableAverageRisk = A.VariableAverageRisk,
+                                                                AnswerCount = A.AnswerCount,
+                                                                AnswerPercentage = A.AnswerPercentage
+                                                            };
 
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 

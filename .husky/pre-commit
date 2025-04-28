@@ -32,40 +32,6 @@ else
   echo "No formatting issues detected."
 fi
 
-#!/bin/bash
-
-# Exit immediately if a command exits with a non-zero status
-set -e
-
-# Get the list of staged files
-echo "Getting list of staged files..."
-CHANGED_FILES=$(git diff --cached --name-only --diff-filter=d | tr '\n' ' ')
-
-# Check if there are any staged files
-if [ -z "$CHANGED_FILES" ]; then
-  echo "No staged files detected."
-  exit 0
-fi
-
-echo "Staged files:"
-echo "$CHANGED_FILES"
-
-# Run dotnet format on the staged files
-echo "Running dotnet format on the staged files..."
-FORMAT_OUTPUT=$(dotnet format --verify-no-changes --include $CHANGED_FILES 2>&1 || true)
-echo -e "\e[31m"  # Start red text formatting
-echo "$FORMAT_OUTPUT"  # Print the content of the variable
-echo -e "\e[0m"  # Reset text formatting to default
-# Check if there are any format issues
-if echo "$FORMAT_OUTPUT" | grep -iqE "error|warning|fix"; then
-  echo "Formatting issues detected."
-  echo "Running dotnet format to fix the issues. Please verify the changes before committing."
-  dotnet format --include $CHANGED_FILES 2>&1 || true
-  exit 1
-else
-  echo "No formatting issues detected."
-fi
-
 BUILD_FAILED=0
 echo "Building project with warnings as errors..."
 BUILD_OUTPUT=$(dotnet build -warnaserror 2>&1 || true)
