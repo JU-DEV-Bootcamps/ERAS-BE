@@ -56,7 +56,5 @@ public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasC
 
         Builder.Property(A => A.AnswerPercentage)
             .HasColumnName("answer_percentage");
-
-
     }
 }
