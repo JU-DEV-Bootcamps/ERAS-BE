@@ -41,15 +41,14 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     {
         IQueryable<PollInstanceEntity> query = _context.PollInstances.Include(PI => PI.Student);
 
-        if (CohortId.HasValue)
+        if (CohortId.HasValue && CohortId != 0)
         {
             query = query
                 .Join(_context.StudentCohorts,
                     PollInstance => PollInstance.StudentId,
                     StudentCohort => StudentCohort.StudentId,
                     (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort })
-                //If CohortId is 0, it means all cohorts are selected
-                .Where(Joined => CohortId == 0 || Joined.studentCohort.CohortId == CohortId.Value)
+                .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value)
                 .Select(Joined => Joined.pollInstance);
         }
 
