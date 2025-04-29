@@ -24,7 +24,7 @@ RiskAverageByComponent AS (
     JOIN variables v ON pv.variable_id = v."Id"
     JOIN components c ON v.component_id = c."Id"
     GROUP BY
-        c."name"
+        c."name" /*, pv.poll_id Repeating result by some reason*/
 ),
 RiskAverageByVariable AS (
     SELECT
@@ -36,7 +36,7 @@ RiskAverageByVariable AS (
     JOIN poll_variable pv ON a.poll_variable_id = pv."Id"
     JOIN variables v ON pv.variable_id = v."Id"
     GROUP BY
-        v."Id", v."name"
+        v."Id", v."name" /*, pv.poll_id Repeating result by some reason*/
 ),
 RiskCountByPollInstance AS (
     SELECT

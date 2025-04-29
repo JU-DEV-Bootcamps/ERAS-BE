@@ -3,7 +3,6 @@ using Eras.Application.DTOs.Views;
 using Eras.Application.Models.Consolidator;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 using Microsoft.EntityFrameworkCore;
@@ -42,14 +41,15 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     {
         IQueryable<PollInstanceEntity> query = _context.PollInstances.Include(PI => PI.Student);
 
-        if (CohortId.HasValue && CohortId != 0)
+        if (CohortId.HasValue)
         {
             query = query
                 .Join(_context.StudentCohorts,
                     PollInstance => PollInstance.StudentId,
                     StudentCohort => StudentCohort.StudentId,
                     (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort })
-                .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value)
+                //If CohortId is 0, it means all cohorts are selected
+                .Where(Joined => CohortId == 0 || Joined.studentCohort.CohortId == CohortId.Value)
                 .Select(Joined => Joined.pollInstance);
         }
 
@@ -67,7 +67,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     string PollUuid, int CohortId)
     {
         List<string> emailsInCohort = await _context.StudentCohorts
-            .Where(SC => SC.CohortId == 0 || SC.CohortId == CohortId)
+            .Where(SC => CohortId == 0 || SC.CohortId == CohortId)
             .Join(_context.Students,
                 SC => SC.StudentId,
                 S => S.Id,
@@ -75,27 +75,29 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             .Select(SC => SC.S.Email)
             .ToListAsync();
 
-        IQueryable<ErasCalculationsByPollDTO> reportQuery = from A in _context.ErasCalculationsByPoll
-                                                            where A.PollUuid == PollUuid
-                                                            where emailsInCohort.Contains(A.StudentEmail)
-                                                            select new ErasCalculationsByPollDTO
-                                                            {
-                                                                PollUuid = A.PollUuid,
-                                                                ComponentName = A.ComponentName,
-                                                                PollVariableId = A.PollVariableId,
-                                                                Question = A.Question,
-                                                                AnswerText = A.AnswerText,
-                                                                PollInstanceId = A.PollInstanceId,
-                                                                StudentName = A.StudentName,
-                                                                StudentEmail = A.StudentEmail,
-                                                                AnswerRisk = A.AnswerRisk,
-                                                                PollInstanceRiskSum = A.PollInstanceRiskSum,
-                                                                PollInstanceAnswersCount = A.PollInstanceAnswersCount,
-                                                                ComponentAverageRisk = A.ComponentAverageRisk,
-                                                                VariableAverageRisk = A.VariableAverageRisk,
-                                                                AnswerCount = A.AnswerCount,
-                                                                AnswerPercentage = A.AnswerPercentage
-                                                            };
+        IQueryable<ErasCalculationsByPollDTO> reportQuery =
+        from A in _context.ErasCalculationsByPoll
+        where A.PollUuid == PollUuid
+        where emailsInCohort.Contains(A.StudentEmail)
+        orderby A.AnswerRisk descending
+        select new ErasCalculationsByPollDTO
+        {
+            PollUuid = A.PollUuid,
+            ComponentName = A.ComponentName,
+            PollVariableId = A.PollVariableId,
+            Question = A.Question,
+            AnswerText = A.AnswerText,
+            PollInstanceId = A.PollInstanceId,
+            StudentName = A.StudentName,
+            StudentEmail = A.StudentEmail,
+            AnswerRisk = A.AnswerRisk,
+            PollInstanceRiskSum = A.PollInstanceRiskSum,
+            PollInstanceAnswersCount = A.PollInstanceAnswersCount,
+            ComponentAverageRisk = A.ComponentAverageRisk,
+            VariableAverageRisk = A.VariableAverageRisk,
+            AnswerCount = A.AnswerCount,
+            AnswerPercentage = A.AnswerPercentage
+        };
 
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 
@@ -103,16 +105,16 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         .GroupBy(A => A.ComponentName)
         .Select(AnsPerComp => new AvgReportComponent
         {
-            Description = AnsPerComp.Key,
-            AverageRisk = AnsPerComp.First().ComponentAverageRisk,
+            Description = AnsPerComp.Key.ToUpper(),
+            AverageRisk = Math.Round(AnsPerComp.First().ComponentAverageRisk, 2),
             Questions = [.. AnsPerComp
-                .OrderByDescending(Ans => Ans.AnswerRisk)
+                .OrderByDescending(A => A.VariableAverageRisk)
                 .GroupBy(A => A.Question)
                 .Select(AnsPerVar => new AvgReportQuestions
                 {
                     Question = AnsPerVar.Key,
                     AverageAnswer = AnsPerVar.GroupBy(A => A.AnswerText).OrderByDescending(A => A.Count()).First().Key,
-                    AverageRisk = AnsPerVar.First().VariableAverageRisk,
+                    AverageRisk = Math.Round(AnsPerVar.First().VariableAverageRisk, 2),
                     AnswersDetails = [.. AnsPerVar
                         .GroupBy(A => A.AnswerText)
                         .Select(AnsPerVar => new AnswerDetails
