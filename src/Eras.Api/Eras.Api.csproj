@@ -6,10 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>1cbb789d-b1e4-4a42-ade0-b4d375bb8318</UserSecretsId>
   </PropertyGroup>
-  <Target Name="husky" BeforeTargets="Restore;CollectPackageReferences">
-    <Exec Command="dotnet tool restore" StandardOutputImportance="Low" StandardErrorImportance="High"/>
-    <Exec Command="dotnet husky install" StandardOutputImportance="Low" StandardErrorImportance="High" WorkingDirectory="../../" />
-  </Target>
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
     <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.6.0" />
