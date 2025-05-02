@@ -13,8 +13,8 @@ public class GetCohortStudentsRiskByPollResponse
     public int PollInstanceId { get; set; }
 
     [Column("name")]
-    public string StudentName { get; set; }
+    public required string StudentName { get; set; }
 
     [Column("poll_instance_risk_sum")]
-    public decimal? PollInstanceRiskSum { get; set; }
+    public decimal PollInstanceRiskSum { get; set; }
 }

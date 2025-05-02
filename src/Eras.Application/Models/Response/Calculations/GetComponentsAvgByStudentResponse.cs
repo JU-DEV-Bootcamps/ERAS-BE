@@ -12,11 +12,11 @@ public class GetComponentsAvgByStudentResponse
     public int? CohortId { get; set; }
 
     [Column("name")]
-    public string? StudentName { get; set; }
+    public required string StudentName { get; set; }
 
     [Column("component_name")]
-    public string ComponentName { get; set; }
+    public required string ComponentName { get; set; }
 
     [Column("student_component_average")]
-    public decimal? StudentComponentAverage { get; set; }
+    public decimal StudentComponentAverage { get; set; }
 }

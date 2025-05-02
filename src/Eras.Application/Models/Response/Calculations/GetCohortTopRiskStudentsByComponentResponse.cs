@@ -12,8 +12,8 @@ public class GetCohortTopRiskStudentsByComponentResponse
     public int StudentId { get; set; }
 
     [Column("student_name")]
-    public string StudentName { get; set; }
+    public required string StudentName { get; set; }
 
     [Column("risk_sum")]
-    public decimal? RiskSum { get; set; }
+    public decimal RiskSum { get; set; }
 }
