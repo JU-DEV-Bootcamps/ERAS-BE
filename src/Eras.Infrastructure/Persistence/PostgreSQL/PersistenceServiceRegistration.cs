@@ -9,50 +9,51 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
     public static class PersistenceServiceRegistration
     {
-        private static string GetConnectionString(IConfiguration configuration)
+        private static string GetConnectionString(IConfiguration Configuration)
         {
-            var postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? configuration["Postgres:Host"];
-            var postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? configuration["Postgres:Port"];
-            var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? configuration["Postgres:Username"];
-            var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? configuration["Postgres:Password"];
-            var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? configuration["Postgres:Database"];
+            var postgresHost = Environment.GetEnvironmentVariable("POSTGRES_HOST") ?? Configuration["Postgres:Host"];
+            var postgresPort = Environment.GetEnvironmentVariable("POSTGRES_PORT") ?? Configuration["Postgres:Port"];
+            var postgresUser = Environment.GetEnvironmentVariable("POSTGRES_USER") ?? Configuration["Postgres:Username"];
+            var postgresPassword = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD") ?? Configuration["Postgres:Password"];
+            var postgresDb = Environment.GetEnvironmentVariable("POSTGRES_DB") ?? Configuration["Postgres:Database"];
 
             return $"Host={postgresHost};Port={postgresPort};Username={postgresUser};Password={postgresPassword};Database={postgresDb}";
         }
 
-        public static void AddDbContextPostgreSql(IServiceCollection services, IConfiguration configuration)
+        public static void AddDbContextPostgreSql(IServiceCollection Services, IConfiguration Configuration)
         {
-            var connectionString = GetConnectionString(configuration);
+            var connectionString = GetConnectionString(Configuration);
 
-            services.AddDbContext<AppDbContext>(options =>
+            Services.AddDbContext<AppDbContext>(Options =>
             {
-                options.UseNpgsql(connectionString);
-                options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+                Options.UseNpgsql(connectionString);
+                Options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
             });
         }
 
-        public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddPersistenceServices(this IServiceCollection Services, IConfiguration Configuration)
         {
-            AddDbContextPostgreSql(services, configuration);
-            services.AddScoped<IAnswerRepository, AnswerRepository>();
-            services.AddScoped<ICohortRepository, CohortRepository>();
-            services.AddScoped<IComponentRepository, ComponentRepository>();
-            services.AddScoped<IPollInstanceRepository, PollInstanceRepository>();
-            services.AddScoped<IPollRepository, PollRepository>();
-            services.AddScoped<IStudentDetailRepository, StudentDetailRepository>();
-            services.AddScoped<IStudentRepository, StudentRepository>();
-            services.AddScoped<IVariableRepository, VariableRepository>();
-            services.AddScoped<IPollVariableRepository, PollVariableRepository>();
-            services.AddScoped<IStudentCohortRepository, StudentCohortRepository>();
-            services.AddScoped<IPollCohortRepository, PollCohortRepository>();
-            services.AddScoped<IHeatMapRepository, HeatMapRespository>();
-            services.AddScoped<IEvaluationRepository, EvaluationRepository>();
-            services.AddScoped<IEvaluationPollRepository, EvaluationPollRepository>();
-            services.AddScoped<IStudentPollsRepository, StudentPollsRepository>();
-            services.AddScoped<IComponentsAvgRepository, ComponentsAvgRepository>();
-            services.AddScoped<IStudentAnswersRepository, StudentAnswersRepository>();
+            AddDbContextPostgreSql(Services, Configuration);
+            Services.AddScoped<IAnswerRepository, AnswerRepository>();
+            Services.AddScoped<ICohortRepository, CohortRepository>();
+            Services.AddScoped<IComponentRepository, ComponentRepository>();
+            Services.AddScoped<IPollInstanceRepository, PollInstanceRepository>();
+            Services.AddScoped<IPollRepository, PollRepository>();
+            Services.AddScoped<IStudentDetailRepository, StudentDetailRepository>();
+            Services.AddScoped<IStudentRepository, StudentRepository>();
+            Services.AddScoped<IVariableRepository, VariableRepository>();
+            Services.AddScoped<IPollVariableRepository, PollVariableRepository>();
+            Services.AddScoped<IStudentCohortRepository, StudentCohortRepository>();
+            Services.AddScoped<IPollCohortRepository, PollCohortRepository>();
+            Services.AddScoped<IHeatMapRepository, HeatMapRespository>();
+            Services.AddScoped<IEvaluationRepository, EvaluationRepository>();
+            Services.AddScoped<IEvaluationPollRepository, EvaluationPollRepository>();
+            Services.AddScoped<IStudentPollsRepository, StudentPollsRepository>();
+            Services.AddScoped<IComponentsAvgRepository, ComponentsAvgRepository>();
+            Services.AddScoped<IStudentAnswersRepository, StudentAnswersRepository>();
+            Services.AddScoped<IPollVersionRepository, PollVersionRepository>();
 
-            return services;
+            return Services;
         }
     }
 }

@@ -11,6 +11,7 @@ using Eras.Domain.Entities;
 using Eras.Domain.Common;
 using Eras.Application.Dtos;
 using Eras.Application.Models.Response.Common;
+using Eras.Application.Models.Enums;
 
 namespace Eras.Application.Features.Polls.Commands.CreatePoll
 {
@@ -19,28 +20,29 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
         private readonly IPollRepository _pollRepository;
         private readonly ILogger<CreatePollCommandHandler> _logger;
 
-        public CreatePollCommandHandler(IPollRepository pollRepository, ILogger<CreatePollCommandHandler> logger)
+        public CreatePollCommandHandler(IPollRepository PollRepository, ILogger<CreatePollCommandHandler> Logger)
         {
-            _pollRepository = pollRepository;
-            _logger = logger;
+            _pollRepository = PollRepository;
+            _logger = Logger;
         }
 
-        public async Task<CreateCommandResponse<Poll>> Handle(CreatePollCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Poll>> Handle(CreatePollCommand Request, CancellationToken CancellationToken)
         {
             try
             {
-                Poll? pollInDB = await _pollRepository.GetByNameAsync(request.Poll.Name);
-                if (pollInDB != null) return new CreateCommandResponse<Poll>(pollInDB, 0, "Success", true);
+                Poll? pollInDB = await _pollRepository.GetByNameAsync(Request.Poll.Name);
+                if (pollInDB != null) return new CreateCommandResponse<Poll>(new Poll(), "Entity already exists", false,
+                    CommandEnums.CommandResultStatus.AlreadyExists);
 
-                Poll poll = request.Poll.ToDomain();
+                Poll poll = Request.Poll.ToDomain();
                 poll.Uuid = Guid.NewGuid().ToString();
                 Poll response = await _pollRepository.AddAsync(poll);
                 return new CreateCommandResponse<Poll>(response,1, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred creating the poll: " + request.Poll.Name);
-                return new CreateCommandResponse<Poll>(null,0, "Error", false);
+                _logger.LogError(ex, "An error occurred creating the poll: " + Request.Poll.Name);
+                return new CreateCommandResponse<Poll>(new Poll(), "Error", false, CommandEnums.CommandResultStatus.Error);
             }
         }
     }

@@ -21,6 +21,10 @@ using Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStuden
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Features.Students.Queries.GetByEmail;
 using Eras.Domain.Common.Exceptions;
+using Eras.Application.Features.Polls.Queries.GetPollByName;
+using Eras.Application.Models.Enums;
+using Eras.Application.Features.PollVersions.Queries.GetAllByPoll;
+using Eras.Application.Features.PollVersions.Commands.CreatePollVersion;
 
 namespace Eras.Application.Services
 {
@@ -28,6 +32,9 @@ namespace Eras.Application.Services
     {
         private readonly IMediator _mediator;
         ILogger<PollOrchestratorService> _logger;
+        private bool newPoll=false;
+        private bool newComponent = false;
+        private bool newVariable = false;
 
         public PollOrchestratorService(IMediator Mediator, ILogger<PollOrchestratorService> Logger )
         {
@@ -45,8 +52,11 @@ namespace Eras.Application.Services
                 int createdPollsInstances = 0;
                 CreatedPollDTO createdPoll = new CreatedPollDTO();
 
-                if (createdPollResponse.Entity != null)
+                if (createdPollResponse.Success)
                 {
+                    var pollToUse = createdPollResponse.Entity.ToDto();
+                    pollToUse.PollVersions = pollDTO.PollVersions;
+                    await CreateAndValidatePollVersionAsync(pollToUse);
                     // Create components, variables and poll_variables (intermediate table)
                     List<Component> createdComponents = await CreateComponentsAndVariablesAsync(PollsToCreate[0].Components, createdPollResponse.Entity.Id);
 
@@ -194,13 +204,20 @@ namespace Eras.Application.Services
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
                 };
-                CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = PollToCreate };
-                return await _mediator.Send(createPollCommand);
+                GetPollByNameQuery getPollByNameQuery = new GetPollByNameQuery() { pollName = PollToCreate.Name };
+                var pollByName = await _mediator.Send(getPollByNameQuery);
+                if (pollByName.Success && pollByName.Status == QueryEnums.QueryResultStatus.NotFound)
+                {
+                    newPoll = true;
+                    CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = PollToCreate };
+                    return await _mediator.Send(createPollCommand);
+                }
+                return new CreateCommandResponse<Poll>(pollByName.Body, 1,pollByName.Message,pollByName.Success);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error creating poll: {ex.Message}");
-                return new CreateCommandResponse<Poll>(null, 0, "Error", false);
+                return new CreateCommandResponse<Poll>(new Poll(), 0, "Error", false);
             }
         }
         public async Task<CreateCommandResponse<Variable>> CreateRelationshipPollVariableAsync(VariableDTO Variable, int AsociatedPollId, int AsociatedVariableId)
@@ -343,5 +360,36 @@ namespace Eras.Application.Services
             }
             return createdComponents;
         }
+        public async Task<CreateCommandResponse<PollVersion>> CreateAndValidatePollVersionAsync(PollDTO Poll)
+        {
+            var newVersionDate = new DateTime();
+            if (Poll.PollVersions.Count() > 0)
+                newVersionDate = Poll.PollVersions.Last().Date;
+            var allPollVersionsQuery = new GetAllPollVersionByPollQuery() { PollId = Poll.Id };
+            var allPollVersionsResponse = await _mediator.Send(allPollVersionsQuery);
+            var oldDate = new DateTime();
+            if (allPollVersionsResponse.Body.Count() > 0)
+                oldDate = allPollVersionsResponse.Body[0].Date;
+            if (newVersionDate <= oldDate)
+            {
+                return new CreateCommandResponse<PollVersion>
+                (new PollVersion(), "No new version detected", true,
+                CommandEnums.CommandResultStatus.NotFound);
+            }
+            var newPollVersion = Poll.PollVersions.Last();
+            newPollVersion.Audit = new AuditInfo()
+            {
+                CreatedBy = "CL Import",
+                CreatedAt = DateTime.UtcNow
+            };
+            var newVersionCommand = new CreatePollVersionCommand()
+            {
+                PollVersionDTO = newPollVersion
+            };
+            newVersionCommand.PollId = Poll.Id;
+            var createResponse = await _mediator.Send(newVersionCommand);
+            return createResponse;
+        }
+
     }
 }

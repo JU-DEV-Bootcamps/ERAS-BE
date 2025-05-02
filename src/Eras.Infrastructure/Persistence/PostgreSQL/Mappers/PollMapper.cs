@@ -5,27 +5,25 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
     public static class PollMapper 
     {
-        public static Poll ToDomain(this PollEntity entity)
+        public static Poll ToDomain(this PollEntity Entity)
         {
             return new Poll
             {
-                Id = entity.Id,
-                Name = entity.Name,
-                Version = entity.Version,
-                Uuid = entity.Uuid,
-                Audit = entity.Audit
+                Id = Entity.Id,
+                Name = Entity.Name,
+                Uuid = Entity.Uuid,
+                Audit = Entity.Audit
             };
         }
 
-        public static PollEntity ToPersistence(this Poll model)
+        public static PollEntity ToPersistence(this Poll Model)
         {
             return new PollEntity
             {
-                Id = model.Id,
-                Name = model.Name,
-                Version = model.Version,
-                Uuid = model.Uuid,
-                Audit = model.Audit
+                Id = Model.Id,
+                Name = Model.Name,
+                Uuid = Model.Uuid,
+                Audit = Model.Audit
             };
         }
     }

@@ -20,14 +20,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<EvaluationPollJoin> EvaluationPolls { get; set; }
         public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
 
-        public AppDbContext(DbContextOptions<AppDbContext> options)
-            : base(options)
+        public virtual DbSet<PollVersionEntity> PollVersion {get;set;} 
+        public AppDbContext(DbContextOptions<AppDbContext> Options)
+            : base(Options)
         {
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder ModelBuilder)
         {
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+            ModelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
         }
     }
 }
