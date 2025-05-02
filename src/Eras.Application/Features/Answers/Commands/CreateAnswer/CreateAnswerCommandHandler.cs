@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Answers.Commands.CreateAnswer
@@ -18,24 +21,24 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswer
         private readonly IAnswerRepository _answerRepository;
         private readonly ILogger<CreateAnswerCommandHandler> _logger;
 
-        public CreateAnswerCommandHandler(IAnswerRepository answerRepository, ILogger<CreateAnswerCommandHandler> logger)
+        public CreateAnswerCommandHandler(IAnswerRepository AnswerRepository, ILogger<CreateAnswerCommandHandler> Logger)
         {
-            _answerRepository = answerRepository;
-            _logger = logger;
+            _answerRepository = AnswerRepository;
+            _logger = Logger;
         }
 
-        public async Task<CreateCommandResponse<Answer>> Handle(CreateAnswerCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Answer>> Handle(CreateAnswerCommand Request, CancellationToken CancellationToken)
         {
             try
             {
-                Answer answer = request.Answer.ToDomain();
+                Answer answer = Request.Answer.ToDomain();
                 Answer createdAnswer = await _answerRepository.AddAsync(answer);
-                return new CreateCommandResponse<Answer>(createdAnswer,1, "Success", true);
+                return new CreateCommandResponse<Answer>(createdAnswer, 1, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred creating the Answer: " + request.Answer.Answer);
-                return new CreateCommandResponse<Answer>(null,0, "Error", false);
+                _logger.LogError(ex, "An error occurred creating the Answer: " + Request.Answer.Answer);
+                return new CreateCommandResponse<Answer>(new Answer(), 0, "Error", false);
             }
         }
     }

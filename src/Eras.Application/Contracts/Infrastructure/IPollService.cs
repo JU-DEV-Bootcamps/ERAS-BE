@@ -4,7 +4,7 @@ namespace Eras.Application.Contracts.Infrastructure
 {
     public interface IPollService
     {
-        public Task<Poll> CreatePoll(Poll poll);
-        public Task<Poll?> GetPollById(int pollId);
+        public Task<Poll> CreatePoll(Poll Poll);
+        public Task<Poll?> GetPollById(int PollId);
     }
 }

@@ -4,6 +4,6 @@ namespace Eras.Application.Contracts.Infrastructure
 {
     public interface IAnswerService
     {
-        Task<Answer> CreateAnswer(Answer answer, Student student);
+        Task<Answer> CreateAnswer(Answer Answer, Student Student);
     }
 }

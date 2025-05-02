@@ -1,45 +1,45 @@
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
     public static class StudentDetailMapper
     {
-        public static StudentDetail ToDomain(this StudentDetailEntity entity)
+        public static StudentDetail ToDomain(this StudentDetailEntity Entity)
         {
-            ArgumentNullException.ThrowIfNull(entity);
+            ArgumentNullException.ThrowIfNull(Entity);
             return new StudentDetail
             {
-                Id = entity.Id,
-                StudentId = entity.StudentId,
-                EnrolledCourses = entity.EnrolledCourses,
-                GradedCourses = entity.GradedCourses,
-                TimeDeliveryRate = entity.TimeDeliveryRate,
-                AvgScore = entity.AvgScore,
-                CoursesUnderAvg = entity.CoursesUnderAvg,
-                PureScoreDiff = entity.PureScoreDiff,
-                StandardScoreDiff = entity.StandardScoreDiff,
-                LastAccessDays = entity.LastAccessDays,
-                Audit = entity.Audit
+                Id = Entity.Id,
+                StudentId = Entity.StudentId,
+                EnrolledCourses = Entity.EnrolledCourses,
+                GradedCourses = Entity.GradedCourses,
+                TimeDeliveryRate = Entity.TimeDeliveryRate,
+                AvgScore = Entity.AvgScore,
+                CoursesUnderAvg = Entity.CoursesUnderAvg,
+                PureScoreDiff = Entity.PureScoreDiff,
+                StandardScoreDiff = Entity.StandardScoreDiff,
+                LastAccessDays = Entity.LastAccessDays,
+                Audit = Entity.Audit
             };
         }
 
-        public static StudentDetailEntity ToPersistence(this StudentDetail model)
+        public static StudentDetailEntity ToPersistence(this StudentDetail Model)
         {
-            ArgumentNullException.ThrowIfNull(model);
+            ArgumentNullException.ThrowIfNull(Model);
             return new StudentDetailEntity
             {
-                Id = model.Id,
-                StudentId = model.StudentId,
-                EnrolledCourses = model.EnrolledCourses,
-                GradedCourses = model.GradedCourses,
-                TimeDeliveryRate = model.TimeDeliveryRate,
-                AvgScore = model.AvgScore,
-                CoursesUnderAvg = model.CoursesUnderAvg,
-                PureScoreDiff = model.PureScoreDiff,
-                StandardScoreDiff = model.StandardScoreDiff,
-                LastAccessDays = model.LastAccessDays,
-                Audit = model.Audit
+                Id = Model.Id,
+                StudentId = Model.StudentId,
+                EnrolledCourses = Model.EnrolledCourses,
+                GradedCourses = Model.GradedCourses,
+                TimeDeliveryRate = Model.TimeDeliveryRate,
+                AvgScore = Model.AvgScore,
+                CoursesUnderAvg = Model.CoursesUnderAvg,
+                PureScoreDiff = Model.PureScoreDiff,
+                StandardScoreDiff = Model.StandardScoreDiff,
+                LastAccessDays = Model.LastAccessDays,
+                Audit = Model.Audit
             };
         }
     }

@@ -1,4 +1,5 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,33 +7,33 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class PollVariableConfiguration : IEntityTypeConfiguration<PollVariableJoin>
     {
-        public void Configure(EntityTypeBuilder<PollVariableJoin> builder)
+        public void Configure(EntityTypeBuilder<PollVariableJoin> Builder)
         {
-            builder.ToTable("poll_variable");
+            Builder.ToTable("poll_variable");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<PollVariableJoin> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<PollVariableJoin> Builder)
         {
-            builder.HasOne(pollVariable => pollVariable.Poll)
-                .WithMany(poll => poll.PollVariables)
-                .HasForeignKey(pollVariable => pollVariable.PollId)
+            Builder.HasOne(PollVariable => PollVariable.Poll)
+                .WithMany(Poll => Poll.PollVariables)
+                .HasForeignKey(PollVariable => PollVariable.PollId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(pollVariable => pollVariable.Variable)
-                .WithMany(variable => variable.PollVariables)
-                .HasForeignKey(pollVariable => pollVariable.VariableId)
+            Builder.HasOne(PollVariable => PollVariable.Variable)
+                .WithMany(Variable => Variable.PollVariables)
+                .HasForeignKey(PollVariable => PollVariable.VariableId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<PollVariableJoin> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<PollVariableJoin> Builder)
         {
-            builder.HasKey(pollVariable => pollVariable.Id);
-            builder.Property(pollVariable => pollVariable.PollId)
+            Builder.HasKey(PollVariable => PollVariable.Id);
+            Builder.Property(PollVariable => PollVariable.PollId)
                 .HasColumnName("poll_id")
                 .IsRequired();
-            builder.Property(pollVariable => pollVariable.VariableId)
+            Builder.Property(PollVariable => PollVariable.VariableId)
                 .HasColumnName("variable_id")
                 .IsRequired();
         }

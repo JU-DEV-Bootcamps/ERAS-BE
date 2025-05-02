@@ -3,41 +3,43 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class EvaluationPollConfiguration : IEntityTypeConfiguration<EvaluationPollJoin>
     {
-        public void Configure(EntityTypeBuilder<EvaluationPollJoin> builder)
+        public void Configure(EntityTypeBuilder<EvaluationPollJoin> Builder)
         {
-            builder.ToTable("evaluation_poll");
+            Builder.ToTable("evaluation_poll");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<EvaluationPollJoin> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<EvaluationPollJoin> Builder)
         {
-            builder.HasOne(evaluationPoll => evaluationPoll.Poll)
-                .WithMany(poll => poll.EvaluationPolls)
-                .HasForeignKey(evaluationPoll => evaluationPoll.PollId)
+            Builder.HasOne(EvaluationPoll => EvaluationPoll.Poll)
+                .WithMany(Poll => Poll.EvaluationPolls)
+                .HasForeignKey(EvaluationPoll => EvaluationPoll.PollId)
                 .OnDelete(DeleteBehavior.Cascade);
-            builder.HasOne(evaluationPoll => evaluationPoll.Evaluation)
-                .WithMany(evaluation => evaluation.EvaluationPolls)
-                .HasForeignKey(evaluationPoll => evaluationPoll.EvaluationId)
+            Builder.HasOne(EvaluationPoll => EvaluationPoll.Evaluation)
+                .WithMany(Evaluation => Evaluation.EvaluationPolls)
+                .HasForeignKey(EvaluationPoll => EvaluationPoll.EvaluationId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<EvaluationPollJoin> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<EvaluationPollJoin> Builder)
         {
-            builder.HasKey(evaluationPoll => evaluationPoll.Id);
-            builder.Property(evaluationPoll => evaluationPoll.PollId)
+            Builder.HasKey(EvaluationPoll => EvaluationPoll.Id);
+            Builder.Property(EvaluationPoll => EvaluationPoll.PollId)
                 .HasColumnName("poll_id")
                 .IsRequired();
-            builder.Property(evaluationPoll => evaluationPoll.EvaluationId)
+            Builder.Property(EvaluationPoll => EvaluationPoll.EvaluationId)
                 .HasColumnName("evaluation_id")
                 .IsRequired();
         }

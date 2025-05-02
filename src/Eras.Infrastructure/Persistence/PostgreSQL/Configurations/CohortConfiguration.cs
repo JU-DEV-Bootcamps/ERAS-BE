@@ -1,4 +1,5 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,27 +7,27 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class CohortConfiguration : IEntityTypeConfiguration<CohortEntity>
     {
-        public void Configure(EntityTypeBuilder<CohortEntity> builder)
+        public void Configure(EntityTypeBuilder<CohortEntity> Builder)
         {
-            builder.ToTable("cohorts");
+            Builder.ToTable("cohorts");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
-            AuditConfiguration.Configure(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
+            AuditConfiguration.Configure(Builder);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<CohortEntity> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<CohortEntity> Builder)
         {
-            builder.HasKey(cohort => cohort.Id);
-            builder.Property(cohort => cohort.Name)
+            Builder.HasKey(Cohort => Cohort.Id);
+            Builder.Property(Cohort => Cohort.Name)
                 .HasColumnName("name")
                 .IsRequired();
-            builder.Property(cohort => cohort.CourseCode)
+            Builder.Property(Cohort => Cohort.CourseCode)
                 .HasColumnName("course_name")
                 .IsRequired();
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<CohortEntity> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<CohortEntity> Builder)
         {
         }
     }

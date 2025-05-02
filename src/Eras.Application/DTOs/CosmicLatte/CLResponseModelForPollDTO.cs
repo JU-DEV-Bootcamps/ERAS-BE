@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Primitives;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,24 +6,27 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Primitives;
+
 namespace Eras.Application.DTOs.CL
 {
     public class AnswersListConverter : JsonConverter<string[]>
     {
-        public override string[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override string[] Read(ref Utf8JsonReader Reader, Type TypeToConvert, JsonSerializerOptions Options)
         {
-            if (reader.TokenType == JsonTokenType.StartArray)
+            if (Reader.TokenType == JsonTokenType.StartArray)
             {
                 var result = new List<string>();
-                while (reader.Read())
+                while (Reader.Read())
                 {
-                    if (reader.TokenType == JsonTokenType.EndArray)
+                    if (Reader.TokenType == JsonTokenType.EndArray)
                         break;
 
-                    if (reader.TokenType == JsonTokenType.String)
+                    if (Reader.TokenType == JsonTokenType.String)
                     {
-                        var value = reader.GetString();
-                        result.Add(value == "-" ? "Invalid string" : value);
+                        var value = Reader.GetString();
+                        if (value != null)
+                            result.Add(value == "-" ? "Invalid string" : value);
                     }
                     else
                     {
@@ -33,88 +35,90 @@ namespace Eras.Application.DTOs.CL
                 }
                 return result.ToArray();
             }
-            else if (reader.TokenType == JsonTokenType.String)
+            else if (Reader.TokenType == JsonTokenType.String)
             {
-                var value = reader.GetString();
+                var value = Reader.GetString();
+                if (value == null)
+                    return new string[] { string.Empty};
                 return new string[] { value };
             }
             throw new JsonException("An array or string was expected.");
         }
 
-        public override void Write(Utf8JsonWriter writer, string[] value, JsonSerializerOptions options)
+        public override void Write(Utf8JsonWriter Writer, string[] Value, JsonSerializerOptions Options)
         {
-            writer.WriteStartArray();
-            foreach (var item in value)
+            Writer.WriteStartArray();
+            foreach (var item in Value)
             {
-                writer.WriteStringValue(item);
+                Writer.WriteStringValue(item);
             }
-            writer.WriteEndArray();
+            Writer.WriteEndArray();
         }
-    } 
+    }
     // this is a class only to serialize from Cosmic latte
     public class CLResponseModelForPollDTO
     {
         [JsonPropertyName("@data")]
-        public Data Data { get; set; }
+        public required Data Data { get; set; }
 
         [JsonPropertyName("@meta")]
-        public Meta Meta { get; set; }
+        public required Meta Meta { get; set; }
     }
 
     // level 1  
     public class Meta
     {
         [JsonPropertyName("@selfLink")]
-        public string SelfLink { get; set; }
+        public required string SelfLink { get; set; }
     }
     public class Data
     {
         [JsonPropertyName("_id")]
-        public string _id { get; set; }
+        public required string Id { get; set; }
 
         [JsonPropertyName("evaluationSet")]
-        public EvaluationSet EvaluationSet { get; set; }
+        public required EvaluationSet EvaluationSet { get; set; }
 
         [JsonPropertyName("evaluator")]
-        public Evaluator Evaluator { get; set; }
+        public required Evaluator Evaluator { get; set; }
 
         [JsonPropertyName("evaluation")]
-        public Evaluation Evaluation { get; set; }
+        public required Evaluation Evaluation { get; set; }
 
         [JsonPropertyName("scores")]
-        public Scores Scores { get; set; }
+        public required Scores Scores { get; set; }
 
         [JsonPropertyName("answers")]
-        public Dictionary<int, Answers> Answers { get; set; }
+        public required Dictionary<int, Answers> Answers { get; set; }
 
         [JsonPropertyName("inventory")]
-        public Inventory Inventory { get; set; }
+        public required Inventory Inventory { get; set; }
 
         [JsonPropertyName("owner")]
-        public Owner Owner { get; set; }
+        public required Owner Owner { get; set; }
     }
 
     // level 2 (inside Data) _id, evaluationSet, evaluator, evaluation, scores, answers, inventory, owner
     public class EvaluationSet
     {
         [JsonPropertyName("_id")]
-        public string Id { get; set; }
+        public required string Id { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
     }
     public class Evaluator
     {
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [JsonPropertyName("email")]
-        public string Email { get; set; }
+        public required string Email { get; set; }
     }
     public class Evaluation
     {
         [JsonPropertyName("_id")]
-        public string Id { get; set; }
+        public required string Id { get; set; }
 
         [JsonPropertyName("startedAt")]
         public DateTime StartedAt { get; set; }
@@ -126,8 +130,8 @@ namespace Eras.Application.DTOs.CL
         public int ElapsedTimeInSeconds { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
-    } 
+        public required string Name { get; set; }
+    }
     public class Scores
     {
         [JsonExtensionData]
@@ -135,13 +139,13 @@ namespace Eras.Application.DTOs.CL
     }
 
     public class Answers
-    { 
+    {
         [JsonPropertyName("answer")]
-        [JsonConverter(typeof(AnswersListConverter))] 
-        public string[] AnswersList { get; set; }
+        [JsonConverter(typeof(AnswersListConverter))]
+        public required string[] AnswersList { get; set; }
 
         [JsonPropertyName("question")]
-        public Question Question { get; set; }
+        public required Question Question { get; set; }
 
         [JsonPropertyName("position")]
         public int Position { get; set; }
@@ -150,7 +154,7 @@ namespace Eras.Application.DTOs.CL
         public double Score { get; set; }
 
         [JsonPropertyName("type")]
-        public string Type { get; set; }
+        public required string Type { get; set; }
 
         [JsonPropertyName("customSettings")]
         public List<string> CustomSettings { get; set; } = new List<string>();
@@ -158,31 +162,31 @@ namespace Eras.Application.DTOs.CL
     public class Inventory
     {
         [JsonPropertyName("_id")]
-        public string Id { get; set; }
+        public required string Id { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
         [JsonPropertyName("key")]
-        public string Key { get; set; }
+        public required string Key { get; set; }
 
         [JsonPropertyName("access")]
-        public string Access { get; set; }
+        public required string Access { get; set; }
     }
     public class Owner
     {
         [JsonPropertyName("email")]
-        public string Email { get; set; }
+        public required string Email { get; set; }
 
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public required string Name { get; set; }
     }
 
     // level 3 (inside Answers) question 
     public class Question
     {
         [JsonPropertyName("body")]
-        public Dictionary<string, string> Body { get; set; }
+        public required Dictionary<string, string> Body { get; set; }
     }
 
 
@@ -201,14 +205,14 @@ namespace Eras.Application.DTOs.CL
         public int Count { get; set; }
 
         [JsonPropertyName("facets")]
-        public Facets Facets { get; set; }
+        public required Facets Facets { get; set; }
     }
 
     // level 3 (inside scores, DefaultTrait)
     public class Facets
     {
         [JsonPropertyName("default-facet")]
-        public DefaultFacet DefaultFacet { get; set; }
+        public required DefaultFacet DefaultFacet { get; set; }
     }
 
     // level 4 (inside scores, DefaultTrait, Facets)

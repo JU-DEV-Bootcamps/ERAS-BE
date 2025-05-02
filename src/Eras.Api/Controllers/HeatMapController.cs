@@ -48,9 +48,8 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         [FromQuery] int Limit
     )
     {
-        List<Application.DTOs.HeatMap.StudentHeatMapDetailDto> result = await _mediator.Send(
-            new GetHeatMapDetailsByComponentQuery(Component, Limit)
-        );
+        List<Application.DTOs.HeatMap.StudentHeatMapDetailDto> result =
+            await _mediator.Send(new GetHeatMapDetailsByComponentQuery(Component, Limit));
         return Ok(result);
     }
 
@@ -62,9 +61,8 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         [FromQuery] int Limit = 5
     )
     {
-        List<Application.DTOs.HeatMap.StudentHeatMapDetailDto> result = await _mediator.Send(
-            new GetHeatMapDetailsByCohortQuery(CohortId, Limit)
-        );
+        List<Application.DTOs.HeatMap.StudentHeatMapDetailDto> result =
+            await _mediator.Send(new GetHeatMapDetailsByCohortQuery(CohortId, Limit));
         return Ok(result);
     }
 
@@ -77,7 +75,8 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
     )
     {
         var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(CohortId, Days);
-        GetQueryResponse<Application.Models.Response.HeatMap.HeatMapSummaryResponseVm> response = await _mediator.Send(getHeatMapSummaryByFiltersQuery);
+        GetQueryResponse<Application.Models.Response.HeatMap.HeatMapSummaryResponseVm> response =
+            await _mediator.Send(getHeatMapSummaryByFiltersQuery);
         if (response.Success.Equals(true))
         {
             _logger.LogInformation(
