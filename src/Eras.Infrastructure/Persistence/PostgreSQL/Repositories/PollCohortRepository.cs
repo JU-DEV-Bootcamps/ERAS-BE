@@ -3,6 +3,7 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Poll;
 using Eras.Application.Mappers;
+using Eras.Application.Models.Response.Calculations;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -81,6 +82,42 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 };
 
             return await query.Distinct().ToListAsync();
+        }
+
+        public async Task<List<GetCohortComponentsByPollResponse>> GetCohortComponentsByPoll(string PollUuid)
+        {
+            var query = await _context.ErasCalculationsByPoll
+                        .Where(v => v.PollUuid == PollUuid)
+                        .Select(v => new GetCohortComponentsByPollResponse
+                        {
+                            CohortId = v.CohortId,
+                            CohortName = v.CohortName,
+                            ComponentName = v.ComponentName,
+                            AverageRiskByCohortComponent = v.AverageRiskByCohortComponent
+                        })
+                        .Distinct()
+                        .ToListAsync();
+            return query;
+        }
+
+        public async Task<List<GetCohortStudentsRiskByPollResponse>> GetCohortStudentsRiskByPoll(string PollUuid, int CohortId)
+        {
+            var query = await _context.ErasCalculationsByPoll
+               .Where(v => v.PollUuid == PollUuid && v.CohortId == CohortId)
+               .OrderByDescending(v => v.PollInstanceRiskSum)
+               .Select(v => new GetCohortStudentsRiskByPollResponse
+               {
+                   PollInstanceId = v.PollInstanceId,
+                   StudentName = v.StudentName,
+                   PollInstanceRiskSum = v.PollInstanceRiskSum
+               })
+               .ToListAsync();
+
+            var distinctResult = query
+                .DistinctBy(x => x.PollInstanceId)
+                .ToList();
+
+            return distinctResult;
         }
     }
 }

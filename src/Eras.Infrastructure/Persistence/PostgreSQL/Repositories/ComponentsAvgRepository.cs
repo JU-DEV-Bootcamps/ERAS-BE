@@ -22,33 +22,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<List<ComponentsAvg>> ComponentsAvgByStudent(int StudentId, int PollId)
         {
-            List<ComponentsAvg> result = await _context.Components
-                                    .Join(_context.Variables,
-                                        C => C.Id,
-                                        V => V.ComponentId,
-                                        (C, V) => new { c = C, v = V })
-                                    .Join(_context.PollVariables,
-                                        Cv => Cv.v.Id,
-                                        Pv => Pv.VariableId,
-                                        (Cv, Pv) => new { Cv.c, Cv.v, pv = Pv })
-                                    .Join(_context.Answers,
-                                        Cvpv => Cvpv.pv.VariableId,
-                                        A => A.PollVariableId,
-                                        (Cvpv, A) => new { Cvpv.c, Cvpv.pv, a = A })
-                                    .Join(_context.PollInstances,
-                                        Temp => Temp.a.PollInstanceId,
-                                        Pi => Pi.Id,
-                                        (Temp, Pi) => new { Temp.c, Temp.pv, Temp.a, Pi })
-                                    .Where(X => X.Pi.StudentId == StudentId && X.pv.PollId == PollId)
-                                    .GroupBy(X => new { X.c.Id, X.c.Name })
-                                    .Select(G => new ComponentsAvg
-                                    {
-                                        PollId = PollId,
-                                        ComponentId = G.Key.Id,
-                                        Name = G.Key.Name,
-                                        ComponentAvg = (float)G.Average(X => X.a.RiskLevel)
-                                    })
-                                    .ToListAsync();
+            List<ComponentsAvg> result = await _context.ErasCalculationsByPoll
+                                .Where(v => v.PollInstanceId == StudentId && v.PollId == PollId)
+                                .GroupBy(v => new { v.PollId, v.ComponentId, v.ComponentName })
+                                .Select(g => new ComponentsAvg
+                                {
+                                    PollId = g.Key.PollId,
+                                    ComponentId = g.Key.ComponentId,
+                                    Name = g.Key.ComponentName,
+                                    ComponentAvg = (float)g.Average(v => v.AnswerRisk)
+                                })
+                                .ToListAsync();
             return result;
         }
     }

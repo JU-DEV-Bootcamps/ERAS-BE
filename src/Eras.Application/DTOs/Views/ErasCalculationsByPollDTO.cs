@@ -16,4 +16,8 @@ public class ErasCalculationsByPollDTO
     public decimal VariableAverageRisk { get; set; }
     public int AnswerCount { get; set; }
     public decimal AnswerPercentage { get; set; }
+    public int CohortId { get; set; }
+    public string? CohortName { get; set; }
+    public decimal AverageRiskByCohortComponent { get; set; }
+
 }

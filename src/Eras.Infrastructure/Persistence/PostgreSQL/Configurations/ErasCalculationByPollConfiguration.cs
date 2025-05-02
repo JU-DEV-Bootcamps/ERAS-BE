@@ -12,10 +12,16 @@ public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasC
 
         Builder.HasNoKey();
 
-        Builder.Property(A => A.PollUuid)
+        Builder.Property(a => a.PollId)
+            .HasColumnName("poll_id");
+
+        Builder.Property(a => a.PollUuid)
             .HasColumnName("poll_uuid");
 
-        Builder.Property(A => A.ComponentName)
+        Builder.Property(a => a.ComponentId)
+            .HasColumnName("component_id");
+
+        Builder.Property(a => a.ComponentName)
             .HasColumnName("component_name");
 
         Builder.Property(A => A.PollVariableId)
@@ -30,6 +36,9 @@ public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasC
         Builder.Property(A => A.PollInstanceId)
             .HasColumnName("poll_instance_id");
 
+        Builder.Property(a => a.PollInstanceRiskSum)
+            .HasColumnName("poll_instance_risk_sum");
+            
         Builder.Property(A => A.StudentName)
             .HasColumnName("student_name");
 
@@ -38,9 +47,6 @@ public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasC
 
         Builder.Property(A => A.AnswerRisk)
             .HasColumnName("answer_risk");
-
-        Builder.Property(A => A.PollInstanceRiskSum)
-            .HasColumnName("poll_instance_risk_sum");
 
         Builder.Property(A => A.PollInstanceAnswersCount)
             .HasColumnName("poll_instance_answers_count");
@@ -56,5 +62,14 @@ public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasC
 
         Builder.Property(A => A.AnswerPercentage)
             .HasColumnName("answer_percentage");
+
+        Builder.Property(a => a.CohortId)
+            .HasColumnName("cohort_id");
+
+        Builder.Property(a => a.CohortName)
+            .HasColumnName("cohort_name");
+
+        Builder.Property(a => a.AverageRiskByCohortComponent)
+            .HasColumnName("average_risk_by_cohort_component");
     }
 }
