@@ -78,7 +78,6 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         from A in _context.ErasCalculationsByPoll
         where A.PollUuid == PollUuid
         where emailsInCohort.Contains(A.StudentEmail)
-        orderby A.AnswerRisk descending
         select new ErasCalculationsByPollDTO
         {
             PollUuid = A.PollUuid,
@@ -107,7 +106,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             Description = AnsPerComp.Key.ToUpper(),
             AverageRisk = Math.Round(AnsPerComp.First().ComponentAverageRisk, 2),
             Questions = [.. AnsPerComp
-                .OrderByDescending(A => A.VariableAverageRisk)
+                .OrderBy(A => A.VariableAverageRisk)
                 .GroupBy(A => A.Question)
                 .Select(AnsPerVar => new AvgReportQuestions
                 {
