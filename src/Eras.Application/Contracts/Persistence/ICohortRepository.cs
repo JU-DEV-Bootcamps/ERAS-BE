@@ -1,3 +1,4 @@
+using Eras.Application.Models.Response.Calculations;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence
@@ -7,5 +8,7 @@ namespace Eras.Application.Contracts.Persistence
         Task<Cohort?> GetByNameAsync(string name);
         Task<Cohort?> GetByCourseCodeAsync(string name);
         Task<List<Cohort>> GetCohortsAsync();
+        Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponent(string PollUuid, string ComponentName, int CohortId);
+        Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudents(string PollUuid, int CohortId);
     }
 }

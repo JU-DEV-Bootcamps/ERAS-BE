@@ -1,4 +1,9 @@
 ﻿﻿using Eras.Application.Features.Cohort.Queries;
+using Eras.Application.Features.Cohort.Queries.GetCohortComponentsByPoll;
+using Eras.Application.Features.Cohort.Queries.GetCohortStudentsRiskByPoll;
+using Eras.Application.Features.Cohort.Queries.GetCohortTopRiskStudents;
+using Eras.Application.Features.Cohort.Queries.GetCohortTopRiskStudentsByComponent;
+
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -74,5 +79,68 @@ namespace Eras.Api.Controllers
                 Summary = result
             });
         }
+
+        [HttpGet("componentsAvg")]
+        public async Task<IActionResult> GetCohortsComponentsAvg([FromQuery] string PollUuid)
+        {
+            GetCohortComponentsByPollQuery getCohortComponentsByPollQuery = new GetCohortComponentsByPollQuery() { PollUuid = PollUuid};
+            var queryResponse = await _mediator.Send(getCohortComponentsByPollQuery);
+
+            var mappedResponse = queryResponse
+                                .GroupBy(x => new { x.CohortId, x.CohortName })
+                                .Select(group => new
+                                {
+                                    CohortId = group.Key.CohortId,
+                                    CohortName = group.Key.CohortName,
+                                    ComponentsAvg = group.ToDictionary(
+                                        g => g.ComponentName,
+                                        g => g.AverageRiskByCohortComponent
+                                    )
+                                })
+                                .ToList();
+
+            return Ok(mappedResponse);
+        }
+
+        [HttpGet("studentsRisk")]
+        public async Task<IActionResult> GetCohortStudentsRiskByPoll([FromQuery] string PollUuid, [FromQuery] int CohortId)
+        {
+            GetCohortStudentsRiskByPollQuery getCohortStudentsRiskByPollQuery = new GetCohortStudentsRiskByPollQuery()
+            {
+                PollUuid = PollUuid,
+                CohortId = CohortId
+            };
+            var queryResponse = await _mediator.Send(getCohortStudentsRiskByPollQuery);
+
+            return Ok(queryResponse);
+        }
+
+        [HttpGet("studentsRiskByComponent")]
+        public async Task<IActionResult> GetCohortTopStudentsByComponent([FromQuery] string PollUuid, [FromQuery] string ComponentName, [FromQuery] int CohortId)
+        {
+            GetCohortTopRiskStudentsByComponentQuery getCohortTopRiskStudentsByComponentQuery = new GetCohortTopRiskStudentsByComponentQuery()
+            {
+                PollUuid = PollUuid,
+                ComponentName = ComponentName,
+                CohortId = CohortId,
+            };
+            var queryResponse = await _mediator.Send(getCohortTopRiskStudentsByComponentQuery);
+
+            return Ok(queryResponse);
+        }
+
+        [HttpGet("studentsRiskList")]
+        public async Task<IActionResult> GetCohortTopStudents([FromQuery] string PollUuid, [FromQuery] int CohortId)
+        {
+            GetCohortTopRiskStudentsQuery getCohortTopRiskStudentsQuery = new GetCohortTopRiskStudentsQuery()
+            {
+                PollUuid = PollUuid,
+                CohortId = CohortId,
+            };
+            var queryResponse = await _mediator.Send(getCohortTopRiskStudentsQuery);
+
+            return Ok(queryResponse);
+        }
+
     }
 }

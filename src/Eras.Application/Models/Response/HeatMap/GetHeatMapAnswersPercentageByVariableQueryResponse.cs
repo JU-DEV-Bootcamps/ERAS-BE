@@ -23,7 +23,7 @@ public class GetHeatMapAnswersPercentageByVariableQueryResponse
     [Column("variable_average_risk")]
     public decimal VariableAverageRisk { get; set; }
 
-    [Column("percentage")]
+    [Column("answer_percentage")]
     public decimal Percentage { get; set; }
 
 }
