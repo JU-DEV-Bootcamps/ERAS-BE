@@ -1,5 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using Eras.Application.DTOs;
+using Eras.Application.DTOs.Student;
+using Eras.Application.Features.Answers.Queries;
+using Eras.Application.Features.Cohort.Queries.GetCohortComponentsByPoll;
+using Eras.Application.Features.Cohort.Queries.GetCohortStudentsRiskByPoll;
+using Eras.Application.Features.Cohort.Queries.GetCohortTopRiskStudents;
+using Eras.Application.Features.Cohort.Queries.GetCohortTopRiskStudentsByComponent;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Features.Students.Queries.GetAll;
 using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAndPoll;
@@ -11,34 +17,32 @@ using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
+namespace Eras.Api.Controllers;
+
 [ApiController]
 [Route("api/v1/[controller]")]
 [ExcludeFromCodeCoverage]
-public class StudentsController : ControllerBase
+public class StudentsController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly ILogger<StudentsController> _logger;
-
-    public StudentsController(IMediator mediator, ILogger<StudentsController> logger)
-    {
-        _mediator = mediator;
-        _logger = logger;
-    }
+    private readonly IMediator _mediator = Mediator;
+    private readonly ILogger<StudentsController> _logger = Logger;
 
     [HttpPost]
-    public async Task<IActionResult> ImportStudents([FromBody] StudentImportDto[] students)
+    public async Task<IActionResult> ImportStudentsAsync([FromBody] StudentImportDto[] Students)
     {
-        _logger.LogInformation("Importing {Count} students", students?.Length ?? 0);
-
-        CreateStudentsCommand createStudentsCommand = new CreateStudentsCommand()
+        _logger.LogInformation("Importing {Count} students", Students?.Length ?? 0);
+        if(Students == null){
+            return BadRequest("No Students body found");
+        }
+        var createStudentsCommand = new CreateStudentsCommand()
         {
-            students = students,
+            students = Students,
         };
         CreateCommandResponse<Student[]> response = await _mediator.Send(createStudentsCommand);
 
         if (response.Success.Equals(true))
         {
-            _logger.LogInformation("Successfully imported {Count} students", students?.Length ?? 0);
+            _logger.LogInformation("Successfully imported {Count} students", Students?.Length ?? 0);
             return Ok(new { status = "successful", message = response.Message });
         }
         else
@@ -55,20 +59,20 @@ public class StudentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] Pagination query)
+    public async Task<IActionResult> GetAllAsync([FromQuery] Pagination Query)
     {
-        var result = await _mediator.Send(new GetAllStudentsQuery(query));
+        var result = await _mediator.Send(new GetAllStudentsQuery(Query));
         return Ok(result);
     }
 
-    [HttpGet("studentId")]
-    public async Task<IActionResult> GetStudentDetailsById([FromQuery] int studentId)
+    [HttpGet("{StudentId}")]
+    public async Task<IActionResult> GetStudentDetailsByIdAsync([FromRoute] int StudentId)
     {
-        GetStudentDetailsQuery getStudentDetailsQuery = new GetStudentDetailsQuery()
+        var getStudentDetailsQuery = new GetStudentDetailsQuery()
         {
-            StudentDetailId = studentId
+            StudentDetailId = StudentId
         };
-        var result = await _mediator.Send(getStudentDetailsQuery);
+        CreateCommandResponse<Student> result = await _mediator.Send(getStudentDetailsQuery);
         return Ok(result);
     }
 
@@ -76,33 +80,75 @@ public class StudentsController : ControllerBase
     [HttpGet("poll/{pollUuid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetPreviewPolls(
-        [FromQuery] Pagination query,
-        [FromRoute] string pollUuid,
-        [FromQuery] int days
+    public async Task<IActionResult> GetPreviewPollsAsync(
+        [FromQuery] Pagination Query,
+        [FromRoute] string PollUuid,
+        [FromQuery] int Days
     )
     {
-        GetAllStudentsByPollUuidAndDaysQuery studentsByPollQuery =
+        var studentsByPollQuery =
             new GetAllStudentsByPollUuidAndDaysQuery()
             {
-                Query = query,
-                PollUuid = pollUuid,
-                Days = days,
+                Query = Query,
+                PollUuid = PollUuid,
+                Days = Days,
             };
         return Ok(await _mediator.Send(studentsByPollQuery));
     }
 
-    [HttpGet("average/cohort/{cohortId}/poll/{pollId}")]
+    [HttpGet("average")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetAllAvgRiskByCohortAndPoll(
-        [FromRoute] int cohortId,
-        [FromRoute] int pollId
+    public async Task<IActionResult> GetAllAvgRiskByCohortAndPollAsync(
+        [FromQuery] int CohortId,
+        [FromQuery] int PollId
     )
     {
-        var result = await _mediator.Send(
-            new GetAllAverageRiskByCohortAndPollQuery(cohortId, pollId)
+        List<StudentAverageRiskDto> result = await _mediator.Send(
+            new GetAllAverageRiskByCohortAndPollQuery(CohortId, PollId)
         );
         return Ok(result);
+    }
+    //TODO: Implement views as: ?view=sum; ?view=top; ?view=avg as query params
+    [HttpGet("polls/{PollUuid}/sum")]
+    public async Task<IActionResult> GetPollRiskSumStudentsAsync([FromRoute] string PollUuid, [FromQuery] int CohortId)
+    {
+        var getCohortStudentsRiskByPollQuery = new GetCohortStudentsRiskByPollQuery()
+        {
+            PollUuid = PollUuid,
+            //Todo: Cohort Filter should be optional
+            CohortId = CohortId
+        };
+        List<Application.Models.Response.Calculations.GetCohortStudentsRiskByPollResponse> queryResponse = await _mediator.Send(getCohortStudentsRiskByPollQuery);
+
+        return Ok(queryResponse);
+    }
+
+    [HttpGet("polls/{PollUuid}/top")]
+    public async Task<IActionResult> GetPollTopStudentsAsync([FromRoute] string PollUuid, [FromQuery] int CohortId)
+    {
+        var getCohortTopRiskStudentsQuery = new GetCohortTopRiskStudentsQuery()
+        {
+            PollUuid = PollUuid,
+            //Todo: Cohort Filter should be optional
+            CohortId = CohortId,
+        };
+        List<Application.Models.Response.Calculations.GetCohortTopRiskStudentsByComponentResponse> queryResponse = await _mediator.Send(getCohortTopRiskStudentsQuery);
+
+        return Ok(queryResponse);
+    }
+
+    [HttpGet("polls/{PollUuid}/components/top")]
+    public async Task<IActionResult> GetComponentTopStudentsAsync([FromRoute] string PollUuid, [FromQuery] string ComponentName, [FromQuery] int CohortId)
+    {
+        var getCohortTopRiskStudentsByComponentQuery = new GetCohortTopRiskStudentsByComponentQuery()
+        {
+            PollUuid = PollUuid,
+            ComponentName = ComponentName,
+            CohortId = CohortId,
+        };
+        List<Application.Models.Response.Calculations.GetCohortTopRiskStudentsByComponentResponse> queryResponse = await _mediator.Send(getCohortTopRiskStudentsByComponentQuery);
+
+        return Ok(queryResponse);
     }
 }

@@ -19,14 +19,14 @@ namespace Eras.Api.Tests.Controllers
     public class EvaluationControllerTests
     {
         private readonly Mock<IMediator> _mockMediator;
-        private readonly Mock<ILogger<EvaluationController>> _mockLogger;
-        private readonly EvaluationController _controller;
+        private readonly Mock<ILogger<EvaluationsController>> _mockLogger;
+        private readonly EvaluationsController _controller;
 
         public EvaluationControllerTests()
         {
             _mockMediator = new Mock<IMediator>();
-            _mockLogger = new Mock<ILogger<EvaluationController>>();
-            _controller = new EvaluationController(_mockMediator.Object, _mockLogger.Object);
+            _mockLogger = new Mock<ILogger<EvaluationsController>>();
+            _controller = new EvaluationsController(_mockMediator.Object, _mockLogger.Object);
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace Eras.Api.Tests.Controllers
             var commandResponse = new CreateCommandResponse<Evaluation>(evaluationDTO.ToDomain(), "Success", true);
             _mockMediator.Setup(m => m.Send(It.IsAny<CreateEvaluationCommand>(), default))
                 .ReturnsAsync(commandResponse);
-            var result = await _controller.CreateEvaluation(evaluationDTO) as OkObjectResult;
+            var result = await _controller.CreateEvaluationAsync(evaluationDTO) as OkObjectResult;
 
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);

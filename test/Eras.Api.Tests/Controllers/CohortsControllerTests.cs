@@ -30,7 +30,7 @@ namespace Eras.Api.Tests.Controllers
 
 
             // Act
-            var result = await _controller.GetCohorts();
+            var result = await _controller.GetCohortsAsync();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);

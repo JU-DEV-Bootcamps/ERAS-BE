@@ -14,13 +14,13 @@ namespace Eras.Api.Tests.Controllers
     {
         private readonly Mock<IMediator> _mockMediator;
         private readonly Mock<ILogger<StudentsController>> _mockLogger;
-        private readonly PollInstanceController _controller;
+        private readonly PollInstancesController _controller;
 
         public PollInstanceControllerTests()
         {
             _mockMediator = new Mock<IMediator>();
             _mockLogger = new Mock<ILogger<StudentsController>>();
-            _controller = new PollInstanceController(_mockMediator.Object, _mockLogger.Object);
+            _controller = new PollInstancesController(_mockMediator.Object, _mockLogger.Object);
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace Eras.Api.Tests.Controllers
                 .ReturnsAsync(response);
 
             // Act
-            var result = await _controller.GetPollInstancesByCohortIdAndDays(cohortId, days) as OkObjectResult;
+            var result = await _controller.GetPollInstancesByCohortIdAndDaysAsync(cohortId, days) as OkObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -61,7 +61,7 @@ namespace Eras.Api.Tests.Controllers
                 .ReturnsAsync(response);
 
             // Act
-            var result = await _controller.GetPollInstancesByCohortIdAndDays(cohortId, days) as ObjectResult;
+            var result = await _controller.GetPollInstancesByCohortIdAndDaysAsync(cohortId, days) as ObjectResult;
 
             // Assert
             Assert.NotNull(result);

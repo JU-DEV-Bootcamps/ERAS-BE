@@ -1,24 +1,17 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-
 using Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndComponent;
-
 using MediatR;
-
 using Microsoft.AspNetCore.Mvc;
+
+namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
 [ExcludeFromCodeCoverage]
-public class VariablesController : ControllerBase
+public class VariablesController(IMediator Mediator, ILogger<VariablesController> Logger) : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly ILogger<VariablesController> _logger;
-
-    public VariablesController(IMediator Mediator, ILogger<VariablesController> Logger)
-    {
-        _mediator = Mediator;
-        _logger = Logger;
-    }
+    private readonly IMediator _mediator = Mediator;
+    private readonly ILogger<VariablesController> _logger = Logger;
 
     [HttpGet]
     public async Task<IActionResult> GetAllByPollIdAndComponentsAsync(
@@ -26,7 +19,7 @@ public class VariablesController : ControllerBase
         [FromQuery] List<string> Component
     )
     {
-        var result = await _mediator.Send(
+        List<Domain.Entities.Variable> result = await _mediator.Send(
             new GetVariablesByPollUuidAndComponentQuery(PollUuid, Component)
         );
         return Ok(result);

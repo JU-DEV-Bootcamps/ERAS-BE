@@ -2,40 +2,33 @@ using System.Diagnostics.CodeAnalysis;
 using Eras.Infrastructure.External.KeycloakClient;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Eras.Api.Controllers
+namespace Eras.Api.Controllers;
+
+[Route("api/v1/[controller]")]
+[ApiController]
+[ExcludeFromCodeCoverage]
+public class AuthController(KeycloakAuthService KeycloakAuthService, ILogger<AuthController> Logger) : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    [ExcludeFromCodeCoverage]
-    public class AuthController : ControllerBase
+    private readonly KeycloakAuthService _keycloakAuthService = KeycloakAuthService;
+    private readonly ILogger<AuthController> _logger = Logger;
+
+    [HttpPost("login")]
+    public async Task<IActionResult> LoginAsync([FromBody] LoginRequest Request)
     {
-        private readonly KeycloakAuthService _keycloakAuthService;
-        private readonly ILogger<AuthController> _logger;
-
-        public AuthController(KeycloakAuthService keycloakAuthService, ILogger<AuthController> logger)
+        try
         {
-            _keycloakAuthService = keycloakAuthService;
-            _logger = logger;
-        }
+            _logger.LogInformation("Login attempt for user {Username}", Request.Username);
 
-        [HttpPost("login")]
-        public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request)
+            TokenResponse token = await _keycloakAuthService.LoginAsync(Request.Username, Request.Password);
+
+            _logger.LogInformation("User {Username} logged in successfully", Request.Username);
+
+            return Ok(token);
+        }
+        catch (Exception ex)
         {
-            try
-            {
-                _logger.LogInformation("Login attempt for user {Username}", request.Username);
-
-                var token = await _keycloakAuthService.LoginAsync(request.Username, request.Password);
-
-                _logger.LogInformation("User {Username} logged in successfully", request.Username);
-
-                return Ok(token);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Login failed for user {Username}", request.Username);
-                return Unauthorized(ex.Message);
-            }
+            _logger.LogError(ex, "Login failed for user {Username}", Request.Username);
+            return Unauthorized(ex.Message);
         }
-    }    
+    }
 }
