@@ -24,6 +24,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return variable?.ToDomain();
         }
 
+        public async Task<Variable?> GetByNameInPollAndComponent(string Name)
+        {
+            var variable = await _context.Variables.FirstOrDefaultAsync(Variable =>
+                Variable.Name == Name
+            );
+
+            return variable?.ToDomain();
+        }
+
         public async Task<Variable> AddAsync(Variable Variable)
         {
             VariableEntity variableEntity = Variable.ToPersistence();

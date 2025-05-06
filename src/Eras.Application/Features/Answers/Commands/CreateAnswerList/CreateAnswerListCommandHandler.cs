@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Dtos;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
@@ -21,29 +22,29 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
 
         public async Task<CreateCommandResponse<List<Answer>>> Handle(CreateAnswerListCommand request, CancellationToken cancellationToken)
         {
-            try
+            foreach (AnswerDTO ans in request.Answers)
             {
-                List<Answer> answers = request.Answers.Select(ans => ans.ToDomain()).ToList();
-
-                await _answerRepository.SaveManyAnswersAsync(answers);
-
-                return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);
-            }
-            catch (DbUpdateException ex)
-            {
-                if (ex.InnerException!=null)
+                try
                 {
-                    _logger.LogError(ex.InnerException.Message, "Create error on Answer");
+                    Answer answer = ans.ToDomain();
+                    await _answerRepository.AddAsync(answer);
                 }
-                else
-                    _logger.LogError(ex.Message, "Create error on Answer");
-                return new CreateCommandResponse<List<Answer>>(null, 0, "Error", false);
+                catch (DbUpdateException ex)
+                {
+                    if (ex.InnerException != null)
+                    {
+                        _logger.LogError(ex.InnerException.Message, "Create error on Answer");
+                    }
+                    else
+                        _logger.LogError(ex.Message, "Create error on Answer");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred creating answers ");
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred creating answers ");
-                return new CreateCommandResponse<List<Answer>>(null, 0, "Error", false);
-            }
+            var answerList = request.Answers.Select(Ans => Ans.ToDomain()).ToList();
+            return new CreateCommandResponse<List<Answer>>(answerList,"Success",true);
         }
     }
 }
