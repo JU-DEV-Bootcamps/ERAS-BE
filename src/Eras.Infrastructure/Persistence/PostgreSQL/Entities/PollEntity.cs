@@ -1,4 +1,5 @@
-﻿using Eras.Domain.Common;
+﻿
+using Eras.Domain.Common;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
