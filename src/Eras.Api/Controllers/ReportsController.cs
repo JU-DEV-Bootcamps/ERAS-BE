@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Eras.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/reports")]
 [ExcludeFromCodeCoverage]
 public class ReportsController(IMediator Mediator) : ControllerBase
 {
@@ -84,9 +84,9 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
 
-    [HttpGet("polls/{PollUuid}/top")]
+    [HttpGet("polls/{Uuid}/top")]
     public async Task<IActionResult> GetHigherRiskStudentsByPollAsync(
-    [FromRoute] string PollUuid,
+    [FromRoute] string Uuid,
     [FromQuery] int Take,
     [FromQuery] string VariableIds)
     {
@@ -94,7 +94,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             GetPollTopQuery query = new()
             {
-                PollUuid = new Guid(PollUuid),
+                PollUuid = new Guid(Uuid),
                 Take = Take,
                 VariableIds = VariableIds
             };
@@ -124,12 +124,12 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         }
     }
 
-    [HttpGet("polls/{PollUuid}/avg")]
-    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string PollUuid, [FromQuery] int CohortId)
+    [HttpGet("polls/{Uuid}/avg")]
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] int CohortId)
     {
         try
         {
-            var pollGuid = new Guid(PollUuid);
+            var pollGuid = new Guid(Uuid);
             var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId };
             GetQueryResponse<Application.Models.Consolidator.AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success

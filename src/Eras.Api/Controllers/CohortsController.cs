@@ -10,7 +10,7 @@ namespace Eras.Api.Controllers;
 
 [Description("Only for cohort level data. If Cohort is used only as filter use the students controller")]
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/cohorts")]
 public class CohortsController(IMediator Mediator, ILogger<CohortsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

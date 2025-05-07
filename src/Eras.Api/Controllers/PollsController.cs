@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Eras.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/polls")]
 [ExcludeFromCodeCoverage]
 public class PollsController(IMediator Mediator, ILogger<PollsController> Logger) : ControllerBase
 {
@@ -38,22 +38,22 @@ public class PollsController(IMediator Mediator, ILogger<PollsController> Logger
         return Ok(await _mediator.Send(new GetPollsByCohortListQuery() { CohortId = CohortId }));
     }
 
-    [HttpGet("{pollId}")]
+    [HttpGet("{Id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllPollVariableByCohortAndPollAsync(
-        [FromRoute] int PollId,
+        [FromRoute] int Id,
         [FromQuery] int CohortId
-    ) => Ok(await _mediator.Send(new GetAllByPollAndCohortQuery(CohortId, PollId)));
+    ) => Ok(await _mediator.Send(new GetAllByPollAndCohortQuery(CohortId, Id)));
 
-    [HttpGet("{PollUuid}/variables")]
+    [HttpGet("{Uuid}/variables")]
     public async Task<IActionResult> GetVariablesByComponentsAsync(
-        [FromRoute] string PollUuid,
+        [FromRoute] string Uuid,
         [FromQuery] List<string> Component
     )
     {
         List<Variable> result = await _mediator.Send(
-            new GetVariablesByPollUuidAndComponentQuery(PollUuid, Component)
+            new GetVariablesByPollUuidAndComponentQuery(Uuid, Component)
         );
         return Ok(result);
     }

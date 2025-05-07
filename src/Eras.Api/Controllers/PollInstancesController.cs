@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 
-[Route("api/v1/[controller]")]
+[Route("api/v1/poll-instances")]
 [ApiController]
 [ExcludeFromCodeCoverage]
 public class PollInstancesController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
@@ -33,10 +33,10 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
         return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(CohortId, Days)));
     }
 
-    [HttpGet("{PollUuid}/cohorts/avg")]
-    public async Task<IActionResult> GetComponentsAvgGroupedByCohortAsync([FromRoute] string PollUuid)
+    [HttpGet("{Uuid}/cohorts/avg")]
+    public async Task<IActionResult> GetComponentsAvgGroupedByCohortAsync([FromRoute] string Uuid)
     {
-        var getCohortComponentsByPollQuery = new GetCohortComponentsByPollQuery() { PollUuid = PollUuid };
+        var getCohortComponentsByPollQuery = new GetCohortComponentsByPollQuery() { PollUuid = Uuid };
         List<Application.Models.Response.Calculations.GetCohortComponentsByPollResponse> queryResponse = await _mediator.Send(getCohortComponentsByPollQuery);
         var mappedResponse = queryResponse
             .GroupBy(X => new { X.CohortId, X.CohortName })
@@ -53,13 +53,13 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
         return Ok(mappedResponse);
     }
 
-    [HttpGet("{PollId}/avg")]
-    public async Task<IActionResult> GetComponentsRiskAvgByStudentAsync([FromQuery] int StudentId, [FromRoute] int PollId)
+    [HttpGet("{Id}/avg")]
+    public async Task<IActionResult> GetComponentsRiskAvgByStudentAsync([FromQuery] int StudentId, [FromRoute] int Id)
     {
         var getComponentsRiskAvgByStudent = new GetComponentsAvgByStudentQuery()
         {
             StudentId = StudentId,
-            PollId = PollId
+            PollId = Id
         };
         return Ok(await _mediator.Send(getComponentsRiskAvgByStudent));
     }

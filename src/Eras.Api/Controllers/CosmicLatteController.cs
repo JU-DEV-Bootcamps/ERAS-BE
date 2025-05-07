@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Eras.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/CosmicLatte")]
+[Route("api/v1/cosmic-latte")]
 public class CosmicLatteController(ICosmicLatteAPIService CosmicLatteService) : ControllerBase
 {
     private readonly ICosmicLatteAPIService _cosmicLatteService = CosmicLatteService;

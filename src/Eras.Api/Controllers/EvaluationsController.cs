@@ -15,7 +15,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 
-[Route("api/v1/[controller]")]
+[Route("api/v1/evaluations")]
 [ApiController]
 public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsController> Logger) : ControllerBase
 {

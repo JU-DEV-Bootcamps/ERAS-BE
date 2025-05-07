@@ -22,7 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Eras.Api.Controllers;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[Route("api/v1/students")]
 [ExcludeFromCodeCoverage]
 public class StudentsController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {
@@ -68,24 +68,24 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         return Ok(result);
     }
 
-    [HttpGet("{StudentId}")]
-    public async Task<IActionResult> GetStudentDetailsByIdAsync([FromRoute] int StudentId)
+    [HttpGet("{Id}")]
+    public async Task<IActionResult> GetStudentDetailsByIdAsync([FromRoute] int Id)
     {
         var getStudentDetailsQuery = new GetStudentDetailsQuery()
         {
-            StudentDetailId = StudentId
+            StudentDetailId = Id
         };
         CreateCommandResponse<Student> result = await _mediator.Send(getStudentDetailsQuery);
         return Ok(result);
     }
 
 
-    [HttpGet("poll/{pollUuid}")]
+    [HttpGet("poll/{Uuid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPreviewPollsAsync(
         [FromQuery] Pagination Query,
-        [FromRoute] string PollUuid,
+        [FromRoute] string Uuid,
         [FromQuery] int Days
     )
     {
@@ -93,7 +93,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
             new GetAllStudentsByPollUuidAndDaysQuery()
             {
                 Query = Query,
-                PollUuid = PollUuid,
+                PollUuid = Uuid,
                 Days = Days,
             };
         return Ok(await _mediator.Send(studentsByPollQuery));
@@ -113,12 +113,12 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         return Ok(result);
     }
     //TODO: Implement views as: ?view=sum; ?view=top; ?view=avg as query params
-    [HttpGet("polls/{PollUuid}/sum")]
-    public async Task<IActionResult> GetPollRiskSumStudentsAsync([FromRoute] string PollUuid, [FromQuery] int CohortId)
+    [HttpGet("polls/{Uuid}/sum")]
+    public async Task<IActionResult> GetPollRiskSumStudentsAsync([FromRoute] string Uuid, [FromQuery] int CohortId)
     {
         var getCohortStudentsRiskByPollQuery = new GetCohortStudentsRiskByPollQuery()
         {
-            PollUuid = PollUuid,
+            PollUuid = Uuid,
             //Todo: Cohort Filter should be optional
             CohortId = CohortId
         };
@@ -127,12 +127,12 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         return Ok(queryResponse);
     }
 
-    [HttpGet("polls/{PollUuid}/top")]
-    public async Task<IActionResult> GetPollTopStudentsAsync([FromRoute] string PollUuid, [FromQuery] int CohortId)
+    [HttpGet("polls/{Uuid}/top")]
+    public async Task<IActionResult> GetPollTopStudentsAsync([FromRoute] string Uuid, [FromQuery] int CohortId)
     {
         var getCohortTopRiskStudentsQuery = new GetCohortTopRiskStudentsQuery()
         {
-            PollUuid = PollUuid,
+            PollUuid = Uuid,
             //Todo: Cohort Filter should be optional
             CohortId = CohortId,
         };
@@ -141,12 +141,12 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         return Ok(queryResponse);
     }
 
-    [HttpGet("polls/{PollUuid}/components/top")]
-    public async Task<IActionResult> GetComponentTopStudentsAsync([FromRoute] string PollUuid, [FromQuery] string ComponentName, [FromQuery] int CohortId)
+    [HttpGet("polls/{Uuid}/components/top")]
+    public async Task<IActionResult> GetComponentTopStudentsAsync([FromRoute] string Uuid, [FromQuery] string ComponentName, [FromQuery] int CohortId)
     {
         var getCohortTopRiskStudentsByComponentQuery = new GetCohortTopRiskStudentsByComponentQuery()
         {
-            PollUuid = PollUuid,
+            PollUuid = Uuid,
             ComponentName = ComponentName,
             CohortId = CohortId,
         };
@@ -156,22 +156,22 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     //TODO: Normalize use of uuid instead of id
-    [HttpGet("{StudentId}/polls/{PollInstanceId}/answers")]
+    [HttpGet("{Id}/polls/{InstanceId}/answers")]
     public async Task<IActionResult> GetStudentAnswersByPollAsync(
-        [FromRoute] int StudentId,
-        [FromRoute] int PollInstanceId
+        [FromRoute] int Id,
+        [FromRoute] int InstanceId
     )
     {
         var getStudentAnswersByPoll =
-            new GetStudentAnswersByPollQuery() { StudentId = StudentId, PollId = PollInstanceId };
+            new GetStudentAnswersByPollQuery() { StudentId = Id, PollId = InstanceId };
         try
         {
             return Ok(await _mediator.Send(getStudentAnswersByPoll));
         }
         catch (Exception e)
         {
-            _logger.LogWarning("Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}", StudentId, PollInstanceId, e);
-            return NotFound($"Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}");
+            _logger.LogWarning("Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}", Id, InstanceId, e);
+            return NotFound($"Could not get answers for that {Id} of pollInstance={InstanceId}.\n {e}");
         }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 
-[Route("api/v1/[controller]")]
+[Route("api/v1/auth")]
 [ApiController]
 [ExcludeFromCodeCoverage]
 public class AuthController(KeycloakAuthService KeycloakAuthService, ILogger<AuthController> Logger) : ControllerBase
