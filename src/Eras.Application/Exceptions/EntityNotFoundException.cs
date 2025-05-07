@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Eras.Domain.Common.Exceptions;
+namespace Eras.Application.Exceptions;
 public class EntityNotFoundException : CustomException
 {
     public EntityNotFoundException() { }

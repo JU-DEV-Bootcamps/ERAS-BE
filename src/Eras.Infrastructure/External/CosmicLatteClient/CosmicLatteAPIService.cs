@@ -102,8 +102,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 if(apiResponse == null)
                     throw new InvalidCastException("Unable to deserialize response from cosmic latte");
             }
-            catch (Exception ex)
+            catch (Exception Ex)
             {
+                _logger.LogError(Ex.Message);
                 throw new InvalidCastException("Unable to deserialize response from cosmic latte");
             }
             if (apiResponse.data.Count == 0)
@@ -123,25 +124,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 if (populatedComponents.Count() > 0)
                 {
-                    // 2. Create polls with version
-                    DateTime versionDate = responseToPollInstace.changeHistory.Last().when;
-                    string version = "Version-" + versionDate.ToString();
-                    PollVersionDTO newVersion = new PollVersionDTO() {
-                        Name = version,
-                        Date = versionDate,
-                        Audit = new AuditInfo 
-                        {
-                            CreatedBy = "Cl Import",
-                            CreatedAt = DateTime.UtcNow
-                        }
-                    };
-                    ICollection<PollVersionDTO> pollVersions = new List<PollVersionDTO>();
-                    pollVersions.Add(newVersion);
                     PollDTO pollDto = new PollDTO
                     {
                         Name = responseToPollInstace.name,
                         Components = populatedComponents,
-                        PollVersions = pollVersions,
+                        PollVersions = [],
                         FinishedAt = responseToPollInstace.finishedAt
                     };
                     pollsDtos.Add(pollDto);

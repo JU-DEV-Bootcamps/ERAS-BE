@@ -14,15 +14,15 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
         private readonly IAnswerRepository _answerRepository;
         private readonly ILogger<CreateAnswerListCommandHandler> _logger;
 
-        public CreateAnswerListCommandHandler(IAnswerRepository answerRepository, ILogger<CreateAnswerListCommandHandler> logger)
+        public CreateAnswerListCommandHandler(IAnswerRepository AnswerRepository, ILogger<CreateAnswerListCommandHandler> Logger)
         {
-            _answerRepository = answerRepository;
-            _logger = logger;
+            _answerRepository = AnswerRepository;
+            _logger = Logger;
         }
 
-        public async Task<CreateCommandResponse<List<Answer>>> Handle(CreateAnswerListCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<List<Answer>>> Handle(CreateAnswerListCommand Request, CancellationToken CancellationToken)
         {
-            foreach (AnswerDTO ans in request.Answers)
+            foreach (AnswerDTO ans in Request.Answers)
             {
                 try
                 {
@@ -43,7 +43,7 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
                     _logger.LogError(ex, "An error occurred creating answers ");
                 }
             }
-            var answerList = request.Answers.Select(Ans => Ans.ToDomain()).ToList();
+            var answerList = Request.Answers.Select(Ans => Ans.ToDomain()).ToList();
             return new CreateCommandResponse<List<Answer>>(answerList,"Success",true);
         }
     }

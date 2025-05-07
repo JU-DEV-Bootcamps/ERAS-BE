@@ -60,4 +60,13 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
             Console.WriteLine($"Error storing answer: {ex.Message}");
         }
     }
+
+    public async Task<List<Answer>> GetByPollInstanceAnswerAndPollVariableAsync(int PollVariableId,
+        int PollInstanceId, string AnswerText)
+    {
+        List<AnswerEntity> answers = await _context.Answers
+            .Where(Answ => Answ.PollInstanceId == PollInstanceId && 
+            Answ.AnswerText.Equals(AnswerText) && Answ.PollVariableId == PollVariableId).ToListAsync();
+        return answers.Select(Answ => Answ.ToDomain()).ToList();
+    }
 }
