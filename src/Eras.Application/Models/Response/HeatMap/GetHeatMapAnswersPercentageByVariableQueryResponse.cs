@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eras.Application.Models.Response.HeatMap;
 public class GetHeatMapAnswersPercentageByVariableQueryResponse
@@ -23,7 +18,7 @@ public class GetHeatMapAnswersPercentageByVariableQueryResponse
     [Column("variable_average_risk")]
     public decimal VariableAverageRisk { get; set; }
 
-    [Column("percentage")]
+    [Column("answer_percentage")]
     public decimal Percentage { get; set; }
 
 }

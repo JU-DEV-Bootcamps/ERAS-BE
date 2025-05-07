@@ -43,7 +43,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return variableCreated;
         }
-
         public Task<Variable> Add(Variable ComponentVariable)
         {
             throw new NotImplementedException();

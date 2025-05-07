@@ -1,4 +1,9 @@
-﻿using Eras.Application.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
+
+using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
 using Eras.Application.DTOs.CosmicLatte;
@@ -6,12 +11,9 @@ using Eras.Application.Models.Response.Common;
 using Eras.Application.Services;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
 
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
@@ -63,7 +65,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         {
             try
             {
-                CreateCommandResponse<CreatedPollDTO?> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos);
+                CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos);
                 return createdPoll.Entity;
             }
             catch (Exception e)
@@ -99,12 +101,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             try
             {
                 apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody);
-                if(apiResponse == null)
+                if (apiResponse == null)
                     throw new InvalidCastException("Unable to deserialize response from cosmic latte");
             }
             catch (Exception Ex)
             {
-                _logger.LogError(Ex.Message);
+                this._logger.LogError(ex.Message);
                 throw new InvalidCastException("Unable to deserialize response from cosmic latte");
             }
             if (apiResponse.data.Count == 0)
@@ -115,9 +117,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(validatedEvaluations[0]);
 
-            List<ComponentDTO> componentsAndVariables = GetComponentsAndVariablesAsync(validatedEvaluations[0]._id, variablesPositionByComponents).Result;
+            List<ComponentDTO> componentsAndVariables = GetComponentsAndVariablesAsync(validatedEvaluations[0].Id, variablesPositionByComponents).Result;
 
-            foreach (var responseToPollInstace in apiResponse.data)
+            if (componentsAndVariables.Count > 0)
             {
                 ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstanceAsync(componentsAndVariables, 
                     responseToPollInstace._id, responseToPollInstace.score);
@@ -133,7 +135,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     };
                     pollsDtos.Add(pollDto);
                 }
-                
             }
             return pollsDtos;
         }
@@ -154,16 +155,22 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 CLResponseModelForPollDTO? apiResponse;
                 try
                 {
+<<<<<<< HEAD
                     apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody);
                     if (apiResponse == null) 
                     {
                         this._logger.LogError("Error Deserializing Components");
                         throw new InvalidCastException("Unable to deserialize response from cosmic latte");
                     }
+=======
+                    var deserializeResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody);
+                    if (deserializeResponse == null) throw new Exception();
+                    else apiResponse = deserializeResponse;
+>>>>>>> main
                 }
                 catch (Exception e)
                 {
-                    this._logger.LogError("Error Deserializing Components");
+                    this._logger.LogError("Error Deserializing Components" + e.Message);
                     throw new InvalidCastException("Unable to deserialize response from cosmic latte");
                 }
 
@@ -172,7 +179,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string studentCohort = apiResponse.Data.Answers.ElementAt(2).Value.AnswersList[0];
                 StudentDTO studentDto = CreateStudent(studentName, studentEmail, studentCohort);
 
+<<<<<<< HEAD
                 // clone list test in case Components is empty
+=======
+                // clone list
+>>>>>>> main
                 List<ComponentDTO> clonedListComponents = Components.Select(C => new ComponentDTO
                 {
                     Name = C.Name,
@@ -191,7 +202,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 {
                     foreach (ComponentDTO component in clonedListComponents)
                     {
-                        foreach(VariableDTO variable in component.Variables)
+                        foreach (VariableDTO variable in component.Variables)
                         {
                             if (variable.Position == answerCL.Value.Position)
                             {
@@ -278,7 +289,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         public StudentDTO CreateStudent(string Name, string Email, string Cohort)
         {
             StudentDTO studentDTO = new StudentDTO { Name = Name, Email = Email, Uuid = null };
-            CohortDTO cohortDTO = new CohortDTO() { Name = Cohort};
+            CohortDTO cohortDTO = new CohortDTO() { Name = Cohort };
             studentDTO.Cohort = cohortDTO;
             return studentDTO;
         }
@@ -317,14 +328,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 request.Headers.Add(HeaderApiKey, _apiKey);
 
                 var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode) return null;
+                if (!response.IsSuccessStatusCode) return new List<PollDataItem>();
 
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
                 List<PollDataItem> pollsData = [.. apiResponse.data.Select(Poll => new PollDataItem(Poll.parent, Poll.name, Poll.status))];
                 return pollsData;
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
                 throw new InvalidCastException($"Invalid Cosmic Latte poll, not supported for this version. {e.Message}");
             }

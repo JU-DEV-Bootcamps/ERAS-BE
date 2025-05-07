@@ -1,163 +1,154 @@
-﻿using Eras.Application.DTOs.CL;
-using Eras.Application.Models.Response.HeatMap;
-namespace Eras.Application.Mappers
+﻿using Eras.Application.Models.Response.HeatMap;
+namespace Eras.Application.Mappers;
+
+public static class HeatMapMapper
 {
-    public static class HeatMapMapper
+    public static HeatMapByComponentsResponseVm MaptToVmResponse(
+        IEnumerable<GetHeatMapByComponentsQueryResponse> QueryResponses,
+        string ComponentName
+    )
     {
-        public static HeatMapByComponentsResponseVm MaptToVmResponse(
-            IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses,
-            string componentName
-        )
-        {
-            var variables = queryResponses
-                .GroupBy(v => new { v.VariableId, v.VariableName })
-                .Select(vg => new Variable
-                {
-                    VariableId = vg.Key.VariableId,
-                    Description = vg.Key.VariableName,
-                    PossibleAnswers = vg.Select(a => new PossibleAnswer
-                    {
-                        Description = a.AnswerText,
-                        Value = a.AnswerRiskLevel
-                    }).DistinctBy(pa => pa.Description)
-                      .ToList()
-                }).ToList();
-
-            var maxAnswersCount = queryResponses
-                .GroupBy(q => q.VariableId)
-                .Max(g => g.Count());
-
-            var series = queryResponses
-                .GroupBy(q => new { q.VariableId, q.VariableName })
-                .Select(g => new Series
-                {
-                    Name = g.Key.VariableName,
-                    Data = g.GroupBy(a => a.AnswerText)
-                            .Select(ag => new DataPoint
-                            {
-                                X = ag.Key ?? "No Answer",
-                                Y = ag.Count()
-                            })
-                            .OrderBy(dp => dp.Y)
-                            .ToList()
-                })
-                .ToList();
-
-            foreach (var serie in series)
+        var variables = QueryResponses
+            .GroupBy(Var => new { Var.VariableId, Var.VariableName })
+            .Select(VarGroup => new Variable
             {
-                while (serie.Data.Count() < maxAnswersCount)
+                VariableId = VarGroup.Key.VariableId,
+                Description = VarGroup.Key.VariableName,
+                PossibleAnswers = [.. VarGroup.Select(Ans => new PossibleAnswer
                 {
-                    serie.Data.Insert(0, new DataPoint { X = "No Answer", Y = -1 });
-                }
-            }
+                    Description = Ans.AnswerText,
+                    Value = Ans.AnswerRiskLevel
+                }).DistinctBy(PAns => PAns.Description)]
+            }).ToList();
 
-            return new HeatMapByComponentsResponseVm
+        var maxAnswersCount = QueryResponses
+            .GroupBy(VarG => VarG.VariableId)
+            .Max(G => G.Count());
+
+        var series = QueryResponses
+            .GroupBy(QueryRes => new { QueryRes.VariableId, QueryRes.VariableName })
+            .Select(G => new Series
             {
-                ComponentName = componentName,
-                Variables = new VariableData { Variables = variables },
-                Series = series
-            };
-        }
-
-        public static HeatMapSummaryResponseVm MapToSummaryVmResponse(
-            IEnumerable<GetHeatMapByComponentsQueryResponse> queryResponses)
-        {
-            var components = queryResponses
-                .GroupBy(q => new { q.ComponentId, q.ComponentName })
-                .Select(cg => new Component
-                {
-                    Description = cg.Key.ComponentName.ToUpper(),
-                    Variables = cg
-                    .GroupBy(v => v.VariableId)
-                    .Select(vg => new ComponentVars
-                    {
-                        Description = vg.First().VariableName,
-                        AverageScore = vg.Average(v => v.AnswerRiskLevel)
-                    })
-                    .ToList()
-                })
-                .ToList();
-
-            var series = components
-                .Select(c => new SeriesSummary
-                {
-                    Name = c.Description,
-                    Data = c.Variables
-                    .Select(va => new DataPointSummary
-                    {
-                        X = va.Description,
-                        Y = Math.Round(Math.Min(va.AverageScore, 5), 2),
-                        Z = ""
-                    })
-                    .OrderBy(dp => dp.Y)
-                    .ToList()
-                })
-                .ToList();
-
-            int maxDataCount = series
-                .Max(s => s.Data.Count);
-
-            foreach (var serie in series)
-            {
-                while (serie.Data.Count() < maxDataCount)
-                {
-                    serie.Data.Insert(0, new DataPointSummary { X = "No Answer", Y = -1.0 , Z = ""});
-                }
-            }
-
-
-            return new HeatMapSummaryResponseVm
-            {
-                Components = components,
-                Series = series
-            };
-
-        }
-
-        public static HeatMapSummaryResponseVm MapToSummaryAndPercentageVmResponse(
-    IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse> queryResponses)
-        {
-            var components = queryResponses
-                .GroupBy(q => new { q.ComponentName })
-                .Select(cg => new Component
-                {
-                    Description = cg.Key.ComponentName?.ToUpper(),
-                    Variables = cg
-                        .GroupBy(v => v.Name)
-                        .Select(vg => new ComponentVars
+                Name = G.Key.VariableName,
+                Data = [.. G.GroupBy(Ans => Ans.AnswerText)
+                        .Select(AnsGr => new DataPoint
                         {
-                            Description = vg.Key,
-                            AverageScore = (double) vg.First().VariableAverageRisk 
+                            X = AnsGr.Key ?? "No Answer",
+                            Y = AnsGr.Count()
                         })
-                        .ToList()
-                })
-                .ToList();
+                        .OrderBy(DataPoint => DataPoint.Y)]
+            })
+            .ToList();
 
-            var series = components
-                .Select(c => new SeriesSummary
-                {
-                    Name = c.Description,
-                    Data = c.Variables
-                        .Select(va => new DataPointSummary
-                        {
-                            X = va.Description, 
-                            Y = Math.Round(Math.Min(va.AverageScore, 5), 2), 
-                            Z = string.Join("\n", queryResponses
-                                .Where(ap => ap.Name == va.Description && ap.ComponentName?.ToUpper() == c.Description)
-                                .Select(ap => $"{ap.AnswerText} : {Math.Round(ap.Percentage, 2)}%")) 
-                        })
-                        .OrderBy(dp => dp.Y)
-                        .ToList()
-                })
-                .ToList();
-
-            return new HeatMapSummaryResponseVm
+        foreach (var serie in series)
+        {
+            while (serie.Data.Count() < maxAnswersCount)
             {
-                Components = components,
-                Series = series
-            };
+                serie.Data.Insert(0, new DataPoint { X = "No Answer", Y = -1 });
+            }
         }
 
+        return new HeatMapByComponentsResponseVm
+        {
+            ComponentName = ComponentName,
+            Variables = new VariableData { Variables = variables },
+            Series = series
+        };
+    }
+
+    public static HeatMapSummaryResponseVm MapToSummaryVmResponse(
+        IEnumerable<GetHeatMapByComponentsQueryResponse> QueryResponses)
+    {
+        var components = QueryResponses
+            .GroupBy(Q => new { Q.ComponentId, Q.ComponentName })
+            .Select(CompGroup => new Component
+            {
+                Description = CompGroup.Key.ComponentName.ToUpper(),
+                Variables = [.. CompGroup
+                .GroupBy(Var => Var.VariableId)
+                .Select(VarGr => new ComponentVars
+                {
+                    Description = VarGr.First().VariableName,
+                    AverageScore = VarGr.Average(Var => Var.AnswerRiskLevel)
+                })]
+            })
+            .ToList();
+
+        var series = components
+            .Select(Comp => new SeriesSummary
+            {
+                Name = Comp.Description,
+                Data = [.. Comp.Variables
+                .Select(Var => new DataPointSummary
+                {
+                    X = Var.Description,
+                    Y = Math.Round(Math.Min(Var.AverageScore, 5), 2),
+                    Z = ""
+                })
+                .OrderBy(DataPoint => DataPoint.Y)]
+            })
+            .ToList();
+        var maxDataCount = series
+            .Max(Series => Series.Data.Count);
+
+        foreach (SeriesSummary? serie in series)
+        {
+            while (serie.Data.Count < maxDataCount)
+            {
+                serie.Data.Insert(0, new DataPointSummary { X = "No Answer", Y = -1.0, Z = "" });
+            }
+        }
+
+
+        return new HeatMapSummaryResponseVm
+        {
+            Components = components,
+            Series = series
+        };
 
     }
+
+    public static HeatMapSummaryResponseVm MapToSummaryAndPercentageVmResponse(
+IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse> QueryResponses)
+    {
+        var components = QueryResponses
+            .GroupBy(Q => new { Q.ComponentName })
+            .Select(CompGr => new Component
+            {
+                Description = CompGr.Key.ComponentName?.ToUpper(),
+                Variables = [.. CompGr
+                    .GroupBy(Var => Var.Name)
+                    .Select(VarGr => new ComponentVars
+                    {
+                        Description = VarGr.Key,
+                        AverageScore = (double) VarGr.First().VariableAverageRisk
+                    })]
+            })
+            .ToList();
+
+        var series = components
+            .Select(Comp => new SeriesSummary
+            {
+                Name = Comp.Description,
+                Data = [.. Comp.Variables
+                    .Select(Var => new DataPointSummary
+                    {
+                        X = Var.Description,
+                        Y = Math.Round(Math.Min(Var.AverageScore, 5), 2),
+                        Z = string.Join("\n", QueryResponses
+                            .Where(AnsPoint => AnsPoint.Name == Var.Description && AnsPoint.ComponentName?.ToUpper() == Comp.Description)
+                            .Select(AP => $"{AP.AnswerText} : {Math.Round(AP.Percentage, 2)}%"))
+                    })
+                    .OrderBy(DataPoint => DataPoint.Y)]
+            })
+            .ToList();
+
+        return new HeatMapSummaryResponseVm
+        {
+            Components = components,
+            Series = series
+        };
+    }
+
+
 }

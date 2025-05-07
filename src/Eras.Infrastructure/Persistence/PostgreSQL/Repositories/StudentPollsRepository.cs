@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -23,7 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<List<Poll>> GetPollsByStudentIdAsync(int StudentId)
         {
-            var query = await _context.Polls
+            var pollsAsync = await _context.Polls
                 .Where(P => P.PollVariables
                     .Any(Pv => Pv.Answers
                         .Any(A => A.PollInstance.StudentId == StudentId)))
@@ -31,34 +26,33 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 {
                     P.Id,
                     P.Uuid,
-                    P.Name
+                    P.Name,
+                    P.Version
                 })
                 .Distinct()
                 .ToListAsync();
-                    
-            var polls = query.Select(P => new PollEntity
+            var polls = pollsAsync.Select(P => new PollEntity
             {
                 Id = P.Id,
                 Uuid = P.Uuid,
                 Name = P.Name,
+                Version = P.Version,
                 PollVariables = _context.PollVariables
-                    .Where(Pv => Pv.PollId == P.Id)
-                    .Select(Pv => new PollVariableJoin
+                .Where(Pv => Pv.PollId == P.Id)
+                .Select(Pv => new PollVariableJoin
+                {
+                    Id = Pv.Id,
+                    Answers = Pv.Answers
+                    .Where(A => A.PollInstance.StudentId == StudentId)
+                    .Select(A => new AnswerEntity
                     {
-                        Id = Pv.Id,
-                        Answers = Pv.Answers
-                            .Where(A => A.PollInstance.StudentId == StudentId)
-                            .Select(A => new AnswerEntity
-                            {
-                                Id = A.Id,
-                                AnswerText = A.AnswerText,
-                                PollInstanceId = A.PollInstanceId
-                            })
-                            .ToList()
-                    })
-                    .ToList()
-            })
-                .ToList();
+                        Id = A.Id,
+                        AnswerText = A.AnswerText,
+                        PollInstanceId = A.PollInstanceId
+                    }).ToList()
+                }).ToList()
+            }).ToList();
+
 
             return polls.Select(P => P.ToDomain()).ToList();
         }

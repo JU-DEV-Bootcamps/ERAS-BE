@@ -1,4 +1,5 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,28 +7,28 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class ComponentConfiguration : IEntityTypeConfiguration<ComponentEntity>
     {
-        public void Configure(EntityTypeBuilder<ComponentEntity> builder)
+        public void Configure(EntityTypeBuilder<ComponentEntity> Builder)
         {
-            builder.ToTable("components");
+            Builder.ToTable("components");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
-            AuditConfiguration.Configure(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
+            AuditConfiguration.Configure(Builder);
         }
 
-        private void ConfigureColumns(EntityTypeBuilder<ComponentEntity> builder)
+        private void ConfigureColumns(EntityTypeBuilder<ComponentEntity> Builder)
         {
-            builder.HasKey(component => component.Id);
-            builder.Property(component => component.Name)
+            Builder.HasKey(Component => Component.Id);
+            Builder.Property(Component => Component.Name)
                 .HasColumnName("name")
                 .IsRequired();
         }
 
-        private void ConfigureRelationShips(EntityTypeBuilder<ComponentEntity> builder)
+        private void ConfigureRelationShips(EntityTypeBuilder<ComponentEntity> Builder)
         {
-            builder.HasMany(component => component.Variables)
-                .WithOne(variable => variable.Component)
-                .HasForeignKey(variable => variable.ComponentId)
+            Builder.HasMany(Component => Component.Variables)
+                .WithOne(Variable => Variable.Component)
+                .HasForeignKey(Variable => Variable.ComponentId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

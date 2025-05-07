@@ -1,13 +1,15 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Exceptions;
 using Eras.Domain.Entities;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
     [ExcludeFromCodeCoverage]
-    public class BaseRepository<TDomain, TPersist> : IBaseRepository<TDomain> 
+    public class BaseRepository<TDomain, TPersist> : IBaseRepository<TDomain>
         where TDomain : class
         where TPersist : class
     {
@@ -52,7 +54,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             var persistenceEntity = await _context.Set<TPersist>().FindAsync(Id);
 
 
-            return persistenceEntity != null 
+            return persistenceEntity != null
                 ? _toDomain(persistenceEntity)
                 : null;
         }

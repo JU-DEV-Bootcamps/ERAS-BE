@@ -158,15 +158,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             try
             {
                 var results = await _context.ErasCalculationsByPoll
-                            .Where(e => e.PollUuid == PollUUID)
-                            .Select(e => new GetHeatMapAnswersPercentageByVariableQueryResponse
+                            .Where(Calc => Calc.PollUuid == PollUUID)
+                            .Select(Calc => new GetHeatMapAnswersPercentageByVariableQueryResponse
                             {
-                                ComponentName = e.ComponentName,
-                                PollVariableId = e.PollVariableId,
-                                Name = e.Question,
-                                AnswerText = e.AnswerText,
-                                Percentage = e.Percentage,
-                                VariableAverageRisk = e.VariableAverageRisk
+                                ComponentName = Calc.ComponentName,
+                                PollVariableId = Calc.PollVariableId,
+                                Name = Calc.Question,
+                                AnswerText = Calc.AnswerText,
+                                Percentage = Calc.AnswerPercentage,
+                                VariableAverageRisk = Calc.VariableAverageRisk
                             })
                             .Distinct()
                             .ToListAsync();

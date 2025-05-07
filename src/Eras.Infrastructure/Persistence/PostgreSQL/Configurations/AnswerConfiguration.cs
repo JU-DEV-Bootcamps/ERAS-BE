@@ -1,4 +1,5 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,14 +7,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class AnswerConfiguration : IEntityTypeConfiguration<AnswerEntity>
     {
-        public void Configure(EntityTypeBuilder<AnswerEntity> builder)
+        public void Configure(EntityTypeBuilder<AnswerEntity> Builder)
         {
-            builder.ToTable("answers");
+            Builder.ToTable("answers");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
-            ConfigureConstraints(builder);
-            AuditConfiguration.Configure(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
+            ConfigureConstraints(Builder);
+            AuditConfiguration.Configure(Builder);
         }
 
         private void ConfigureColumns(EntityTypeBuilder<AnswerEntity> Builder)

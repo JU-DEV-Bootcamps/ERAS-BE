@@ -1,4 +1,5 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -6,41 +7,41 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 {
     public class StudentConfiguration : IEntityTypeConfiguration<StudentEntity>
     {
-        public void Configure(EntityTypeBuilder<StudentEntity> builder)
+        public void Configure(EntityTypeBuilder<StudentEntity> Builder)
         {
-            builder.ToTable("students");
+            Builder.ToTable("students");
 
-            ConfigureColumns(builder);
-            ConfigureRelationShips(builder);
-            AuditConfiguration.Configure(builder);
+            ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
+            AuditConfiguration.Configure(Builder);
         }
 
-        private static void ConfigureColumns(EntityTypeBuilder<StudentEntity> builder)
+        private static void ConfigureColumns(EntityTypeBuilder<StudentEntity> Builder)
         {
-            builder.HasKey(student => student.Id);
-            builder.Property(student => student.Name)
+            Builder.HasKey(Student => Student.Id);
+            Builder.Property(Student => Student.Name)
                 .HasColumnName("name")
                 .IsRequired();
-            builder.Property(student => student.Email)
+            Builder.Property(Student => Student.Email)
                 .HasColumnName("email")
                 .IsRequired();
-            builder.Property(student => student.Uuid)
+            Builder.Property(Student => Student.Uuid)
                 .HasColumnName("uuid")
                 .IsRequired();
-            builder.Property(student => student.IsImported)
+            Builder.Property(Student => Student.IsImported)
                 .HasColumnName("is_imported")
                 .IsRequired();
         }
 
-        private static void ConfigureRelationShips(EntityTypeBuilder<StudentEntity> builder)
+        private static void ConfigureRelationShips(EntityTypeBuilder<StudentEntity> Builder)
         {
-            builder.HasOne(student => student.StudentDetail)
-                .WithOne(studentDetail => studentDetail.Student)
-                .HasForeignKey<StudentDetailEntity>(studentDetail => studentDetail.StudentId);
+            Builder.HasOne(Student => Student.StudentDetail)
+                .WithOne(StudentDetail => StudentDetail.Student)
+                .HasForeignKey<StudentDetailEntity>(StudentDetail => StudentDetail.StudentId);
 
-            builder.HasMany(student => student.PollInstances)
-                .WithOne(pollInstance => pollInstance.Student)
-                .HasForeignKey(pollInstance => pollInstance.StudentId);
+            Builder.HasMany(Student => Student.PollInstances)
+                .WithOne(PollInstance => PollInstance.Student)
+                .HasForeignKey(PollInstance => PollInstance.StudentId);
         }
     }
 }

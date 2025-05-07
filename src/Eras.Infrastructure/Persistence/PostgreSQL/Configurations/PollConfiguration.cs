@@ -1,4 +1,5 @@
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -20,6 +21,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasKey(Poll => Poll.Id);
             Builder.Property(Poll => Poll.Name)
                 .HasColumnName("name")
+                .IsRequired();
+            Builder.Property(Poll => Poll.Version)
+                .HasColumnName("version")
                 .IsRequired();
             Builder.Property(Poll => Poll.Uuid)
                 .HasColumnName("uuid")

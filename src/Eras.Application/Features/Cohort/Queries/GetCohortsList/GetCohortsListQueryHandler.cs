@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Cohort.Queries.GetCohortsList
@@ -15,13 +18,13 @@ namespace Eras.Application.Features.Cohort.Queries.GetCohortsList
         private readonly ICohortRepository _repository;
         private readonly ILogger<GetCohortsListQueryHandler> _logger;
 
-        public GetCohortsListQueryHandler(ICohortRepository repository, ILogger<GetCohortsListQueryHandler> logger)
+        public GetCohortsListQueryHandler(ICohortRepository Repository, ILogger<GetCohortsListQueryHandler> Logger)
         {
-            _repository = repository;
-            _logger = logger;
+            _repository = Repository;
+            _logger = Logger;
         }
 
-        public async Task<List<Domain.Entities.Cohort>> Handle(GetCohortsListQuery request, CancellationToken cancellationToken)
+        public async Task<List<Domain.Entities.Cohort>> Handle(GetCohortsListQuery Request, CancellationToken CancellationToken)
         {
             var listOfCohorts = await _repository.GetCohortsAsync();
             return listOfCohorts;

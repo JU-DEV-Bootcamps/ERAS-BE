@@ -1,5 +1,6 @@
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -27,7 +28,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             Services.AddDbContext<AppDbContext>(Options =>
             {
                 Options.UseNpgsql(connectionString);
-                Options.ConfigureWarnings(w => w.Ignore(RelationalEventId.PendingModelChangesWarning));
+                Options.ConfigureWarnings(W => W.Ignore(RelationalEventId.PendingModelChangesWarning));
             });
         }
 
