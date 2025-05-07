@@ -164,9 +164,12 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     {
         var getStudentAnswersByPoll =
             new GetStudentAnswersByPollQuery() { StudentId = StudentId, PollId = PollInstanceId };
-        try{
+        try
+        {
             return Ok(await _mediator.Send(getStudentAnswersByPoll));
-        } catch(Exception e){
+        }
+        catch (Exception e)
+        {
             _logger.LogWarning($"Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}");
             return NotFound($"Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}");
         }

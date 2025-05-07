@@ -1,7 +1,9 @@
 ﻿using Eras.Api.Controllers;
 using Eras.Application.Dtos;
 using Eras.Application.Services;
+
 using Microsoft.AspNetCore.Mvc;
+
 using Moq;
 
 namespace Eras.Api.Tests.Controllers
@@ -19,7 +21,7 @@ namespace Eras.Api.Tests.Controllers
             controller = new CosmicLatteController(mockService.Object);
         }
         [Fact]
-        public async void ImportPoll_Should_Return_ArrayAsync ()
+        public async void ImportPoll_Should_Return_ArrayAsync()
         {
             var result = await controller.GetPreviewPollsAsync("Encuesta");
             var okResult = Assert.IsType<OkObjectResult>(result);
