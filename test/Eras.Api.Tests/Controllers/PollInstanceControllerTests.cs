@@ -3,9 +3,12 @@ using Eras.Api.Controllers;
 using Eras.Application.DTOs;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
 using Eras.Application.Models.Response.Common;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Api.Tests.Controllers
@@ -24,7 +27,7 @@ namespace Eras.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Success_Response()
+        public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Success_ResponseAsync()
         {
             // Arrange
             var cohortId = 1;
@@ -37,7 +40,7 @@ namespace Eras.Api.Tests.Controllers
             var response = new GetQueryResponse<IEnumerable<PollInstanceDTO>>(pollInstanceDTOs, "Success", true);
 
             _mockMediator
-                .Setup(m => m.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(M => M.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             // Act
@@ -49,7 +52,7 @@ namespace Eras.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Failure_Response()
+        public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Failure_ResponseAsync()
         {
             // Arrange
             var cohortId = 1;
@@ -57,7 +60,7 @@ namespace Eras.Api.Tests.Controllers
             var response = new GetQueryResponse<IEnumerable<PollInstanceDTO>>(new List<PollInstanceDTO>(), "Failed", false);
 
             _mockMediator
-                .Setup(m => m.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(M => M.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             // Act

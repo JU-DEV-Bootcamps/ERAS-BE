@@ -42,13 +42,13 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         return response.Success ? Ok(response) : BadRequest(response);
     }
 
-        [HttpGet("cohorts/{CohortId}/summary")]
+    [HttpGet("cohorts/{CohortId}/summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetHeatMapSummaryByFiltersAsync(
-        [FromRoute] int CohortId,
-        [FromQuery] int Days
-    )
+    [FromRoute] int CohortId,
+    [FromQuery] int Days
+)
     {
         var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(CohortId, Days);
         GetQueryResponse<Application.Models.Response.HeatMap.HeatMapSummaryResponseVm> response =

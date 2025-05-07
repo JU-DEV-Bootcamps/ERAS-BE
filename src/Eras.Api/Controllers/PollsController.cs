@@ -4,9 +4,11 @@ using Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
 using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using Eras.Application.Features.Polls.Queries.GetPollsByStudent;
+using Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndComponent;
 using Eras.Domain.Entities;
 
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
@@ -24,14 +26,16 @@ public class PollsController(IMediator Mediator, ILogger<PollsController> Logger
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPollsByCohortAsync([FromQuery] int CohortId, [FromQuery] int StudentId)
     {
-        if(CohortId > 0 && StudentId > 0) return BadRequest("Only filter by StudentId or CohortId");
-        if(CohortId == 0 && StudentId == 0) {
+        if (CohortId > 0 && StudentId > 0) return BadRequest("Only filter by StudentId or CohortId");
+        if (CohortId == 0 && StudentId == 0)
+        {
             return Ok(await _mediator.Send(new GetAllPollsQuery()));
         }
-        if(StudentId > 0) {
-            return Ok(await _mediator.Send(new GetPollsByStudentQuery() { StudentId = StudentId } ));
+        if (StudentId > 0)
+        {
+            return Ok(await _mediator.Send(new GetPollsByStudentQuery() { StudentId = StudentId }));
         }
-            return Ok(await _mediator.Send(new GetPollsByCohortListQuery() { CohortId = CohortId }));
+        return Ok(await _mediator.Send(new GetPollsByCohortListQuery() { CohortId = CohortId }));
     }
 
     [HttpGet("{pollId}")]
@@ -41,4 +45,16 @@ public class PollsController(IMediator Mediator, ILogger<PollsController> Logger
         [FromRoute] int PollId,
         [FromQuery] int CohortId
     ) => Ok(await _mediator.Send(new GetAllByPollAndCohortQuery(CohortId, PollId)));
+
+    [HttpGet("{PollUuid}/variables")]
+    public async Task<IActionResult> GetVariablesByComponentsAsync(
+        [FromRoute] string PollUuid,
+        [FromQuery] List<string> Component
+    )
+    {
+        List<Variable> result = await _mediator.Send(
+            new GetVariablesByPollUuidAndComponentQuery(PollUuid, Component)
+        );
+        return Ok(result);
+    }
 }

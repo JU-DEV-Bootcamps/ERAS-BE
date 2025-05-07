@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Features.Answers.Queries;
-using Eras.Application.Features.Cohort.Queries.GetCohortComponentsByPoll;
 using Eras.Application.Features.Cohort.Queries.GetCohortStudentsRiskByPoll;
 using Eras.Application.Features.Cohort.Queries.GetCohortTopRiskStudents;
 using Eras.Application.Features.Cohort.Queries.GetCohortTopRiskStudentsByComponent;
@@ -14,7 +14,9 @@ using Eras.Application.Features.Students.Queries.GetStudentDetails;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
@@ -31,7 +33,8 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     public async Task<IActionResult> ImportStudentsAsync([FromBody] StudentImportDto[] Students)
     {
         _logger.LogInformation("Importing {Count} students", Students?.Length ?? 0);
-        if(Students == null){
+        if (Students == null)
+        {
             return BadRequest("No Students body found");
         }
         var createStudentsCommand = new CreateStudentsCommand()
@@ -150,5 +153,22 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         List<Application.Models.Response.Calculations.GetCohortTopRiskStudentsByComponentResponse> queryResponse = await _mediator.Send(getCohortTopRiskStudentsByComponentQuery);
 
         return Ok(queryResponse);
+    }
+
+    //TODO: Normalize use of uuid instead of id
+    [HttpGet("{StudentId}/polls/{PollInstanceId}/answers")]
+    public async Task<IActionResult> GetStudentAnswersByPollAsync(
+        [FromRoute] int StudentId,
+        [FromRoute] int PollInstanceId
+    )
+    {
+        var getStudentAnswersByPoll =
+            new GetStudentAnswersByPollQuery() { StudentId = StudentId, PollId = PollInstanceId };
+        try{
+            return Ok(await _mediator.Send(getStudentAnswersByPoll));
+        } catch(Exception e){
+            _logger.LogWarning($"Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}");
+            return NotFound($"Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}");
+        }
     }
 }

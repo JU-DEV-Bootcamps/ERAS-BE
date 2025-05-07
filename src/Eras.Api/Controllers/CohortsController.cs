@@ -1,8 +1,9 @@
-﻿﻿using System.ComponentModel;
+﻿using System.ComponentModel;
 
 using Eras.Application.Features.Cohort.Queries;
 
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
@@ -41,7 +42,8 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
             PollinstancesAverage = S.PollInstances.Average(P => P.Answers.Average(A => A.RiskLevel)),
             PollinstancesCount = S.PollInstances.Count,
         }).ToList();
-        return Ok(new {
+        return Ok(new
+        {
             CohortCount = result.Select(S => S.CohortName).Distinct().Count(),
             StudentCount = result.Count,
             Summary = result

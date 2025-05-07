@@ -8,7 +8,9 @@ using Eras.Application.Models.Response;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
@@ -70,7 +72,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
             }
             _logger.LogInformation("Editing evaluation with ID {Id}", Id);
 
-            var command = new UpdateEvaluationCommand() { EvaluationDTO = EvaluationDTO};
+            var command = new UpdateEvaluationCommand() { EvaluationDTO = EvaluationDTO };
 
             CreateCommandResponse<Evaluation> response = await _mediator.Send(command);
             if (response.Success)
@@ -80,7 +82,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
             }
             else
             {
-                _logger.LogError( "Failed to update Evaluation. Reason: {ResponseMessage}", response.Message );
+                _logger.LogError("Failed to update Evaluation. Reason: {ResponseMessage}", response.Message);
                 return StatusCode(
                     400,
                     new { status = "error", message = "An error occurred during the evaluation update process" }
@@ -115,7 +117,8 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         {
             _logger.LogInformation("Successfully created Evaluation {Name}", EvaluationDTO.Name);
             return Ok(new { status = "successful", message = "Created" });
-        } else
+        }
+        else
         {
             _logger.LogError(
                 "Failed to create Evaluation. Reason: {ResponseMessage}",
@@ -146,7 +149,8 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
             GetAllEvaluationsQuery command = new(Query);
             PagedResult<Evaluation> response = await _mediator.Send(command);
             return Ok(response);
-        } catch (Exception ex)
+        }
+        catch (Exception ex)
         {
             _logger.LogError(
                 "Failed to get information. Reason: {ResponseMessage}",

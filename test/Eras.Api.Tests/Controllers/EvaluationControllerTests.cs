@@ -1,17 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Api.Controllers;
+﻿using Eras.Api.Controllers;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Evaluations.Commands;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Api.Tests.Controllers
@@ -30,11 +28,11 @@ namespace Eras.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task CreateEvaluationController_Should_Return_Success()
+        public async Task CreateEvaluationController_Should_Return_SuccessAsync()
         {
             var evaluationDTO = new EvaluationDTO() { Name = "newEvaluation", StartDate = DateTime.UtcNow, EndDate = DateTime.Now };
             var commandResponse = new CreateCommandResponse<Evaluation>(evaluationDTO.ToDomain(), "Success", true);
-            _mockMediator.Setup(m => m.Send(It.IsAny<CreateEvaluationCommand>(), default))
+            _mockMediator.Setup(M => M.Send(It.IsAny<CreateEvaluationCommand>(), default))
                 .ReturnsAsync(commandResponse);
             var result = await _controller.CreateEvaluationAsync(evaluationDTO) as OkObjectResult;
 

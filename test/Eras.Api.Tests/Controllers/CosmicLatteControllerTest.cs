@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Api.Controllers;
+﻿using Eras.Api.Controllers;
 using Eras.Application.Dtos;
 using Eras.Application.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,15 +11,15 @@ namespace Eras.Api.Tests.Controllers
         Mock<ICosmicLatteAPIService> mockService = new();
         private CosmicLatteController controller;
         public CosmicLatteControllerTest()
-        {           
-            mockService.Setup(service => service.GetAllPollsPreview(It.Is<string>(name => name == "Encuesta"), It.IsAny<string>(), 
+        {
+            mockService.Setup(Service => Service.GetAllPollsPreview(It.Is<string>(Name => Name == "Encuesta"), It.IsAny<string>(),
                 It.IsAny<string>())).ReturnsAsync(new List<PollDTO>([new PollDTO()]));
-            mockService.Setup(service => service.GetAllPollsPreview(It.Is<string>(name => name == "Name not found"), It.IsAny<string>(),
+            mockService.Setup(Service => Service.GetAllPollsPreview(It.Is<string>(Name => Name == "Name not found"), It.IsAny<string>(),
                 It.IsAny<string>())).ReturnsAsync(new List<PollDTO>());
             controller = new CosmicLatteController(mockService.Object);
         }
         [Fact]
-        public async void ImportPoll_Should_Return_Array ()
+        public async void ImportPoll_Should_Return_ArrayAsync ()
         {
             var result = await controller.GetPreviewPollsAsync("Encuesta");
             var okResult = Assert.IsType<OkObjectResult>(result);
@@ -33,12 +28,12 @@ namespace Eras.Api.Tests.Controllers
             Assert.True(polls.Count > 0);
         }
         [Fact]
-        public async void ImportPoll_Should_Return_Empty()
+        public async void ImportPoll_Should_Return_EmptyAsync()
         {
             var result = await controller.GetPreviewPollsAsync("Name not found");
             var okResult = Assert.IsType<OkObjectResult>(result);
             var polls = okResult.Value as List<PollDTO>;
-            Assert.Empty(polls);
+            Assert.Empty(polls ?? []);
         }
     }
 }

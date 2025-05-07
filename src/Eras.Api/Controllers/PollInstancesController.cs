@@ -1,13 +1,12 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-using Eras.Application.Features.Answers.Queries;
 using Eras.Application.Features.Cohort.Queries.GetCohortComponentsByPoll;
 using Eras.Application.Features.Components.Queries;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
-using Eras.Application.Models.Response.Common;
-using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
@@ -24,29 +23,19 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
     [HttpGet]
     public async Task<IActionResult> GetPollInstancesByCohortIdAndDaysAsync([FromQuery] int Days, [FromQuery] int CohortId = 0)
     {
-        if(CohortId == 0) {
+        if (CohortId == 0)
+        {
             _logger.LogInformation("Getting poll instances in the last {days} for all cohorts", Days);
-            return Ok(await _mediator.Send(new GetPollInstancesByLastDaysQuery() { LastDays = Days}));
+            return Ok(await _mediator.Send(new GetPollInstancesByLastDaysQuery() { LastDays = Days }));
         }
         _logger.LogInformation("Getting poll instances in the last {days} for cohort {cohortId}", Days, CohortId);
         return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(CohortId, Days)));
     }
 
-    [HttpGet("{PollInstanceId})/answers")]
-    public async Task<IActionResult> GetStudentAnswersByPollAsync(
-        [FromQuery] int StudentId,
-        [FromRoute] int PollInstanceId
-    )
-    {
-        var getStudentAnswersByPoll =
-            new GetStudentAnswersByPollQuery() { StudentId = StudentId, PollId = PollInstanceId };
-        return Ok(await _mediator.Send(getStudentAnswersByPoll));
-    }
-
     [HttpGet("{PollUuid}/cohorts/avg")]
     public async Task<IActionResult> GetComponentsAvgGroupedByCohortAsync([FromRoute] string PollUuid)
     {
-        var getCohortComponentsByPollQuery = new GetCohortComponentsByPollQuery() { PollUuid = PollUuid};
+        var getCohortComponentsByPollQuery = new GetCohortComponentsByPollQuery() { PollUuid = PollUuid };
         List<Application.Models.Response.Calculations.GetCohortComponentsByPollResponse> queryResponse = await _mediator.Send(getCohortComponentsByPollQuery);
         var mappedResponse = queryResponse
             .GroupBy(X => new { X.CohortId, X.CohortName })
