@@ -23,6 +23,7 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
     [HttpGet]
     public async Task<IActionResult> GetPollInstancesByCohortIdAndDaysAsync([FromQuery] int Days, [FromQuery] int CohortId = 0)
     {
+        if(Days == 0) return BadRequest($"Days need to be greater than 0");
         if (CohortId == 0)
         {
             _logger.LogInformation("Getting poll instances in the last {days} for all cohorts", Days);

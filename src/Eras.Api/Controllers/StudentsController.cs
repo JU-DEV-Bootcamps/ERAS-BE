@@ -170,7 +170,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         }
         catch (Exception e)
         {
-            _logger.LogWarning($"Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}");
+            _logger.LogWarning("Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}", StudentId, PollInstanceId, e);
             return NotFound($"Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}");
         }
     }
