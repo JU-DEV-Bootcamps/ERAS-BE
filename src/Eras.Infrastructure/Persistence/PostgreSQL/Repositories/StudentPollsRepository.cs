@@ -27,7 +27,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     P.Id,
                     P.Uuid,
                     P.Name,
-                    P.Version
                 })
                 .Distinct()
                 .ToListAsync();
@@ -36,7 +35,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 Id = P.Id,
                 Uuid = P.Uuid,
                 Name = P.Name,
-                Version = P.Version,
                 PollVariables = _context.PollVariables
                 .Where(Pv => Pv.PollId == P.Id)
                 .Select(Pv => new PollVariableJoin

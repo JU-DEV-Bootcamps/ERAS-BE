@@ -9,7 +9,6 @@ using Eras.Application.DTOs.CL;
 using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Services;
-using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
 using Microsoft.Extensions.Configuration;
@@ -104,7 +103,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 if (apiResponse == null)
                     throw new InvalidCastException("Unable to deserialize response from cosmic latte");
             }
-            catch (Exception Ex)
+            catch (Exception ex)
             {
                 this._logger.LogError(ex.Message);
                 throw new InvalidCastException("Unable to deserialize response from cosmic latte");
@@ -121,19 +120,24 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             if (componentsAndVariables.Count > 0)
             {
-                ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstanceAsync(componentsAndVariables, 
-                    responseToPollInstace._id, responseToPollInstace.score);
-
-                if (populatedComponents.Count() > 0)
+                foreach (var responseToPollInstace in apiResponse.data)
                 {
-                    PollDTO pollDto = new PollDTO
+                    ICollection<ComponentDTO> populatedComponents = await PopulateListOfComponentsByIdPollInstanceAsync(componentsAndVariables, responseToPollInstace.Id, responseToPollInstace.score);
+
+                    if (populatedComponents.Count > 0)
                     {
-                        Name = responseToPollInstace.name,
-                        Components = populatedComponents,
-                        PollVersions = [],
-                        FinishedAt = responseToPollInstace.finishedAt
-                    };
-                    pollsDtos.Add(pollDto);
+                        // 2. Create polls
+                        string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when;
+
+                        PollDTO pollDto = new PollDTO
+                        {
+                            Name = responseToPollInstace.name,
+                            Components = populatedComponents,
+                            FinishedAt = responseToPollInstace.finishedAt
+                        };
+                        pollsDtos.Add(pollDto);
+                    }
+
                 }
             }
             return pollsDtos;
@@ -152,21 +156,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 string responseBody = await response.Content.ReadAsStringAsync();
 
-                CLResponseModelForPollDTO? apiResponse;
+                CLResponseModelForPollDTO apiResponse;
                 try
                 {
-<<<<<<< HEAD
-                    apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody);
-                    if (apiResponse == null) 
-                    {
-                        this._logger.LogError("Error Deserializing Components");
-                        throw new InvalidCastException("Unable to deserialize response from cosmic latte");
-                    }
-=======
                     var deserializeResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody);
                     if (deserializeResponse == null) throw new Exception();
                     else apiResponse = deserializeResponse;
->>>>>>> main
                 }
                 catch (Exception e)
                 {
@@ -179,11 +174,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string studentCohort = apiResponse.Data.Answers.ElementAt(2).Value.AnswersList[0];
                 StudentDTO studentDto = CreateStudent(studentName, studentEmail, studentCohort);
 
-<<<<<<< HEAD
-                // clone list test in case Components is empty
-=======
                 // clone list
->>>>>>> main
                 List<ComponentDTO> clonedListComponents = Components.Select(C => new ComponentDTO
                 {
                     Name = C.Name,

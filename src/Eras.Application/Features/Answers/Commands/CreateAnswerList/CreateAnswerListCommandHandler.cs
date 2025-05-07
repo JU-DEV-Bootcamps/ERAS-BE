@@ -27,20 +27,12 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
         public async Task<CreateCommandResponse<List<Answer>>> Handle(CreateAnswerListCommand Request,
             CancellationToken CancellationToken)
         {
-            foreach (AnswerDTO ans in Request.Answers)
-            {
-                List<Answer> answers = Request.Answers.Select(Ans => Ans.ToDomain()).ToList();
+            var ansDto = Request.Answers;
 
-                await _answerRepository.SaveManyAnswersAsync(answers);
-
-                return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);
-            }
-            catch (DbUpdateException ex)
+            foreach (AnswerDTO ans in ansDto)
             {
-                if (ex.InnerException != null)
-                {
-                    Answer answer = ans.ToDomain();
-                    await _answerRepository.AddAsync(answer);
+                try {
+                    await _answerRepository.AddAsync(ans.ToDomain());
                 }
                 catch (DbUpdateException ex)
                 {
@@ -55,14 +47,6 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
                 {
                     _logger.LogError(ex, "An error occurred creating answers ");
                 }
-                else
-                    _logger.LogError(ex.Message, "Create error on Answer");
-                return new CreateCommandResponse<List<Answer>>(new List<Answer>(), 0, "Error", false);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred creating answers ");
-                return new CreateCommandResponse<List<Answer>>(new List<Answer>(), 0, "Error", false);
             }
             var answerList = Request.Answers.Select(Ans => Ans.ToDomain()).ToList();
             return new CreateCommandResponse<List<Answer>>(answerList,"Success",true);

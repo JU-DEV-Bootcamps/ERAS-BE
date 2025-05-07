@@ -14,7 +14,6 @@ using Eras.Application.Features.Variables.Commands.CreatePollVariable;
 using Eras.Application.Features.Variables.Commands.CreateVariable;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
-using Eras.Application.Features.Students.Queries.GetByEmail;
 using Eras.Application.Features.Polls.Queries.GetPollByName;
 using Eras.Application.Models.Enums;
 using Eras.Application.Features.PollVersions.Queries.GetAllByPoll;
@@ -23,7 +22,6 @@ using Eras.Application.Features.Components.Queries.GetByName;
 using Eras.Application.Features.Variables.Queries.GetByname;
 using Eras.Application.Exceptions;
 using Eras.Domain.Common;
-using Eras.Domain.Common.Exceptions;
 using Eras.Domain.Entities;
 
 using MediatR;
