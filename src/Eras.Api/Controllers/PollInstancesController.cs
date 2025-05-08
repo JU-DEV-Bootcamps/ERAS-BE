@@ -53,22 +53,13 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
         return Ok(mappedResponse);
     }
 
-<<<<<<< HEAD
     [HttpGet("{Id}/avg")]
     public async Task<IActionResult> GetComponentsRiskAvgByStudentAsync([FromQuery] int StudentId, [FromRoute] int Id)
-=======
-    [HttpGet("{PollId}/avg")]
-    public async Task<IActionResult> GetComponentsRiskAvgByStudentAsync([FromQuery] int StudentId, [FromRoute] int PollId)
->>>>>>> main
     {
         var getComponentsRiskAvgByStudent = new GetComponentsAvgByStudentQuery()
         {
             StudentId = StudentId,
-<<<<<<< HEAD
             PollId = Id
-=======
-            PollId = PollId
->>>>>>> main
         };
         return Ok(await _mediator.Send(getComponentsRiskAvgByStudent));
     }
