@@ -3,9 +3,12 @@ using Eras.Api.Controllers;
 using Eras.Application.DTOs;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
 using Eras.Application.Models.Response.Common;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Api.Tests.Controllers
@@ -14,17 +17,17 @@ namespace Eras.Api.Tests.Controllers
     {
         private readonly Mock<IMediator> _mockMediator;
         private readonly Mock<ILogger<StudentsController>> _mockLogger;
-        private readonly PollInstanceController _controller;
+        private readonly PollInstancesController _controller;
 
         public PollInstanceControllerTests()
         {
             _mockMediator = new Mock<IMediator>();
             _mockLogger = new Mock<ILogger<StudentsController>>();
-            _controller = new PollInstanceController(_mockMediator.Object, _mockLogger.Object);
+            _controller = new PollInstancesController(_mockMediator.Object, _mockLogger.Object);
         }
 
         [Fact]
-        public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Success_Response()
+        public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Success_ResponseAsync()
         {
             // Arrange
             var cohortId = 1;
@@ -37,11 +40,11 @@ namespace Eras.Api.Tests.Controllers
             var response = new GetQueryResponse<IEnumerable<PollInstanceDTO>>(pollInstanceDTOs, "Success", true);
 
             _mockMediator
-                .Setup(m => m.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(M => M.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             // Act
-            var result = await _controller.GetPollInstancesByCohortIdAndDays(cohortId, days) as OkObjectResult;
+            var result = await _controller.GetPollInstancesByCohortIdAndDaysAsync(cohortId, days) as OkObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -49,19 +52,19 @@ namespace Eras.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Failure_Response()
+        public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Failure_If_Days_Is_ZeroAsync()
         {
             // Arrange
             var cohortId = 1;
-            var days = 10;
-            var response = new GetQueryResponse<IEnumerable<PollInstanceDTO>>(new List<PollInstanceDTO>(), "Failed", false);
+            var days = 0;
+            var response = new GetQueryResponse<IEnumerable<PollInstanceDTO>>([], "Failed", false);
 
             _mockMediator
-                .Setup(m => m.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(M => M.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             // Act
-            var result = await _controller.GetPollInstancesByCohortIdAndDays(cohortId, days) as ObjectResult;
+            var result = await _controller.GetPollInstancesByCohortIdAndDaysAsync(days, cohortId) as ObjectResult;
 
             // Assert
             Assert.NotNull(result);

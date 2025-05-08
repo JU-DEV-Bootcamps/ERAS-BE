@@ -22,7 +22,7 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<HeatMapController> _logger = Logger;
 
-    [HttpGet("components/polls/{pollUUID}")]
+    [HttpGet("polls/{pollUUID}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetHeatMapDataByAllComponentsAsync([FromRoute] string PollUUID)
@@ -33,7 +33,7 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         return response.Success ? Ok(response) : BadRequest(response);
     }
 
-    [HttpGet("summary/polls/{pollUUID}")]
+    [HttpGet("polls/{pollUUID}/summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetHeatMapSummaryAsync([FromRoute] string PollUUID)
@@ -42,37 +42,13 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         return response.Success ? Ok(response) : BadRequest(response);
     }
 
-    [HttpGet("heatmap-details")]
-    public async Task<IActionResult> GetStudentHeatMapDetailsByComponentAsync(
-        [FromQuery] string Component,
-        [FromQuery] int Limit
-    )
-    {
-        List<Application.DTOs.HeatMap.StudentHeatMapDetailDto> result =
-            await _mediator.Send(new GetHeatMapDetailsByComponentQuery(Component, Limit));
-        return Ok(result);
-    }
-
-    [HttpGet("cohort/{cohortId}/top-risk")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetStudentHeatMapDetailsByCohortAsync(
-        [FromRoute] string CohortId,
-        [FromQuery] int Limit = 5
-    )
-    {
-        List<Application.DTOs.HeatMap.StudentHeatMapDetailDto> result =
-            await _mediator.Send(new GetHeatMapDetailsByCohortQuery(CohortId, Limit));
-        return Ok(result);
-    }
-
-    [HttpGet("summary/filter")]
+    [HttpGet("cohorts/{CohortId}/summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetHeatMapSummaryByFiltersAsync(
-        [FromQuery] int CohortId,
-        [FromQuery] int Days
-    )
+    [FromRoute] int CohortId,
+    [FromQuery] int Days
+)
     {
         var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(CohortId, Days);
         GetQueryResponse<Application.Models.Response.HeatMap.HeatMapSummaryResponseVm> response =
@@ -96,14 +72,39 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         }
     }
 
-    [HttpPost("generate")]
+
+    [HttpGet("details")]
+    public async Task<IActionResult> GetStudentHeatMapDetailsByComponentAsync(
+        [FromQuery] string Component,
+        [FromQuery] int Limit
+    )
+    {
+        List<StudentHeatMapDetailDto> result =
+            await _mediator.Send(new GetHeatMapDetailsByComponentQuery(Component, Limit));
+        return Ok(result);
+    }
+
+    [HttpGet("cohorts/{cohortId}/top")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetStudentHeatMapDetailsByCohortAsync(
+        [FromRoute] string CohortId,
+        [FromQuery] int Limit = 5
+    )
+    {
+        List<StudentHeatMapDetailDto> result =
+            await _mediator.Send(new GetHeatMapDetailsByCohortQuery(CohortId, Limit));
+        return Ok(result);
+    }
+
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetHeatMapDataByPollUuidAndVariableIdsAsync(
         [FromBody] HeatMapBaseDataRequestDto Request
     )
     {
-        var result = await _mediator.Send(
+        List<Application.Models.Response.HeatMap.HeatMapBaseData> result = await _mediator.Send(
             new GetHeatMapByPollIdAndVariableIdsQuery(
                 Request.pollInstanceUuid,
                 Request.VariablesIds
