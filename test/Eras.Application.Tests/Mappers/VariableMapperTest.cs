@@ -11,12 +11,10 @@ public class VariableMapperTest
         var dto = new VariableDTO()
         { 
            Name = "Name",
-           Type = "Type",
         };
         var result = dto.ToDomain();
         Assert.NotNull(result);
         Assert.Equal(dto.Name, result.Name);
-        Assert.Equal(dto.Type, result.Type);
     }
 
     [Fact]
@@ -25,11 +23,9 @@ public class VariableMapperTest
         var model = new Variable()
         {
             Name = "Name",
-            Type = "Type",
         };
         var result = model.ToDto();
         Assert.NotNull(result);
         Assert.Equal(model.Name, result.Name);
-        Assert.Equal(model.Type, result.Type);
     }
 }
