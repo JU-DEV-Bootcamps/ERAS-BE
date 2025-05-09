@@ -9,30 +9,35 @@ namespace Eras.Application.Mappers
 {
     public static class PollMapper
     {
-        public static Poll ToDomain (this PollDTO dto)
+        public static Poll ToDomain (this PollDTO Dto)
         {
-            ArgumentNullException.ThrowIfNull(dto);
-            ICollection<Component> components =dto.Components?.Select(c => c.ToDomain()).ToList() ?? [];
+            ArgumentNullException.ThrowIfNull(Dto);
+            ICollection<Component> components = Dto.Components?.Select(C => C.ToDomain()).ToList() ?? [];
+            ICollection<PollVersion> pollVersions = Dto.PollVersions?.Select(Pv => Pv.ToDomain()).ToList() ?? [];
             return new Poll { 
-                Id = dto.Id,
-                Name = dto.Name,
-                Version = dto.Version,
-                Uuid = dto.Uuid,
+                Id = Dto.Id,
+                Name = Dto.Name,
+                Uuid = Dto.Uuid,
                 Components = components,
-                Audit = dto.Audit
+                PollVersions = pollVersions,
+                Audit = Dto.Audit?? new AuditInfo() { 
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                }
             };
         }
-        public static PollDTO ToDto (this Poll domain)
+        public static PollDTO ToDto(this Poll Domain)
         {
-            ArgumentNullException.ThrowIfNull(domain);
-            ICollection<ComponentDTO> components = domain.Components?.Select(c => c.ToDto()).ToList() ?? [];
+            ArgumentNullException.ThrowIfNull(Domain);
+            ICollection<ComponentDTO> components = Domain.Components?.Select(C => C.ToDto()).ToList() ?? [];
+            ICollection<PollVersionDTO> pollVersions = Domain.PollVersions?.Select(Pv => Pv.ToDto()).ToList() ?? [];
             return new PollDTO {
-                Id = domain.Id,
-                Name = domain.Name,
-                Uuid= domain.Uuid,
-                Version = domain.Version,
+                Id = Domain.Id,
+                Name = Domain.Name,
+                Uuid= Domain.Uuid,
                 Components = components,
-                Audit = domain.Audit
+                PollVersions = pollVersions,
+                Audit = Domain.Audit
             };
         }
     }

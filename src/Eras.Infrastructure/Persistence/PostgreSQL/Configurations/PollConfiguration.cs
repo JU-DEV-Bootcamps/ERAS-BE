@@ -22,9 +22,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Poll => Poll.Name)
                 .HasColumnName("name")
                 .IsRequired();
-            Builder.Property(Poll => Poll.Version)
-                .HasColumnName("version")
-                .IsRequired();
             Builder.Property(Poll => Poll.Uuid)
                 .HasColumnName("uuid")
                 .IsRequired();

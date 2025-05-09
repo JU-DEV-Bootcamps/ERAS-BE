@@ -7,5 +7,6 @@ namespace Eras.Application.Contracts.Persistence
     {
         Task<Component?> GetByNameAsync(string Name);
         new Task<IEnumerable<Component>> GetAllAsync();
+        Task<Component?> GetByNameAndPollIdAsync(string Name, int PollId);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Exceptions;
 using Eras.Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
@@ -28,10 +29,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<TDomain> AddAsync(TDomain Entity)
         {
-            var response = await _context.Set<TPersist>().AddAsync(_toPersistence(Entity));
-            await _context.SaveChangesAsync();
+            try
+            {
 
-            return _toDomain(response.Entity);
+                var response = await _context.Set<TPersist>().AddAsync(_toPersistence(Entity));
+                await _context.SaveChangesAsync();
+
+                return _toDomain(response.Entity);
+            }
+            catch (Exception)
+            {
+                _context.ChangeTracker.Clear();
+                throw new DatabaseCustomException("Error on Repository");
+            }
         }
         public async Task DeleteAsync(TDomain Entity)
         {
@@ -61,7 +71,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize)
                 .ToListAsync();
-
+            
             return persistenceEntity.Select(Entity => _toDomain(Entity));
         }
         public async Task<int> CountAsync()
@@ -71,10 +81,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<TDomain> UpdateAsync(TDomain Entity)
         {
-            _context.Set<TPersist>().Update(_toPersistence(Entity));
-            await _context.SaveChangesAsync();
+            try
+            {
+                _context.Set<TPersist>().Update(_toPersistence(Entity));
+                await _context.SaveChangesAsync();
 
-            return Entity;
+                return Entity;
+            }
+            catch (Exception) 
+            {
+                throw new DatabaseCustomException("Error on Repository");
+            }
         }
     }
 }

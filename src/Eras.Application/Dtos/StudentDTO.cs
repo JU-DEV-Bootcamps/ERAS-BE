@@ -1,7 +1,7 @@
 ﻿using Eras.Application.DTOs;
 using Eras.Domain.Common;
 
-namespace Eras.Application.Dtos
+namespace Eras.Application.DTOs
 {
     public class StudentDTO
     {

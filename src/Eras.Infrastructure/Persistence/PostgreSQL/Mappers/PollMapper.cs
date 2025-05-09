@@ -11,7 +11,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = Entity.Id,
                 Name = Entity.Name,
-                Version = Entity.Version,
                 Uuid = Entity.Uuid,
                 Audit = Entity.Audit
             };
@@ -23,7 +22,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = Model.Id,
                 Name = Model.Name,
-                Version = Model.Version,
                 Uuid = Model.Uuid,
                 Audit = Model.Audit
             };

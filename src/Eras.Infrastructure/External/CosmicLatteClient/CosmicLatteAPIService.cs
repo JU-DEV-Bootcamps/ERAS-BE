@@ -132,7 +132,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                         PollDTO pollDto = new PollDTO
                         {
                             Name = responseToPollInstace.name,
-                            Version = version,
                             Components = populatedComponents,
                             FinishedAt = responseToPollInstace.finishedAt
                         };

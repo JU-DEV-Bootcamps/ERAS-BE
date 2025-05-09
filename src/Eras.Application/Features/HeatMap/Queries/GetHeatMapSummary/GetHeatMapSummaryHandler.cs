@@ -40,7 +40,7 @@ public class GetHeatMapSummaryHandler : IRequestHandler<GetHeatMapSummaryQuery, 
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred getting the heat map summary data ");
-            return new GetQueryResponse<HeatMapSummaryResponseVm>(body: new HeatMapSummaryResponseVm(), "Failed", false);
+            return new GetQueryResponse<HeatMapSummaryResponseVm>(new HeatMapSummaryResponseVm(), "Failed", false);
         }
     }
 }

@@ -10,24 +10,24 @@ namespace Eras.Application.Models.Response
     {
         public bool Success { get; set; }
         public string Message { get; set; } = string.Empty;
-        public List<string>? ValidationErrors { get; set; }
+        public List<string> ValidationErrors { get; set; } = new List<string>();
 
         public BaseResponse() { }
-        public BaseResponse(bool status)
+        public BaseResponse(bool Success)
         {
-            Success = status;
+            this.Success = Success;
         }
 
-        public BaseResponse(string message)
+        public BaseResponse(string Message)
         {
             Success = true;
-            message = message;
+            this.Message = Message;
         }
 
-        public BaseResponse(string message, bool success)
+        public BaseResponse(string Message, bool Success)
         {
-            Success = success;
-            Message = message;
+            this.Success = Success;
+            this.Message = Message;
         }
 
     }
