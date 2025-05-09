@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.PollVersions.Queries.GetByPollAndVersion;
-using Eras.Application.Features.Variables.Queries.GetByname;
 using Eras.Domain.Entities;
 
 using Microsoft.Extensions.Logging;

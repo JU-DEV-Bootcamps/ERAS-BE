@@ -18,8 +18,6 @@ using Eras.Application.Features.Polls.Queries.GetPollByName;
 using Eras.Application.Models.Enums;
 using Eras.Application.Features.PollVersions.Queries.GetAllByPoll;
 using Eras.Application.Features.PollVersions.Commands.CreatePollVersion;
-using Eras.Application.Features.Components.Queries.GetByName;
-using Eras.Application.Features.Variables.Queries.GetByname;
 using Eras.Application.Exceptions;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
@@ -30,6 +28,8 @@ using Microsoft.Extensions.Logging;
 
 using Component = Eras.Domain.Entities.Component;
 using Variable = Eras.Domain.Entities.Variable;
+using Eras.Application.Features.Components.Queries.GetByNameAndPoll;
+using Eras.Application.Features.Variables.Queries.GetByNameAndPollId;
 
 namespace Eras.Application.Services
 {
@@ -272,10 +272,17 @@ namespace Eras.Application.Services
                         CreatedAt = DateTime.UtcNow,
                         ModifiedAt = DateTime.UtcNow,
                     };
-                    var query = new GetVariableByNameQuery() { VariableName = variableDto.Name };
-                    var responseQuery = await _mediator.Send(query);
-                    if (responseQuery.Success == true && responseQuery.Status == QueryEnums.QueryResultStatus.NotFound)
-                        newVariable = true;
+                    if (!newPoll)
+                    {
+                        var query = new GetVariableByNameAndPollIdQuery()
+                        {
+                            VariableName = variableDto.Name,
+                            PollId = AsociatedPollId
+                        };
+                        var responseQuery = await _mediator.Send(query);
+                        if (responseQuery.Success == true && responseQuery.Status == QueryEnums.QueryResultStatus.NotFound)
+                            newVariable = true;
+                    }
                     CreateVariableCommand createVariableCommand = new CreateVariableCommand()
                     {
                         Variable = variableDto,
@@ -360,17 +367,26 @@ namespace Eras.Application.Services
                 return new CreateCommandResponse<Component>(null, 0, "Error", false);
             }
         }
-        public async Task<List<Component>> CreateComponentsAndVariablesAsync(ICollection<ComponentDTO> ComponentDtoList, int AsociatedPollId)
+        public async Task<List<Component>> CreateComponentsAndVariablesAsync(
+            ICollection<ComponentDTO> ComponentDtoList, int AsociatedPollId)
         {
             List<Component> createdComponents = [];
             foreach (ComponentDTO componentDto in ComponentDtoList)
             {
                 try
                 {
-                    var componentOldQuery = new GetComponentByNameQuery() { componentName = componentDto.Name };
-                    var componentOld = await _mediator.Send(componentOldQuery);
-                    if (componentOld.Status == QueryEnums.QueryResultStatus.NotFound) {
-                        newComponent = true;
+                    if (!newPoll)
+                    {
+                        var componentOldQuery = new GetComponentByNameAndPollIdQuery()
+                        {
+                            ComponentName = componentDto.Name,
+                            PollId = AsociatedPollId
+                        };
+                        var componentOld = await _mediator.Send(componentOldQuery);
+                        if (componentOld.Status == QueryEnums.QueryResultStatus.NotFound)
+                        {
+                            newComponent = true;
+                        }
                     }
                     CreateCommandResponse<Component> createdComponent = await CreateComponentAsync(componentDto);
                     if (createdComponent.Success)

@@ -7,5 +7,6 @@ namespace Eras.Application.Contracts.Persistence
         Task<List<Variable>> GetAllAsync(int PollId);
         Task<Variable?> GetByNameAsync(string Name);
         Task<List<Variable>> GetAllByPollUuidAsync(string PollUuid, List<string> Component);
+        Task<Variable?> GetByNameAndPollIdAsync(string Name, int PollId);
     }
 }

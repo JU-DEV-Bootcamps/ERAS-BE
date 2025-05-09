@@ -5,39 +5,40 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Components.Queries.GetByName;
-using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
 using Eras.Application.Features.Variables.Queries.GetByName;
+using Eras.Application.Features.Variables.Queries.GetByNameAndPollId;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Variables.Queries;
-public class GetVariableByNameQueryHandlerTest
+public class GetComponentByNameAndPollIdQueryHandlerTest
 {
     private readonly Mock<IVariableRepository> _mockVariableRepository;
-    private readonly Mock<ILogger<GetVariableByNameQueryHandler>> _mockLogger;
-    private readonly GetVariableByNameQueryHandler _handler;
+    private readonly Mock<ILogger<GetVariableByNameAndPollIdQueryHandler>> _mockLogger;
+    private readonly GetVariableByNameAndPollIdQueryHandler _handler;
 
-    public GetVariableByNameQueryHandlerTest()
+    public GetComponentByNameAndPollIdQueryHandlerTest()
     {
         _mockVariableRepository = new Mock<IVariableRepository>();
-        _mockLogger = new Mock<ILogger<GetVariableByNameQueryHandler>>();
-        _handler = new GetVariableByNameQueryHandler(_mockVariableRepository.Object, _mockLogger.Object);
+        _mockLogger = new Mock<ILogger<GetVariableByNameAndPollIdQueryHandler>>();
+        _handler = new GetVariableByNameAndPollIdQueryHandler(_mockVariableRepository.Object, _mockLogger.Object);
     }
 
     [Fact]
     public async Task Handle_Should_Return_Success_ResponseAsync()
     {
         // Arrange
-        var query = new GetVariableByNameQuery() { VariableName = "Variable" };
+        var query = new GetVariableByNameAndPollIdQuery() { VariableName = "Variable", PollId = 1 };
         var variable = new Variable()
         {
             Name = "Variable"
         };
 
         _mockVariableRepository
-            .Setup(Repo => Repo.GetByNameAsync(It.Is<string>(Name => Name == "Variable")))
+            .Setup(Repo => Repo.GetByNameAndPollIdAsync(It.Is<string>(Name => Name == "Variable"),
+            It.Is<int>(Id => Id == 1)))
             .ReturnsAsync(variable);
 
         // Act
@@ -45,6 +46,6 @@ public class GetVariableByNameQueryHandlerTest
 
         // Assert
         Assert.True(result.Success);
-        Assert.Equal("Variable",result.Body.Name);
+        Assert.Equal("Variable", result.Body.Name);
     }
 }
