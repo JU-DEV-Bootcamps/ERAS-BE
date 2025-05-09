@@ -1,10 +1,13 @@
 using Eras.Api.Controllers;
-using Eras.Application.Features.Cohort.Queries;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Moq;
+
 using Xunit;
 
 namespace Eras.Api.Tests.Controllers
@@ -23,14 +26,10 @@ namespace Eras.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetCohorts_ReturnsOkResult()
+        public async Task GetCohorts_ReturnsOkResultAsync()
         {
-            // Arrange
-            //_mediatorMock.Setup(m => m.Send(It.IsAny<GetCohortsListQuery>(), It.IsAny<CancellationToken>()))
-
-
             // Act
-            var result = await _controller.GetCohorts();
+            var result = await _controller.GetCohortsAsync();
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);

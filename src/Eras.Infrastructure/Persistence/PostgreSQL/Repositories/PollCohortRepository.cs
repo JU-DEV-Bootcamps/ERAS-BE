@@ -93,7 +93,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                             CohortId = v.CohortId,
                             CohortName = v.CohortName,
                             ComponentName = v.ComponentName,
-                            AverageRiskByCohortComponent = v.AverageRiskByCohortComponent
+                            AverageRiskByCohortComponent = Math.Round(v.AverageRiskByCohortComponent, 2)
                         })
                         .Distinct()
                         .ToListAsync();

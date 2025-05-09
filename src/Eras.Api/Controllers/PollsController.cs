@@ -1,66 +1,60 @@
 using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
 using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using Eras.Application.Features.Polls.Queries.GetPollsByStudent;
+using Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndComponent;
+using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.AspNetCore.Mvc;
 
-[ApiController]
-[Route("api/v1/[controller]")]
-[ExcludeFromCodeCoverage]
-public class PollsController : ControllerBase
-{
-    private readonly IMediator _mediator;
-    private readonly ILogger<PollsController> _logger;
+namespace Eras.Api.Controllers;
 
-    public PollsController(IMediator mediator, ILogger<PollsController> logger)
-    {
-        _mediator = mediator;
-        _logger = logger;
-    }
+[ApiController]
+[Route("api/v1/polls")]
+[ExcludeFromCodeCoverage]
+public class PollsController(IMediator Mediator, ILogger<PollsController> Logger) : ControllerBase
+{
+    private readonly IMediator _mediator = Mediator;
+    private readonly ILogger<PollsController> _logger = Logger;
 
     [HttpGet]
-    public async Task<IActionResult> GetAllPolls()
-    {
-        GetAllPollsQuery allPollsQuery = new GetAllPollsQuery();
-        var result = await _mediator.Send(allPollsQuery);
-        return Ok(result);
-    }
-
-    [HttpGet("cohort/{cohortId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetPollsByCohort([FromRoute] int cohortId)
+    public async Task<IActionResult> GetPollsByCohortAsync([FromQuery] int CohortId, [FromQuery] int StudentId)
     {
-        GetPollsByCohortListQuery getPollsByCohortListQuery = new GetPollsByCohortListQuery()
+        if (CohortId > 0 && StudentId > 0) return BadRequest("Only filter by StudentId or CohortId");
+        if (CohortId == 0 && StudentId == 0)
         {
-            CohortId = cohortId,
-        };
-        return Ok(await _mediator.Send(getPollsByCohortListQuery));
+            return Ok(await _mediator.Send(new GetAllPollsQuery()));
+        }
+        if (StudentId > 0)
+        {
+            return Ok(await _mediator.Send(new GetPollsByStudentQuery() { StudentId = StudentId }));
+        }
+        return Ok(await _mediator.Send(new GetPollsByCohortListQuery() { CohortId = CohortId }));
     }
 
-    [HttpGet("{pollId}/cohort/{cohortId}")]
+    [HttpGet("{Id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetAllPollVariableByCohortAndPoll(
-        [FromRoute] int pollId,
-        [FromRoute] int cohortId
+    public async Task<IActionResult> GetAllPollVariableByCohortAndPollAsync(
+        [FromRoute] int Id,
+        [FromQuery] int CohortId
+    ) => Ok(await _mediator.Send(new GetAllByPollAndCohortQuery(CohortId, Id)));
+
+    [HttpGet("{Uuid}/variables")]
+    public async Task<IActionResult> GetVariablesByComponentsAsync(
+        [FromRoute] string Uuid,
+        [FromQuery] List<string> Component
     )
     {
-        var result = await _mediator.Send(new GetAllByPollAndCohortQuery(cohortId, pollId));
+        List<Variable> result = await _mediator.Send(
+            new GetVariablesByPollUuidAndComponentQuery(Uuid, Component)
+        );
         return Ok(result);
-    }
-
-    [HttpGet("student/{studentId}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetPollsByStudentId([FromRoute] int studentId)
-    {
-        GetPollsByStudentQuery getPollsByStudentQuery = new GetPollsByStudentQuery()
-        {
-            StudentId = studentId,
-        };
-        return Ok(await _mediator.Send(getPollsByStudentQuery));
     }
 }

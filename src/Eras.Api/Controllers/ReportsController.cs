@@ -8,10 +8,11 @@ using Eras.Domain.Entities;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+
 namespace Eras.Api.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/reports")]
 [ExcludeFromCodeCoverage]
 public class ReportsController(IMediator Mediator) : ControllerBase
 {
@@ -26,7 +27,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             var pollGuid = new Guid(PollInstanceUuid);
             var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId ?? 0 };
-            var avgRisk = await _mediator.Send(query);
+            GetQueryResponse<Application.Models.Consolidator.AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
             {
@@ -50,7 +51,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         try
         {
             GetStudentTopQuery query = new() { CohortName = CohortName, PollName = PollName, Take = Take };
-            var avgRisk = await _mediator.Send(query);
+            GetQueryResponse<List<(Student Student, List<Answer> Answers, double RiskIndex)>> avgRisk = await _mediator.Send(query);
             var toprmessage = string.Join(", ", avgRisk.Body.Select(St => $"{St.Student.Uuid} - {St.Student.Name} - RISK = {St.RiskIndex}").ToList());
             var result = avgRisk.Body.Select(St => new
             {
@@ -83,9 +84,9 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
 
-    [HttpGet("polls/top/")]
+    [HttpGet("polls/{Uuid}/top")]
     public async Task<IActionResult> GetHigherRiskStudentsByPollAsync(
-    [FromQuery] string PollInstanceUuid,
+    [FromRoute] string Uuid,
     [FromQuery] int Take,
     [FromQuery] string VariableIds)
     {
@@ -93,7 +94,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             GetPollTopQuery query = new()
             {
-                PollUuid = new Guid(PollInstanceUuid),
+                PollUuid = new Guid(Uuid),
                 Take = Take,
                 VariableIds = VariableIds
             };
@@ -123,14 +124,14 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         }
     }
 
-    [HttpGet("polls/avg/")]
-    public async Task<IActionResult> GetAvgRiskByPollAsync([FromQuery] string PollInstanceUuid, [FromQuery] int CohortId)
+    [HttpGet("polls/{Uuid}/avg")]
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] int CohortId)
     {
         try
         {
-            var pollGuid = new Guid(PollInstanceUuid);
+            var pollGuid = new Guid(Uuid);
             var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId };
-            var avgRisk = await _mediator.Send(query);
+            GetQueryResponse<Application.Models.Consolidator.AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
             {
