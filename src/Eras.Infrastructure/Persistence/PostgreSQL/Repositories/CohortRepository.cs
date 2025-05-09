@@ -49,7 +49,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                             .Select(g => new GetCohortTopRiskStudentsByComponentResponse
                             {
                                 StudentId = g.Key.PollInstanceId,
-                                StudentName = g.Key.StudentName,        
+                                StudentName = g.Key.StudentName,
+                                AnswerAverage = Math.Round((decimal)g.Average(v => v.AnswerRisk),2),
                                 RiskSum = g.Sum(v => v.AnswerRisk) 
                             })
                             .OrderByDescending(g => g.RiskSum)
@@ -67,6 +68,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                             {
                                 StudentId = g.Key.PollInstanceId,
                                 StudentName = g.Key.StudentName,
+                                AnswerAverage = Math.Round((decimal)g.Average(v => v.AnswerRisk), 2),
                                 RiskSum = g.Sum(v => v.AnswerRisk)
                             })
                             .OrderByDescending(g => g.RiskSum)
