@@ -9,12 +9,12 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Components.Queries.GetByName;
-public class GetComponentBynameQueryHandler: IRequestHandler<GetComponentByNameQuery, GetQueryResponse<Component>>
+public class GetComponentByNameQueryHandler: IRequestHandler<GetComponentByNameQuery, GetQueryResponse<Component>>
 {
     private IComponentRepository _componentRepository;
-    private ILogger<GetComponentBynameQueryHandler> _logger;
+    private ILogger<GetComponentByNameQueryHandler> _logger;
 
-    public GetComponentBynameQueryHandler(IComponentRepository ComponentRepository, ILogger<GetComponentBynameQueryHandler> Logger)
+    public GetComponentByNameQueryHandler(IComponentRepository ComponentRepository, ILogger<GetComponentByNameQueryHandler> Logger)
     {
         _componentRepository = ComponentRepository;
         _logger = Logger;
