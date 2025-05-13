@@ -1,33 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
-using Eras.Domain.Entities;
+﻿using Eras.Application.Contracts.Persistence;
 
 using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Cohort.Queries.GetCohortsList
+namespace Eras.Application.Features.Cohort.Queries.GetCohortsList;
+
+public class GetCohortsListQueryHandler(ICohortRepository Repository, ILogger<GetCohortsListQueryHandler> Logger) : IRequestHandler<GetCohortsListQuery, List<Domain.Entities.Cohort>>
 {
-    public class GetCohortsListQueryHandler : IRequestHandler<GetCohortsListQuery, List<Domain.Entities.Cohort>>
+    private readonly ICohortRepository _repository = Repository;
+    private readonly ILogger<GetCohortsListQueryHandler> _logger = Logger;
+
+    public async Task<List<Domain.Entities.Cohort>> Handle(GetCohortsListQuery Request, CancellationToken CancellationToken)
     {
-        private readonly ICohortRepository _repository;
-        private readonly ILogger<GetCohortsListQueryHandler> _logger;
-
-        public GetCohortsListQueryHandler(ICohortRepository Repository, ILogger<GetCohortsListQueryHandler> Logger)
+        if (Request.PollUuid == string.Empty)
         {
-            _repository = Repository;
-            _logger = Logger;
+            _logger.LogError("PollUuid is empty. Getting all cohorts");
+            return await _repository.GetCohortsAsync();
         }
-
-        public async Task<List<Domain.Entities.Cohort>> Handle(GetCohortsListQuery Request, CancellationToken CancellationToken)
-        {
-            var listOfCohorts = await _repository.GetCohortsAsync();
-            return listOfCohorts;
-        }
+        List<Domain.Entities.Cohort> listOfCohorts = await _repository.GetCohortsByPollUuidAsync(Request.PollUuid);
+        return listOfCohorts;
     }
 }

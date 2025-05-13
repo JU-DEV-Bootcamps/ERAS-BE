@@ -22,9 +22,9 @@ public class GetCohortTopRiskStudentsQueryHandler : IRequestHandler<GetCohortTop
         _logger = Logger;
     }
 
-    public async Task<List<GetCohortTopRiskStudentsByComponentResponse>> Handle(GetCohortTopRiskStudentsQuery request, CancellationToken cancellationToken)
+    public async Task<List<GetCohortTopRiskStudentsByComponentResponse>> Handle(GetCohortTopRiskStudentsQuery Req, CancellationToken CancellationToken)
     {
-        var studentsList = await _cohortRepository.GetCohortTopRiskStudents(request.PollUuid, request.CohortId);
+        var studentsList = await _cohortRepository.GetCohortTopRiskStudentsAsync(Req.PollUuid, Req.CohortId);
         return studentsList;
     }
 }
