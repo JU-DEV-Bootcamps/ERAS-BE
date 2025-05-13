@@ -43,6 +43,7 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
                         {
                             StudentId = Group.Key.PollInstanceId,
                             StudentName = Group.Key.StudentName,
+                            AnswerAverage = Math.Round((decimal)Group.Average(V => V.AnswerRisk), 2),
                             RiskSum = Group.Sum(V => V.AnswerRisk)
                         })
                         .OrderByDescending(G => G.RiskSum)
@@ -60,6 +61,7 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
                         {
                             StudentId = G.Key.PollInstanceId,
                             StudentName = G.Key.StudentName,
+                            AnswerAverage = Math.Round((decimal)G.Average(V => V.AnswerRisk), 2),
                             RiskSum = G.Sum(V => V.AnswerRisk)
                         })
                         .OrderByDescending(G => G.RiskSum)
