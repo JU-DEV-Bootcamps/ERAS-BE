@@ -13,4 +13,6 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
     Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? CohortId, int? Days);
 
     Task<AvgReportResponseVm> GetReportByPollCohortAsync(string PollUuid, int CohortId);
+
+    Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, int CohortId, List<int> VariableIds);
 }
