@@ -137,9 +137,9 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
             //Todo: Cohort Filter should be optional
             CohortId = CohortId,
         };
-        List<Application.Models.Response.Calculations.GetCohortTopRiskStudentsByComponentResponse> queryResponse = await _mediator.Send(getCohortTopRiskStudentsQuery);
+        var queryResponse = await _mediator.Send(getCohortTopRiskStudentsQuery);
 
-        return Ok(queryResponse);
+        return Ok(queryResponse.Body);
     }
 
     [HttpGet("polls/{Uuid}/components/top")]
@@ -151,9 +151,9 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
             ComponentName = ComponentName,
             CohortId = CohortId,
         };
-        List<Application.Models.Response.Calculations.GetCohortTopRiskStudentsByComponentResponse> queryResponse = await _mediator.Send(getCohortTopRiskStudentsByComponentQuery);
+        var queryResponse = await _mediator.Send(getCohortTopRiskStudentsByComponentQuery);
 
-        return Ok(queryResponse);
+        return Ok(queryResponse.Body);
     }
 
     //TODO: Normalize use of uuid instead of id

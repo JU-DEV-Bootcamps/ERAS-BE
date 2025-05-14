@@ -1,13 +1,13 @@
 ﻿namespace Eras.Application.DTOs.Views;
 public class ErasCalculationsByPollDTO
 {
-    public required string PollId { get; set; }
+    public string? PollUuid { get; set; }
     public required string ComponentName { get; set; }
     public int PollVariableId { get; set; }
     public required string Question { get; set; }
     public required string AnswerText { get; set; }
     public int PollInstanceId { get; set; }
-    public required string StudentName { get; set; }
+    public string? StudentName { get; set; }
     public required string StudentEmail { get; set; }
     public int AnswerRisk { get; set; }
     public int PollInstanceRiskSum { get; set; }
