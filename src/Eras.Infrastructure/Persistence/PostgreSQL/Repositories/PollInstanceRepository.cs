@@ -87,14 +87,6 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             VariableAverageRisk = A.VariableAverageRisk,
             AnswerPercentage = A.AnswerPercentage,
             StudentEmail = A.StudentEmail
-            //PollVariableId = A.PollVariableId,
-            //PollUuid = A.PollUuid,
-            // PollInstanceId = A.PollInstanceId,
-            // StudentName = A.StudentName,
-            // AnswerRisk = A.AnswerRisk,
-            // PollInstanceRiskSum = A.PollInstanceRiskSum,
-            // PollInstanceAnswersCount = A.PollInstanceAnswersCount,
-            // AnswerCount = A.AnswerCount,
         };
 
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
@@ -126,7 +118,8 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return new AvgReportResponseVm { Components = report, PollCount = results.DistinctBy(R => R.StudentEmail).Count() };
     }
 
-    public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, int CohortId, List<int> VariableIds){
+    public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, int CohortId, List<int> VariableIds)
+    {
         IQueryable<ErasCalculationsByPollDTO> reportQuery =
         from A in _context.ErasCalculationsByPoll
         where A.PollUuid == PollUuid
@@ -143,14 +136,6 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             StudentEmail = A.StudentEmail,
             CohortId = A.CohortId,
             CohortName = A.CohortName,
-            // PollUuid = A.PollUuid,
-            // PollVariableId = A.PollVariableId,
-            // PollInstanceId = A.PollInstanceId,
-            // PollInstanceRiskSum = A.PollInstanceRiskSum,
-            // PollInstanceAnswersCount = A.PollInstanceAnswersCount,
-            // VariableAverageRisk = A.VariableAverageRisk,
-            // AnswerCount = A.AnswerCount,
-            // AnswerPercentage = A.AnswerPercentage
         };
 
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();

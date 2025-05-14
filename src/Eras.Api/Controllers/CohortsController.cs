@@ -30,7 +30,8 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
         {
             _logger.LogError("PollUuid is empty. Getting all cohorts");
         }
-        return Ok(await _mediator.Send(getCohortsListQuery));
+        var res = await _mediator.Send(getCohortsListQuery);
+        return Ok(res.Body);
     }
 
     [HttpGet("summary")]
