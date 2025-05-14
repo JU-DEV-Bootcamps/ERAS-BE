@@ -80,21 +80,13 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         where emailsInCohort.Contains(A.StudentEmail)
         select new ErasCalculationsByPollDTO
         {
-            PollUuid = A.PollUuid,
             ComponentName = A.ComponentName,
-            PollVariableId = A.PollVariableId,
+            ComponentAverageRisk = A.ComponentAverageRisk,
             Question = A.Question,
             AnswerText = A.AnswerText,
-            PollInstanceId = A.PollInstanceId,
-            StudentName = A.StudentName,
-            StudentEmail = A.StudentEmail,
-            AnswerRisk = A.AnswerRisk,
-            PollInstanceRiskSum = A.PollInstanceRiskSum,
-            PollInstanceAnswersCount = A.PollInstanceAnswersCount,
-            ComponentAverageRisk = A.ComponentAverageRisk,
             VariableAverageRisk = A.VariableAverageRisk,
-            AnswerCount = A.AnswerCount,
-            AnswerPercentage = A.AnswerPercentage
+            AnswerPercentage = A.AnswerPercentage,
+            StudentEmail = A.StudentEmail
         };
 
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
@@ -124,5 +116,55 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 })]
         })];
         return new AvgReportResponseVm { Components = report, PollCount = results.DistinctBy(R => R.StudentEmail).Count() };
+    }
+
+    public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, int CohortId, List<int> VariableIds)
+    {
+        IQueryable<ErasCalculationsByPollDTO> reportQuery =
+        from A in _context.ErasCalculationsByPoll
+        where A.PollUuid == PollUuid
+        where CohortId == 0 || A.CohortId == CohortId
+        where VariableIds.Contains(A.PollVariableId)
+        select new ErasCalculationsByPollDTO
+        {
+            ComponentName = A.ComponentName,
+            ComponentAverageRisk = A.ComponentAverageRisk,
+            AnswerText = A.AnswerText,
+            AnswerRisk = A.AnswerRisk,
+            Question = A.Question,
+            StudentName = A.StudentName,
+            StudentEmail = A.StudentEmail,
+            CohortId = A.CohortId,
+            CohortName = A.CohortName,
+        };
+
+        List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
+
+        List<CountReportComponent> report = [.. results
+        .GroupBy(A => A.ComponentName)
+        .Select(AnsPerComp => new CountReportComponent
+        {
+            Description = AnsPerComp.Key.ToUpper(),
+            AverageRisk = (double)Math.Round(AnsPerComp.First().ComponentAverageRisk, 2),
+            Questions = [.. AnsPerComp
+                .OrderBy(A => A.AnswerRisk)
+                .GroupBy(A => A.AnswerText)
+                .Select(AnsPerAnswerText => new CountReportAnswer
+                {
+                    Question = AnsPerAnswerText.First().Question,
+                    AnswerRisk = AnsPerAnswerText.First().AnswerRisk,
+                    AnswerText = AnsPerAnswerText.Key,
+                    Count = AnsPerAnswerText.Count(),
+                    Students = [.. AnsPerAnswerText
+                        .Select(AnsPerStudent => new CountReportStudent
+                        {
+                            Name = AnsPerStudent.StudentName ?? AnsPerStudent.StudentEmail,
+                            Email = AnsPerStudent.StudentEmail,
+                            CohortId = AnsPerStudent.CohortId,
+                            CohortName = AnsPerStudent.CohortName ?? "",
+                        })]
+                })]
+        })];
+        return new CountReportResponseVm { Components = report };
     }
 }

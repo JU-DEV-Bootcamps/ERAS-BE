@@ -145,4 +145,28 @@ public class ReportsController(IMediator Mediator) : ControllerBase
             return StatusCode(500, new { status = "error", message = ex.Message });
         }
     }
+
+    [HttpGet("polls/{Uuid}/count")]
+    public async Task<IActionResult> GetPollResultsCountAsync([FromRoute] string Uuid,
+        [FromQuery] int CohortId,
+        [FromQuery] string VariableIds)
+    {
+        try
+        {
+            var VariableIdsAsInts = VariableIds.Split(',').Select(int.Parse).ToList();
+            var query = new PollCountQuery() { PollUuid = Uuid, CohortId = CohortId, VariableIds = VariableIdsAsInts };
+            var count = await _mediator.Send(query);
+            return count.Success
+            ? Ok(new
+            {
+                status = "successful",
+                body = count.Body,
+            })
+            : BadRequest(new { status = "error", message = count.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { status = "error", message = ex.Message });
+        }
+    }
 }
