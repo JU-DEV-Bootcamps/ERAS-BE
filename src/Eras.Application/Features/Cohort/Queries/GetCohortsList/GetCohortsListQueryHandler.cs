@@ -16,10 +16,11 @@ public class GetCohortsListQueryHandler(ICohortRepository Repository, ILogger<Ge
     {
         if (Request.PollUuid == string.Empty)
         {
-            _logger.LogError("PollUuid is empty. Getting all cohorts");
-            return new GetQueryResponse<List<Domain.Entities.Cohort>>(await _repository.GetCohortsAsync());
+            _logger.LogInformation("PollUuid is empty. Getting all cohorts");
+            var res = await _repository.GetCohortsAsync();
+            return new GetQueryResponse<List<Domain.Entities.Cohort>>(res, $"All {res.Count} Cohorts retrieved successfully", true);
         }
         List<Domain.Entities.Cohort> listOfCohorts = await _repository.GetCohortsByPollUuidAsync(Request.PollUuid);
-        return new GetQueryResponse<List<Domain.Entities.Cohort>>(listOfCohorts);
+        return new GetQueryResponse<List<Domain.Entities.Cohort>>(listOfCohorts, $"{listOfCohorts} cohorts retrieved from poll {Request.PollUuid} successfully", true);
     }
 }
