@@ -123,7 +123,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         IQueryable<ErasCalculationsByPollDTO> reportQuery =
         from A in _context.ErasCalculationsByPoll
         where A.PollUuid == PollUuid
-        where A.CohortId == CohortId
+        where CohortId == 0 || A.CohortId == CohortId
         where VariableIds.Contains(A.PollVariableId)
         select new ErasCalculationsByPollDTO
         {
