@@ -14,6 +14,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             ConfigureColumns(Builder);
             ConfigureRelationShips(Builder);
             ConfigureConstraints(Builder);
+            VersionConfiguration.Configure(Builder);
             AuditConfiguration.Configure(Builder);
         }
 

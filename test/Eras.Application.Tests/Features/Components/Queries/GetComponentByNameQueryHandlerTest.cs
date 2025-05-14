@@ -15,14 +15,14 @@ namespace Eras.Application.Tests.Features.Components.Queries;
 public class GetComponentByNameQueryHandlerTest
 {
     private readonly Mock<IComponentRepository> _mockComponentRepository;
-    private readonly Mock<ILogger<GetComponentBynameQueryHandler>> _mockLogger;
-    private readonly GetComponentBynameQueryHandler _handler;
+    private readonly Mock<ILogger<GetComponentByNameQueryHandler>> _mockLogger;
+    private readonly GetComponentByNameQueryHandler _handler;
 
     public GetComponentByNameQueryHandlerTest()
     {
         _mockComponentRepository = new Mock<IComponentRepository>();
-        _mockLogger = new Mock<ILogger<GetComponentBynameQueryHandler>>();
-        _handler = new GetComponentBynameQueryHandler(_mockComponentRepository.Object, _mockLogger.Object);
+        _mockLogger = new Mock<ILogger<GetComponentByNameQueryHandler>>();
+        _handler = new GetComponentByNameQueryHandler(_mockComponentRepository.Object, _mockLogger.Object);
     }
 
     [Fact]

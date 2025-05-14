@@ -10,8 +10,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public string Uuid { get; set; } = string.Empty;
         public ICollection<PollVariableJoin> PollVariables { get; set; } = [];
         public ICollection<EvaluationPollJoin> EvaluationPolls { get; set; } = [];
-
-        public ICollection<PollVersionEntity> PollVersions { get; set; } = [];
+        public int LastVersion { get; set; }
+        public DateTime LastVersionDate { get; set; }
         public AuditInfo Audit { get; set; } = default!;
     }
 }

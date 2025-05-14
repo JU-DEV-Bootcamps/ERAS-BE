@@ -12,7 +12,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Id = Entity.Id,
                 Name = Entity.Name,
                 Uuid = Entity.Uuid,
-                Audit = Entity.Audit
+                Audit = Entity.Audit,
+                LastVersion = Entity.LastVersion,
+                LastVersionDate = Entity.LastVersionDate,
             };
         }
 
@@ -23,7 +25,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Id = Model.Id,
                 Name = Model.Name,
                 Uuid = Model.Uuid,
-                Audit = Model.Audit
+                Audit = Model.Audit,
+                LastVersion = Model.LastVersion,
+                LastVersionDate = Model.LastVersionDate,
             };
         }
     }

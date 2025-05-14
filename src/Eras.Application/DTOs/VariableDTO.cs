@@ -17,5 +17,6 @@ namespace Eras.Application.DTOs
 
         public AnswerDTO? Answer { get; set; }
         public AuditInfo? Audit { get; set; } = default!;
+        public VersionInfo Version { get; set; } = default!;
     }
 }

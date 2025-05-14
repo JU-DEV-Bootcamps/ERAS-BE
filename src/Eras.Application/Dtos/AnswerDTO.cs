@@ -13,5 +13,6 @@ namespace Eras.Application.Dtos
 
         public StudentDTO? Student { get; set; }
         public AuditInfo? Audit { get; set; } = default!;
+        public VersionInfo Version { get; set; } = default!;
     }
 }

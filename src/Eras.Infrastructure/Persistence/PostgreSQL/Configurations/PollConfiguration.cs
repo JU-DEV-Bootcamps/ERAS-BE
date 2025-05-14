@@ -25,6 +25,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Poll => Poll.Uuid)
                 .HasColumnName("uuid")
                 .IsRequired();
+            Builder.Property(Poll => Poll.LastVersion)
+                .HasColumnName("last_version")
+                .IsRequired();
+            Builder.Property(Poll => Poll.LastVersionDate)
+                .HasColumnName("last_version_date")
+                .IsRequired();
         }
 
         private static void ConfigureRelationShips(EntityTypeBuilder<PollEntity> Builder)

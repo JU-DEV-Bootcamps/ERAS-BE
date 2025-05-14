@@ -21,7 +21,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<EvaluationPollJoin> EvaluationPolls { get; set; }
         public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
 
-        public virtual DbSet<PollVersionEntity> PollVersion {get;set;} 
         public AppDbContext(DbContextOptions<AppDbContext> Options)
             : base(Options)
         {

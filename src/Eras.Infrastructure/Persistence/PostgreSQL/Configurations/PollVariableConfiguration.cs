@@ -13,6 +13,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 
             ConfigureColumns(Builder);
             ConfigureRelationShips(Builder);
+            VersionConfiguration.Configure(Builder);
         }
 
         private static void ConfigureRelationShips(EntityTypeBuilder<PollVariableJoin> Builder)

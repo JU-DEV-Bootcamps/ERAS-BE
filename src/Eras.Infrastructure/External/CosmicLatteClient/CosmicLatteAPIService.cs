@@ -9,6 +9,7 @@ using Eras.Application.DTOs.CL;
 using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Services;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
 using Microsoft.Extensions.Configuration;
@@ -185,6 +186,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                         Type = Variable.Type,
                         Answer = new AnswerDTO(),
                         Audit = Variable.Audit,
+                        Version = Variable.Version
                     }).ToList(),
                     Audit = C.Audit,
                 }).ToList();
@@ -261,6 +263,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                             newVariable.Position = itemVariable.Value.Position;
                             newVariable.Type = itemVariable.Value.Type;
                             newVariable.Answer = null;
+                            newVariable.Version = new VersionInfo();
                             createdVariables.Add(newVariable);
                         }
                     }
@@ -292,7 +295,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 answerSB.Append(answers);
             }
             double score = GetScoreByPositionAndAnswer(AnswersKVPair.Value.Position, ScoreItem);
-            return new AnswerDTO { Answer = answerSB.ToString(), Score = score, Student = Student };
+            return new AnswerDTO { Answer = answerSB.ToString(), Score = score, Student = Student, Version = new VersionInfo()};
         }
         private static double GetScoreByPositionAndAnswer(int Position, Score ScoreItem)
         {

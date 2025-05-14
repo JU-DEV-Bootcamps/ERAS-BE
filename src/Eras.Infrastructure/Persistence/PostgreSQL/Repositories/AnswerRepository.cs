@@ -45,19 +45,19 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
     public async Task SaveManyAnswersAsync(List<Answer> Answers)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
-        try
+        foreach (Answer ans in Answers)
         {
-            foreach (Answer ans in Answers)
+            try
             {
                 await _context.Answers.AddAsync(ans.ToPersistence());
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
+            catch (DbUpdateException ex)
+            {
+                _context.ChangeTracker.Clear();
+                Console.WriteLine($"Error storing answer: {ex.Message}");
+            }
             await transaction.CommitAsync();
-        }
-        catch (DbUpdateException ex)
-        {
-            Console.WriteLine($"Error storing answer: {ex.Message}");
         }
     }
 

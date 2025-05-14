@@ -34,16 +34,6 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
 
                 return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);
             }
-            catch (DbUpdateException ex)
-            {
-                if (ex.InnerException != null)
-                {
-                    _logger.LogError(ex.InnerException.Message, "Create error on Answer");
-                }
-                else
-                    _logger.LogError(ex.Message, "Create error on Answer");
-                return new CreateCommandResponse<List<Answer>>(new List<Answer>(), 0, "Error", false);
-            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating answers ");

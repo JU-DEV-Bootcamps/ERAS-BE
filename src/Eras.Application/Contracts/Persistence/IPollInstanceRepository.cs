@@ -13,4 +13,6 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
     Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? CohortId, int? Days);
 
     Task<AvgReportResponseVm> GetReportByPollCohortAsync(string PollUuid, int CohortId);
+
+    new Task<PollInstance> UpdateAsync(PollInstance Entity);
 }

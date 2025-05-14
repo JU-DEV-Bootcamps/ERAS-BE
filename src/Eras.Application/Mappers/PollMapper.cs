@@ -13,31 +13,30 @@ namespace Eras.Application.Mappers
         {
             ArgumentNullException.ThrowIfNull(Dto);
             ICollection<Component> components = Dto.Components?.Select(C => C.ToDomain()).ToList() ?? [];
-            ICollection<PollVersion> pollVersions = Dto.PollVersions?.Select(Pv => Pv.ToDomain()).ToList() ?? [];
-            return new Poll { 
+            return new Poll {
                 Id = Dto.Id,
                 Name = Dto.Name,
                 Uuid = Dto.Uuid,
-                Components = components,
-                PollVersions = pollVersions,
-                Audit = Dto.Audit?? new AuditInfo() { 
+                Audit = Dto.Audit?? new AuditInfo() {
                     CreatedAt = DateTime.UtcNow,
                     ModifiedAt = DateTime.UtcNow,
-                }
+                },
+                LastVersion = Dto.LastVersion,
+                LastVersionDate = Dto.LastVersionDate,
             };
         }
         public static PollDTO ToDto(this Poll Domain)
         {
             ArgumentNullException.ThrowIfNull(Domain);
             ICollection<ComponentDTO> components = Domain.Components?.Select(C => C.ToDto()).ToList() ?? [];
-            ICollection<PollVersionDTO> pollVersions = Domain.PollVersions?.Select(Pv => Pv.ToDto()).ToList() ?? [];
             return new PollDTO {
                 Id = Domain.Id,
                 Name = Domain.Name,
                 Uuid= Domain.Uuid,
                 Components = components,
-                PollVersions = pollVersions,
-                Audit = Domain.Audit
+                Audit = Domain.Audit,
+                LastVersion = Domain.LastVersion,
+                LastVersionDate = Domain.LastVersionDate,
             };
         }
     }
