@@ -75,6 +75,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         {
             StudentDetailId = Id
         };
+        Console.WriteLine(Id);
         CreateCommandResponse<Student> result = await _mediator.Send(getStudentDetailsQuery);
         return Ok(result);
     }

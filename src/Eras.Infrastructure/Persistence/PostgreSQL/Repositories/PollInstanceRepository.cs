@@ -80,7 +80,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         where emailsInCohort.Contains(A.StudentEmail)
         select new ErasCalculationsByPollDTO
         {
-            PollUuid = A.PollUuid,
+            PollId = A.PollUuid,
             ComponentName = A.ComponentName,
             PollVariableId = A.PollVariableId,
             Question = A.Question,

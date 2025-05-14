@@ -26,7 +26,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return pollVariable?.ToDomain();
         }
 
-        public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, int VaribaleId)
+        public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, int VariableId)
         {
             //Assuming the pollUuid and pollInstance Uuid are the same. This query uses the pollIntanceUuid
             var answers = await (from s in _context.Students
@@ -35,7 +35,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                                  join pv in _context.PollVariables on a.PollVariableId equals pv.Id
                                  join v in _context.Variables on pv.VariableId equals v.Id
                                  join c in _context.Components on v.ComponentId equals c.Id
-                                 where pi.Uuid == PollUuid && v.Id == VaribaleId
+                                 where pi.Uuid == PollUuid && v.Id == VariableId
                                  select new { Answer = a.ToDomain(), Variable = v.ToDomain(), Student = s.ToDomain() }
                      ).ToListAsync();
             return [.. answers.Select(A => (A.Answer, A.Variable, A.Student))];
@@ -71,5 +71,16 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return groupedResults.Select(G => (G.Answer, G.Variable, G.Student)).ToList();
         }
+        public async Task<List<Answer>> GetSummaryByPollUuidAsync(string PollUuid)
+        {
+            //Assuming the pollUuid and pollInstance Uuid are the same. This query uses the pollIntanceUuid
+            var answers = await (from pi in _context.PollInstances
+                                 join a in _context.Answers on pi.Id equals a.PollInstanceId
+                                 where pi.Uuid == PollUuid
+                                 select new { Answer = a.ToDomain() }
+                     ).ToListAsync();
+            return [.. answers.Select(A => (A.Answer))];
+        }
+
     }
 }

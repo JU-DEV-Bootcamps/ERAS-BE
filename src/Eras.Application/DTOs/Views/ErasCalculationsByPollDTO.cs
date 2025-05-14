@@ -1,7 +1,7 @@
 ﻿namespace Eras.Application.DTOs.Views;
 public class ErasCalculationsByPollDTO
 {
-    public required string PollUuid { get; set; }
+    public required string PollId { get; set; }
     public required string ComponentName { get; set; }
     public int PollVariableId { get; set; }
     public required string Question { get; set; }
