@@ -142,27 +142,28 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
 
         List<CountReportComponent> report = [.. results
         .GroupBy(A => A.ComponentName)
-        .Select(AnsPerComp => new CountReportComponent
-        {
+        .Select(AnsPerComp => new CountReportComponent {
             Description = AnsPerComp.Key.ToUpper(),
-            AverageRisk = (double)Math.Round(AnsPerComp.First().ComponentAverageRisk, 2),
+            AverageRisk = (double)Math.Round(AnsPerComp.Average(A=>A.AnswerRisk), 2),
             Questions = [.. AnsPerComp
-                .OrderBy(A => A.AnswerRisk)
-                .GroupBy(A => A.AnswerText)
-                .Select(AnsPerAnswerText => new CountReportAnswer
-                {
-                    Question = AnsPerAnswerText.First().Question,
-                    AnswerRisk = AnsPerAnswerText.First().AnswerRisk,
-                    AnswerText = AnsPerAnswerText.Key,
-                    Count = AnsPerAnswerText.Count(),
-                    Students = [.. AnsPerAnswerText
-                        .Select(AnsPerStudent => new CountReportStudent
+                .OrderBy(Q => Q.AnswerRisk)
+                .GroupBy(Q => Q.Question)
+                .Select(AnsPerQuestion => new CountReportQuestion {
+                    AverageRisk = (double)Math.Round(AnsPerQuestion.Average(A => A.AnswerRisk),2),
+                    Question = AnsPerQuestion.Key,
+                    Answers = [.. AnsPerQuestion
+                        .GroupBy(A => A.AnswerRisk)
+                        .Select(AnsPerAns => new CountReportAnswer
                         {
-                            Name = AnsPerStudent.StudentName ?? AnsPerStudent.StudentEmail,
-                            Email = AnsPerStudent.StudentEmail,
-                            CohortId = AnsPerStudent.CohortId,
-                            CohortName = AnsPerStudent.CohortName ?? "",
-                        })]
+                            AnswerRisk = AnsPerAns.Key,
+                            Count = AnsPerAns.Count(),
+                            Students = [.. AnsPerAns.Select(S => new CountReportStudent {
+                                    AnswerText = S.AnswerText,
+                                    Name = S.StudentEmail,
+                                    Email = S.StudentEmail,
+                                    CohortId = S.CohortId
+                            })]
+                    })]
                 })]
         })];
         return new CountReportResponseVm { Components = report };
