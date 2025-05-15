@@ -23,7 +23,6 @@ public class GetComponentSummaryQueryHandler(
         try
         {
             List<Answer> results = await _pollVariableRepository.GetSummaryByPollUuidAsync(Request.PollUuid.ToString());
-            //var orderedStudents = results.OrderByDescending(Stud => Stud.Answer.RiskLevel).ToList();
             return new GetQueryResponse<List<Answer>>(results, "Success", true);
         }
         catch (Exception e)
