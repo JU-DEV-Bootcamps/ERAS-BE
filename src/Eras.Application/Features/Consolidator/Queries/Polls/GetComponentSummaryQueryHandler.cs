@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 
@@ -8,14 +9,16 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Consolidator.Queries.Polls;
 
-public class GetComponentSummaryQueryHandler(
- ILogger<GetPollTopQueryHandler> Logger,
- IPollVariableRepository PollVariableRepository
-) : IRequestHandler<GetComponentSummaryQuery, GetQueryResponse<List<Answer>>>
+public class GetComponentSummaryQueryHandler : IRequestHandler<GetComponentSummaryQuery, GetQueryResponse<List<Answer>>>
 {
-    private readonly ILogger<GetPollTopQueryHandler> _logger = Logger;
-    private readonly IPollVariableRepository _pollVariableRepository = PollVariableRepository;
+    private readonly ILogger<GetComponentSummaryQueryHandler> _logger;
+    private readonly IPollVariableRepository _pollVariableRepository;
 
+    public GetComponentSummaryQueryHandler(IPollVariableRepository PollVariableRepository, ILogger<GetComponentSummaryQueryHandler> Logger)
+    {
+        _pollVariableRepository = PollVariableRepository;
+        _logger = Logger;
+    }
     public async Task<GetQueryResponse<List<Answer>>> Handle(
         GetComponentSummaryQuery Request,
         CancellationToken CancellationToken)
