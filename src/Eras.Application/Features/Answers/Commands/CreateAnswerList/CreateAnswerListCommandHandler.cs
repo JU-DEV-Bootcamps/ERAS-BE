@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.DTOs.CL;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
@@ -26,19 +27,20 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
         public async Task<CreateCommandResponse<List<Answer>>> Handle(CreateAnswerListCommand Request,
             CancellationToken CancellationToken)
         {
-            try
+            List<Answer> answers = Request.Answers.Select(Ans => Ans.ToDomain()).ToList();
+            foreach (Answer answer in answers)
             {
-                List<Answer> answers = Request.Answers.Select(Ans => Ans.ToDomain()).ToList();
-
-                await _answerRepository.SaveManyAnswersAsync(answers);
-
-                return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);
+                try
+                {
+                    await _answerRepository.AddAsync(answer);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An error occurred creating answers ");
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "An error occurred creating answers ");
-                return new CreateCommandResponse<List<Answer>>(new List<Answer>(), 0, "Error", false);
-            }
+            return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);
+
         }
     }
 }
