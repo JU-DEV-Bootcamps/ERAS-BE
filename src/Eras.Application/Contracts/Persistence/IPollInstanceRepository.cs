@@ -15,4 +15,5 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
     Task<AvgReportResponseVm> GetReportByPollCohortAsync(string PollUuid, int CohortId);
 
     new Task<PollInstance> UpdateAsync(PollInstance Entity);
+    Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, int CohortId, List<int> VariableIds);
 }

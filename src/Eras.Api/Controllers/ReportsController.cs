@@ -145,4 +145,60 @@ public class ReportsController(IMediator Mediator) : ControllerBase
             return StatusCode(500, new { status = "error", message = ex.Message });
         }
     }
+
+    [HttpGet("polls/{Uuid}/count")]
+    public async Task<IActionResult> GetPollResultsCountAsync([FromRoute] string Uuid,
+        [FromQuery] int CohortId,
+        [FromQuery] string VariableIds)
+    {
+        try
+        {
+            var VariableIdsAsInts = VariableIds.Split(',').Select(int.Parse).ToList();
+            var query = new PollCountQuery() { PollUuid = Uuid, CohortId = CohortId, VariableIds = VariableIdsAsInts };
+            var count = await _mediator.Send(query);
+            return count.Success
+            ? Ok(new
+            {
+                status = "successful",
+                body = count.Body,
+            })
+            : BadRequest(new { status = "error", message = count.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { status = "error", message = ex.Message });
+        }
+    }
+    [HttpGet("polls/{Uuid}/summary")]
+    public async Task<IActionResult> GetComponentSummaryByPollAsync(
+    [FromRoute] string Uuid)
+    {
+        try
+        {
+            GetComponentSummaryQuery query = new()
+            {
+                PollUuid = new Guid(Uuid)
+            };
+            GetQueryResponse<List<Answer>> answers = await _mediator.Send(query);
+            var risks = answers.Body.Select(Answer => Answer.RiskLevel);
+            var averageRisk = risks.Any() ? risks.Average() : 0;
+
+            return answers.Success
+            ? Ok(new
+            {
+                status = "successful",
+                message = $"Poll Variable summary:",
+                body = new
+                {
+                    risks = risks,
+                    averageRisk = averageRisk
+                }
+            })
+            : BadRequest(new { status = "error", message = "Success"});
+        }
+        catch (Exception ex)
+        {
+            return NotFound(new { status = "error", message = ex.Message });
+        }
+    }
 }

@@ -68,8 +68,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 join pv in _context.PollVariables on v.Id equals pv.VariableId
                 join p in _context.Polls on pv.PollId equals p.Id
                 join c in _context.Components on v.ComponentId equals c.Id
-                where p.Uuid == PollUuid && Components.Contains(c.Name)
-                select new Variable { Id = v.Id, Name = v.Name };
+                where p.Uuid == PollUuid && (Components.Count == 0 || Components.Contains(c.Name))
+                select new Variable { Id = v.Id, Name = v.Name, ComponentName = c.Name };
 
             return await variables.ToListAsync();
         }

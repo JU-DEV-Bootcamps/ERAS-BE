@@ -14,6 +14,9 @@ public class GetCohortTopRiskStudentsByComponentResponse
     [Column("student_name")]
     public required string StudentName { get; set; }
 
+    [Column("answer_average")]
+    public decimal AnswerAverage { get; set; }
+
     [Column("risk_sum")]
     public decimal RiskSum { get; set; }
 }
