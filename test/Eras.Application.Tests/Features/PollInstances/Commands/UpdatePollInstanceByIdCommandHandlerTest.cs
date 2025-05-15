@@ -30,14 +30,19 @@ public class UpdatePollInstanceByIdCommandHandlerTest
     }
 
     [Fact]
-    public async Task HandlePollUpdatesPoll()
+    public async Task HandlePollUpdatesPollAsync()
     {
-        var updatedPollDto = new PollDTO() { Uuid = "Uuid1", Id = 1, LastVersion = 1};
+        var updatedPollDto = new PollDTO() { Uuid = "Uuid1", Id = 1, LastVersion = 2};
         var command = new UpdatePollByIdCommand { PollDTO = updatedPollDto };
         var responsePoll = updatedPollDto.ToDomain;
+        var oldPoll = updatedPollDto.ToDomain();
+        oldPoll.LastVersion = 1;
 
         _mockPollRepository.Setup(Repo => Repo.UpdateAsync(It.IsAny<Poll>()))
             .ReturnsAsync(responsePoll);
+
+        _mockPollRepository.Setup(Repo => Repo.GetByIdAsync(It.IsAny<int>()))
+            .ReturnsAsync(oldPoll);
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
