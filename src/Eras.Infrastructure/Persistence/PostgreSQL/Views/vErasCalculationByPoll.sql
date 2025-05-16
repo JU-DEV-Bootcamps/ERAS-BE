@@ -17,7 +17,7 @@ WITH PercentageCalc AS (
 RiskAverageByComponent AS (
     SELECT
         c."name" AS component_name,
-        AVG(a.risk_level) AS average_risk
+        ROUND(AVG(a.risk_level),2) AS average_risk
     FROM
         answers a
     JOIN poll_variable pv ON a.poll_variable_id = pv."Id"
@@ -30,7 +30,7 @@ RiskAverageByVariable AS (
     SELECT
         v."Id" AS variable_id,
         v."name" AS variable_name,
-        AVG(a.risk_level) AS average_risk
+        ROUND(AVG(a.risk_level),2) AS average_risk
     FROM
         answers a
     JOIN poll_variable pv ON a.poll_variable_id = pv."Id"
@@ -56,7 +56,7 @@ RiskAvgByCohortComponent AS (
     SELECT
         sc.cohort_id,
         c."Id" AS component_id,
-        AVG(a.risk_level) AS average_risk_by_cohort_component
+        ROUND(AVG(a.risk_level),2) AS average_risk_by_cohort_component
     FROM
         answers a
     JOIN poll_variable pv ON pv."Id" = a.poll_variable_id
