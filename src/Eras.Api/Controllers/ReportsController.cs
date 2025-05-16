@@ -190,11 +190,11 @@ public class ReportsController(IMediator Mediator) : ControllerBase
                 message = $"Poll Variable summary:",
                 body = new
                 {
-                    risks = risks,
-                    averageRisk = averageRisk
+                    risks,
+                    averageRisk
                 }
             })
-            : BadRequest(new { status = "error", message = "Success"});
+            : BadRequest(new { status = "error", message = "Success" });
         }
         catch (Exception ex)
         {

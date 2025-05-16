@@ -58,7 +58,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .GroupBy(A => A.Student.Name)
                 .Select(Group =>
                 {
-                    var averageRisk = Group.Average(g => g.Answer.RiskLevel);
+                    var averageRisk = Group.Average(G => G.Answer.RiskLevel);
                     var firstAnswer = Group.First();
                     return (
                         Answer: firstAnswer.Answer,
