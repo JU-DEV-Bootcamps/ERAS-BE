@@ -29,5 +29,20 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return poll?.ToDomain();
         }
+
+        public new async Task<Poll> UpdateAsync(Poll Entity)
+        {
+
+            var existingEntity = await _context.Set<PollEntity>().FindAsync(Entity.Id);
+
+            if (existingEntity != null)
+            {
+                var updatedEntity = PollMapper.ToPersistence(Entity);
+                _context.Entry(existingEntity).CurrentValues.SetValues(updatedEntity);
+                await _context.SaveChangesAsync();
+            }
+
+            return Entity;
+        }
     }
 }

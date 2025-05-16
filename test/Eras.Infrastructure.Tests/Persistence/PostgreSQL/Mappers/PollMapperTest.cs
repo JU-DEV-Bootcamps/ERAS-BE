@@ -14,14 +14,12 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
             {
                 Id = 1,
                 Name = "Test Poll",
-                Version = "1",
                 Uuid = "1234",
             };
             var result = entity.ToDomain();
             Assert.NotNull(result);
             Assert.Equal(entity.Id, result.Id);
             Assert.Equal(entity.Name, result.Name);
-            Assert.Equal(entity.Version, result.Version);
             Assert.Equal(entity.Uuid, result.Uuid);
             Assert.Equal(entity.Audit, result.Audit);
         }
@@ -33,14 +31,12 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
             {
                 Id = 1,
                 Name = "Test Poll",
-                Version = "1",
                 Uuid = "1234",
             };
             var result = model.ToPersistence();
             Assert.NotNull(result);
             Assert.Equal(model.Id, result.Id);
             Assert.Equal(model.Name, result.Name);
-            Assert.Equal(model.Version, result.Version);
             Assert.Equal(model.Uuid, result.Uuid);
             Assert.Equal(model.Audit, result.Audit);
         }

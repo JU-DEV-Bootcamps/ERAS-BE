@@ -118,6 +118,21 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return new AvgReportResponseVm { Components = report, PollCount = results.DistinctBy(R => R.StudentEmail).Count() };
     }
 
+    public new async Task<PollInstance> UpdateAsync(PollInstance Entity)
+    {
+
+        var existingEntity = await _context.Set<PollInstanceEntity>().FindAsync(Entity.Id);
+
+        if (existingEntity != null)
+        {
+            var updatedEntity = PollInstanceMapper.ToPersistence(Entity);
+            _context.Entry(existingEntity).CurrentValues.SetValues(updatedEntity);
+            await _context.SaveChangesAsync();
+        }
+
+        return Entity;
+    }
+    
     public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, int CohortId, List<int> VariableIds)
     {
         IQueryable<ErasCalculationsByPollDTO> reportQuery =

@@ -11,30 +11,36 @@ namespace Eras.Application.Mappers
 {
     public static class PollInstanceMapper
     {
-        public static PollInstance ToDomain(this PollInstanceDTO dto)
+        public static PollInstance ToDomain(this PollInstanceDTO Dto)
         {
-            ArgumentNullException.ThrowIfNull(dto);
-            ICollection<Answer> answers = dto.Answers?.Select(ans => ans.ToDomain()).ToList() ?? [];
+            ArgumentNullException.ThrowIfNull(Dto);
+            ICollection<Answer> answers = Dto.Answers?.Select(Ans => Ans.ToDomain()).ToList() ?? [];
             return new PollInstance()
             {
-                Uuid = dto.Uuid,             
-                Student = dto.Student?.ToDomain() ?? new Student(),
+                Id = Dto.Id,
+                Uuid = Dto.Uuid,             
+                Student = Dto.Student?.ToDomain() ?? new Student(),
                 Answers = answers,
-                Audit = dto.Audit,
-                FinishedAt = dto.FinishedAt
+                Audit = Dto.Audit,
+                FinishedAt = Dto.FinishedAt,
+                LastVersion = Dto.LastVersion,
+                LastVersionDate = Dto.LastVersionDate,
             };
         }
-        public static PollInstanceDTO ToDTO(this PollInstance entity)
+        public static PollInstanceDTO ToDTO(this PollInstance Entity)
         {
-            ArgumentNullException.ThrowIfNull(entity);
-            ICollection<AnswerDTO> answers = entity.Answers?.Select(ans => ans.ToDto()).ToList() ?? [];
+            ArgumentNullException.ThrowIfNull(Entity);
+            ICollection<AnswerDTO> answers = Entity.Answers?.Select(Ans => Ans.ToDto()).ToList() ?? [];
             return new PollInstanceDTO()
             {
-                Uuid = entity.Uuid,
-                Student = entity.Student?.ToDto() ?? new StudentDTO(),
+                Id = Entity.Id,
+                Uuid = Entity.Uuid,
+                Student = Entity.Student?.ToDto() ?? new StudentDTO(),
                 Answers = answers,
-                Audit = entity.Audit,
-                FinishedAt = entity.FinishedAt
+                Audit = Entity.Audit,
+                FinishedAt = Entity.FinishedAt,
+                LastVersion = Entity.LastVersion,
+                LastVersionDate = Entity.LastVersionDate,
             };
 
         }

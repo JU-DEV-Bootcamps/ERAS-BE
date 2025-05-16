@@ -24,7 +24,16 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return variable?.ToDomain();
         }
 
-        public async Task<Variable> AddAsync(Variable Variable)
+        public async Task<Variable?> GetByNameInPollAndComponentAsync(string Name)
+        {
+            var variable = await _context.Variables.FirstOrDefaultAsync(Variable =>
+                Variable.Name == Name
+            );
+
+            return variable?.ToDomain();
+        }
+
+        public new async Task<Variable> AddAsync(Variable Variable)
         {
             VariableEntity variableEntity = Variable.ToPersistence();
             var response = await _context.Set<VariableEntity>().AddAsync(variableEntity);
@@ -63,6 +72,20 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 select new Variable { Id = v.Id, Name = v.Name, ComponentName = c.Name };
 
             return await variables.ToListAsync();
+        }
+
+        public async Task<Variable?> GetByNameAndPollIdAsync(string Name, int PollId)
+        {
+            var variable = await _context.Variables
+                .Where(V => V.Name == Name)
+                .Join(_context.PollVariables,
+                    V => V.Id,
+                    Pv => Pv.VariableId,
+                    (Variable, PollVariable) => new {Variable, PollVariable })
+                .Where(Cv => Cv.PollVariable.PollId == PollId)
+                .Select(Cv => Cv.Variable)
+                .FirstOrDefaultAsync();
+            return variable?.ToDomain();
         }
     }
 }

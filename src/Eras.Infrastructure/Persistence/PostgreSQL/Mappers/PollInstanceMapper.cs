@@ -14,7 +14,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Student = Entity.Student?.ToDomain() ?? new Student(),
                 Answers = Entity.Answers?.Select(Ans => Ans.ToDomain()).ToList() ?? [],
                 Audit = Entity.Audit,
-                FinishedAt = Entity.FinishedAt
+                FinishedAt = Entity.FinishedAt,
+                LastVersion = Entity.LastVersion,
+                LastVersionDate = Entity.LastVersionDate,
 
             };
         }
@@ -28,6 +30,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Student = Entity.Student?.ToDomain() ?? new Student(),
                 FinishedAt = Entity.FinishedAt,
                 Answers = [.. Entity.Answers.Select(A => A.ToDomain())],
+                LastVersion = Entity.LastVersion,
+                LastVersionDate = Entity.LastVersionDate,
             };
         }
 
@@ -39,7 +43,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Uuid = Model.Uuid,
                 StudentId = Model.Student != null ? Model.Student.Id : 0,
                 Audit = Model.Audit,
-                FinishedAt = Model.FinishedAt
+                FinishedAt = Model.FinishedAt,
+                LastVersion = Model.LastVersion,
+                LastVersionDate = Model.LastVersionDate,
             };
         }
     }

@@ -12,7 +12,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             AnswerText = Entity.AnswerText,
             Audit = Entity.Audit,
             PollInstanceId = Entity.PollInstanceId,
-            PollVariableId = Entity.PollVariableId
+            PollVariableId = Entity.PollVariableId,
+            Version = Entity.Version
         };
         public static AnswerEntity ToPersistence(this Answer Model) => new()
         {
@@ -21,7 +22,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             RiskLevel = Model.RiskLevel,
             PollInstanceId = Model.PollInstanceId,
             PollVariableId = Model.PollVariableId,
-            Audit = Model.Audit
+            Audit = Model.Audit,
+            Version = Model.Version
         };
     }
 }
