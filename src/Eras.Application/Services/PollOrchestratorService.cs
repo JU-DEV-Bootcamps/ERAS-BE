@@ -39,8 +39,8 @@ namespace Eras.Application.Services
         private readonly IMediator _mediator;
         ILogger<PollOrchestratorService> _logger;
         private bool IsNewPoll;
-        private int Version;
-        private bool NewVersion = false;
+        private int VersionNumber;
+        private bool IsNewVersion = false;
         private DateTime InitDate; 
 
         public PollOrchestratorService(IMediator Mediator, ILogger<PollOrchestratorService> Logger)
@@ -66,9 +66,9 @@ namespace Eras.Application.Services
                     // Create components, variables and poll_variables (intermediate table)
                     List<Component> createdComponents = await CreateComponentsAndVariablesAsync(PollsToCreate[0].Components, 
                         createdPollResponse.Entity.Id);
-                    if (NewVersion) 
+                    if (IsNewVersion) 
                     {
-                        pollToUse.LastVersion = Version;
+                        pollToUse.LastVersion = VersionNumber;
                         pollToUse.LastVersionDate = InitDate;
                         var updateCommand = new UpdatePollByIdCommand() { PollDTO = pollToUse };
                         await _mediator.Send(updateCommand);
@@ -111,9 +111,9 @@ namespace Eras.Application.Services
                 var responseQuery = await _mediator.Send(queryPollInstance);
                 if (responseQuery.Status == QueryEnums.QueryResultStatus.Success)
                 {
-                    if (NewVersion)
+                    if (IsNewVersion)
                     {
-                        responseQuery.Body.LastVersion = Version;
+                        responseQuery.Body.LastVersion = VersionNumber;
                         responseQuery.Body.LastVersionDate = InitDate;
                         var updateCommand = new UpdatePollInstanceByIdCommand() { PollInstanceDTO = responseQuery.Body.ToDTO() };
                         var responseUpdate = await _mediator.Send(updateCommand);
@@ -132,7 +132,7 @@ namespace Eras.Application.Services
                         CreatedAt = DateTime.UtcNow,
                         ModifiedAt = DateTime.UtcNow,
                     };
-                    pollInstance.LastVersion = Version;
+                    pollInstance.LastVersion = VersionNumber;
                     pollInstance.LastVersionDate = InitDate;
                     CreatePollInstanceCommand createPollInstanceCommand = new CreatePollInstanceCommand() { PollInstance = pollInstance.ToDTO() };
                     return await _mediator.Send(createPollInstanceCommand);
@@ -247,13 +247,13 @@ namespace Eras.Application.Services
                 if (pollByName.Success && pollByName.Status == QueryEnums.QueryResultStatus.NotFound)
                 {
                     IsNewPoll = true;
-                    Version = 1;
-                    PollToCreate.LastVersion = Version;
+                    VersionNumber = 1;
+                    PollToCreate.LastVersion = VersionNumber;
                     PollToCreate.LastVersionDate = InitDate;
                     CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = PollToCreate };
                     return await _mediator.Send(createPollCommand);
                 }
-                Version = pollByName.Body.LastVersion;
+                VersionNumber = pollByName.Body.LastVersion;
                 return new CreateCommandResponse<Poll>(pollByName.Body, 1,pollByName.Message,pollByName.Success);
             }
             catch (Exception ex)
@@ -268,7 +268,7 @@ namespace Eras.Application.Services
             {
                 Variable.Version = new VersionInfo()
                 {
-                    VersionNumber = Version,
+                    VersionNumber = VersionNumber,
                     VersionDate = InitDate,
                 };
                 CreatePollVariableCommand createPollVariableCommand = new CreatePollVariableCommand()
@@ -308,10 +308,10 @@ namespace Eras.Application.Services
                             PollId = AsociatedPollId
                         };
                         var responseQuery = await _mediator.Send(query);
-                        if (responseQuery.Success == true && responseQuery.Status == QueryEnums.QueryResultStatus.NotFound && !NewVersion)
+                        if (responseQuery.Success == true && responseQuery.Status == QueryEnums.QueryResultStatus.NotFound && !IsNewVersion)
                         {
-                            Version += 1;
-                            NewVersion = true;
+                            VersionNumber += 1;
+                            IsNewVersion = true;
                         }
                     }
                     CreateVariableCommand createVariableCommand = new CreateVariableCommand()
@@ -368,7 +368,7 @@ namespace Eras.Application.Services
                                 };
                                 answerToCreate.Version = new VersionInfo()
                                 {
-                                    VersionNumber = Version,
+                                    VersionNumber = VersionNumber,
                                     VersionDate = InitDate
                                 };
                                 answersToCreate.Add(answerToCreate);
@@ -418,10 +418,10 @@ namespace Eras.Application.Services
                             PollId = AsociatedPollId
                         };
                         var componentOld = await _mediator.Send(componentOldQuery);
-                        if (componentOld.Status == QueryEnums.QueryResultStatus.NotFound && !NewVersion)
+                        if (componentOld.Status == QueryEnums.QueryResultStatus.NotFound && !IsNewVersion)
                         {
-                            Version += 1;
-                            NewVersion = true;
+                            VersionNumber += 1;
+                            IsNewVersion = true;
                         }
                     }
                     CreateCommandResponse<Component> createdComponent = await CreateComponentAsync(componentDto);

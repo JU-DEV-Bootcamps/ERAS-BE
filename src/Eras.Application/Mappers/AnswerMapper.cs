@@ -1,4 +1,4 @@
-﻿using Eras.Application.Dtos;
+﻿using Eras.Application.DTOs;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
 

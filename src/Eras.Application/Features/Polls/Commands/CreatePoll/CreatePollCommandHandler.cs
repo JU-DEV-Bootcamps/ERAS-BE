@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Application.Mappers;
+﻿using Eras.Application.Mappers;
 using Eras.Application.Contracts.Persistence;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Eras.Domain.Entities;
-using Eras.Domain.Common;
-using Eras.Application.Dtos;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Enums;
 

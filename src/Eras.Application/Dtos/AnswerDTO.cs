@@ -1,8 +1,6 @@
-﻿using Eras.Application.DTOs;
-using Eras.Domain.Common;
+﻿using Eras.Domain.Common;
 
-
-namespace Eras.Application.Dtos
+namespace Eras.Application.DTOs
 {
     public class AnswerDTO
     {
@@ -10,7 +8,6 @@ namespace Eras.Application.Dtos
         public double Score { get; set; }
         public int PollInstanceId { get; set; }
         public int PollVariableId { get; set; }
-
         public StudentDTO? Student { get; set; }
         public AuditInfo? Audit { get; set; } = default!;
         public VersionInfo Version { get; set; } = default!;
