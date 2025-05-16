@@ -1,4 +1,4 @@
-﻿using Eras.Application.Dtos;
+﻿using Eras.Application.DTOs;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
