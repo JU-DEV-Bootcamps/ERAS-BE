@@ -31,5 +31,23 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return component?.ToDomain();
         }
+
+        public async Task<Component?> GetByNameAndPollIdAsync(string Name, int PollId)
+        {
+            var component = await _context.Components
+                .Where(C => C.Name == Name)
+                .Join(_context.Variables,
+                    Component => Component.Id,
+                    Variable => Variable.ComponentId,
+                    (Component,Variable)=> new { Component,Variable})
+                .Join(_context.PollVariables,
+                    Cv => Cv.Variable.Id,
+                    Pv => Pv.VariableId,
+                    (Cv, PollVariable) => new { Cv.Component, Cv.Variable, PollVariable })
+                .Where(Cv => Cv.PollVariable.PollId == PollId)
+                .Select( Cv => Cv.Component)
+                .FirstOrDefaultAsync();
+            return component?.ToDomain();
+        } 
     }
 }

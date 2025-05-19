@@ -18,7 +18,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Id = PollVariableJoin.VariableId,
                 IdPoll = PollVariableJoin.PollId,
                 IdComponent = PollVariableJoin.Variable.ComponentId,
-                PollVariableId = PollVariableJoin.Id
+                PollVariableId = PollVariableJoin.Id,
+                Version = PollVariableJoin.Version,
 
             };
         }
@@ -28,6 +29,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 VariableId = Variable.Id,
                 PollId = Variable.IdPoll,
+                Version = Variable.Version,
 
             };
         }

@@ -1,4 +1,5 @@
-﻿using Eras.Domain.Entities;
+﻿using Eras.Application.Models.Enums;
+using Eras.Domain.Entities;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System;
 using System.Collections.Generic;
@@ -12,21 +13,38 @@ namespace Eras.Application.Models.Response.Common
     {
         public T Entity { get; set; }
         public int SuccessfullImports { get; set; }
+        public CommandEnums.CommandResultStatus Status { get; set; } = CommandEnums.CommandResultStatus.Success;
 
-        public CreateCommandResponse(T createdEntity, int successfullImports)
+        public CreateCommandResponse(T CreatedEntity, int SuccessfullImports)
         {
-            Entity = createdEntity;
-            SuccessfullImports = successfullImports;
+            Entity = CreatedEntity;
+            this.SuccessfullImports = SuccessfullImports;
         }
-        public CreateCommandResponse(T createdEntity, int successfullImports, string message, bool success) : base(message, success)
+        public CreateCommandResponse(T CreatedEntity, int SuccessfullImports, string Message, bool Success) : base(Message, Success)
         {
-            Entity = createdEntity;
-            SuccessfullImports = successfullImports;
+            Entity = CreatedEntity;
+            this.SuccessfullImports = SuccessfullImports;
         }
 
-        public CreateCommandResponse(T createdEntity, string message ,bool success) : base(message, success)
+        public CreateCommandResponse(T CreatedEntity, string Message, bool Success) : base(Message, Success)
         {
-            Entity = createdEntity;
+            Entity = CreatedEntity;
+        }
+
+        public CreateCommandResponse(T CreatedEntity, string Message, bool Success,
+            CommandEnums.CommandResultStatus Status
+            ) : base(Message, Success)
+        {
+            Entity = CreatedEntity;
+            this.Status = Status;
+        }
+
+        public CreateCommandResponse(T CreatedEntity, int SuccessfullImports, string Message, bool Success,
+            CommandEnums.CommandResultStatus Status) : base(Message, Success)
+        {
+            Entity = CreatedEntity;
+            this.SuccessfullImports = SuccessfullImports;
+            this.Status = Status;
         }
 
     }

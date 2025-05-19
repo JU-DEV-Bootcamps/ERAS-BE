@@ -3,7 +3,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
 {
-    public class AnswerEntity : BaseEntity, IAuditableEntity
+    public class AnswerEntity : BaseEntity, IAuditableEntity, IVersionableEntity
     {
         public string AnswerText { get; set; } = string.Empty;
         public int RiskLevel { get; set; }
@@ -12,5 +12,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public int PollVariableId { get; set; } = default!;
         public PollVariableJoin PollVariable { get; set; } = default!;
         public AuditInfo Audit { get; set; } = default!;
+        public VersionInfo Version { get; set; } = default!;    
     }
 }

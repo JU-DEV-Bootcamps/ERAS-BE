@@ -113,6 +113,106 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("components", (string)null);
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ErasCalculationsByPollEntity", b =>
+                {
+                    b.Property<int>("AnswerCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("answer_count");
+
+                    b.Property<decimal>("AnswerPercentage")
+                        .HasColumnType("numeric")
+                        .HasColumnName("answer_percentage");
+
+                    b.Property<int>("AnswerRisk")
+                        .HasColumnType("integer")
+                        .HasColumnName("answer_risk");
+
+                    b.Property<string>("AnswerText")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("answer_text");
+
+                    b.Property<decimal>("AverageRisk")
+                        .HasColumnType("numeric");
+
+                    b.Property<decimal>("AverageRiskByCohortComponent")
+                        .HasColumnType("numeric")
+                        .HasColumnName("average_risk_by_cohort_component");
+
+                    b.Property<int>("CohortId")
+                        .HasColumnType("integer")
+                        .HasColumnName("cohort_id");
+
+                    b.Property<string>("CohortName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cohort_name");
+
+                    b.Property<decimal>("ComponentAverageRisk")
+                        .HasColumnType("numeric")
+                        .HasColumnName("component_average_risk");
+
+                    b.Property<int>("ComponentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("component_id");
+
+                    b.Property<string>("ComponentName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("component_name");
+
+                    b.Property<int>("PollId")
+                        .HasColumnType("integer")
+                        .HasColumnName("poll_id");
+
+                    b.Property<int>("PollInstanceAnswersCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("poll_instance_answers_count");
+
+                    b.Property<int>("PollInstanceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("poll_instance_id");
+
+                    b.Property<int>("PollInstanceRiskSum")
+                        .HasColumnType("integer")
+                        .HasColumnName("poll_instance_risk_sum");
+
+                    b.Property<string>("PollUuid")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("poll_uuid");
+
+                    b.Property<int>("PollVariableId")
+                        .HasColumnType("integer")
+                        .HasColumnName("poll_variable_id");
+
+                    b.Property<string>("Question")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("question");
+
+                    b.Property<int>("RiskCount")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("StudentEmail")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("student_email");
+
+                    b.Property<string>("StudentName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("student_name");
+
+                    b.Property<decimal>("VariableAverageRisk")
+                        .HasColumnType("numeric")
+                        .HasColumnName("variable_average_risk");
+
+                    b.ToTable((string)null);
+
+                    b.ToView("verascalculationbypoll", (string)null);
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.EvaluationEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -162,6 +262,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("LastVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_version");
+
+                    b.Property<DateTime>("LastVersionDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_version_date");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
@@ -171,11 +279,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("uuid");
-
-                    b.Property<string>("Version")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("version");
 
                     b.HasKey("Id");
 
@@ -192,6 +295,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<DateTime>("FinishedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("LastVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("last_version");
+
+                    b.Property<DateTime>("LastVersionDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_version_date");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("integer");
@@ -449,12 +560,36 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasForeignKey("AnswerEntityId");
                         });
 
+                    b.OwnsOne("Eras.Domain.Common.VersionInfo", "Version", b1 =>
+                        {
+                            b1.Property<int>("AnswerEntityId")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTime>("VersionDate")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("version_date");
+
+                            b1.Property<int>("VersionNumber")
+                                .HasColumnType("integer")
+                                .HasColumnName("version_number");
+
+                            b1.HasKey("AnswerEntityId");
+
+                            b1.ToTable("answers");
+
+                            b1.WithOwner()
+                                .HasForeignKey("AnswerEntityId");
+                        });
+
                     b.Navigation("Audit")
                         .IsRequired();
 
                     b.Navigation("PollInstance");
 
                     b.Navigation("PollVariable");
+
+                    b.Navigation("Version")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.CohortEntity", b =>
@@ -802,9 +937,33 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.OwnsOne("Eras.Domain.Common.VersionInfo", "Version", b1 =>
+                        {
+                            b1.Property<int>("PollVariableJoinId")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTime>("VersionDate")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("version_date");
+
+                            b1.Property<int>("VersionNumber")
+                                .HasColumnType("integer")
+                                .HasColumnName("version_number");
+
+                            b1.HasKey("PollVariableJoinId");
+
+                            b1.ToTable("poll_variable");
+
+                            b1.WithOwner()
+                                .HasForeignKey("PollVariableJoinId");
+                        });
+
                     b.Navigation("Poll");
 
                     b.Navigation("Variable");
+
+                    b.Navigation("Version")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Joins.StudentCohortJoin", b =>

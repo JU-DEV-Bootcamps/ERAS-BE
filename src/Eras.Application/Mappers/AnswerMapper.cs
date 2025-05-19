@@ -1,32 +1,35 @@
-﻿using Eras.Application.Dtos;
+﻿using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers
 {
     public static class AnswerMapper
     {
-        public static Answer ToDomain(this AnswerDTO dto)
+        public static Answer ToDomain(this AnswerDTO Dto)
         {
-            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(Dto);
             return new Answer
             {
-                AnswerText = dto.Answer,
-                RiskLevel = (int) dto.Score,
-                PollInstanceId = dto.PollInstanceId,
-                PollVariableId = dto.PollVariableId,
-                Audit = dto.Audit
+                AnswerText = Dto.Answer,
+                RiskLevel = (int) Dto.Score,
+                PollInstanceId = Dto.PollInstanceId,
+                PollVariableId = Dto.PollVariableId,
+                Audit = Dto.Audit?? new AuditInfo(),
+                Version = Dto.Version,
             };
         }
-        public static AnswerDTO ToDto(this Answer domain)
+        public static AnswerDTO ToDto(this Answer Domain)
         {
-            ArgumentNullException.ThrowIfNull(domain);
+            ArgumentNullException.ThrowIfNull(Domain);
             return new AnswerDTO
             {
-                Answer = domain.AnswerText,
-                Score = domain.RiskLevel,
-                PollInstanceId = domain.PollInstanceId,
-                PollVariableId = domain.PollVariableId,
-                Audit = domain.Audit
+                Answer = Domain.AnswerText,
+                Score = Domain.RiskLevel,
+                PollInstanceId = Domain.PollInstanceId,
+                PollVariableId = Domain.PollVariableId,
+                Audit = Domain.Audit,
+                Version = Domain.Version,
             };
         }
     }

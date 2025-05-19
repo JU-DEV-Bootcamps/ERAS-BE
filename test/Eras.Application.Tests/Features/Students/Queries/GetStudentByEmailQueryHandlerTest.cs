@@ -9,13 +9,13 @@ using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Queries
 {
-    public class GetStudentByEmailQueryTest
+    public class GetStudentByEmailQueryHandlerTest
     {
         private readonly Mock<IStudentRepository> _mockStudentRepository;
         private readonly Mock<ILogger<GetStudentByEmailQueryHandler>> _mockLogger;
         private readonly GetStudentByEmailQueryHandler _handler;
 
-        public GetStudentByEmailQueryTest()
+        public GetStudentByEmailQueryHandlerTest()
         {
             _mockStudentRepository = new Mock<IStudentRepository>();
             _mockLogger = new Mock<ILogger<GetStudentByEmailQueryHandler>>();

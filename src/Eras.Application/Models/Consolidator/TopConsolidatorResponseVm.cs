@@ -1,25 +1,36 @@
-﻿using Eras.Domain.Entities;
+﻿namespace Eras.Application.Models.Consolidator;
 
-namespace Eras.Application.Models.Consolidator;
-
-public class TopReportResponseVm
+public class CountReportResponseVm
 {
-    public IEnumerable<TopReportComponent> Components { get; set; } = [];
+    public IEnumerable<CountReportComponent> Components { get; set; } = [];
 }
 
-public class TopReportComponent
+public class CountReportComponent
 {
     public required string Description { get; set; }
-    public virtual IEnumerable<TopQuestionReport> Questions { get; set; } = [];
+    public virtual IEnumerable<CountReportQuestion> Questions { get; set; } = [];
 
     public required double AverageRisk { get; set; }
 }
 
-public class TopQuestionReport
+public class CountReportQuestion
 {
     public required string Question { get; set; }
-    public required string Answer { get; set; }
+    public required double AverageRisk { get; set; }
+    public required IEnumerable<CountReportAnswer> Answers { get; set; }
+}
+public class CountReportAnswer
+{
+    public required int AnswerRisk { get; set; }
     public required int Count { get; set; }
-    public double TopRisk { get; set; }
-    public List<Student> StudentsAtTopRisk { get; set; } = [];
+    public IEnumerable<CountReportStudent> Students { get; set; } = [];
+}
+
+public class CountReportStudent
+{
+    public required string AnswerText { get; set; }
+    public required string Name { get; set; }
+    public required string Email { get; set; }
+    public int CohortId { get; set; }
+    public string CohortName { get; set; } = "";
 }

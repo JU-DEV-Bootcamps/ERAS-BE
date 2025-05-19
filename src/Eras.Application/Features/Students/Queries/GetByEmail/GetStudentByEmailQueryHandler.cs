@@ -1,6 +1,6 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Exceptions;
 using Eras.Application.Models.Response.Common;
-using Eras.Domain.Common.Exceptions;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
