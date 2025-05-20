@@ -19,5 +19,5 @@ public class ErasCalculationsByPollDTO
     public int CohortId { get; set; }
     public string? CohortName { get; set; }
     public decimal AverageRiskByCohortComponent { get; set; }
-
+    public int StudentId { get; set; }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.DTOs.Views;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -26,19 +26,32 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return pollVariable?.ToDomain();
         }
 
-        public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, int VariableId)
+        public async Task<List<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, int VaribaleId)
         {
-            //Assuming the pollUuid and pollInstance Uuid are the same. This query uses the pollIntanceUuid
-            var answers = await (from s in _context.Students
-                                 join pi in _context.PollInstances on s.Id equals pi.StudentId
-                                 join a in _context.Answers on pi.Id equals a.PollInstanceId
-                                 join pv in _context.PollVariables on a.PollVariableId equals pv.Id
-                                 join v in _context.Variables on pv.VariableId equals v.Id
-                                 join c in _context.Components on v.ComponentId equals c.Id
-                                 where pi.Uuid == PollUuid && v.Id == VariableId
-                                 select new { Answer = a.ToDomain(), Variable = v.ToDomain(), Student = s.ToDomain() }
-                     ).ToListAsync();
-            return [.. answers.Select(A => (A.Answer, A.Variable, A.Student))];
+            var topRisk = await _context.ErasCalculationsByPoll
+                .Where(Calculation => Calculation.PollUuid == PollUuid && Calculation.PollVariableId == VaribaleId)
+                .Select(Result => new ErasCalculationsByPollDTO
+                {
+                    PollUuid = Result.PollUuid,
+                    ComponentName = Result.ComponentName,
+                    PollVariableId = Result.PollVariableId,
+                    Question = Result.Question,
+                    AnswerText = Result.AnswerText,
+                    PollInstanceId = Result.PollInstanceId,
+                    StudentName = Result.StudentName,
+                    StudentEmail = Result.StudentEmail,
+                    AnswerRisk = Result.AnswerRisk,
+                    PollInstanceRiskSum = Result.PollInstanceRiskSum,
+                    PollInstanceAnswersCount = Result.PollInstanceAnswersCount,
+                    ComponentAverageRisk = Result.ComponentAverageRisk,
+                    VariableAverageRisk = Result.VariableAverageRisk,
+                    AnswerCount = Result.AnswerCount,
+                    AnswerPercentage = Result.AnswerPercentage,
+                    StudentId = Result.StudentId,
+                })
+                .ToListAsync();
+
+            return topRisk;
         }
         public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, string VariableIds)
         {
@@ -71,6 +84,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return groupedResults.Select(G => (G.Answer, G.Variable, G.Student)).ToList();
         }
+
+        public Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, int VaribaleId) => throw new NotImplementedException();
         public async Task<List<Answer>> GetSummaryByPollUuidAsync(string PollUuid)
         {
             //Assuming the pollUuid and pollInstance Uuid are the same. This query uses the pollIntanceUuid

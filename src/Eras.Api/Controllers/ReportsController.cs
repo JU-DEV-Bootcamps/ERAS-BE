@@ -88,7 +88,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     public async Task<IActionResult> GetHigherRiskStudentsByPollAsync(
     [FromRoute] string Uuid,
     [FromQuery] int Take,
-    [FromQuery] string VariableIds)
+    [FromQuery] int VariableIds)
     {
         try
         {
@@ -98,25 +98,15 @@ public class ReportsController(IMediator Mediator) : ControllerBase
                 Take = Take,
                 VariableIds = VariableIds
             };
-            GetQueryResponse<List<(Answer answer, Variable variable, Student student)>> avgRisk = await _mediator.Send(query);
-            var topRiskMessage = string.Join(", ", avgRisk.Body.Select(Stud =>
-                $"{Stud.student.Uuid} - {Stud.student.Name} - RISK = {Stud.answer.RiskLevel}"
-            ).ToList());
-            var result = avgRisk.Body.Select(Stud => new
-            {
-                Stud.student,
-                Stud.variable,
-                Stud.answer,
-            }).ToList();
+            var avgRisk = await _mediator.Send(query);
 
-            return avgRisk.Success
-            ? Ok(new
-            {
-                status = "successful",
-                message = $"Top risk students: {topRiskMessage}",
-                body = result
-            })
-            : BadRequest(new { status = "error", message = avgRisk.Message });
+            return
+             Ok(new
+             {
+                 status = "successful",
+                 message = "At-risk students retrieved sucessfully",
+                 body = avgRisk
+             });
         }
         catch (Exception ex)
         {
