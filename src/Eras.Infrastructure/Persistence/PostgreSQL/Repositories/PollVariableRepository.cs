@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Views;
@@ -31,8 +30,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var topRisk = await _context.ErasCalculationsByPoll
                 .Where(Calculation => Calculation.PollUuid == PollUuid && Calculation.PollVariableId == VaribaleId)
-                .Select(Result => new
-                        ErasCalculationsByPollDTO
+                .Select(Result => new ErasCalculationsByPollDTO
                 {
                     PollUuid = Result.PollUuid,
                     ComponentName = Result.ComponentName,
@@ -48,7 +46,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     ComponentAverageRisk = Result.ComponentAverageRisk,
                     VariableAverageRisk = Result.VariableAverageRisk,
                     AnswerCount = Result.AnswerCount,
-                    AnswerPercentage = Result.AnswerPercentage
+                    AnswerPercentage = Result.AnswerPercentage,
+                    StudentId = Result.StudentId,
                 })
                 .ToListAsync();
 
