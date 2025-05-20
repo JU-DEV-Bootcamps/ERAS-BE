@@ -52,27 +52,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .ToListAsync();
 
             return topRisk;
-
-            /* foreach (var result in topRisk)
-            {
-                Console.WriteLine($"PollUuid: {result.PollUuid}, PollVariableId: {result.PollVariableId}, RiskCount: {result.RiskCount}");
-            }
-
-            Console.WriteLine($"==========================================================");
-            Console.WriteLine($"PollUuid: {PollUuid}, PollVariableId: {VaribaleId}");
-            Console.WriteLine($"==========================================================");
-
-            var answers = await (from s in _context.Students
-                                 join pi in _context.PollInstances on s.Id equals pi.StudentId
-                                 join a in _context.Answers on pi.Id equals a.PollInstanceId
-                                 join pv in _context.PollVariables on a.PollVariableId equals pv.Id
-                                 join v in _context.Variables on pv.VariableId equals v.Id
-                                 join c in _context.Components on v.ComponentId equals c.Id
-                                 where pi.Uuid == PollUuid && v.Id == VariableId
-                                 select new { Answer = a.ToDomain(), Variable = v.ToDomain(), Student = s.ToDomain() }
-                     ).ToListAsync();
-
-            return [.. answers.Select(A => (A.Answer, A.Variable, A.Student))]; */
         }
         public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, string VariableIds)
         {

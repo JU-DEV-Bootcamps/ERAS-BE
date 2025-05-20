@@ -104,7 +104,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
              Ok(new
              {
                  status = "successful",
-                 message = "Successfull",
+                 message = "At-risk students retrieved sucessfully",
                  body = avgRisk
              });
         }
