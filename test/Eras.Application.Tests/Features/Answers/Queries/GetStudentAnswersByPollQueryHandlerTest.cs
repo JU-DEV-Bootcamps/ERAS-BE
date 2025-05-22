@@ -48,6 +48,7 @@ public class GetStudentAnswersByPollQueryHandlerTest
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
+        Assert.NotNull(result);
         Assert.Equal(2, result.Count);
     }
 }

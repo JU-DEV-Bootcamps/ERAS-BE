@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Exceptions;
 using Eras.Application.Features.Components.Queries;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
@@ -25,9 +20,17 @@ namespace Eras.Application.Features.Answers.Queries
             _studentAnswersRepository = StudentAnswersRepository;
             _logger = Logger;
         }
-
         public async Task<PagedResult<StudentAnswer>> Handle(GetStudentAnswersByPollQuery Request, CancellationToken CancellationToken)
         {
+            if (Request == null)
+                throw new ArgumentNullException(nameof(Request));
+
+            if (Request.PollId <= 0 || Request.StudentId <= 0)
+                throw new ArgumentException("PollId and StudentId must be positive integers.");
+
+            if (Request.Query == null)
+                throw new ArgumentNullException("Request must contain pagination");
+
             var answers = await _studentAnswersRepository.GetStudentAnswersPagedAsync(Request.StudentId, Request.PollId, Request.Query.Page, Request.Query.PageSize);
             
             return answers;
