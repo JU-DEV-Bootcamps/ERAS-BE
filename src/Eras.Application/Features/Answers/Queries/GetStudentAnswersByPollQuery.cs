@@ -9,6 +9,6 @@ namespace Eras.Application.Features.Answers.Queries
         public int StudentId { get; set; }
         public int PollId { get; set; }
 
-        public Pagination Query { get; set; } = default!;
+        public Pagination Query { get; set; } = new Pagination();
     }
 }
