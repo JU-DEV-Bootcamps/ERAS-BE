@@ -22,8 +22,6 @@ namespace Eras.Application.Features.Answers.Queries
         }
         public async Task<PagedResult<StudentAnswer>> Handle(GetStudentAnswersByPollQuery Request, CancellationToken CancellationToken)
         {
-            if (Request == null)
-                throw new ArgumentNullException(nameof(Request));
 
             if (Request.PollId <= 0 || Request.StudentId <= 0)
                 throw new ArgumentException("PollId and StudentId must be positive integers.");
