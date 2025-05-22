@@ -22,14 +22,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             _context = Context;
         }
 
-        public Task<IEnumerable<StudentAnswer>> GetStudentAnswersPagedAsync(int StudentId, int PollId, int Page, int PageSize)
+        public Task<PagedResult<StudentAnswer>> GetStudentAnswersPagedAsync(int StudentId, int PollId, int Page, int PageSize)
         {
-            var studentAnswers = from a in _context.Answers
+            var studentAnswers = (from a in _context.Answers
                                  join pi2 in _context.PollInstances on a.PollInstanceId equals pi2.Id
                                  join pv in _context.PollVariables on a.PollVariableId equals pv.Id
                                  join v in _context.Variables on pv.VariableId equals v.Id
                                  join c in _context.Components on v.ComponentId equals c.Id
                                  where pv.PollId == PollId && pi2.StudentId == StudentId
+                                 
                                  select new StudentAnswer
                                  {
                                      Variable = v.Name,
@@ -37,8 +38,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                                      Component = c.Name,
                                      Answer = a.AnswerText,
                                      Score = a.RiskLevel
-                                 };
-            return Task.FromResult(studentAnswers.ToList());
+                                 }).Skip((Page - 1) * PageSize).Take(PageSize);
+
+            var totalCount = studentAnswers.Count();
+
+            return Task.FromResult(new PagedResult<StudentAnswer>(studentAnswers.Count(), studentAnswers.ToList()));
         }
 
         public Task<List<StudentAnswer>> GetStudentAnswersAsync(int StudentId, int PollId)

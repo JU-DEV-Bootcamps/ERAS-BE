@@ -164,7 +164,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     )
     {
         var getStudentAnswersByPoll =
-            new GetStudentAnswersByPollQuery(Query) { StudentId = Id, PollId = InstanceId };
+            new GetStudentAnswersByPollQuery() { StudentId = Id, PollId = InstanceId, Query = Query };
         try
         {
             return Ok(await _mediator.Send(getStudentAnswersByPoll));
