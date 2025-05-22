@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Answers.Queries;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -40,14 +41,21 @@ public class GetStudentAnswersByPollQueryHandlerTest
             }
         };
 
+        var pagedResult = new PagedResult<StudentAnswer>(studentAnswers.Count, studentAnswers);
+
         _mockAnswerRepository
-            .Setup(Repo => Repo.GetStudentAnswersAsync(It.Is<int>(Id => Id == 1),It.Is<int>(Id => Id == 1)))
-            .ReturnsAsync(studentAnswers);
+            .Setup(r => r.GetStudentAnswersPagedAsync(
+                It.Is<int>(StudentId => StudentId == 1),
+                It.Is<int>(PollId => PollId == 1),
+                1,
+                10))
+            .ReturnsAsync(pagedResult);
 
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
+        Assert.NotNull(result);
         Assert.Equal(2, result.Count);
     }
 }

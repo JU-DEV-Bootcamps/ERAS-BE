@@ -159,11 +159,12 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     [HttpGet("{Id}/polls/{InstanceId}/answers")]
     public async Task<IActionResult> GetStudentAnswersByPollAsync(
         [FromRoute] int Id,
-        [FromRoute] int InstanceId
+        [FromRoute] int InstanceId,
+        [FromQuery] Pagination Query
     )
     {
         var getStudentAnswersByPoll =
-            new GetStudentAnswersByPollQuery() { StudentId = Id, PollId = InstanceId };
+            new GetStudentAnswersByPollQuery() { StudentId = Id, PollId = InstanceId, Query = Query };
         try
         {
             return Ok(await _mediator.Send(getStudentAnswersByPoll));

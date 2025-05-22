@@ -5,7 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Models.Response.Calculations;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
+using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
@@ -17,7 +23,26 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             _context = Context;
         }
+        public Task<PagedResult<StudentAnswer>> GetStudentAnswersPagedAsync(int StudentId, int PollId, int Page, int PageSize)
+        {
+            var studentAnswers = _context.ErasCalculationsByPoll
+                .Where(e => e.StudentId == StudentId && e.PollId == PollId)
+                .Select(e => new StudentAnswer
+                {
+                    Variable = e.Question,
+                    Position = e.PollVariableId,
+                    Component = e.ComponentName,
+                    Answer = e.AnswerText,
+                    Score = e.AnswerRisk
+                })
+                .Skip((Page - 1) * PageSize)
+                .Take(PageSize);
 
+            var totalCount = _context.ErasCalculationsByPoll
+                .Count(e => e.StudentId == StudentId && e.PollId == PollId);
+
+            return Task.FromResult(new PagedResult<StudentAnswer>(totalCount, studentAnswers.ToList()));
+        }
         public Task<List<StudentAnswer>> GetStudentAnswersAsync(int StudentId, int PollId)
         {
             var studentAnswers = from a in _context.Answers
@@ -36,5 +61,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                                  };
             return Task.FromResult(studentAnswers.ToList());
         }
+
+        public Task<StudentAnswer> UpdateAsync(StudentAnswer Entity) => throw new NotImplementedException();
     }
 }
