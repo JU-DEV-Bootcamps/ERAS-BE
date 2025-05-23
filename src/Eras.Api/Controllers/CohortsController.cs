@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 
 using Eras.Application.Features.Cohort.Queries;
+using Eras.Domain.Entities;
 
 using MediatR;
 
@@ -30,7 +31,7 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
         {
             _logger.LogInformation("PollUuid is empty. Getting all cohorts");
         }
-        var res = await _mediator.Send(getCohortsListQuery);
+        Application.Models.Response.Common.GetQueryResponse<List<Cohort>> res = await _mediator.Send(getCohortsListQuery);
         return Ok(res);
     }
 
@@ -40,7 +41,7 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
     public async Task<IActionResult> GetCohortsSummaryAsync()
     {
         GetCohortsSummaryQuery getCohortsSummaryQuery = new();
-        List<(Domain.Entities.Student Student, List<Domain.Entities.PollInstance> PollInstances)> queryRes = await _mediator.Send(getCohortsSummaryQuery);
+        List<(Student Student, List<PollInstance> PollInstances)> queryRes = await _mediator.Send(getCohortsSummaryQuery);
 
         var result = queryRes.Select(S => new
         {
@@ -64,7 +65,7 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
     public async Task<IActionResult> GetCohortsDetailsAsync()
     {
         GetCohortsSummaryQuery getCohortsSummaryQuery = new();
-        List<(Domain.Entities.Student Student, List<Domain.Entities.PollInstance> PollInstances)> queryRes = await _mediator.Send(getCohortsSummaryQuery);
+        List<(Student Student, List<PollInstance> PollInstances)> queryRes = await _mediator.Send(getCohortsSummaryQuery);
 
         var result = queryRes.Select(S => new
         {
@@ -73,7 +74,11 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
             S.Student,
             CohortName = S.Student.Cohort?.Name,
             S.Student.Cohort,
-            PollinstancesAverage = S.PollInstances.Average(P => P.Answers.Average(A => A.RiskLevel)),
+            PollinstancesAverage = S.PollInstances.Average(P =>
+            {
+                Func<Answer, int> selector = A => A.RiskLevel;
+                return P.Answers.Average(selector);
+            }),
             Pollinstances = S.PollInstances
         }).ToList();
         return Ok(new

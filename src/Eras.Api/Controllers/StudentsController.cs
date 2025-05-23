@@ -11,6 +11,7 @@ using Eras.Application.Features.Students.Queries.GetAll;
 using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAndPoll;
 using Eras.Application.Features.Students.Queries.GetAllByPollAndDate;
 using Eras.Application.Features.Students.Queries.GetStudentDetails;
+using Eras.Application.Models.Response.Calculations;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
@@ -64,7 +65,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     [HttpGet]
     public async Task<IActionResult> GetAllAsync([FromQuery] Pagination Query)
     {
-        var result = await _mediator.Send(new GetAllStudentsQuery(Query));
+        PagedResult<Student> result = await _mediator.Send(new GetAllStudentsQuery(Query));
         return Ok(result);
     }
 
@@ -122,7 +123,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
             //Todo: Cohort Filter should be optional
             CohortId = CohortId
         };
-        List<Application.Models.Response.Calculations.GetCohortStudentsRiskByPollResponse> queryResponse = await _mediator.Send(getCohortStudentsRiskByPollQuery);
+        List<GetCohortStudentsRiskByPollResponse> queryResponse = await _mediator.Send(getCohortStudentsRiskByPollQuery);
 
         return Ok(queryResponse);
     }
@@ -136,7 +137,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
             //Todo: Cohort Filter should be optional
             CohortId = CohortId,
         };
-        var queryResponse = await _mediator.Send(getCohortTopRiskStudentsQuery);
+        GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>> queryResponse = await _mediator.Send(getCohortTopRiskStudentsQuery);
 
         return Ok(queryResponse.Body);
     }
@@ -150,7 +151,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
             ComponentName = ComponentName,
             CohortId = CohortId,
         };
-        var queryResponse = await _mediator.Send(getCohortTopRiskStudentsByComponentQuery);
+        GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>> queryResponse = await _mediator.Send(getCohortTopRiskStudentsByComponentQuery);
 
         return Ok(queryResponse.Body);
     }

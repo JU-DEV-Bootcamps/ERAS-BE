@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Dtos;
 using Eras.Application.Models;
 using Eras.Application.Services;
@@ -18,10 +19,10 @@ namespace Eras.Infrastructure.Tests.External.CosmicLatteClient
 {
     public class CosmicLatteAPIServiceTest
     {
-        private Mock<ILogger<CosmicLatteAPIService>> mockLogger;
-        private Mock<ILogger<PollOrchestratorService>> mockLogger2;
-        Mock<IMediator> mockMediator;
-        private Mock<PollOrchestratorService> mockPollOrchestratorService;
+        //private Mock<ILogger<CosmicLatteAPIService>> mockLogger;
+        //private Mock<ILogger<PollOrchestratorService>> mockLogger2;
+        //Mock<IMediator> mockMediator;
+        //private Mock<PollOrchestratorService> mockPollOrchestratorService;
         /*public CosmicLatteAPIServiceTest()
         {
             mockMediator = new Mock<IMediator>();

@@ -1,28 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net;
 
 namespace Eras.Infrastructure.Tests
 {
     public class MockHttpMessageHandler : DelegatingHandler
     {
         private readonly Dictionary<string, HttpResponseMessage> _responses;
-        public MockHttpMessageHandler(Dictionary<string, HttpResponseMessage> responses)
+        public MockHttpMessageHandler(Dictionary<string, HttpResponseMessage> Responses)
         {
-            _responses = responses;
+            _responses = Responses;
         }
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage Request, CancellationToken CancellationToken)
         {
-            // Obtiene la URL de la solicitud
-            var requestUri = request.RequestUri.ToString();
-
-            // Verifica si hay una respuesta configurada para esta URL
-            if (_responses.TryGetValue(requestUri, out var response))
+            if (Request != null && Request.RequestUri != null)
             {
-                return Task.FromResult(response);
+                // Obtiene la URL de la solicitud
+                var requestUri = Request.RequestUri.ToString();
+
+                // Verifica si hay una respuesta configurada para esta URL
+                if (_responses.TryGetValue(requestUri, out var response))
+                {
+                    return Task.FromResult(response);
+                }
             }
 
             // Si no hay respuesta configurada, devuelve un 404 Not Found
