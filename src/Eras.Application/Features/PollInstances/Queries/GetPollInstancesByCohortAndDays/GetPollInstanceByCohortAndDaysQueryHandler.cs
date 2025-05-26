@@ -19,7 +19,7 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
             _pollInstanceRepository = pollInstanceRepository;
             _logger = logger;
         }
-        public async Task<GetQueryResponse<IEnumerable<PollInstanceDTO>>> Handle(GetPollInstanceByCohortAndDaysQuery request, CancellationToken cancellationToken)
+        public async Task<GetQueryResponse<IEnumerable<PollInstanceDTO>>> Handle(GetPollInstanceByCohortAndDaysQuery request, CancellationToken CancellationToken)
         {
             try
             {

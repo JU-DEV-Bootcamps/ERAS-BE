@@ -11,18 +11,18 @@ namespace Eras.Application.Features.Evaluations.Queries.GetAll
         private readonly IEvaluationRepository _evaluationRepository;
         private readonly ILogger<GetAllEvaluationsQueryHandler> _logger;
 
-        public GetAllEvaluationsQueryHandler(IEvaluationRepository evaluationRepository, ILogger<GetAllEvaluationsQueryHandler> logger)
+        public GetAllEvaluationsQueryHandler(IEvaluationRepository EvaluationRepository, ILogger<GetAllEvaluationsQueryHandler> Logger)
         {
-            _evaluationRepository = evaluationRepository;
-            _logger = logger;
+            _evaluationRepository = EvaluationRepository;
+            _logger = Logger;
         }
-        public async Task<PagedResult<Evaluation>> Handle(GetAllEvaluationsQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Evaluation>> Handle(GetAllEvaluationsQuery Request, CancellationToken CancellationToken)
         {
             try
             {
                 var evaluations = await _evaluationRepository.GetPagedAsync(
-                    request.Query.Page,
-                    request.Query.PageSize
+                    Request.Query.Page,
+                    Request.Query.PageSize
                 );
                 var totalCount = await _evaluationRepository.CountAsync();
 

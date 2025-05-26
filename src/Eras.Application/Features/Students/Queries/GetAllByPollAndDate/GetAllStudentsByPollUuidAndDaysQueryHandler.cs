@@ -21,7 +21,7 @@ namespace Eras.Application.Features.Students.Queries.GetAllByPollAndDate
             _logger = logger;
         }
 
-        public async Task<PagedResult<Student>> Handle(GetAllStudentsByPollUuidAndDaysQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Student>> Handle(GetAllStudentsByPollUuidAndDaysQuery request, CancellationToken CancellationToken)
         {
             try
             {

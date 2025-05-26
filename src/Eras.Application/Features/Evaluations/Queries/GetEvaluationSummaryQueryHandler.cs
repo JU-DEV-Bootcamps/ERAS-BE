@@ -15,7 +15,7 @@ namespace Eras.Application.Features.Evaluations.Queries
         private readonly ILogger<GetEvaluationProcessSummaryQueryHandler> _logger = logger;
 
 
-        Task<QueryManyResponse<Evaluation>> IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>.Handle(GetEvaluationSummaryQuery request, CancellationToken cancellationToken)
+        Task<QueryManyResponse<Evaluation>> IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>.Handle(GetEvaluationSummaryQuery request, CancellationToken CancellationToken)
         {
             _logger.LogDebug("Handling summarizing all evaluation processes");
             var evs = _evaluationRepository.GetAllAsync().Result.ToList();

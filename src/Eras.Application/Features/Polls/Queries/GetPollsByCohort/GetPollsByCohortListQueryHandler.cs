@@ -16,7 +16,7 @@ namespace Eras.Application.Features.Polls.Queries.GetPollsByCohort
             _logger = logger;
         }
 
-        public async Task<List<Poll>> Handle(GetPollsByCohortListQuery request, CancellationToken cancellationToken)
+        public async Task<List<Poll>> Handle(GetPollsByCohortListQuery request, CancellationToken CancellationToken)
         {
             var listOfPolls = await _repository.GetPollsByCohortIdAsync(request.CohortId);
             return listOfPolls;

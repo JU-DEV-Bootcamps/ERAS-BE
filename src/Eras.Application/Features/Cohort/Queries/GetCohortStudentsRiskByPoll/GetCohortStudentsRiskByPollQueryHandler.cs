@@ -16,9 +16,9 @@ public class GetCohortStudentsRiskByPollQueryHandler : IRequestHandler<GetCohort
         _logger = Logger;
     }
 
-    public async Task<List<GetCohortStudentsRiskByPollResponse>> Handle(GetCohortStudentsRiskByPollQuery request, CancellationToken cancellationToken)
+    public async Task<List<GetCohortStudentsRiskByPollResponse>> Handle(GetCohortStudentsRiskByPollQuery Request, CancellationToken CancellationToken)
     {
-        var listOfstudents = await _pollCohortRepository.GetCohortStudentsRiskByPoll(request.PollUuid, request.CohortId);
+        var listOfstudents = await _pollCohortRepository.GetCohortStudentsRiskByPoll(Request.PollUuid, Request.CohortId);
         return listOfstudents;
     }
 }

@@ -131,7 +131,7 @@ namespace Eras.Application.DTOs.CL
     public class ByTrait
     {
         [JsonExtensionData]
-        public Dictionary<string, JsonElement> traits { get; set; }
+        public Dictionary<string, JsonElement> Traits { get; set; }
 
 
         private static Dictionary<string, TraitData> DeserializeTraits(Dictionary<string, JsonElement> Traits)
@@ -150,11 +150,11 @@ namespace Eras.Application.DTOs.CL
 
             return result;
         }
-        public static Dictionary<string, List<int>> getVariablesPositionByComponents(Dictionary<string, JsonElement> traits)
+        public static Dictionary<string, List<int>> getVariablesPositionByComponents(Dictionary<string, JsonElement> Traits)
         {
             Dictionary<string, List<int>> componentsAndVariablesPosition = new Dictionary<string, List<int>>();
 
-            foreach (KeyValuePair<string, TraitData> item in DeserializeTraits(traits))
+            foreach (KeyValuePair<string, TraitData> item in DeserializeTraits(Traits))
             {
                 string componentName = item.Key;
                 List<int> variablePositions = new List<int>();

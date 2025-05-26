@@ -16,9 +16,9 @@ public class GetCohortComponentsByPollQueryHandler : IRequestHandler<GetCohortCo
         _logger = Logger;
     }
 
-    public async Task<List<GetCohortComponentsByPollResponse>> Handle(GetCohortComponentsByPollQuery request, CancellationToken cancellationToken)
+    public async Task<List<GetCohortComponentsByPollResponse>> Handle(GetCohortComponentsByPollQuery Request, CancellationToken CancellationToken)
     {
-        var listCohortComponentsByPoll = await _pollCohortRepository.GetCohortComponentsByPoll(request.PollUuid);
+        var listCohortComponentsByPoll = await _pollCohortRepository.GetCohortComponentsByPoll(Request.PollUuid);
         return listCohortComponentsByPoll;
     }
 }

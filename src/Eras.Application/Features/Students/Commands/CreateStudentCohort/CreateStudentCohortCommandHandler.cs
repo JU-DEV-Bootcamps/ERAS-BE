@@ -18,7 +18,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
             _studentCohortRepository = studentCohortRepository;
             _logger = logger;
         }
-        public async Task<CreateCommandResponse<Student>> Handle(CreateStudentCohortCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Student>> Handle(CreateStudentCohortCommand request, CancellationToken CancellationToken)
         {
 
             try

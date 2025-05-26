@@ -22,7 +22,7 @@ namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAnd
 
         public async Task<List<StudentAverageRiskDto>> Handle(
             GetAllAverageRiskByCohortAndPollQuery request,
-            CancellationToken cancellationToken
+            CancellationToken CancellationToken
         )
         {
             _logger.LogDebug($"get all average risk = {request.cohortId} {request.pollId}");

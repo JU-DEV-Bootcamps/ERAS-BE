@@ -5,16 +5,16 @@ namespace Eras.Application.Services
 {
     public static class ApplicationServiceRegistration
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+        public static IServiceCollection AddApplicationServices(this IServiceCollection Services)
         {
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+            Services.AddMediatR(Cfg => Cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
 
-            services.AddScoped<IStudentService, StudentService>();
-            services.AddScoped<IPollService, PollService>();
-            services.AddScoped<IAnswerService, AnswerService>();
-            services.AddScoped<PollOrchestratorService, PollOrchestratorService>();
+            Services.AddScoped<IStudentService, StudentService>();
+            Services.AddScoped<IPollService, PollService>();
+            Services.AddScoped<IAnswerService, AnswerService>();
+            Services.AddScoped<PollOrchestratorService, PollOrchestratorService>();
             
-            return services;
+            return Services;
         }
     }
 }

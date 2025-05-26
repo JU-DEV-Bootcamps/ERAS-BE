@@ -22,7 +22,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByCohort
 
         public async Task<List<StudentHeatMapDetailDto>> Handle(
             GetHeatMapDetailsByCohortQuery request,
-            CancellationToken cancellationToken
+            CancellationToken CancellationToken
         )
         {
             _logger.LogDebug($"Heat map details by cohort: {request.CohortId}");

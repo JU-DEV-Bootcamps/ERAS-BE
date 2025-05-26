@@ -11,25 +11,25 @@ namespace Eras.Application.Features.Evaluations.Commands
     {
         private readonly IEvaluationPollRepository _evaluationPollRepository;
         private readonly ILogger<CreateEvaluationPollCommandHandler> _logger;
-        public CreateEvaluationPollCommandHandler(IEvaluationPollRepository evaluationPollRepository,
-            ILogger<CreateEvaluationPollCommandHandler> logger)
+        public CreateEvaluationPollCommandHandler(IEvaluationPollRepository EvaluationPollRepository,
+            ILogger<CreateEvaluationPollCommandHandler> Logger)
         {
-            _evaluationPollRepository = evaluationPollRepository;
-            _logger = logger;
+            _evaluationPollRepository = EvaluationPollRepository;
+            _logger = Logger;
         }
 
-        public async Task<CreateCommandResponse<Evaluation>> Handle(CreateEvaluationPollCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Evaluation>> Handle(CreateEvaluationPollCommand Request, CancellationToken CancellationToken)
         {
             try
             {
-                Evaluation evaluation = request.EvaluationDTO.ToDomain();
-                evaluation.PollId = request.EvaluationDTO.PollId;
+                Evaluation evaluation = Request.EvaluationDTO.ToDomain();
+                evaluation.PollId = Request.EvaluationDTO.PollId;
                 Evaluation response = await _evaluationPollRepository.AddAsync(evaluation);
                 return new CreateCommandResponse<Evaluation>(response, 0, "EvaluationPoll created", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred creating the evaluation: " + request.EvaluationDTO.Name);
+                _logger.LogError(ex, "An error occurred creating the evaluation: " + Request.EvaluationDTO.Name);
                 return new CreateCommandResponse<Evaluation>(null, 0, "Error", false);
             }
         }

@@ -22,7 +22,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByComponent
 
         public async Task<List<StudentHeatMapDetailDto>> Handle(
             GetHeatMapDetailsByComponentQuery request,
-            CancellationToken cancellationToken
+            CancellationToken CancellationToken
         )
         {
             _logger.LogDebug($"heatmap details by component = {request.ComponentName}");

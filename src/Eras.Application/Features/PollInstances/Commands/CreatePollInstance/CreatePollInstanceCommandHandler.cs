@@ -18,7 +18,7 @@ namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
             _logger = logger;
         }
 
-        public async Task<CreateCommandResponse<PollInstance>> Handle(CreatePollInstanceCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<PollInstance>> Handle(CreatePollInstanceCommand request, CancellationToken CancellationToken)
         {
             try
             {

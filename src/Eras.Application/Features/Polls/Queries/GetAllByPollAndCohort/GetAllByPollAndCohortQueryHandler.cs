@@ -22,7 +22,7 @@ namespace Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort
 
         public async Task<List<PollVariableDto>> Handle(
             GetAllByPollAndCohortQuery request,
-            CancellationToken cancellationToken
+            CancellationToken CancellationToken
         )
         {
             var result = await _pollCohortRepository.GetPollVariablesAsync(

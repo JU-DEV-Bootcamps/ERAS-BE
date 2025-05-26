@@ -14,24 +14,24 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponent
         private readonly IComponentRepository _componentRepository;
         private readonly ILogger<GetHeatMapDataByAllComponentsHandler> _logger;
 
-        public GetHeatMapDataByAllComponentsHandler(IHeatMapRepository heatMapRepository, IComponentRepository componentRepository , ILogger<GetHeatMapDataByAllComponentsHandler> logger)
+        public GetHeatMapDataByAllComponentsHandler(IHeatMapRepository HeatMapRepository, IComponentRepository ComponentRepository , ILogger<GetHeatMapDataByAllComponentsHandler> logger)
         {
-            _heatMapRepository = heatMapRepository;
-            _componentRepository = componentRepository;
+            _heatMapRepository = HeatMapRepository;
+            _componentRepository = ComponentRepository;
             _logger = logger;
         }
-        public async Task<GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>> Handle(GetHeatMapDataByAllComponentsQuery request, CancellationToken cancellationToken)
+        public async Task<GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>> Handle(GetHeatMapDataByAllComponentsQuery Request, CancellationToken CancellationToken)
         {
-            if (string.IsNullOrEmpty(request.PollInstanceUUID))
+            if (string.IsNullOrEmpty(Request.PollInstanceUUID))
             {
                 throw new NotFoundException($"Poll instance ID cannot be null or empty");
             }
             try
             {
-                var answersByComponents = await _heatMapRepository.GetHeatMapDataByComponentsAsync(request.PollInstanceUUID);
+                var answersByComponents = await _heatMapRepository.GetHeatMapDataByComponentsAsync(Request.PollInstanceUUID);
                 var components = await _componentRepository.GetAllAsync();
                 if (answersByComponents == null || !answersByComponents.Any())
-                    throw new NotFoundException($"No data found for poll instance ID: {request.PollInstanceUUID}");
+                    throw new NotFoundException($"No data found for poll instance ID: {Request.PollInstanceUUID}");
 
                 var bodyData = new List<HeatMapByComponentsResponseVm>();
 

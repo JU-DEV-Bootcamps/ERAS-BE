@@ -20,7 +20,7 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
         }
 
 
-        public async Task<CreateCommandResponse<StudentDetail>> Handle(CreateStudentDetailCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<StudentDetail>> Handle(CreateStudentDetailCommand request, CancellationToken CancellationToken)
         {
 
             try

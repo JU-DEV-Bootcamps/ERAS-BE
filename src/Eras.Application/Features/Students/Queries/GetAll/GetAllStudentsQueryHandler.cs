@@ -23,7 +23,7 @@ namespace Eras.Application.Features.Students.Queries.GetAll
 
         public async Task<PagedResult<Student>> Handle(
             GetAllStudentsQuery request,
-            CancellationToken cancellationToken
+            CancellationToken CancellationToken
         )
         {
             try

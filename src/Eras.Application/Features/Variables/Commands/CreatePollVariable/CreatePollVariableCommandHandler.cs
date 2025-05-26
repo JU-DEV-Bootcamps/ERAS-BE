@@ -21,7 +21,7 @@ namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
             _logger = logger;
         }
 
-        public async Task<CreateCommandResponse<Variable>> Handle(CreatePollVariableCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Variable>> Handle(CreatePollVariableCommand request, CancellationToken CancellationToken)
         {
 
             try

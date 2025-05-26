@@ -22,7 +22,7 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
         }
 
 
-        public async Task<CreateCommandResponse<Student>> Handle(GetStudentDetailsQuery request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Student>> Handle(GetStudentDetailsQuery request, CancellationToken CancellationToken)
         {
 
             try

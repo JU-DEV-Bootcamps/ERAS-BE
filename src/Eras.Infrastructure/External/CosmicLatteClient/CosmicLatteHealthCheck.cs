@@ -23,7 +23,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
         }
 
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext Context, CancellationToken cancellationToken = default)
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext Context, CancellationToken CancellationToken = default)
         {
             string path = _API_URL + _PATH_EVALUATION;
             var request = new HttpRequestMessage(HttpMethod.Get, path + "?$filter=contains(name,' ')");

@@ -24,7 +24,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
 
         public async Task<GetQueryResponse<HeatMapSummaryResponseVm>> Handle(
             GetHeatMapSummaryByFiltersQuery request, 
-            CancellationToken cancellationToken)
+            CancellationToken CancellationToken)
         {
             try
             {

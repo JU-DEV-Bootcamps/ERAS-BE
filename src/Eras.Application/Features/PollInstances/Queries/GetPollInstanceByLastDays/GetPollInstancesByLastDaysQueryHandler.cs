@@ -17,7 +17,7 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastD
             _logger = logger;
         }
 
-        public async Task<QueryManyResponse<PollInstance>> Handle(GetPollInstancesByLastDaysQuery request, CancellationToken cancellationToken)
+        public async Task<QueryManyResponse<PollInstance>> Handle(GetPollInstancesByLastDaysQuery request, CancellationToken CancellationToken)
         {
             try
             {
