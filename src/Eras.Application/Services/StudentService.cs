@@ -1,8 +1,6 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
 using Eras.Application.DTOs;
-using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
 
@@ -11,15 +9,16 @@ namespace Eras.Application.Services
     public class StudentService : IStudentService
     {
         private readonly IStudentRepository _studentRepository;
+        private readonly ILogger<StudentService> _logger;
 
 
-        public StudentService(IStudentRepository studentRepository, ILogger<StudentService> logger)
+        public StudentService(IStudentRepository StudentRepository, ILogger<StudentService> Logger)
         {
-            _studentRepository = studentRepository;
-
+            _studentRepository = StudentRepository;
+            _logger = Logger;
         }
 
-        public async Task<Student> CreateStudent(Student student)
+        public async Task<Student?> CreateStudent(Student Student)
         {
             try
             {
@@ -30,18 +29,19 @@ namespace Eras.Application.Services
                     continue;
                 }
                 */
-                return await _studentRepository.AddAsync(student);
+                return await _studentRepository.AddAsync(Student);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"An error occurred during the creation of student {Student.Id}", ex.Message);
                 return null;
             }
         }
 
-        public async Task<int> ImportStudentsAsync(StudentImportDto[] studentsDto)
+        public async Task<int> ImportStudentsAsync(StudentImportDto[] StudentsDto)
         {
-            int newRecors = 0;
-            foreach (var dto in studentsDto)
+            int newRecords = 0;
+            foreach (var dto in StudentsDto)
             {
                 try
                 {
@@ -50,23 +50,23 @@ namespace Eras.Application.Services
                         continue;
                     }
                     Student created = new Student();//await CreateStudent(dto.ToDomain());
-                    if (created != null) newRecors++;
+                    if (created != null) newRecords++;
                 }
                 catch (Exception ex)
                 {
-                    //_logger.LogError(ex, "An error occurred during the import process");
+                    _logger.LogError(ex, $"An error occurred during the import process {ex.Message}");
                 }
 
-                return newRecors;
+                return newRecords;
             }
-            return newRecors;
+            return newRecords;
         }
 
-        private bool ValidateStudentDto(StudentImportDto dto)
+        private bool ValidateStudentDto(StudentImportDto Dto)
         {
-            return !string.IsNullOrWhiteSpace(dto.Name) 
-                && !string.IsNullOrWhiteSpace(dto.Email) 
-                && !string.IsNullOrWhiteSpace(dto.SISId);
+            return !string.IsNullOrWhiteSpace(Dto.Name) 
+                && !string.IsNullOrWhiteSpace(Dto.Email) 
+                && !string.IsNullOrWhiteSpace(Dto.SISId);
         }
     }
 }

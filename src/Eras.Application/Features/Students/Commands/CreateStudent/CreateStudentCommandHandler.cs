@@ -33,7 +33,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred importing student {Request.StudentDTO.Uuid}");
+                _logger.LogError($"An error occurred importing student {Request.StudentDTO.Uuid}", ex.Message);
                 return new CreateCommandResponse<Student?>(null,0, "Error", false);
             }
         }

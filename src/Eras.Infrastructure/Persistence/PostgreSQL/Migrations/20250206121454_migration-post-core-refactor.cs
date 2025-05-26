@@ -2,22 +2,21 @@
 
 #nullable disable
 
-namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
+namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations;
+
+/// <inheritdoc />
+[System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+public partial class MigrationPostCoreRefactor : Migration
 {
     /// <inheritdoc />
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial class migrationpostcorerefactor : Migration
+    protected override void Up(MigrationBuilder MigrationBuilder)
     {
-        /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
 
-        }
+    }
 
-        /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+    /// <inheritdoc />
+    protected override void Down(MigrationBuilder MigrationBuilder)
+    {
 
-        }
     }
 }

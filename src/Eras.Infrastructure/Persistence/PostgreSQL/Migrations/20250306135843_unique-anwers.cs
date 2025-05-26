@@ -6,29 +6,29 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     /// <inheritdoc />
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial class uniqueanwers : Migration
+    public partial class UniqueAnwers : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropIndex(
+            MigrationBuilder.DropIndex(
                 name: "IX_answers_poll_instance_id",
                 table: "answers");
 
-            migrationBuilder.AddUniqueConstraint(
+            MigrationBuilder.AddUniqueConstraint(
                 name: "Unique_PollInstanceId_PollVariableId_AnswerText",
                 table: "answers",
                 columns: new[] { "poll_instance_id", "poll_variable_id", "answer_text" });
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
+        protected override void Down(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropUniqueConstraint(
+            MigrationBuilder.DropUniqueConstraint(
                 name: "Unique_PollInstanceId_PollVariableId_AnswerText",
                 table: "answers");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_answers_poll_instance_id",
                 table: "answers",
                 column: "poll_instance_id");

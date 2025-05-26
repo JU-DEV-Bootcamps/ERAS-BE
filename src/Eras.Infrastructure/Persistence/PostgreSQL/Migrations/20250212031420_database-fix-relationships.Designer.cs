@@ -13,7 +13,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250212031420_database-fix-relationships")]
-    partial class databasefixrelationships
+    partial class DatabaseFixRelationships
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

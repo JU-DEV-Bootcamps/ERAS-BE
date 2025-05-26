@@ -7,11 +7,11 @@ namespace Eras.Application.Services
     public class AnswerService : IAnswerService
     {
         private readonly IAnswerRepository _answerRepository;
-        public AnswerService(IAnswerRepository answerRepository)
+        public AnswerService(IAnswerRepository AnswerRepository)
         {
-            _answerRepository = answerRepository;
+            _answerRepository = AnswerRepository;
         }
-        public async Task<Answer> CreateAnswer(Answer answer, Student student)
+        public async Task<Answer> CreateAnswer(Answer Answer, Student Student)
         {
             try
             {
@@ -33,7 +33,7 @@ namespace Eras.Application.Services
                     public PollInstance PollInstance { get; set; } = default!;
                     public AuditInfo Audit { get; set; } = default!;
                  */
-                return await _answerRepository.AddAsync(answer);
+                return await _answerRepository.AddAsync(Answer);
             }
             catch (Exception e)
             {
