@@ -1,4 +1,3 @@
-using System.Text;
 using Eras.Domain.Common;
 
 namespace Eras.Domain.Entities

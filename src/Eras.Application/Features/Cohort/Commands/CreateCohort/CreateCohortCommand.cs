@@ -1,6 +1,5 @@
 ﻿using Eras.Application.DTOs;
 using Eras.Application.Models.Response.Common;
-using Eras.Domain.Entities;
 
 using MediatR;
 

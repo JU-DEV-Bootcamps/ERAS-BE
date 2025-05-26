@@ -2,8 +2,6 @@
 using Eras.Application.DTOs;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
-using MediatR;
-using System;
 
 namespace Eras.Application.Mappers
 {

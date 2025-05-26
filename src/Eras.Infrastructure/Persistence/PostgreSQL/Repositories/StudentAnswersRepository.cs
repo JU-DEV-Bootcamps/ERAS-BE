@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models.Response.Calculations;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
-
-using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {

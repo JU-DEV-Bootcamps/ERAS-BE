@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Eras.Application.Models.Response.Common
+﻿namespace Eras.Application.Models.Response.Common
 {
     public class QueryManyResponse<T>: BaseResponse
     {

@@ -2,7 +2,6 @@
 
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Exceptions;
-using Eras.Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
 

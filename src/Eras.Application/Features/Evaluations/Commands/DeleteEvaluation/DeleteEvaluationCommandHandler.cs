@@ -1,16 +1,9 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.DTOs;
 using Eras.Application.Models.Response;
 using Eras.Application.Models.Response.Common;
-using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Evaluations.Commands.DeleteEvaluation
 {
