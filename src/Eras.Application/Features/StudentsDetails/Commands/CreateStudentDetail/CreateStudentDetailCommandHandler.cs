@@ -25,6 +25,12 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
 
             try
             {
+                if (Request.StudentDetailDto == null)
+                {
+                    _logger.LogError($"An error occurred creating student detail: StudentDetailDto is null");
+                    return new CreateCommandResponse<StudentDetail>(null, 0, "Error", false);
+                }
+
                 StudentDetail response = await _studentDetailRepository.GetByStudentId(Request.StudentDetailDto.StudentId);
                 StudentDetail studentDetail = Request.StudentDetailDto.ToDomain();
                 if (response != null)

@@ -22,7 +22,14 @@ namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
         {
             try
             {
+                if (Request.PollInstance == null)
+                {
+                    _logger.LogError($"An error occurred creating the poll: PollInstace is null");
+                    return new CreateCommandResponse<PollInstance>(null, 0, "Error", false);
+                }
+
                 PollInstance? pollInstanceDB = await _pollInstanceRepository.GetByUuidAndStudentIdAsync(Request.PollInstance.Uuid, Request.PollInstance.Student.Id);
+
                 if (pollInstanceDB != null) return new CreateCommandResponse<PollInstance>(pollInstanceDB, 0, "Success", true);
 
                 PollInstance? pollInstance = Request.PollInstance.ToDomain();

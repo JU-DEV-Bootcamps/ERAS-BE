@@ -28,6 +28,7 @@ namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
             {
                 int pollId = Request.PollId;
                 int variableId = Request.VariableId;
+
                 Variable variableDB = await _pollVariableRepository.GetByPollIdAndVariableIdAsync(pollId, variableId);
                 if (variableDB != null) return new CreateCommandResponse<Variable>(variableDB, 0, "Success", true);
 

@@ -25,6 +25,12 @@ namespace Eras.Application.Features.Students.Commands.UpdateStudent
 
             try
             {
+                if (Request.StudentDTO == null)
+                {
+                    _logger.LogError($"An error occurred creating student detail Request.StudentDTO is null");
+                    return new CreateCommandResponse<Student>(null, 0, "Error", false);
+                }
+
                 Student? studentDB = await _studentRepository.GetByEmailAsync(Request.StudentDTO.Email);
                 if (studentDB == null) return new CreateCommandResponse<Student>(null, 0, "Student Not Found", false);
 
@@ -34,7 +40,7 @@ namespace Eras.Application.Features.Students.Commands.UpdateStudent
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred updating student {Request.StudentDTO.Uuid}", ex.Message);
+                _logger.LogError($"An error occurred updating student {Request.StudentDTO?.Uuid}", ex.Message);
                 return new CreateCommandResponse<Student>(null, 0, "Error", false);
             }
         }

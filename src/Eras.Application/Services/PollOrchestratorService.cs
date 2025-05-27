@@ -181,9 +181,13 @@ namespace Eras.Application.Services
             CreateCohortCommand createCohortCommand = new CreateCohortCommand() { CohortDto = Cohort };
             CreateCommandResponse<Cohort> createdCohort = await _mediator.Send(createCohortCommand);
 
-            if (createdCohort.Success)
+            if (createdCohort.Success && createdCohort.Entity != null)
             {
-                CreateStudentCohortCommand createStudentCohortCommand = new CreateStudentCohortCommand() { CohortId = createdCohort.Entity.Id, StudentId = StudentDto.Id };
+                CreateStudentCohortCommand createStudentCohortCommand = new CreateStudentCohortCommand()
+                { 
+                    CohortId = createdCohort.Entity.Id,
+                    StudentId = StudentDto.Id
+                };
                 CreateCommandResponse<Student> createdStudentCohort = await _mediator.Send(createStudentCohortCommand);
             }
 
@@ -215,11 +219,11 @@ namespace Eras.Application.Services
                     CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate };
                     createdStudent = await _mediator.Send(createStudentCommand);
                 }
-                if (createdStudent.Success)
+                if (createdStudent.Success && createdStudent.Entity != null)
                 {
                     CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(createdStudent.Entity.Id);
                     CohortDTO cohortToCreate = studentToCreate.Cohort;
-                    createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
+                    createdStudent.Entity.StudentDetail = createdStudentDetail.Entity!;
                     CreateCommandResponse<Cohort> createdCohort = await CreateAndSetStudentCohortAsync(createdStudent.Entity.ToDto(), cohortToCreate);
 
                     createdStudent.Entity.Cohort = createdCohort.Entity;
@@ -322,11 +326,11 @@ namespace Eras.Application.Services
                     };
                     CreateCommandResponse<Variable> createdVariable = await _mediator.Send(createVariableCommand);
 
-                    if (createdVariable.Success)
+                    if (createdVariable.Success && createdVariable.Entity != null)
                     {
                         int asociatedVariableId = createdVariable.Entity.Id;
                         CreateCommandResponse<Variable> createdPollVariable = await CreateRelationshipPollVariableAsync(variableDto, AsociatedPollId, asociatedVariableId);
-                        createdVariable.Entity.PollVariableId = createdPollVariable.Entity.PollVariableId;
+                        createdVariable.Entity.PollVariableId = createdPollVariable.Entity!.PollVariableId;
                         createdVariables.Add(createdVariable.Entity);
                     }
                 }
@@ -359,7 +363,7 @@ namespace Eras.Application.Services
                             {
                                 AnswerDTO answerToCreate = variable.Answer != null ? variable.Answer : new AnswerDTO();
                                 answerToCreate.PollVariableId = variableByName.PollVariableId;
-                                answerToCreate.PollInstanceId = CreatedPollInstance.Entity.Id;
+                                answerToCreate.PollInstanceId = CreatedPollInstance.Entity!.Id;
                                 answerToCreate.Audit = new AuditInfo()
                                 {
                                     CreatedBy = "Cosmic latte import",
@@ -427,7 +431,7 @@ namespace Eras.Application.Services
                     CreateCommandResponse<Component> createdComponent = await CreateComponentAsync(componentDto);
                     if (createdComponent.Success)
                     {
-                        int asociatedComponentId = createdComponent.Entity.Id;
+                        int asociatedComponentId = createdComponent.Entity!.Id;
                         List<Variable> createdVariables = await CreateVariablesAsync(componentDto.Variables, AsociatedPollId, asociatedComponentId);
                         createdComponent.Entity.Variables = createdVariables;
                         createdComponents.Add(createdComponent.Entity);

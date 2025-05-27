@@ -25,6 +25,11 @@ namespace Eras.Application.Features.Variables.Commands.CreateVariable
         {
             try
             {
+                if (Request.Variable == null)
+                {
+                    _logger.LogError($"An error occurred creating the variable: Variable is null");
+                    return new CreateCommandResponse<Variable>(null, 0, "Error", false);
+                }
                 Variable? variableDB = await _variableRepository.GetByNameAsync(Request.Variable.Name);
                 if (variableDB != null) return new CreateCommandResponse<Variable>(variableDB, 0, "Success", true);
 

@@ -63,7 +63,7 @@ public static class HeatMapMapper
             .GroupBy(Q => new { Q.ComponentId, Q.ComponentName })
             .Select(CompGroup => new Component
             {
-                Description = CompGroup.Key.ComponentName.ToUpper(),
+                Description = CompGroup.Key.ComponentName?.ToUpper() ?? "",
                 Variables = [.. CompGroup
                 .GroupBy(Var => Var.VariableId)
                 .Select(VarGr => new ComponentVars
