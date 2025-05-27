@@ -12,23 +12,23 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByCohort
         private readonly IStudentRepository _studentRepository;
 
         public GetHeatMapDetailsByCohortQueryHandler(
-            IStudentRepository studentRepository,
-            ILogger<GetHeatMapDetailsByCohortQueryHandler> logger
+            IStudentRepository StudentRepository,
+            ILogger<GetHeatMapDetailsByCohortQueryHandler> Logger
         )
         {
-            _logger = logger;
-            _studentRepository = studentRepository;
+            _logger = Logger;
+            _studentRepository = StudentRepository;
         }
 
         public async Task<List<StudentHeatMapDetailDto>> Handle(
-            GetHeatMapDetailsByCohortQuery request,
+            GetHeatMapDetailsByCohortQuery Request,
             CancellationToken CancellationToken
         )
         {
-            _logger.LogDebug($"Heat map details by cohort: {request.CohortId}");
+            _logger.LogDebug($"Heat map details by cohort: {Request.CohortId}");
             return await _studentRepository.GetStudentHeatMapDetailsByCohort(
-                request.CohortId,
-                request.limit
+                Request.CohortId,
+                Request.limit
             );
         }
     }

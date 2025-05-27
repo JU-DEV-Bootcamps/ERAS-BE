@@ -33,13 +33,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
         }
 
 
-        public static StudentCohortJoin ToPersistenceCohort(this Student student)
+        public static StudentCohortJoin ToPersistenceCohort(this Student Student)
         {
-            ArgumentNullException.ThrowIfNull(student);
+            ArgumentNullException.ThrowIfNull(Student);
             return new StudentCohortJoin()
             {
-                StudentId = student.Id,
-                CohortId = student.CohortId,
+                StudentId = Student.Id,
+                CohortId = Student.CohortId,
             };
         }
     }

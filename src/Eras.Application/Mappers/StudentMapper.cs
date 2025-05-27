@@ -6,7 +6,7 @@ namespace Eras.Application.Mappers;
 
 public static class StudentMapper
 {
-    public static StudentDetail CreateEmptyStudentDetail(StudentDTO dto)
+    public static StudentDetail CreateEmptyStudentDetail(StudentDTO Dto)
     {
             AuditInfo audit = new AuditInfo()
             {
@@ -16,17 +16,17 @@ public static class StudentMapper
             };
             return new StudentDetail
             {
-                StudentId = dto.Id,
+                StudentId = Dto.Id,
                 Audit = audit,
             }; 
     }
-    public static Student ToDomain(this StudentDTO dto)
+    public static Student ToDomain(this StudentDTO Dto)
     {
-        ArgumentNullException.ThrowIfNull(dto);
-        Cohort cohort = dto.Cohort?.ToDomain();
-        StudentDetail details = dto.StudentDetail != null ? dto.StudentDetail.ToDomain() : CreateEmptyStudentDetail(dto);
+        ArgumentNullException.ThrowIfNull(Dto);
+        Cohort cohort = Dto.Cohort?.ToDomain();
+        StudentDetail details = Dto.StudentDetail != null ? Dto.StudentDetail.ToDomain() : CreateEmptyStudentDetail(dto);
 
-        AuditInfo audit = dto.Audit != null ? dto.Audit : new AuditInfo()
+        AuditInfo audit = Dto.Audit != null ? Dto.Audit : new AuditInfo()
         {
             CreatedBy = "Automatic mapper",
             CreatedAt = DateTime.UtcNow,
@@ -34,11 +34,11 @@ public static class StudentMapper
         };
         return new Student
         {
-            Id = dto.Id,
-            Uuid = dto.Uuid,
-            Name = dto.Name,
-            Email = dto.Email,
-            IsImported = dto.IsImported,
+            Id = Dto.Id,
+            Uuid = Dto.Uuid,
+            Name = Dto.Name,
+            Email = Dto.Email,
+            IsImported = Dto.IsImported,
             Cohort = cohort,
             CohortId = cohort!=null ? cohort.Id : 0,
             StudentDetail = details,

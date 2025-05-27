@@ -12,27 +12,27 @@ namespace Eras.Application.Features.PollInstances.Commands.CreatePollInstance
         private readonly IPollInstanceRepository _pollInstanceRepository;
         private readonly ILogger<CreatePollInstanceCommandHandler> _logger;
 
-        public CreatePollInstanceCommandHandler(IPollInstanceRepository pollInstanceRepository, ILogger<CreatePollInstanceCommandHandler> logger)
+        public CreatePollInstanceCommandHandler(IPollInstanceRepository PollInstanceRepository, ILogger<CreatePollInstanceCommandHandler> Logger)
         {
-            _pollInstanceRepository = pollInstanceRepository;
-            _logger = logger;
+            _pollInstanceRepository = PollInstanceRepository;
+            _logger = Logger;
         }
 
-        public async Task<CreateCommandResponse<PollInstance>> Handle(CreatePollInstanceCommand request, CancellationToken CancellationToken)
+        public async Task<CreateCommandResponse<PollInstance>> Handle(CreatePollInstanceCommand Request, CancellationToken CancellationToken)
         {
             try
             {
-                PollInstance? pollInstanceDB = await _pollInstanceRepository.GetByUuidAndStudentIdAsync(request.PollInstance.Uuid, request.PollInstance.Student.Id);
+                PollInstance? pollInstanceDB = await _pollInstanceRepository.GetByUuidAndStudentIdAsync(Request.PollInstance.Uuid, Request.PollInstance.Student.Id);
                 if (pollInstanceDB != null) return new CreateCommandResponse<PollInstance>(pollInstanceDB, 0, "Success", true);
 
-                PollInstance? pollInstance = request.PollInstance.ToDomain();
+                PollInstance? pollInstance = Request.PollInstance.ToDomain();
                 PollInstance createdPoll = await _pollInstanceRepository.AddAsync(pollInstance);
-                return new CreateCommandResponse<PollInstance>(createdPoll,1, "Success", true);
+                return new CreateCommandResponse<PollInstance>(createdPoll, 1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the poll: ");
-                return new CreateCommandResponse<PollInstance>(null,0, "Error", false);
+                return new CreateCommandResponse<PollInstance>(null, 0, "Error", false);
             }
         }
     }

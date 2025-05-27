@@ -8,8 +8,8 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
     {
         public string PollInstanceUUID { get; }
 
-        public GetHeatMapSummaryQuery(string pollInstanceUUID) { 
-            PollInstanceUUID = pollInstanceUUID;
+        public GetHeatMapSummaryQuery(string PollInstanceUUID) { 
+            this.PollInstanceUUID = PollInstanceUUID;
         }
     }
 }

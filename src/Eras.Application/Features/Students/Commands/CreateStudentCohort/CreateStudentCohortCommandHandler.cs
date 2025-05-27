@@ -12,25 +12,25 @@ namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
         private readonly ILogger<CreateStudentCohortCommandHandler> _logger;
 
         public CreateStudentCohortCommandHandler(
-            IStudentCohortRepository studentCohortRepository,
-            ILogger<CreateStudentCohortCommandHandler> logger)
+            IStudentCohortRepository StudentCohortRepository,
+            ILogger<CreateStudentCohortCommandHandler> Logger)
         {
-            _studentCohortRepository = studentCohortRepository;
-            _logger = logger;
+            _studentCohortRepository = StudentCohortRepository;
+            _logger = Logger;
         }
-        public async Task<CreateCommandResponse<Student>> Handle(CreateStudentCohortCommand request, CancellationToken CancellationToken)
+        public async Task<CreateCommandResponse<Student>> Handle(CreateStudentCohortCommand Request, CancellationToken CancellationToken)
         {
 
             try
             {
 
-                Student student = await _studentCohortRepository.GetByCohortIdAndStudentIdAsync(request.CohortId, request.StudentId);
+                Student student = await _studentCohortRepository.GetByCohortIdAndStudentIdAsync(Request.CohortId, Request.StudentId);
                 if (student != null) return new CreateCommandResponse<Student>(student, 0, "Success", true);
 
 
                 Student studentCohortToCreate = new Student();
-                studentCohortToCreate.CohortId = request.CohortId;
-                studentCohortToCreate.Id = request.StudentId;
+                studentCohortToCreate.CohortId = Request.CohortId;
+                studentCohortToCreate.Id = Request.StudentId;
 
                 Student createdStudentCohort = await _studentCohortRepository.AddAsync(studentCohortToCreate);
 

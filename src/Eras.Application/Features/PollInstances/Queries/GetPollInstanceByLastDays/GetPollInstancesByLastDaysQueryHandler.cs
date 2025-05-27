@@ -11,17 +11,17 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastD
         private readonly IPollInstanceRepository _pollInstanceRepository;
         private readonly ILogger<GetPollInstancesByLastDaysQueryHandler> _logger;
 
-        public GetPollInstancesByLastDaysQueryHandler(IPollInstanceRepository pollInstanceRepository, ILogger<GetPollInstancesByLastDaysQueryHandler> logger)
+        public GetPollInstancesByLastDaysQueryHandler(IPollInstanceRepository PollInstanceRepository, ILogger<GetPollInstancesByLastDaysQueryHandler> Logger)
         {
-            _pollInstanceRepository = pollInstanceRepository;
-            _logger = logger;
+            _pollInstanceRepository = PollInstanceRepository;
+            _logger = Logger;
         }
 
-        public async Task<QueryManyResponse<PollInstance>> Handle(GetPollInstancesByLastDaysQuery request, CancellationToken CancellationToken)
+        public async Task<QueryManyResponse<PollInstance>> Handle(GetPollInstancesByLastDaysQuery Request, CancellationToken CancellationToken)
         {
             try
             {
-                IEnumerable<PollInstance> pollInstances = await _pollInstanceRepository.GetByLastDays(request.LastDays);
+                IEnumerable<PollInstance> pollInstances = await _pollInstanceRepository.GetByLastDays(Request.LastDays);
                 return new QueryManyResponse<PollInstance>(pollInstances, "PollInstances obtained", true);
             }
             catch (Exception ex)

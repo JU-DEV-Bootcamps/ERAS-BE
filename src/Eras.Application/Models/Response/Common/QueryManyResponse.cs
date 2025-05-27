@@ -4,14 +4,14 @@
     {
         public IEnumerable<T> Entities { get; set; }
 
-        public QueryManyResponse(IEnumerable<T> entities)
+        public QueryManyResponse(IEnumerable<T> Entities)
         {
-            Entities = entities;
+            this.Entities = Entities;
         }
 
-        public QueryManyResponse(IEnumerable<T> entities, string message, bool success) : base(message, success)
+        public QueryManyResponse(IEnumerable<T> Entities, string Message, bool Success) : base(Message, Success)
         {
-            Entities = entities;
+            this.Entities = Entities;
         }
     }
 }

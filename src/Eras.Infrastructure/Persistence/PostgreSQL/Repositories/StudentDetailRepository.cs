@@ -20,7 +20,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<StudentDetail?> GetByStudentId(int StudentId)
         {
             var studentDetail = await _context.StudentDetails
-                .FirstOrDefaultAsync(studentDetail => studentDetail.StudentId == StudentId);
+                .FirstOrDefaultAsync(StudentDetail => StudentDetail.StudentId == StudentId);
 
             return studentDetail?.ToDomain();
         }

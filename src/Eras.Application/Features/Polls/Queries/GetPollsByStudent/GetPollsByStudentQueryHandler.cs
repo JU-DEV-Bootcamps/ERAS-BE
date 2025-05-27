@@ -10,15 +10,15 @@ namespace Eras.Application.Features.Polls.Queries.GetPollsByStudent
         private readonly IStudentPollsRepository _repository;
         private readonly ILogger<GetPollsByStudentQueryHandler> _logger;
 
-        public GetPollsByStudentQueryHandler(IStudentPollsRepository repository, ILogger<GetPollsByStudentQueryHandler> logger)
+        public GetPollsByStudentQueryHandler(IStudentPollsRepository Repository, ILogger<GetPollsByStudentQueryHandler> Logger)
         {
-            _repository = repository;
-            _logger = logger;
+            _repository = Repository;
+            _logger = Logger;
         }
 
-        public async Task<List<Poll>> Handle(GetPollsByStudentQuery request, CancellationToken CancellationToken)
+        public async Task<List<Poll>> Handle(GetPollsByStudentQuery Request, CancellationToken CancellationToken)
         {
-            var listOfPolls = await _repository.GetPollsByStudentIdAsync(request.StudentId);
+            var listOfPolls = await _repository.GetPollsByStudentIdAsync(Request.StudentId);
             return listOfPolls;
         }
 

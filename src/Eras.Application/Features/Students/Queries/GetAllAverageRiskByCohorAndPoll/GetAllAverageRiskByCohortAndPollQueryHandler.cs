@@ -12,23 +12,23 @@ namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAnd
         private readonly IStudentRepository _studentRepository;
 
         public GetAllAverageRiskByCohortAndPollQueryHandler(
-            IStudentRepository studentRepository,
-            ILogger<GetAllAverageRiskByCohortAndPollQueryHandler> logger
+            IStudentRepository StudentRepository,
+            ILogger<GetAllAverageRiskByCohortAndPollQueryHandler> Logger
         )
         {
-            _logger = logger;
-            _studentRepository = studentRepository;
+            _logger = Logger;
+            _studentRepository = StudentRepository;
         }
 
         public async Task<List<StudentAverageRiskDto>> Handle(
-            GetAllAverageRiskByCohortAndPollQuery request,
+            GetAllAverageRiskByCohortAndPollQuery Request,
             CancellationToken CancellationToken
         )
         {
-            _logger.LogDebug($"get all average risk = {request.cohortId} {request.pollId}");
+            _logger.LogDebug($"get all average risk = {Request.cohortId} {Request.pollId}");
             return await _studentRepository.GetStudentAverageRiskAsync(
-                request.cohortId,
-                request.pollId
+                Request.cohortId,
+                Request.pollId
             );
         }
     }

@@ -6,11 +6,11 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponent
 {
     public class GetHeatMapDataByAllComponentsQuery : IRequest<GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>>
     {
-        public string PollInstanceUUID { get; }
+        public string PollInstanceUUID { get; set; }
 
-        public GetHeatMapDataByAllComponentsQuery(string pollInstanceUUID)
+        public GetHeatMapDataByAllComponentsQuery(string PollInstanceUUID)
         {
-            PollInstanceUUID = pollInstanceUUID;
+            this.PollInstanceUUID = PollInstanceUUID;
         }
     }
 }

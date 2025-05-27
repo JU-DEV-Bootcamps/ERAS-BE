@@ -6,11 +6,11 @@ namespace Eras.Application.Mappers
 {
     public static class StudentDetailMapper
     {
-        public static StudentDetail ToDomain(this StudentDetailDTO dto)
+        public static StudentDetail ToDomain(this StudentDetailDTO Dto)
         {
-            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(Dto);
 
-            AuditInfo audit = dto.Audit != null ? dto.Audit : new AuditInfo()
+            AuditInfo audit = Dto.Audit != null ? Dto.Audit : new AuditInfo()
             {
                 CreatedBy = "Automatic mapper",
                 CreatedAt = DateTime.UtcNow,
@@ -18,34 +18,34 @@ namespace Eras.Application.Mappers
             };
             return new StudentDetail
             {
-                StudentId = dto.StudentId,
-                EnrolledCourses = dto.EnrolledCourses,
-                GradedCourses = dto.GradedCourses,
-                TimeDeliveryRate = dto.TimeDeliveryRate,
-                AvgScore = dto.AvgScore,
-                CoursesUnderAvg= dto.CoursesUnderAvg,
-                PureScoreDiff = dto.PureScoreDiff,
-                StandardScoreDiff = dto.StandardScoreDiff,
-                LastAccessDays = dto.LastAccessDays,
+                StudentId = Dto.StudentId,
+                EnrolledCourses = Dto.EnrolledCourses,
+                GradedCourses = Dto.GradedCourses,
+                TimeDeliveryRate = Dto.TimeDeliveryRate,
+                AvgScore = Dto.AvgScore,
+                CoursesUnderAvg= Dto.CoursesUnderAvg,
+                PureScoreDiff = Dto.PureScoreDiff,
+                StandardScoreDiff = Dto.StandardScoreDiff,
+                LastAccessDays = Dto.LastAccessDays,
                 Audit = audit,
             };
 
         }
-        public static StudentDetailDTO ToDto(this StudentDetail domain)
+        public static StudentDetailDTO ToDto(this StudentDetail Domain)
         {
-            ArgumentNullException.ThrowIfNull(domain);
+            ArgumentNullException.ThrowIfNull(Domain);
             return new StudentDetailDTO
             {
-                StudentId = domain.StudentId,
-                EnrolledCourses = domain.EnrolledCourses,
-                GradedCourses = domain.GradedCourses,
-                TimeDeliveryRate = domain.TimeDeliveryRate,
-                AvgScore = domain.AvgScore,
-                CoursesUnderAvg = domain.CoursesUnderAvg,
-                PureScoreDiff = domain.PureScoreDiff,
-                StandardScoreDiff = domain.StandardScoreDiff,
-                LastAccessDays = domain.LastAccessDays,
-                Audit = domain.Audit,
+                StudentId = Domain.StudentId,
+                EnrolledCourses = Domain.EnrolledCourses,
+                GradedCourses = Domain.GradedCourses,
+                TimeDeliveryRate = Domain.TimeDeliveryRate,
+                AvgScore = Domain.AvgScore,
+                CoursesUnderAvg = Domain.CoursesUnderAvg,
+                PureScoreDiff = Domain.PureScoreDiff,
+                StandardScoreDiff = Domain.StandardScoreDiff,
+                LastAccessDays = Domain.LastAccessDays,
+                Audit = Domain.Audit,
             };
 
         }

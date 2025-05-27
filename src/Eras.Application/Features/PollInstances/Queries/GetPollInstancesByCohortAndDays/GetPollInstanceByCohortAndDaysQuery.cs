@@ -10,10 +10,10 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
         public int CohortId { get; set; }
         public int Days { get; set; }
 
-        public GetPollInstanceByCohortAndDaysQuery(int cohortId, int days)
+        public GetPollInstanceByCohortAndDaysQuery(int CohortId, int Days)
         {
-            CohortId = cohortId;
-            Days = days;
+            this.CohortId = CohortId;
+            this.Days = Days;
         }
     }
 }

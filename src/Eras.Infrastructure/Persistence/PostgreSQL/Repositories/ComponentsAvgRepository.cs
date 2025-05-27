@@ -17,14 +17,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<List<ComponentsAvg>> ComponentsAvgByStudent(int StudentId, int PollId)
         {
             List<ComponentsAvg> result = await _context.ErasCalculationsByPoll
-                                .Where(v => v.PollInstanceId == StudentId && v.PollId == PollId)
-                                .GroupBy(v => new { v.PollId, v.ComponentId, v.ComponentName })
-                                .Select(g => new ComponentsAvg
+                                .Where(V => V.PollInstanceId == StudentId && V.PollId == PollId)
+                                .GroupBy(V => new { V.PollId, V.ComponentId, V.ComponentName })
+                                .Select(G => new ComponentsAvg
                                 {
-                                    PollId = g.Key.PollId,
-                                    ComponentId = g.Key.ComponentId,
-                                    Name = g.Key.ComponentName,
-                                    ComponentAvg = (float)g.Average(v => v.AnswerRisk)
+                                    PollId = G.Key.PollId,
+                                    ComponentId = G.Key.ComponentId,
+                                    Name = G.Key.ComponentName,
+                                    ComponentAvg = (float) G.Average(V => V.AnswerRisk)
                                 })
                                 .ToListAsync();
             return result;

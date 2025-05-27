@@ -215,7 +215,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         {
             try
             {
-                Dictionary<string, JsonElement>? traits = ClDataItem?.score?.byTrait?.traits;
+                Dictionary<string, JsonElement>? traits = ClDataItem?.score?.byTrait?.Traits;
                 if (traits != null)
                 {
                     return ByTrait.getVariablesPositionByComponents(traits);

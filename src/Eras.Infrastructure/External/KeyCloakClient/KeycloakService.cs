@@ -11,13 +11,13 @@ namespace Eras.Infrastructure.External.KeycloakClient
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
 
-        public KeycloakAuthService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
+        public KeycloakAuthService(IConfiguration Configuration, IHttpClientFactory HttpClientFactory)
         {
-            _httpClient = httpClientFactory.CreateClient();
-            _configuration = configuration;
+            _httpClient = HttpClientFactory.CreateClient();
+            _configuration = Configuration;
         }
 
-        public async Task<TokenResponse> LoginAsync(string username, string password)
+        public async Task<TokenResponse> LoginAsync(string Username, string Password)
         {
             var baseUrl = _configuration["Keycloak:BaseUrl"];
             var realm = _configuration["Keycloak:Realm"];
@@ -29,8 +29,8 @@ namespace Eras.Infrastructure.External.KeycloakClient
                 { "grant_type", "password" },
                 { "client_id",  clientId},
                 { "client_secret", clientSecret },
-                { "username", username },
-                { "password", password }
+                { "username", Username },
+                { "password", Password }
             };
 
             var content = new FormUrlEncodedContent(requestBody);

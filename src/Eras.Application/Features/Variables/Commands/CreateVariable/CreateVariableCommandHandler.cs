@@ -13,36 +13,36 @@ namespace Eras.Application.Features.Variables.Commands.CreateVariable
         private readonly ILogger<CreateVariableCommandHandler> _logger;
 
         public CreateVariableCommandHandler(
-            IVariableRepository variableRepository,
-            ILogger<CreateVariableCommandHandler> logger)
+            IVariableRepository VariableRepository,
+            ILogger<CreateVariableCommandHandler> Logger)
         {
 
-            _variableRepository = variableRepository;
-            _logger = logger;
+            _variableRepository = VariableRepository;
+            _logger = Logger;
         }
 
-        public async Task<CreateCommandResponse<Variable>> Handle(CreateVariableCommand request, CancellationToken CancellationToken)
+        public async Task<CreateCommandResponse<Variable>> Handle(CreateVariableCommand Request, CancellationToken CancellationToken)
         {
             try
             {
-                Variable? variableDB = await _variableRepository.GetByNameAsync(request.Variable.Name);
+                Variable? variableDB = await _variableRepository.GetByNameAsync(Request.Variable.Name);
                 if (variableDB != null) return new CreateCommandResponse<Variable>(variableDB, 0, "Success", true);
 
 
-                Variable? variable = request.Variable?.ToDomain();
+                Variable? variable = Request.Variable?.ToDomain();
                 if (variable!= null)
                 {
-                    variable.IdComponent = request.ComponentId;
-                    variable.IdPoll = request.PollId;
+                    variable.IdComponent = Request.ComponentId;
+                    variable.IdPoll = Request.PollId;
                     Variable createdVariable = await _variableRepository.AddAsync(variable);
                     return new CreateCommandResponse<Variable>(createdVariable, 1, "Success", true);
                 }
-                return new CreateCommandResponse<Variable>(null,0, "Error", false);
+                return new CreateCommandResponse<Variable>(null, 0, "Error", false);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the variable: ");
-                return new CreateCommandResponse<Variable>(null,0, "Error", false);
+                return new CreateCommandResponse<Variable>(null, 0, "Error", false);
             }
         }
     }

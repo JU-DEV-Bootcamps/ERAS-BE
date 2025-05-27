@@ -14,11 +14,11 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponent
         private readonly IComponentRepository _componentRepository;
         private readonly ILogger<GetHeatMapDataByAllComponentsHandler> _logger;
 
-        public GetHeatMapDataByAllComponentsHandler(IHeatMapRepository HeatMapRepository, IComponentRepository ComponentRepository , ILogger<GetHeatMapDataByAllComponentsHandler> logger)
+        public GetHeatMapDataByAllComponentsHandler(IHeatMapRepository HeatMapRepository, IComponentRepository ComponentRepository , ILogger<GetHeatMapDataByAllComponentsHandler> Logger)
         {
             _heatMapRepository = HeatMapRepository;
             _componentRepository = ComponentRepository;
-            _logger = logger;
+            _logger = Logger;
         }
         public async Task<GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>> Handle(GetHeatMapDataByAllComponentsQuery Request, CancellationToken CancellationToken)
         {
@@ -38,7 +38,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponent
                 foreach (var component in components)
                 {
                     var filteredResponses = answersByComponents
-                        .Where(q => q.ComponentId == component.Id)
+                        .Where(Q => Q.ComponentId == component.Id)
                         .ToList();
                     var mappedData = HeatMapMapper.MaptToVmResponse(filteredResponses, component.Name);
                     bodyData.Add(mappedData);

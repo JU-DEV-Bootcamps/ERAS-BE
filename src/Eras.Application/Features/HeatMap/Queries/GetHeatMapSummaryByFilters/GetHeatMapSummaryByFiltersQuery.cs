@@ -9,10 +9,10 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
         public int CohortId { get; }
         public int Days { get; }
 
-        public GetHeatMapSummaryByFiltersQuery(int cohortId, int days)
+        public GetHeatMapSummaryByFiltersQuery(int CohortId, int Days)
         {
-            CohortId = cohortId;
-            Days = days;
+            this.CohortId = CohortId;
+            this.Days = Days;
         }
     }
 }

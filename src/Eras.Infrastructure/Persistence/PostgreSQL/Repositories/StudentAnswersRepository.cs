@@ -15,14 +15,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public Task<PagedResult<StudentAnswer>> GetStudentAnswersPagedAsync(int StudentId, int PollId, int Page, int PageSize)
         {
             var studentAnswers = _context.ErasCalculationsByPoll
-                .Where(e => e.StudentId == StudentId && e.PollId == PollId)
-                .Select(e => new StudentAnswer
+                .Where(E => E.StudentId == StudentId && E.PollId == PollId)
+                .Select(E => new StudentAnswer
                 {
-                    Variable = e.Question,
-                    Position = e.PollVariableId,
-                    Component = e.ComponentName,
-                    Answer = e.AnswerText,
-                    Score = e.AnswerRisk
+                    Variable = E.Question,
+                    Position = E.PollVariableId,
+                    Component = E.ComponentName,
+                    Answer = E.AnswerText,
+                    Score = E.AnswerRisk
                 })
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize);
