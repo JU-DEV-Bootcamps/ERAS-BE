@@ -23,8 +23,13 @@ namespace Eras.Application.Features.Components.Commands.CreateCommand
         {
             try
             {
-                Component? componentnDB = await _componentRepository.GetByNameAsync(Request.Component.Name);
-                if (componentnDB != null) return new CreateCommandResponse<Component>(componentnDB, 0, "Success", true);
+                if (Request.Component == null)
+                {
+                    _logger.LogError("Component is null");
+                    return new CreateCommandResponse<Component>(null, 0, "Error", false);
+                }
+                Component? componentDB = await _componentRepository.GetByNameAsync(Request.Component.Name);
+                if (componentDB != null) return new CreateCommandResponse<Component>(componentDB, 0, "Success", true);
 
                 Component? component = Request.Component?.ToDomain();
                 if (component == null) return new CreateCommandResponse<Component>(null, 0, "Error", false);

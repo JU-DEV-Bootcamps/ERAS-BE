@@ -29,7 +29,7 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
             var command = new CreateEvaluationPollCommand { EvaluationDTO = newEvaluationDto };
             var newComponent = newEvaluationDto.ToDomain;
 
-            _mockEvaluationPollRepository.Setup(repo => repo.AddAsync(It.IsAny<Evaluation>()))
+            _mockEvaluationPollRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Evaluation>()))
                 .ReturnsAsync(newComponent);
 
             var result = await _handler.Handle(command, CancellationToken.None);

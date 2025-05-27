@@ -5,7 +5,7 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Cohort.Queries.GetCohortStudentsRiskByPoll;
+namespace Eras.Application.Features.Cohorts.Queries.GetCohortStudentsRiskByPoll;
 public class GetCohortStudentsRiskByPollQueryHandler : IRequestHandler<GetCohortStudentsRiskByPollQuery, List<GetCohortStudentsRiskByPollResponse>>
 {
     private readonly IPollCohortRepository _pollCohortRepository;

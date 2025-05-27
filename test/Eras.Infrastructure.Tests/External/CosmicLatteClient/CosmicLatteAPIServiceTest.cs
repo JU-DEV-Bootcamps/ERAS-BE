@@ -65,8 +65,8 @@ namespace Eras.Infrastructure.Tests.External.CosmicLatteClient
             mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
 
             var configuration = new Mock<IConfiguration>();
-            configuration.Setup(c => c.GetSection("CosmicLatte:ApiKey").Value).Returns("fake-api-key");
-            configuration.Setup(c => c.GetSection("CosmicLatte:BaseUrl").Value).Returns("http://fakeurl.com");
+            configuration.Setup(C => C.GetSection("CosmicLatte:ApiKey").Value).Returns("fake-api-key");
+            configuration.Setup(C => C.GetSection("CosmicLatte:BaseUrl").Value).Returns("http://fakeurl.com");
 
             var service = new CosmicLatteAPIService(configuration.Object, mockHttpClientFactory.Object, mockLogger.Object, mockPollOrchestratorService.Object);
 

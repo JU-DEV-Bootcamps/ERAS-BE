@@ -38,7 +38,7 @@ namespace Eras.Application.Tests.Features.Students.Commands
             var command = new CreateStudentCommand { StudentDTO = newStudentDto };
             var newStudent = newStudentDto.ToDomain;
 
-            _mockStudentRepository.Setup(repo => repo.AddAsync(It.IsAny<Student>()))
+            _mockStudentRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Student>()))
                 .ReturnsAsync(newStudent);
 
             var result = await _handler.Handle(command, CancellationToken.None);

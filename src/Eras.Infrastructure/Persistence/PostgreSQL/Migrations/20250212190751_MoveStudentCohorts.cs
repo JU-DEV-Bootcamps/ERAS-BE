@@ -10,13 +10,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     public partial class MoveStudentCohorts : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropPrimaryKey(
+            MigrationBuilder.DropPrimaryKey(
                 name: "PK_student_cohort",
                 table: "student_cohort");
 
-            migrationBuilder.AddColumn<int>(
+            MigrationBuilder.AddColumn<int>(
                 name: "Id",
                 table: "student_cohort",
                 type: "integer",
@@ -24,65 +24,65 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 defaultValue: 0)
                 .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-            migrationBuilder.AddPrimaryKey(
+            MigrationBuilder.AddPrimaryKey(
                 name: "PK_student_cohort",
                 table: "student_cohort",
                 column: "Id");
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "CohortEntityStudentEntity",
-                columns: table => new
+                columns: Table => new
                 {
-                    CohortsId = table.Column<int>(type: "integer", nullable: false),
-                    StudentsId = table.Column<int>(type: "integer", nullable: false)
+                    CohortsId = Table.Column<int>(type: "integer", nullable: false),
+                    StudentsId = Table.Column<int>(type: "integer", nullable: false)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_CohortEntityStudentEntity", x => new { x.CohortsId, x.StudentsId });
-                    table.ForeignKey(
+                    Table.PrimaryKey("PK_CohortEntityStudentEntity", X => new { X.CohortsId, X.StudentsId });
+                    Table.ForeignKey(
                         name: "FK_CohortEntityStudentEntity_cohorts_CohortsId",
-                        column: x => x.CohortsId,
+                        column: X => X.CohortsId,
                         principalTable: "cohorts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
+                    Table.ForeignKey(
                         name: "FK_CohortEntityStudentEntity_students_StudentsId",
-                        column: x => x.StudentsId,
+                        column: X => X.StudentsId,
                         principalTable: "students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_student_cohort_student_id",
                 table: "student_cohort",
                 column: "student_id");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_CohortEntityStudentEntity_StudentsId",
                 table: "CohortEntityStudentEntity",
                 column: "StudentsId");
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
+        protected override void Down(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "CohortEntityStudentEntity");
 
-            migrationBuilder.DropPrimaryKey(
+            MigrationBuilder.DropPrimaryKey(
                 name: "PK_student_cohort",
                 table: "student_cohort");
 
-            migrationBuilder.DropIndex(
+            MigrationBuilder.DropIndex(
                 name: "IX_student_cohort_student_id",
                 table: "student_cohort");
 
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "Id",
                 table: "student_cohort");
 
-            migrationBuilder.AddPrimaryKey(
+            MigrationBuilder.AddPrimaryKey(
                 name: "PK_student_cohort",
                 table: "student_cohort",
                 columns: new[] { "student_id", "cohort_id" });

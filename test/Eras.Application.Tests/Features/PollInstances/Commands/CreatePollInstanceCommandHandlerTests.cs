@@ -33,7 +33,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Commands
             var command = new CreatePollInstanceCommand { PollInstance = newPollIsntanceDto };
             var newPoll = newPollIsntanceDto.ToDomain;
 
-            _mockPollInstanceRepository.Setup(repo => repo.AddAsync(It.IsAny<PollInstance>()))
+            _mockPollInstanceRepository.Setup(Repo => Repo.AddAsync(It.IsAny<PollInstance>()))
                 .ReturnsAsync(newPoll);
 
             var result = await _handler.Handle(command, CancellationToken.None);

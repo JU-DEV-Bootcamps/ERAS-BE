@@ -3,7 +3,7 @@ using Eras.Application.Models.Response.Common;
 
 using MediatR;
 
-namespace Eras.Application.Features.Cohort.Queries.GetCohortTopRiskStudentsByComponent;
+namespace Eras.Application.Features.Cohorts.Queries.GetCohortTopRiskStudentsByComponent;
 public class GetCohortTopRiskStudentsByComponentQuery : IRequest<GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>>>
 {
     public required string PollUuid { get; set; }

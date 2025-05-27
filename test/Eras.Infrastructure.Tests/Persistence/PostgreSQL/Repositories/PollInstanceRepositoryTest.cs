@@ -38,7 +38,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             _mockContext = new Mock<AppDbContext>(options);
             _mockContext
-                .Setup(c => c.PollInstances)
+                .Setup(C => C.PollInstances)
                 .Returns(data.Object);
 
             _repository = new PollInstanceRepository(_mockContext.Object);
@@ -60,7 +60,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             }.AsQueryable().BuildMockDbSet();
 
             _mockContext = new Mock<AppDbContext>(new DbContextOptions<AppDbContext>());
-            _mockContext.Setup(c => c.PollInstances).Returns(data.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(data.Object);
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 
@@ -88,8 +88,8 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             }.AsQueryable().BuildMockDbSet();
 
             _mockContext = new Mock<AppDbContext>(new DbContextOptions<AppDbContext>());
-            _mockContext.Setup(c => c.PollInstances).Returns(data.Object);
-            _mockContext.Setup(c => c.StudentCohorts).Returns(studentCohorts.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(data.Object);
+            _mockContext.Setup(C => C.StudentCohorts).Returns(studentCohorts.Object);
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 
@@ -111,7 +111,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             }.AsQueryable().BuildMockDbSet();
 
             _mockContext = new Mock<AppDbContext>(new DbContextOptions<AppDbContext>());
-            _mockContext.Setup(c => c.PollInstances).Returns(data.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(data.Object);
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 

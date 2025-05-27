@@ -12,24 +12,24 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDetailsByComponent
         private readonly IStudentRepository _studentRepository;
 
         public GetHeatMapDetailsByComponentQueryHandler(
-            IStudentRepository studentRepository,
-            ILogger<GetHeatMapDetailsByComponentQueryHandler> logger
+            IStudentRepository StudentRepository,
+            ILogger<GetHeatMapDetailsByComponentQueryHandler> Logger
         )
         {
-            _logger = logger;
-            _studentRepository = studentRepository;
+            _logger = Logger;
+            _studentRepository = StudentRepository;
         }
 
         public async Task<List<StudentHeatMapDetailDto>> Handle(
-            GetHeatMapDetailsByComponentQuery request,
+            GetHeatMapDetailsByComponentQuery Request,
             CancellationToken CancellationToken
         )
         {
-            _logger.LogDebug($"heatmap details by component = {request.ComponentName}");
+            _logger.LogDebug($"heatmap details by component = {Request.ComponentName}");
 
             return await _studentRepository.GetStudentHeatMapDetailsByComponent(
-                request.ComponentName,
-                request.limit
+                Request.ComponentName,
+                Request.limit
             );
         }
     }

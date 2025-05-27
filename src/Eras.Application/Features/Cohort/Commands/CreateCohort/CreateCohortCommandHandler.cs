@@ -6,7 +6,7 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Cohort.Commands.CreateCohort
+namespace Eras.Application.Features.Cohorts.Commands.CreateCohort
 {
     public class CreateCohortCommandHandler : IRequestHandler<CreateCohortCommand, CreateCommandResponse<Domain.Entities.Cohort>>
     {

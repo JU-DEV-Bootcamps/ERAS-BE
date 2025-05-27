@@ -37,7 +37,7 @@ namespace Eras.Application.Tests.Features.Variables.Commands
             var command = new CreateVariableCommand { Variable = newVariableDto };
             var newVariable = newVariableDto.ToDomain;
 
-            _mockVariableRepository.Setup(repo => repo.AddAsync(It.IsAny<Variable>()))
+            _mockVariableRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Variable>()))
                 .ReturnsAsync(newVariable);
 
             var result = await _handler.Handle(command, CancellationToken.None);

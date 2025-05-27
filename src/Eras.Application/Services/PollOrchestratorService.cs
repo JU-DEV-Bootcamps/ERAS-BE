@@ -2,7 +2,7 @@
 using Eras.Application.DTOs;
 using Eras.Application.Exceptions;
 using Eras.Application.Features.Answers.Commands.CreateAnswerList;
-using Eras.Application.Features.Cohort.Commands.CreateCohort;
+using Eras.Application.Features.Cohorts.Commands.CreateCohort;
 using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Features.Components.Queries.GetByNameAndPoll;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;

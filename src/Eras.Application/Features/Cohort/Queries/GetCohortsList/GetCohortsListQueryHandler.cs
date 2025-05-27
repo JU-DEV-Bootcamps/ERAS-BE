@@ -5,7 +5,7 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Cohort.Queries.GetCohortsList;
+namespace Eras.Application.Features.Cohorts.Queries.GetCohortsList;
 
 public class GetCohortsListQueryHandler(ICohortRepository Repository, ILogger<GetCohortsListQueryHandler> Logger) : IRequestHandler<GetCohortsListQuery, GetQueryResponse<List<Domain.Entities.Cohort>>>
 {

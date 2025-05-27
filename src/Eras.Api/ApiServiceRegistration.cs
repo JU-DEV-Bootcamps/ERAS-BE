@@ -6,29 +6,29 @@ namespace Eras.Api
     public static class ApiServiceRegistration
     {
         public static IServiceCollection AddApiServices(
-            this IServiceCollection services,
-            IConfiguration configuration)
+            this IServiceCollection Services,
+            IConfiguration Configuration)
         {
-            services.AddHttpClient();
-            services.AddControllers();
-            services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+            Services.AddHttpClient();
+            Services.AddControllers();
+            Services.AddEndpointsApiExplorer();
+            Services.AddSwaggerGen();
 
-            AddCors(services, configuration);
+            AddCors(Services, Configuration);
 
-            return services;
+            return Services;
         }
 
         private static void AddCors(
-            IServiceCollection services,
-            IConfiguration configuration)
+            IServiceCollection Services,
+            IConfiguration Configuration)
         {
-            services.AddCors(o =>
+            Services.AddCors(O =>
             {
-                o.AddPolicy("CORSPolicy", policy =>
+                O.AddPolicy("CORSPolicy", Policy =>
                 {
-                    string allowedHosts = configuration["AllowedHosts"] ?? "*";
-                    policy.WithOrigins(allowedHosts)
+                    string allowedHosts = Configuration["AllowedHosts"] ?? "*";
+                    Policy.WithOrigins(allowedHosts)
                             .AllowAnyHeader()
                             .AllowAnyMethod();
                 });

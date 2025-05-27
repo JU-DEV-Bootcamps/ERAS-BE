@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-using Eras.Application.Features.Cohort.Queries;
+using Eras.Application.Features.Cohorts.Queries;
 using Eras.Domain.Entities;
 
 using MediatR;

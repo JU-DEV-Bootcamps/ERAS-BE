@@ -8,9 +8,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     public partial class add_student_complete_flag : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
+            MigrationBuilder.AddColumn<bool>(
                 name: "is_imported",
                 table: "students",
                 type: "boolean",
@@ -19,9 +19,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
+        protected override void Down(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "is_imported",
                 table: "students");
         }

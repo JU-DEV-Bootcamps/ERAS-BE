@@ -66,13 +66,13 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                 new CohortEntity { Id = 2, Name = "Cohort2", CourseCode = "Course2" }
             }.AsQueryable().BuildMockDbSet();
 
-            _mockContext.Setup(c => c.PollInstances).Returns(pollInstances.Object);
-            _mockContext.Setup(c => c.Variables).Returns(variables.Object);
-            _mockContext.Setup(c => c.Components).Returns(components.Object);
-            _mockContext.Setup(c => c.Set<PollVariableJoin>()).Returns(pollVariableJoins.Object);
-            _mockContext.Setup(c => c.Answers).Returns(answers.Object);
-            _mockContext.Setup(c => c.StudentCohorts).Returns(studentCohorts.Object);
-            _mockContext.Setup(c => c.Cohorts).Returns(cohorts.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(pollInstances.Object);
+            _mockContext.Setup(C => C.Variables).Returns(variables.Object);
+            _mockContext.Setup(C => C.Components).Returns(components.Object);
+            _mockContext.Setup(C => C.Set<PollVariableJoin>()).Returns(pollVariableJoins.Object);
+            _mockContext.Setup(C => C.Answers).Returns(answers.Object);
+            _mockContext.Setup(C => C.StudentCohorts).Returns(studentCohorts.Object);
+            _mockContext.Setup(C => C.Cohorts).Returns(cohorts.Object);
         }
 
         [Fact]

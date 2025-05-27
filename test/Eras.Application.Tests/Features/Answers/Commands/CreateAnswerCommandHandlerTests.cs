@@ -37,7 +37,7 @@ namespace Eras.Application.Tests.Features.Components.Commands
             var command = new CreateAnswerCommand { Answer = newAnswerDto };
             var newPoll = newAnswerDto.ToDomain;
 
-            _mockAnswerRepository.Setup(repo => repo.AddAsync(It.IsAny<Answer>()))
+            _mockAnswerRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Answer>()))
                 .ReturnsAsync(newPoll);
 
             var result = await _handler.Handle(command, CancellationToken.None);

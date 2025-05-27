@@ -48,7 +48,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllCompone
                 Assert.Equal(2, item.Variables.Variables.Count());
                 Assert.Equal(2, item.Series.Count());
             }
-            _mockHeatmapRepository.Verify(repo => repo.GetHeatMapDataByComponentsAsync("valid-uuid"), Times.Once);
+            _mockHeatmapRepository.Verify(Repo => Repo.GetHeatMapDataByComponentsAsync("valid-uuid"), Times.Once);
         }
 
         [Fact]
@@ -56,14 +56,14 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllCompone
         {
             var request = new GetHeatMapDataByAllComponentsQuery("valid-uuid");
 
-            _mockHeatmapRepository.Setup(repo => repo.GetHeatMapDataByComponentsAsync(It.IsAny<string>())).ThrowsAsync(new Exception("Database error"));
+            _mockHeatmapRepository.Setup(Repo => Repo.GetHeatMapDataByComponentsAsync(It.IsAny<string>())).ThrowsAsync(new Exception("Database error"));
 
             var result = await _handler.Handle(request, CancellationToken.None);
 
             Assert.False(result.Success);
             Assert.Equal("Failed", result.Message);
             Assert.Empty(result.Body);
-            _mockHeatmapRepository.Verify(repo => repo.GetHeatMapDataByComponentsAsync("valid-uuid"), Times.Once);
+            _mockHeatmapRepository.Verify(Repo => Repo.GetHeatMapDataByComponentsAsync("valid-uuid"), Times.Once);
         }
     }
 }

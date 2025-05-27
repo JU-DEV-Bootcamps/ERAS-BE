@@ -33,15 +33,15 @@ namespace Eras.Infrastructure
             KeycloakRealm = Environment.GetEnvironmentVariable("KEYCLOAK_REALM") ?? Configuration["Keycloak:Realm"];
         }
 
-        private static void AddAuthentication(IServiceCollection services, IConfiguration Configuration)
+        private static void AddAuthentication(IServiceCollection Services, IConfiguration Configuration)
         {
             GetKeycloakConfiguration(
                 Configuration,
                 out string? keycloakBaseUrl,
                 out string? keycloakRealm);
 
-            services.AddAuthorization();
-            services.AddAuthentication(Options =>
+            Services.AddAuthorization();
+            Services.AddAuthentication(Options =>
             {
                 Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                 Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;

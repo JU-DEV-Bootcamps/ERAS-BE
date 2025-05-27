@@ -34,7 +34,7 @@ namespace Eras.Application.Tests.Features.Polls.Commands
             var command = new CreatePollCommand { Poll = newPollDto };
             var newPoll = newPollDto.ToDomain;
 
-            _mockPollRepository.Setup(repo => repo.AddAsync(It.IsAny<Poll>()))
+            _mockPollRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Poll>()))
                 .ReturnsAsync(newPoll);
 
             var result = await _handler.Handle(command, CancellationToken.None);

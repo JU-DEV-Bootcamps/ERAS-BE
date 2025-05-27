@@ -36,7 +36,7 @@ namespace Eras.Application.Tests.Features.Answers.Commands
             var command = new CreateComponentCommand { Component = newComponentDto };
             var newComponent = newComponentDto.ToDomain;
 
-            _mockComponentRepository.Setup(repo => repo.AddAsync(It.IsAny<Component>()))
+            _mockComponentRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Component>()))
                 .ReturnsAsync(newComponent);
 
             var result = await _handler.Handle(command, CancellationToken.None);

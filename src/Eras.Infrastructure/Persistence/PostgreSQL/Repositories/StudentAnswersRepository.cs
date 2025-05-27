@@ -28,7 +28,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Take(PageSize);
 
             var totalCount = _context.ErasCalculationsByPoll
-                .Count(e => e.StudentId == StudentId && e.PollId == PollId);
+                .Count(E => E.StudentId == StudentId && E.PollId == PollId);
 
             return Task.FromResult(new PagedResult<StudentAnswer>(totalCount, studentAnswers.ToList()));
         }

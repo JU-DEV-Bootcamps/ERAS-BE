@@ -2,7 +2,7 @@
 
 using MediatR;
 
-namespace Eras.Application.Features.Cohort.Queries
+namespace Eras.Application.Features.Cohorts.Queries
 {
     public class GetCohortsListQuery : IRequest<GetQueryResponse<List<Domain.Entities.Cohort>>>
     {

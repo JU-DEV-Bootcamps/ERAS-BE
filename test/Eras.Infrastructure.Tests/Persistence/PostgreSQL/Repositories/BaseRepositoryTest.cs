@@ -29,8 +29,8 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             _context.Database.EnsureCreated();
             _repository = new BaseRepository<Poll, PollEntity>(
                 _context,
-                entity => entity.ToDomain(),
-                model => model.ToPersistence()
+                Entity => Entity.ToDomain(),
+                Model => Model.ToPersistence()
             );
         }
 

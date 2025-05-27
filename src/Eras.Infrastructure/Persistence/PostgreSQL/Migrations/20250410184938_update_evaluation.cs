@@ -8,9 +8,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     public partial class update_evaluation : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
+            MigrationBuilder.AddColumn<string>(
                 name: "country",
                 table: "evaluation",
                 type: "text",
@@ -19,9 +19,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
+        protected override void Down(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "country",
                 table: "evaluation");
         }
