@@ -58,16 +58,17 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
                         studentCreatedOrChanged = await _mediator.Send(createStudentCommand);
                     }
-                    if (!studentCreatedOrChanged.Success)
+
+                    if (!studentCreatedOrChanged.Success && studentCreatedOrChanged.Entity != null)
                     {
                         errorStudents.Add(studentCreatedOrChanged.Entity);
                     }
                     else if (studentCreatedOrChanged.Success)
                     {
                         if (studentCreatedOrChanged.SuccessfullImports == 0)
-                            updatedStudents.Add(studentCreatedOrChanged.Entity);
-                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(studentCreatedOrChanged.Entity, dto);
-                        studentCreatedOrChanged.Entity.StudentDetail = createdStudentDetail.Entity;
+                            updatedStudents.Add(studentCreatedOrChanged.Entity!);
+                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(studentCreatedOrChanged.Entity!, dto);
+                        studentCreatedOrChanged.Entity!.StudentDetail = createdStudentDetail.Entity!;
                         createdStudents.Add(studentCreatedOrChanged.Entity);
                     }
                 }

@@ -35,7 +35,7 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
                     return new CreateCommandResponse<Student>(null, 0, "Error", false);
                 }
 
-                Student response = await _studentRepository.GetByIdAsync(Request.StudentDetailId.Value);
+                Student? response = await _studentRepository.GetByIdAsync(Request.StudentDetailId.Value);
 
                 if (response == null)
                     return new CreateCommandResponse<Student>(new Student(), "Student Not Found", true,

@@ -60,7 +60,7 @@ namespace Eras.Application.Services
                 int createdPollsInstances = 0;
                 CreatedPollDTO createdPoll = new CreatedPollDTO();
 
-                if (createdPollResponse.Success)
+                if (createdPollResponse.Success && createdPollResponse.Entity != null)
                 {
                     var pollToUse = createdPollResponse.Entity.ToDto();
                     // Create components, variables and poll_variables (intermediate table)
@@ -77,7 +77,7 @@ namespace Eras.Application.Services
                     {
                         // Create students
                         CreateCommandResponse<Student> createdStudent = await CreateStudentFromPollAsync(pollToCreate);
-                        if (createdStudent.Success)
+                        if (createdStudent.Success && createdStudent.Entity != null)
                         {
                             createdPoll.studentDTOs.Add(createdStudent.Entity.ToDto());
                             // Create poll instances
@@ -150,7 +150,7 @@ namespace Eras.Application.Services
             {
                 StudentId = StudentId
             };
-            GetQueryResponse<StudentDetail> createdStudentDetail = await _mediator.Send(query);
+            GetQueryResponse<StudentDetail?> createdStudentDetail = await _mediator.Send(query);
             if (createdStudentDetail.Success && createdStudentDetail.Body != null)
             {
                 CreateCommandResponse<StudentDetail> command = new CreateCommandResponse<StudentDetail>(createdStudentDetail.Body,
