@@ -223,10 +223,10 @@ namespace Eras.Application.Services
                 {
                     CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(createdStudent.Entity.Id);
                     CohortDTO cohortToCreate = studentToCreate.Cohort;
-                    createdStudent.Entity.StudentDetail = createdStudentDetail.Entity!;
+                    createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
                     CreateCommandResponse<Cohort> createdCohort = await CreateAndSetStudentCohortAsync(createdStudent.Entity.ToDto(), cohortToCreate);
 
-                    createdStudent.Entity.Cohort = createdCohort.Entity!;
+                    createdStudent.Entity.Cohort = createdCohort.Entity;
                 }
                 return createdStudent;
             }

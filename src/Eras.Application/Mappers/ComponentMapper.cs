@@ -1,4 +1,5 @@
 ﻿using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers
@@ -14,7 +15,12 @@ namespace Eras.Application.Mappers
                 Id = default,
                 Name = Dto.Name,
                 Variables = variables,
-                Audit = Dto.Audit
+                Audit = Dto.Audit?? new AuditInfo()
+                {
+                    CreatedBy = "Component Mapper",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                }
             };
         }
         public static ComponentDTO ToDto(this Component Domain)

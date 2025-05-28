@@ -8,5 +8,5 @@ public class CohortDTO
 {
     public string Name { get; set; } = string.Empty;
     public string CourseCode { get; set; } = string.Empty;
-    public AuditInfo Audit { get; set; } = default!;
+    public AuditInfo? Audit { get; set; } = default!;
 }

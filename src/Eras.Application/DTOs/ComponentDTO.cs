@@ -8,5 +8,5 @@ public class ComponentDTO
 {
     public string Name { get; set; } = String.Empty;
     public ICollection<VariableDTO> Variables { get; set; } = [];
-    public AuditInfo Audit { get; set; } = default!;
+    public AuditInfo? Audit { get; set; } = default!;
 }

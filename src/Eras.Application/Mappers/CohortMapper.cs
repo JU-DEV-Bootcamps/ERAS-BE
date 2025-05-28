@@ -1,4 +1,5 @@
 ﻿using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers
@@ -12,7 +13,12 @@ namespace Eras.Application.Mappers
             {
                 Name = Dto.Name,
                 CourseCode = Dto.CourseCode,
-                Audit = Dto.Audit,
+                Audit = Dto.Audit?? new AuditInfo()
+                {
+                    CreatedBy = "Cohort Mapper",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                },
             };
         }
         public static CohortDTO ToDto(this Cohort Domain)
