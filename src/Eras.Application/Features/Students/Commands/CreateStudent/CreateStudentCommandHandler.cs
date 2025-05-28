@@ -25,16 +25,16 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             try
             {
                 Student? studentDB = await _studentRepository.GetByEmailAsync(Request.StudentDTO.Email);
-                if (studentDB != null) return new CreateCommandResponse<Student?>(null, 0, "Student Already Exist", false);
+                if (studentDB != null) return new CreateCommandResponse<Student?>(null, 0, "Student Already Exists", false);
 
                 Student student = Request.StudentDTO.ToDomain();
                 Student studentCreated = await _studentRepository.AddAsync(student);
-                return new CreateCommandResponse<Student?>(studentCreated,1, "Success", true);
+                return new CreateCommandResponse<Student?>(studentCreated, 1, "Success", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"An error occurred importing student {Request.StudentDTO.Uuid}", ex.Message);
-                return new CreateCommandResponse<Student?>(null,0, "Error", false);
+                return new CreateCommandResponse<Student?>(null, 0, "Error", false);
             }
         }
     }

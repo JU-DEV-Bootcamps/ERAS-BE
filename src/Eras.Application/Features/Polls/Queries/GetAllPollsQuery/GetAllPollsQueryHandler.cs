@@ -16,7 +16,7 @@ public class GetAllPollsQueryHandler : IRequestHandler<GetAllPollsQuery, List<Po
         _logger = Logger;
     }
 
-    public async Task<List<Poll>> Handle(GetAllPollsQuery Request, CancellationToken CancellationToken)
+    public List<Poll> Handle(GetAllPollsQuery Request, CancellationToken CancellationToken)
     {
         try
         { 

@@ -38,7 +38,7 @@ namespace Eras.Application.Services
             }
         }
 
-        public async Task<int> ImportStudentsAsync(StudentImportDto[] StudentsDto)
+        public int ImportStudentsAsync(StudentImportDto[] StudentsDto)
         {
             int newRecords = 0;
             foreach (var dto in StudentsDto)
