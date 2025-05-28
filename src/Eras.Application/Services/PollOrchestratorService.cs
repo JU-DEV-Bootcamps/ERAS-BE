@@ -222,11 +222,18 @@ namespace Eras.Application.Services
                 if (createdStudent.Success && createdStudent.Entity != null)
                 {
                     CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(createdStudent.Entity.Id);
-                    CohortDTO cohortToCreate = studentToCreate.Cohort;
-                    createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
-                    CreateCommandResponse<Cohort> createdCohort = await CreateAndSetStudentCohortAsync(createdStudent.Entity.ToDto(), cohortToCreate);
+                    CohortDTO? cohortToCreate = studentToCreate.Cohort;
 
-                    createdStudent.Entity.Cohort = createdCohort.Entity;
+                    if (createdStudentDetail.Entity != null && cohortToCreate != null)
+                    {
+                        createdStudent.Entity.StudentDetail = createdStudentDetail.Entity;
+                        CreateCommandResponse<Cohort> createdCohort = await CreateAndSetStudentCohortAsync(createdStudent.Entity.ToDto(), cohortToCreate);
+                        createdStudent.Entity.Cohort = createdCohort.Entity;
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Warning creating student: createdStudentDetail or cohortToCreate is null");
+                    }
                 }
                 return createdStudent;
             }

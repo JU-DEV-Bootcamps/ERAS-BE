@@ -10,6 +10,6 @@ public class StudentDTO
     public string Email { get; set; } = string.Empty;
     public bool IsImported { get; set; }
     public StudentDetailDTO? StudentDetail { get; set; }
-    public CohortDTO Cohort { get; set; } = default!;
+    public CohortDTO? Cohort { get; set; } = default!;
     public AuditInfo? Audit { get; set; } = default!;
 }
