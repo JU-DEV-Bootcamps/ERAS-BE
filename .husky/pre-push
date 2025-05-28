@@ -1,0 +1,14 @@
+#!/bin/bash
+dotnet test --no-build --collect:"XPlat Code Coverage" --results-directory ./TestResults --settings coverlet.runsettings
+# Merge Coverage Reports
+reportgenerator -reports:TestResults/**/coverage.cobertura.xml -targetdir:CoverletReport -reporttypes:TextSummary,Cobertura
+# Check Coverage Threshold
+coverage=$(grep -oP 'Line coverage:\s+\K[0-9.]+' CoverletReport/Summary.txt)
+coverage_int=${coverage%.*}
+echo "Coverage: $coverage%"
+if ((coverage_int < 25)); then
+echo "❌ Code coverage is below 25%. Failing the build."
+exit 1
+else
+echo "✅ Code coverage is above 24.9%."
+fi

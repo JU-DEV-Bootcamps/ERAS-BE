@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using MediatR;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Eras.Application.Features.Students.Queries.GetAll
 {
     public class GetAllStudentsQueryHandler
-        : IRequestHandler<GetAllStudentsQuery, PagedResult<Student>>
+        : IRequestHandler<GetAllStudentsQuery, PagedResult<GetAllStudentsQueryResponse>>
     {
         private readonly IStudentRepository _studentRepository;
         private readonly ILogger<GetAllStudentsQueryHandler> _logger;
@@ -21,7 +22,7 @@ namespace Eras.Application.Features.Students.Queries.GetAll
             _logger = Logger;
         }
 
-        public async Task<PagedResult<Student>> Handle(
+        public async Task<PagedResult<GetAllStudentsQueryResponse>> Handle(
             GetAllStudentsQuery Request,
             CancellationToken CancellationToken
         )
@@ -34,9 +35,17 @@ namespace Eras.Application.Features.Students.Queries.GetAll
                 );
                 var totalCount = await _studentRepository.CountAsync();
 
-                PagedResult<Student> pagedResult = new PagedResult<Student>(
+                var studentsResponses = students.Select(Student => new GetAllStudentsQueryResponse 
+                {
+                    Id = Student.Id,
+                    Name = Student.Name,
+                    Email = Student.Email,
+                    IsImported = Student.IsImported,
+                }).ToList();
+
+                PagedResult<GetAllStudentsQueryResponse> pagedResult = new PagedResult<GetAllStudentsQueryResponse>(
                     totalCount,
-                    students.ToList()
+                    studentsResponses
                 );
 
                 return pagedResult;
@@ -44,7 +53,7 @@ namespace Eras.Application.Features.Students.Queries.GetAll
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred while getting all students: " + ex.Message);
-                return new PagedResult<Student>(0, []);
+                return new PagedResult<GetAllStudentsQueryResponse>(0, []);
             }
         }
     }
