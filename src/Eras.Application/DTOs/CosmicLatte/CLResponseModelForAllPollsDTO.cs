@@ -25,7 +25,7 @@ namespace Eras.Application.DTOs.CL
     public class DataItem
     {
         [JsonPropertyName("_id")]
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         [JsonPropertyName("name")]
         public required string name { get; set; }
@@ -85,7 +85,7 @@ namespace Eras.Application.DTOs.CL
         public DateTime finishedAt { get; set; }
 
         [JsonPropertyName("score")]
-        public Score score { get; set; }
+        public Score? score { get; set; }
     }
 
     // level 2
@@ -131,7 +131,7 @@ namespace Eras.Application.DTOs.CL
     public class ByTrait
     {
         [JsonExtensionData]
-        public Dictionary<string, JsonElement> Traits { get; set; }
+        public Dictionary<string, JsonElement> Traits { get; set; } = [];
 
 
         private static Dictionary<string, TraitData> DeserializeTraits(Dictionary<string, JsonElement> Traits)

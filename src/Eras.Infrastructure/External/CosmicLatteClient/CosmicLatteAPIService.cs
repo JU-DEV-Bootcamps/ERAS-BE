@@ -65,6 +65,13 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             try
             {
                 CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos);
+
+                if (createdPoll.Entity == null)
+                {
+                    _logger.LogError("Error saving data: createdPoll is null");
+                    throw new Exception($"Error saving data: createdPoll is null");
+
+                }
                 return createdPoll.Entity;
             }
             catch (Exception e)
@@ -114,9 +121,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             List<DataItem> validatedEvaluations = apiResponse.data.Where(E => E.status == "validated").ToList();
 
+            if (validatedEvaluations.Count == 0 || validatedEvaluations[0].Id == null) return pollsDtos;
+
             Dictionary<string, List<int>> variablesPositionByComponents = GetListOfVariablePositionByComponents(validatedEvaluations[0]);
 
-            List<ComponentDTO> componentsAndVariables = GetComponentsAndVariablesAsync(validatedEvaluations[0].Id, variablesPositionByComponents).Result;
+            List<ComponentDTO> componentsAndVariables = GetComponentsAndVariablesAsync(validatedEvaluations[0].Id!, variablesPositionByComponents).Result;
 
             if (componentsAndVariables.Count > 0)
             {
@@ -127,7 +136,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     if (populatedComponents.Count > 0)
                     {
                         // 2. Create polls
-                        string version = responseToPollInstace.parent + "-" + responseToPollInstace.changeHistory.Last().when;
+                        string version = $"{responseToPollInstace.parent}-{responseToPollInstace.changeHistory.Last().when}";
 
                         PollDTO pollDto = new PollDTO
                         {
@@ -142,8 +151,14 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             }
             return pollsDtos;
         }
-        public async Task<List<ComponentDTO>> PopulateListOfComponentsByIdPollInstanceAsync(List<ComponentDTO> Components, string PollId, Score ScoreItem)
+        public async Task<List<ComponentDTO>> PopulateListOfComponentsByIdPollInstanceAsync(List<ComponentDTO> Components, string? PollId, Score? ScoreItem)
         {
+            if (PollId == null || ScoreItem == null)
+            {
+                _logger.LogError($"Cosmic latte PopulateList error: PollId or ScoreItem is null");
+                return new List<ComponentDTO>();
+            }
+
             var content = new StringContent($"{{\"@data\":{{\"_id\":\"{PollId}\"}}}}", Encoding.UTF8, "application/json");
             try
             {
@@ -281,7 +296,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
         public StudentDTO CreateStudent(string Name, string Email, string Cohort)
         {
-            StudentDTO studentDTO = new StudentDTO { Name = Name, Email = Email, Uuid = null };
+            StudentDTO studentDTO = new StudentDTO { Name = Name, Email = Email, Uuid = string.Empty };
             CohortDTO cohortDTO = new CohortDTO() { Name = Cohort };
             studentDTO.Cohort = cohortDTO;
             return studentDTO;

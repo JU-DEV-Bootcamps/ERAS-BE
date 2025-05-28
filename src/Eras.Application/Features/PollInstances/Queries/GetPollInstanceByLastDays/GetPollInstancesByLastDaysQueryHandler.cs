@@ -27,7 +27,7 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastD
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred getting the poll instance: ");
-                return new QueryManyResponse<PollInstance>(null, "Error", false);
+                return new QueryManyResponse<PollInstance>([], "Error", false);
             }
         }
     }

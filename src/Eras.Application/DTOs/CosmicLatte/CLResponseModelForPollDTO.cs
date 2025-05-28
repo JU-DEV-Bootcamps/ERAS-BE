@@ -128,7 +128,7 @@ namespace Eras.Application.DTOs.CL
     public class Scores
     {
         [JsonExtensionData]
-        public Dictionary<string, JsonElement> Traits { get; set; } = new();
+        public Dictionary<string, JsonElement> Traits { get; set; } = [];
     }
 
     public class Answers

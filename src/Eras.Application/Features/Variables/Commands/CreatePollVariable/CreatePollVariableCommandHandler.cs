@@ -23,20 +23,26 @@ namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
 
         public async Task<CreateCommandResponse<Variable>> Handle(CreatePollVariableCommand Request, CancellationToken CancellationToken)
         {
-
             try
             {
                 int pollId = Request.PollId;
                 int variableId = Request.VariableId;
 
-                Variable variableDB = await _pollVariableRepository.GetByPollIdAndVariableIdAsync(pollId, variableId);
+                Variable? variableDB = await _pollVariableRepository.GetByPollIdAndVariableIdAsync(pollId, variableId);
                 if (variableDB != null) return new CreateCommandResponse<Variable>(variableDB, 0, "Success", true);
 
-                Variable createdVariable = Request.Variable.ToDomain();
-                createdVariable.IdPoll = pollId;
-                createdVariable.Id = variableId;
-                Variable response = await _pollVariableRepository.AddAsync(createdVariable);
-                return new CreateCommandResponse<Variable>(response, 1, "Success", true);
+                if (Request.Variable != null)
+                {
+                    Variable? createdVariable = Request.Variable.ToDomain();
+                    createdVariable.IdPoll = pollId;
+                    createdVariable.Id = variableId;
+                    Variable response = await _pollVariableRepository.AddAsync(createdVariable);
+                    return new CreateCommandResponse<Variable>(response, 1, "Success", true);
+                } else
+                {
+                    _logger.LogError("An error occurred creating the variable: Request.Variable is null.");
+                    return new CreateCommandResponse<Variable>(null, 0, "Error", false);
+                }
             }
 
             catch (Exception ex)

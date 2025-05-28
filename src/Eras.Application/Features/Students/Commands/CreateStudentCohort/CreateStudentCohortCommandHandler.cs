@@ -20,13 +20,11 @@ namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
         }
         public async Task<CreateCommandResponse<Student>> Handle(CreateStudentCohortCommand Request, CancellationToken CancellationToken)
         {
-
             try
             {
+                Student? student = await _studentCohortRepository.GetByCohortIdAndStudentIdAsync(Request.CohortId, Request.StudentId);
 
-                Student student = await _studentCohortRepository.GetByCohortIdAndStudentIdAsync(Request.CohortId, Request.StudentId);
                 if (student != null) return new CreateCommandResponse<Student>(student, 0, "Success", true);
-
 
                 Student studentCohortToCreate = new Student();
                 studentCohortToCreate.CohortId = Request.CohortId;
@@ -36,7 +34,6 @@ namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
 
                 return new CreateCommandResponse<Student>(createdStudentCohort, 1, "Success", true);
             }
-
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating relationship between student and cohort ");
