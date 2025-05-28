@@ -41,7 +41,7 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
                     return new CreateCommandResponse<Student>(new Student(), "Student Not Found", true,
                         Models.Enums.CommandEnums.CommandResultStatus.NotFound);
 
-                StudentDetail studentDetail = await _studentDetailRepository.GetByStudentId(response.Id);
+                StudentDetail? studentDetail = await _studentDetailRepository.GetByStudentId(response.Id);
 
                 if (studentDetail != null)
                     response.StudentDetail = studentDetail;

@@ -226,7 +226,7 @@ namespace Eras.Application.Services
                     createdStudent.Entity.StudentDetail = createdStudentDetail.Entity!;
                     CreateCommandResponse<Cohort> createdCohort = await CreateAndSetStudentCohortAsync(createdStudent.Entity.ToDto(), cohortToCreate);
 
-                    createdStudent.Entity.Cohort = createdCohort.Entity;
+                    createdStudent.Entity.Cohort = createdCohort.Entity!;
                 }
                 return createdStudent;
             }

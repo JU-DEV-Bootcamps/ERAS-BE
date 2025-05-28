@@ -23,7 +23,7 @@ public static class StudentMapper
     public static Student ToDomain(this StudentDTO Dto)
     {
         ArgumentNullException.ThrowIfNull(Dto);
-        Cohort cohort = Dto.Cohort?.ToDomain();
+        Cohort cohort = Dto.Cohort.ToDomain();
         StudentDetail details = Dto.StudentDetail != null ? Dto.StudentDetail.ToDomain() : CreateEmptyStudentDetail(Dto);
 
         AuditInfo audit = Dto.Audit != null ? Dto.Audit : new AuditInfo()
@@ -55,7 +55,7 @@ public static class StudentMapper
             Uuid = Domain.Uuid,
             Name = Domain.Name,
             Email = Domain.Email,
-            Cohort = Domain.Cohort?.ToDto(),
+            Cohort = Domain.Cohort.ToDto(),
             IsImported = Domain.IsImported,
             StudentDetail = Domain.StudentDetail?.ToDto(),
             Audit = Domain.Audit,
