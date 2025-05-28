@@ -13,6 +13,7 @@ using Eras.Application.Features.Students.Queries.GetAllByPollAndDate;
 using Eras.Application.Features.Students.Queries.GetStudentDetails;
 using Eras.Application.Models.Response.Calculations;
 using Eras.Application.Models.Response.Common;
+using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
 
@@ -65,7 +66,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     [HttpGet]
     public async Task<IActionResult> GetAllAsync([FromQuery] Pagination Query)
     {
-        PagedResult<Student> result = await _mediator.Send(new GetAllStudentsQuery(Query));
+        PagedResult<GetAllStudentsQueryResponse> result = await _mediator.Send(new GetAllStudentsQuery(Query));
         return Ok(result);
     }
 

@@ -23,8 +23,9 @@ namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery
         {
             try
             {
-                var polls = _pollRepository.GetAllAsync().Result.ToList();
-                var pollsResponses = polls.Select(Poll => new GetPollsQueryResponse
+                var polls = await _pollRepository.GetAllAsync();
+                var pollsList = polls.ToList();
+                var pollsResponses = pollsList.Select(Poll => new GetPollsQueryResponse
                 {
                     Id = Poll.Id,
                     Uuid = Poll.Uuid,
