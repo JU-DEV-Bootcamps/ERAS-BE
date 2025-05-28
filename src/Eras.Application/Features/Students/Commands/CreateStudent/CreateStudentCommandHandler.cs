@@ -5,37 +5,35 @@ using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Students.Commands.CreateStudent
+namespace Eras.Application.Features.Students.Commands.CreateStudent;
+public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand, CreateCommandResponse<Student>>
 {
-    public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand, CreateCommandResponse<Student?>>
+    private readonly IStudentRepository _studentRepository;
+    private readonly ILogger<CreateStudentCommandHandler> _logger;
+
+    public CreateStudentCommandHandler(IStudentRepository StudentRepository, ILogger<CreateStudentCommandHandler> Logger)
     {
-        private readonly IStudentRepository _studentRepository;
-        private readonly ILogger<CreateStudentCommandHandler> _logger;
+        _studentRepository = StudentRepository;
+        _logger = Logger;
+    }
 
-        public CreateStudentCommandHandler(IStudentRepository StudentRepository, ILogger<CreateStudentCommandHandler> Logger)
+
+    public async Task<CreateCommandResponse<Student>> Handle(CreateStudentCommand Request, CancellationToken CancellationToken)
+    {
+
+        try
         {
-            _studentRepository = StudentRepository;
-            _logger = Logger;
+            Student? studentDB = await _studentRepository.GetByEmailAsync(Request.StudentDTO.Email);
+            if (studentDB != null) return new CreateCommandResponse<Student>(null, 0, "Student Already Exists", false);
+
+            Student student = Request.StudentDTO.ToDomain();
+            Student studentCreated = await _studentRepository.AddAsync(student);
+            return new CreateCommandResponse<Student>(studentCreated, 1, "Success", true);
         }
-
-
-        public async Task<CreateCommandResponse<Student?>> Handle(CreateStudentCommand Request, CancellationToken CancellationToken)
+        catch (Exception ex)
         {
-
-            try
-            {
-                Student? studentDB = await _studentRepository.GetByEmailAsync(Request.StudentDTO.Email);
-                if (studentDB != null) return new CreateCommandResponse<Student?>(null, 0, "Student Already Exists", false);
-
-                Student student = Request.StudentDTO.ToDomain();
-                Student studentCreated = await _studentRepository.AddAsync(student);
-                return new CreateCommandResponse<Student?>(studentCreated, 1, "Success", true);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"An error occurred importing student {Request.StudentDTO.Uuid}", ex.Message);
-                return new CreateCommandResponse<Student?>(null, 0, "Error", false);
-            }
+            _logger.LogError($"An error occurred importing student {Request.StudentDTO.Uuid}", ex.Message);
+            return new CreateCommandResponse<Student>(null, 0, "Error", false);
         }
     }
 }

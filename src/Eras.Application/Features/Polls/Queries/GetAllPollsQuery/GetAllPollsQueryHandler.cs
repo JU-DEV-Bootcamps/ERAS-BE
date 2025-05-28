@@ -16,11 +16,13 @@ public class GetAllPollsQueryHandler : IRequestHandler<GetAllPollsQuery, List<Po
         _logger = Logger;
     }
 
-    public List<Poll> Handle(GetAllPollsQuery Request, CancellationToken CancellationToken)
+    public async Task<List<Poll>> Handle(GetAllPollsQuery Request, CancellationToken CancellationToken)
     {
         try
-        { 
-            return [.. _pollRepository.GetAllAsync().Result];
+        {
+            IEnumerable<Poll> result = await _pollRepository.GetAllAsync();
+
+            return [.. result];
         }
         catch (Exception ex)
         {
