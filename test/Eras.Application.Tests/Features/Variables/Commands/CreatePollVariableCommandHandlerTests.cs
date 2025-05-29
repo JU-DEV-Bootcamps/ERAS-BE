@@ -32,7 +32,7 @@ namespace Eras.Application.Tests.Features.Variables.Commands
         }
 
         [Fact]
-        public async Task Handle_PollVariable_CreatesNewPollVariable()
+        public async Task HandlePollVariableCreatesNewPollVariableAsync()
         {
             var newVariableDto = new VariableDTO() { Name= "newPollVariable" };
             var command = new CreatePollVariableCommand { Variable = newVariableDto };
@@ -44,7 +44,7 @@ namespace Eras.Application.Tests.Features.Variables.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("newPollVariable", result.Entity.Name);
+            Assert.Equal("newPollVariable", result.Entity?.Name);
         }
 
     }

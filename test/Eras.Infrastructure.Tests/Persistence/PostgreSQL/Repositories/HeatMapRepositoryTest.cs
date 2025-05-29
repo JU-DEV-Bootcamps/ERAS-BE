@@ -76,7 +76,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetHeatMapDataByCohortAndDaysAsync_ShouldReturnData_ByDays()
+        public async Task GetHeatMapDataByCohortAndDaysShouldReturnDataByDaysAsync()
         {
             // Act
             var result = await _repository.GetHeatMapDataByCohortAndDaysAsync(0, 7);
@@ -88,7 +88,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetHeatMapDataByCohortAndDaysAsync_ShouldReturnData_ByCohortId()
+        public async Task GetHeatMapDataByCohortAndDaysShouldReturnDataByCohortIdAsync()
         {
             // Act
             var result = await _repository.GetHeatMapDataByCohortAndDaysAsync(2, 0);
@@ -100,7 +100,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetHeatMapDataByCohortAndDaysAsync_ShouldReturnEmpty_WhenNoDataExists()
+        public async Task GetHeatMapDataByCohortAndDaysShouldReturnEmptyWhenNoDataExistsAsync()
         {
             // Act
             var result = await _repository.GetHeatMapDataByCohortAndDaysAsync(2, 7);
@@ -111,7 +111,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetHeatMapDataByCohortAndDaysAsync_ShouldReturnData_WhenCohortIdAndDaysAreZero()
+        public async Task GetHeatMapDataByCohortAndDaysShouldReturnDataWhenCohortIdAndDaysAreZeroAsync()
         {
             // Act
             var result = await _repository.GetHeatMapDataByCohortAndDaysAsync(0, 0);

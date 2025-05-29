@@ -24,7 +24,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatMapDetailsByCoh
         }
 
         [Fact]
-        public async Task Handle_ReturnsListOfStudentHeatMapDetailDto()
+        public async Task HandleReturnsListOfStudentHeatMapDetailDtoAsync()
         {
             var cohortId = "1";
             var limit = 5;
@@ -48,7 +48,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatMapDetailsByCoh
         }
 
         [Fact]
-        public async Task Handle_ReturnsEmptyList_WhenNoDataFound()
+        public async Task HandleReturnsEmptyListWhenNoDataFoundAsync()
         {
             var cohortId = "2";
             var limit = 5;

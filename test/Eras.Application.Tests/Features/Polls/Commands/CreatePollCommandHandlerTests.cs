@@ -28,7 +28,7 @@ namespace Eras.Application.Tests.Features.Polls.Commands
         }
 
         [Fact]
-        public async Task Handle_Poll_CreatesNewPoll()
+        public async Task HandlePollCreatesNewPollAsync()
         {
             var newPollDto = new PollDTO() { Name= "newPoll" };
             var command = new CreatePollCommand { Poll = newPollDto };
@@ -40,7 +40,7 @@ namespace Eras.Application.Tests.Features.Polls.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("newPoll",result.Entity.Name);
+            Assert.Equal("newPoll",result.Entity?.Name);
         }
 
     }

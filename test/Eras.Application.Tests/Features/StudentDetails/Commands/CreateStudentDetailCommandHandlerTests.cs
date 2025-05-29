@@ -33,7 +33,7 @@ namespace Eras.Application.Tests.Features.StudentDetails.Commands
         }
 
         [Fact]
-        public async Task Handle_StudentDetail_CreatesNewStudentDetail()
+        public async Task HandleStudentDetailCreatesNewStudentDetailAsync()
         {
             var newStudentDetailDto = new StudentDetailDTO() { StudentId = 1010 };
             var command = new CreateStudentDetailCommand { StudentDetailDto = newStudentDetailDto };
@@ -45,7 +45,7 @@ namespace Eras.Application.Tests.Features.StudentDetails.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(1010, result.Entity.StudentId);
+            Assert.Equal(1010, result.Entity?.StudentId);
         }
 
     }

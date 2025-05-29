@@ -23,7 +23,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Commands
         }
 
         [Fact]
-        public async Task Handle_PollInstance_CreatesNewPollInstance()
+        public async Task HandlePollInstanceCreatesNewPollInstanceAsync()
         {
             var newStudent = new StudentDTO
             {
@@ -39,7 +39,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("Uuid1", result.Entity.Uuid);
+            Assert.Equal("Uuid1", result.Entity?.Uuid);
         }
 
     }

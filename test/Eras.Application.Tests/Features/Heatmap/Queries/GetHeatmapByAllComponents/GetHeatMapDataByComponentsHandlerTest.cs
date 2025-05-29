@@ -26,7 +26,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllCompone
         public async Task ShouldThrowNotFoundExceptionWhenPollInstanceUUIDIsNullAsync()
         {
 
-            var request = new GetHeatMapDataByAllComponentsQuery(null);
+            var request = new GetHeatMapDataByAllComponentsQuery(null!);
             await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(request, CancellationToken.None));
         }
 

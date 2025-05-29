@@ -30,7 +30,7 @@ public class GetHeatMapSummaryAvgByPollTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnSuccessResponse_WhenAverageDataIsFound()
+    public async Task HandleShouldReturnSuccessResponseWhenAverageDataIsFoundAsync()
     {        
         var query = new GetHeatMapSummaryQuery("3dbce0ff-21a1-484c-ab1c-e2e4fe78eca5");
 

@@ -36,7 +36,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
 
         [Fact]
-        public async void GetByLastDays_Should_Return()
+        public async void GetByLastDaysShouldReturnAsync()
         {
             Poll poll = new Poll
             {

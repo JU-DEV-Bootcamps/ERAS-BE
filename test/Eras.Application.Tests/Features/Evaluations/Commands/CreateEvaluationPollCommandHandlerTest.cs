@@ -35,7 +35,7 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(1, result.Entity.EvaluationPollId);
+            Assert.Equal(1, result.Entity?.EvaluationPollId);
         }
     }
 }

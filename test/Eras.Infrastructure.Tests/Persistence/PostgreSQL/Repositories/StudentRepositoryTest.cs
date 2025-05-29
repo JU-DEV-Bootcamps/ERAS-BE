@@ -32,7 +32,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
 
         [Fact]
-        public async void UpdateShouldUpdateSuccessfully()
+        public async void UpdateShouldUpdateSuccessfullyAsync()
         {
             StudentDetail studentDetail = new StudentDetail() {
                    AvgScore = 1,

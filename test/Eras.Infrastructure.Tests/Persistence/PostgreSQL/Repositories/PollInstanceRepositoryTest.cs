@@ -50,7 +50,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByCohortIdAndLastDays_Should_Return_ByDays()
+        public async Task GetByCohortIdAndLastDaysShouldReturnByDaysAsync()
         {
             // Arrange
             var data = new List<PollInstanceEntity>
@@ -72,7 +72,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByCohortIdAndLastDays_Should_Return_ByCohortIdAndDays()
+        public async Task GetByCohortIdAndLastDaysShouldReturnByCohortIdAndDaysAsync()
         {
             // Arrange
             var data = new List<PollInstanceEntity>
@@ -101,7 +101,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByCohortIdAndLastDays_Should_Return_All_When_Both_Parameters_Are_Zero()
+        public async Task GetByCohortIdAndLastDaysShouldReturnAllWhenBothParametersAreZeroAsync()
         {
             // Arrange
             var data = new List<PollInstanceEntity>

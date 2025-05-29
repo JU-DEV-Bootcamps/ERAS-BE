@@ -42,7 +42,7 @@ namespace Eras.Application.Tests.Features.Answers.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("newComponent", result.Entity.Name);
+            Assert.Equal("newComponent", result.Entity?.Name);
         }
 
     }

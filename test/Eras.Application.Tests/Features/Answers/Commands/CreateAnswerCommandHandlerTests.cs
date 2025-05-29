@@ -43,7 +43,7 @@ namespace Eras.Application.Tests.Features.Components.Commands
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("newAnswer", result.Entity.AnswerText);
+            Assert.Equal("newAnswer", result.Entity?.AnswerText);
         }
 
     }
