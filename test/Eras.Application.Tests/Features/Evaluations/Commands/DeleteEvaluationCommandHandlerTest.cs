@@ -38,7 +38,7 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
         }
 
         [Fact]
-        public async Task Handle_Component_Deletes_Evaluation_NotFoundId()
+        public async Task HandleComponentDeletesEvaluationNotFoundIdAsync()
         {
             BaseResponse responseExample = new BaseResponse("Evaluation not found", false);
 
@@ -53,7 +53,7 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
         }
         
         [Fact]
-        public async Task Handle_Component_Deletes_Evaluation()
+        public async Task HandleComponentDeletesEvaluationAsync()
         {
             var newEvaluationDto = new EvaluationDTO() { Name = "newEvaluation", StartDate = DateTime.UtcNow, EndDate = DateTime.Now };
             var newComponent = newEvaluationDto.ToDomain;

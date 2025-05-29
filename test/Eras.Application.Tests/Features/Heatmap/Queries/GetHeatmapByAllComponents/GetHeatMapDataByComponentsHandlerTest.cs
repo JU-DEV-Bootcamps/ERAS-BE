@@ -23,7 +23,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllCompone
         }
 
         [Fact]
-        public async Task ShouldThrowNotFoundException_WhenPollInstanceUUIDIsNull()
+        public async Task ShouldThrowNotFoundExceptionWhenPollInstanceUUIDIsNullAsync()
         {
 
             var request = new GetHeatMapDataByAllComponentsQuery(null);
@@ -31,7 +31,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllCompone
         }
 
         [Fact]
-        public async Task ShouldReturnSuccessResponse_WhenDataIsRetrievedSuccessfully()
+        public async Task ShouldReturnSuccessResponseWhenDataIsRetrievedSuccessfullyAsync()
         {
             var request = new GetHeatMapDataByAllComponentsQuery("valid-uuid");
 
@@ -52,7 +52,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllCompone
         }
 
         [Fact]
-        public async Task ShouldReturnFailedResponse_WhenExceptionIsThrown()
+        public async Task ShouldReturnFailedResponseWhenExceptionIsThrownAsync()
         {
             var request = new GetHeatMapDataByAllComponentsQuery("valid-uuid");
 

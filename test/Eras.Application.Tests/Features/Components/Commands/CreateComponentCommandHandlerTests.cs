@@ -30,7 +30,7 @@ namespace Eras.Application.Tests.Features.Answers.Commands
         }
 
         [Fact]
-        public async Task Handle_Component_CreatesNewComponent()
+        public async Task HandleComponentCreatesNewComponentAsync()
         {
             var newComponentDto = new ComponentDTO() { Name= "newComponent" };
             var command = new CreateComponentCommand { Component = newComponentDto };

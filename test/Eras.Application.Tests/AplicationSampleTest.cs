@@ -20,7 +20,7 @@ namespace Eras.Application.Tests
         }
 
         [Fact]
-        public async Task CreateStudent_ShouldReturnStudent_WhenStudentIsValid()
+        public async Task CreateStudentShouldReturnStudentWhenStudentIsValidAsync()
         {
             // Arrange
             var student = new Student { Id = 1, Name = "John Doe", Email = "john.doe@example.com" };
