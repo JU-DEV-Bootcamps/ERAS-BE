@@ -1,38 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays
 {
-    internal class GetPollInstancesByLastDaysQueryHandler: IRequestHandler<GetPollInstancesByLastDaysQuery, QueryManyResponse<PollInstance>>
+    internal class GetPollInstancesByLastDaysQueryHandler : IRequestHandler<GetPollInstancesByLastDaysQuery, GetQueryResponse<List<PollInstance>>>
     {
         private readonly IPollInstanceRepository _pollInstanceRepository;
         private readonly ILogger<GetPollInstancesByLastDaysQueryHandler> _logger;
 
-        public GetPollInstancesByLastDaysQueryHandler(IPollInstanceRepository pollInstanceRepository, ILogger<GetPollInstancesByLastDaysQueryHandler> logger)
+        public GetPollInstancesByLastDaysQueryHandler(IPollInstanceRepository PollInstanceRepository, ILogger<GetPollInstancesByLastDaysQueryHandler> Logger)
         {
-            _pollInstanceRepository = pollInstanceRepository;
-            _logger = logger;
+            _pollInstanceRepository = PollInstanceRepository;
+            _logger = Logger;
         }
 
-        public async Task<QueryManyResponse<PollInstance>> Handle(GetPollInstancesByLastDaysQuery request, CancellationToken cancellationToken)
+        public async Task<GetQueryResponse<List<PollInstance>>> Handle(GetPollInstancesByLastDaysQuery Request, CancellationToken CancellationToken)
         {
             try
             {
-                IEnumerable<PollInstance> pollInstances = await _pollInstanceRepository.GetByLastDays(request.LastDays);
-                return new QueryManyResponse<PollInstance>(pollInstances, "PollInstances obtained", true);
+                IEnumerable<PollInstance> pollInstances = await _pollInstanceRepository.GetByLastDays(Request.LastDays);
+                return new GetQueryResponse<List<PollInstance>>([.. pollInstances]);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred getting the poll instance: ");
-                return new QueryManyResponse<PollInstance>(null, "Error", false);
+                return new GetQueryResponse<List<PollInstance>>([], "Error", false);
             }
         }
     }

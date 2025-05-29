@@ -1,3 +1,4 @@
+DROP VIEW IF EXISTS vErasCalculationByPoll;
 CREATE OR REPLACE VIEW vErasCalculationByPoll AS
 WITH PercentageCalc AS (
     SELECT
