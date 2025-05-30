@@ -1,0 +1,162 @@
+
+name: RW - Test - Package
+
+on:
+  push:
+    branches:
+      - main
+  workflow_call:
+    inputs:
+      branch:
+        description: 'A  branch name passed from the caller workflow'
+        default: 'develop'
+        required: true
+        type: string
+      cosmic_api_url:
+        description: 'Cosmic Latte API url'
+        default: 'https://staging.cosmic-latte.com/api/1.0/'
+        required: true
+        type: string
+      db_host:
+        description: 'Postgres DB Host'
+        default: 'database'
+        required: true
+        type: string
+      keycloak_url:
+        description: 'Jala 360ID URL'
+        default: 'https://dev.login.jala-one.com/auth'
+        required: true
+        type: string
+      keycloak_client_id:
+        description: 'ERAS backend client id for Authentication'
+        default: 'eras-api'
+        required: true
+        type: string
+      environment_tag:
+        description: 'ERAS environment tag'
+        default: 'dev'
+        required: true
+        type: string
+    secrets:
+      dockerhub_token:
+        description: 'ERAS dockerhub account token'
+        required: true
+      cosmic_api_key:
+        description: Cosmic Latte API Key'
+        required: true
+      keycloak_client_secret:
+        description: 'ERAS backend client secret Authentication'
+        required: true
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'A  branch name passed from the caller workflow'
+        default: 'develop'
+        required: true
+        type: string
+      cosmic_api_url:
+        description: 'Cosmic Latte API url'
+        default: 'https://staging.cosmic-latte.com/api/1.0/'
+        required: true
+        type: string
+      db_host:
+        description: 'Postgres DB Host'
+        default: 'database'
+        required: true
+        type: string
+      keycloak_url:
+        description: 'Jala 360ID URL'
+        default: 'https://dev.login.jala-one.com/auth'
+        required: true
+        type: string
+      keycloak_client_id:
+        description: 'ERAS backend client id for Authentication'
+        default: 'eras-api'
+        required: true
+        type: string
+      environment_tag:
+        description: 'ERAS environment tag'
+        default: 'dev'
+        required: true
+        type: string
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0"
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Run Tests with Coverage
+        run: dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults
+
+      - name: Merge Coverage Reports
+        run: |
+          reportgenerator -reports:TestResults/**/coverage.cobertura.xml -targetdir:CoverletReport -reporttypes:TextSummary,Cobertura
+
+      - name: Check Coverage Threshold
+        run: |
+          coverage=$(grep -oP 'Line coverage:\s+\K[0-9.]+' CoverletReport/Summary.txt)
+          echo "Coverage: $coverage%"
+          if (( $(echo "$coverage < 25.0" | bc -l) )); then
+            echo "❌ Code coverage is below 25%. Failing the build."
+            exit 1
+          else
+            echo "✅ Code coverage is above 25%."
+          fi
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: CoverageReport
+          path: CoverletReport
+
+  package:
+    runs-on: ubuntu-latest
+    needs: coverage
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Set variables
+        id: set-vars
+        run: |
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]')
+          SHORT_SHA=$(git rev-parse --short $GITHUB_SHA)
+          LAST_TAG=$(git describe --tags --abbrev=0)
+          echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
+          echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
+          echo "LAST_TAG=${LAST_TAG}" >> $GITHUB_ENV
+      - name: Replace environment variables in appsettings.Production.json
+        run: |
+          sed -i "s|__COSMIC_API_URL__|${{ inputs.cosmic_api_url }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__COSMIC_LATTE_API_KEY__|${{ secrets.COSMIC_LATTE_API_KEY }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__DB_HOST__|${{ inputs.db_host }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__KEYCLOAK_URL__|${{ inputs.keycloak_url }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__KEYCLOAK_CLIENT_SECRET__|${{ secrets.KEYCLOAK_CLIENT_SECRET }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__CLIENT_ID__|${{ inputs.keycloak_client_id }}|g" src/Eras.Api/appsettings.Production.json
+          cat src/Eras.Api/appsettings.Production.json
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./src/Eras.Api/Dockerfile
+          push: true
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}
