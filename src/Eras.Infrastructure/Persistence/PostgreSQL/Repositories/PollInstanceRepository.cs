@@ -132,13 +132,13 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
 
         return Entity;
     }
-    
-    public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, int CohortId, List<int> VariableIds)
+
+    public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, List<int> CohortIds, List<int> VariableIds)
     {
         IQueryable<ErasCalculationsByPollDTO> reportQuery =
         from A in _context.ErasCalculationsByPoll
         where A.PollUuid == PollUuid
-        where CohortId == 0 || A.CohortId == CohortId
+        where CohortIds.Contains(A.CohortId)
         where VariableIds.Contains(A.PollVariableId)
         select new ErasCalculationsByPollDTO
         {
