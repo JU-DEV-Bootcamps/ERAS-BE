@@ -23,13 +23,13 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastD
         {
             try
             {
-                IEnumerable<PollInstance> pollInstances = await _pollInstanceRepository.GetByLastDays(request.LastDays);
-                return new QueryManyResponse<PollInstance>(pollInstances, "PollInstances obtained", true);
+                IEnumerable<PollInstance> pollInstances = await _pollInstanceRepository.GetByLastDays(Request.LastDays);
+                return new GetQueryResponse<List<PollInstance>>(pollInstances.ToList(), "PollInstances obtained", true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred getting the poll instance: ");
-                return new QueryManyResponse<PollInstance>(null, "Error", false);
+                return new GetQueryResponse<List<PollInstance>>([], "Error", false);
             }
         }
     }
