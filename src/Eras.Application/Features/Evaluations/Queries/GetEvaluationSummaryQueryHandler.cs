@@ -7,15 +7,15 @@ using Microsoft.Extensions.Logging;
 namespace Eras.Application.Features.Evaluations.Queries
 {
     class GetEvaluationProcessSummaryQueryHandler(
-        IEvaluationRepository evaluationRepository,
-        ILogger<GetEvaluationProcessSummaryQueryHandler> logger
+        IEvaluationRepository EvaluationRepository,
+        ILogger<GetEvaluationProcessSummaryQueryHandler> Logger
     ): IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>
     {
-        private readonly IEvaluationRepository _evaluationRepository = evaluationRepository;
-        private readonly ILogger<GetEvaluationProcessSummaryQueryHandler> _logger = logger;
+        private readonly IEvaluationRepository _evaluationRepository = EvaluationRepository;
+        private readonly ILogger<GetEvaluationProcessSummaryQueryHandler> _logger = Logger;
 
 
-        Task<QueryManyResponse<Evaluation>> IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>.Handle(GetEvaluationSummaryQuery request, CancellationToken cancellationToken)
+        Task<QueryManyResponse<Evaluation>> IRequestHandler<GetEvaluationSummaryQuery, QueryManyResponse<Evaluation>>.Handle(GetEvaluationSummaryQuery Request, CancellationToken CancellationToken)
         {
             _logger.LogDebug("Handling summarizing all evaluation processes");
             var evs = _evaluationRepository.GetAllAsync().Result.ToList();

@@ -12,22 +12,22 @@ namespace Eras.Application.Features.Polls.Queries.GetAllByPollAndCohort
         private readonly ILogger<GetAllByPollAndCohortQueryHandler> _logger;
 
         public GetAllByPollAndCohortQueryHandler(
-            IPollCohortRepository repository,
-            ILogger<GetAllByPollAndCohortQueryHandler> logger
+            IPollCohortRepository Repository,
+            ILogger<GetAllByPollAndCohortQueryHandler> Logger
         )
         {
-            _pollCohortRepository = repository;
-            _logger = logger;
+            _pollCohortRepository = Repository;
+            _logger = Logger;
         }
 
         public async Task<List<PollVariableDto>> Handle(
-            GetAllByPollAndCohortQuery request,
-            CancellationToken cancellationToken
+            GetAllByPollAndCohortQuery Request,
+            CancellationToken CancellationToken
         )
         {
             var result = await _pollCohortRepository.GetPollVariablesAsync(
-                request.pollId,
-                request.cohortId
+                Request.pollId,
+                Request.cohortId
             );
 
             return result;

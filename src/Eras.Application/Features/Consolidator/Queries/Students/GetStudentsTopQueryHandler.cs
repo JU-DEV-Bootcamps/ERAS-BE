@@ -31,7 +31,7 @@ public class GetStudentTopQueryHandler(
             var TakeNStudents = Request.Take.HasValue && Request.Take.Value > 0 ? Request.Take.Value : DefaultTakeNumber;
             Poll poll = await _pollRepository.GetByNameAsync(Request.PollName) ?? throw new KeyNotFoundException("Poll not found");
 
-            Domain.Entities.Cohort? cohort = Request.CohortName != null ? await _cohortRepository.GetByNameAsync(Request.CohortName) : null;
+            Cohort? cohort = Request.CohortName != null ? await _cohortRepository.GetByNameAsync(Request.CohortName) : null;
             IEnumerable<Student> cohortStudents = (
                 cohort != null
                     ? await _studentCohortRepository.GetAllStudentsByCohortIdAsync(cohort.Id)

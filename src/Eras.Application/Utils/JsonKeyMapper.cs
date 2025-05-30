@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Text.Json;
 
 namespace Eras.Application.Utils
@@ -29,9 +26,9 @@ namespace Eras.Application.Utils
             }
         }
 
-        public static string GetJsonKey(string propertyName)
+        public static string GetJsonKey(string PropertyName)
         {
-            return _keyMappings.TryGetValue(propertyName, out var jsonKey) ? jsonKey : propertyName;
+            return _keyMappings.TryGetValue(PropertyName, out var jsonKey) ? jsonKey : PropertyName;
         }
     }
 }

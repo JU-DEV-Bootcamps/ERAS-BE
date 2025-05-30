@@ -26,9 +26,9 @@ namespace Eras.Application.Services
             }
         }
 
-        public async Task<List<Variable>> GetAllVariables(int pollId)
+        public async Task<List<Variable>> GetAllVariables(int PollId)
         {
-            return await _VariableRepository.GetAllAsync(pollId);
+            return await _VariableRepository.GetAllAsync(PollId);
         }
     }
 }

@@ -8,310 +8,310 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     /// <inheritdoc />
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
-    public partial class databaserefactor : Migration
+    public partial class DatabaseRefactor : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "components",
-                columns: table => new
+                columns: Table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = Table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    created_by = table.Column<string>(type: "text", nullable: false),
-                    modified_by = table.Column<string>(type: "text", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    name = Table.Column<string>(type: "text", nullable: false),
+                    created_by = Table.Column<string>(type: "text", nullable: false),
+                    modified_by = Table.Column<string>(type: "text", nullable: true),
+                    created_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_components", x => x.Id);
+                    Table.PrimaryKey("PK_components", X => X.Id);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "polls",
-                columns: table => new
+                columns: Table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = Table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    version = table.Column<string>(type: "text", nullable: false),
-                    uuid = table.Column<string>(type: "text", nullable: false),
-                    created_by = table.Column<string>(type: "text", nullable: false),
-                    modified_by = table.Column<string>(type: "text", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    name = Table.Column<string>(type: "text", nullable: false),
+                    version = Table.Column<string>(type: "text", nullable: false),
+                    uuid = Table.Column<string>(type: "text", nullable: false),
+                    created_by = Table.Column<string>(type: "text", nullable: false),
+                    modified_by = Table.Column<string>(type: "text", nullable: true),
+                    created_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_polls", x => x.Id);
+                    Table.PrimaryKey("PK_polls", X => X.Id);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "students",
-                columns: table => new
+                columns: Table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = Table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    uuid = table.Column<string>(type: "text", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    email = table.Column<string>(type: "text", nullable: false),
-                    created_by = table.Column<string>(type: "text", nullable: false),
-                    modified_by = table.Column<string>(type: "text", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    uuid = Table.Column<string>(type: "text", nullable: false),
+                    name = Table.Column<string>(type: "text", nullable: false),
+                    email = Table.Column<string>(type: "text", nullable: false),
+                    created_by = Table.Column<string>(type: "text", nullable: false),
+                    modified_by = Table.Column<string>(type: "text", nullable: true),
+                    created_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_students", x => x.Id);
+                    Table.PrimaryKey("PK_students", X => X.Id);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "variables",
-                columns: table => new
+                columns: Table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = Table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    ComponentId = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<string>(type: "text", nullable: false),
-                    modified_by = table.Column<string>(type: "text", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    name = Table.Column<string>(type: "text", nullable: false),
+                    ComponentId = Table.Column<int>(type: "integer", nullable: false),
+                    created_by = Table.Column<string>(type: "text", nullable: false),
+                    modified_by = Table.Column<string>(type: "text", nullable: true),
+                    created_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_variables", x => x.Id);
-                    table.ForeignKey(
+                    Table.PrimaryKey("PK_variables", X => X.Id);
+                    Table.ForeignKey(
                         name: "FK_variables_components_ComponentId",
-                        column: x => x.ComponentId,
+                        column: X => X.ComponentId,
                         principalTable: "components",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "poll_instances",
-                columns: table => new
+                columns: Table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = Table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    uuid = table.Column<string>(type: "text", nullable: false),
-                    StudentId = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<string>(type: "text", nullable: false),
-                    modified_by = table.Column<string>(type: "text", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    uuid = Table.Column<string>(type: "text", nullable: false),
+                    StudentId = Table.Column<int>(type: "integer", nullable: false),
+                    created_by = Table.Column<string>(type: "text", nullable: false),
+                    modified_by = Table.Column<string>(type: "text", nullable: true),
+                    created_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_poll_instances", x => x.Id);
-                    table.ForeignKey(
+                    Table.PrimaryKey("PK_poll_instances", X => X.Id);
+                    Table.ForeignKey(
                         name: "FK_poll_instances_students_StudentId",
-                        column: x => x.StudentId,
+                        column: X => X.StudentId,
                         principalTable: "students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "student_details",
-                columns: table => new
+                columns: Table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = Table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    enrolled_courses = table.Column<int>(type: "integer", nullable: false),
-                    graded_courses = table.Column<int>(type: "integer", nullable: false),
-                    time_delivery_rate = table.Column<int>(type: "integer", nullable: false),
-                    avg_score = table.Column<decimal>(type: "numeric", nullable: false),
-                    courses_under_avg = table.Column<decimal>(type: "numeric", nullable: false),
-                    pure_score_diff = table.Column<decimal>(type: "numeric", nullable: false),
-                    standard_score_diff = table.Column<decimal>(type: "numeric", nullable: false),
-                    last_access_days = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<string>(type: "text", nullable: false),
-                    modified_by = table.Column<string>(type: "text", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    StudentId = table.Column<int>(type: "integer", nullable: false)
+                    enrolled_courses = Table.Column<int>(type: "integer", nullable: false),
+                    graded_courses = Table.Column<int>(type: "integer", nullable: false),
+                    time_delivery_rate = Table.Column<int>(type: "integer", nullable: false),
+                    avg_score = Table.Column<decimal>(type: "numeric", nullable: false),
+                    courses_under_avg = Table.Column<decimal>(type: "numeric", nullable: false),
+                    pure_score_diff = Table.Column<decimal>(type: "numeric", nullable: false),
+                    standard_score_diff = Table.Column<decimal>(type: "numeric", nullable: false),
+                    last_access_days = Table.Column<int>(type: "integer", nullable: false),
+                    created_by = Table.Column<string>(type: "text", nullable: false),
+                    modified_by = Table.Column<string>(type: "text", nullable: true),
+                    created_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    StudentId = Table.Column<int>(type: "integer", nullable: false)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_student_details", x => x.Id);
-                    table.ForeignKey(
+                    Table.PrimaryKey("PK_student_details", X => X.Id);
+                    Table.ForeignKey(
                         name: "FK_student_details_students_StudentId",
-                        column: x => x.StudentId,
+                        column: X => X.StudentId,
                         principalTable: "students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "cohorts",
-                columns: table => new
+                columns: Table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = Table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    course_name = table.Column<string>(type: "text", nullable: false),
-                    created_by = table.Column<string>(type: "text", nullable: false),
-                    modified_by = table.Column<string>(type: "text", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    VariableId = table.Column<int>(type: "integer", nullable: true)
+                    name = Table.Column<string>(type: "text", nullable: false),
+                    course_name = Table.Column<string>(type: "text", nullable: false),
+                    created_by = Table.Column<string>(type: "text", nullable: false),
+                    modified_by = Table.Column<string>(type: "text", nullable: true),
+                    created_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    VariableId = Table.Column<int>(type: "integer", nullable: true)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_cohorts", x => x.Id);
-                    table.ForeignKey(
+                    Table.PrimaryKey("PK_cohorts", X => X.Id);
+                    Table.ForeignKey(
                         name: "FK_cohorts_variables_VariableId",
-                        column: x => x.VariableId,
+                        column: X => X.VariableId,
                         principalTable: "variables",
                         principalColumn: "Id");
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "poll_variable",
-                columns: table => new
+                columns: Table => new
                 {
-                    poll_id = table.Column<int>(type: "integer", nullable: false),
-                    variable_id = table.Column<int>(type: "integer", nullable: false)
+                    poll_id = Table.Column<int>(type: "integer", nullable: false),
+                    variable_id = Table.Column<int>(type: "integer", nullable: false)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_poll_variable", x => new { x.poll_id, x.variable_id });
-                    table.ForeignKey(
+                    Table.PrimaryKey("PK_poll_variable", X => new { X.poll_id, X.variable_id });
+                    Table.ForeignKey(
                         name: "FK_poll_variable_polls_poll_id",
-                        column: x => x.poll_id,
+                        column: X => X.poll_id,
                         principalTable: "polls",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
+                    Table.ForeignKey(
                         name: "FK_poll_variable_variables_variable_id",
-                        column: x => x.variable_id,
+                        column: X => X.variable_id,
                         principalTable: "variables",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "answers",
-                columns: table => new
+                columns: Table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
+                    Id = Table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    answer_text = table.Column<string>(type: "text", nullable: false),
-                    risk_level = table.Column<int>(type: "integer", nullable: false),
-                    PollInstanceId = table.Column<int>(type: "integer", nullable: false),
-                    created_by = table.Column<string>(type: "text", nullable: false),
-                    modified_by = table.Column<string>(type: "text", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    answer_text = Table.Column<string>(type: "text", nullable: false),
+                    risk_level = Table.Column<int>(type: "integer", nullable: false),
+                    PollInstanceId = Table.Column<int>(type: "integer", nullable: false),
+                    created_by = Table.Column<string>(type: "text", nullable: false),
+                    modified_by = Table.Column<string>(type: "text", nullable: true),
+                    created_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = Table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_answers", x => x.Id);
-                    table.ForeignKey(
+                    Table.PrimaryKey("PK_answers", X => X.Id);
+                    Table.ForeignKey(
                         name: "FK_answers_poll_instances_PollInstanceId",
-                        column: x => x.PollInstanceId,
+                        column: X => X.PollInstanceId,
                         principalTable: "poll_instances",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
+            MigrationBuilder.CreateTable(
                 name: "student_cohort",
-                columns: table => new
+                columns: Table => new
                 {
-                    student_id = table.Column<int>(type: "integer", nullable: false),
-                    cohort_id = table.Column<int>(type: "integer", nullable: false)
+                    student_id = Table.Column<int>(type: "integer", nullable: false),
+                    cohort_id = Table.Column<int>(type: "integer", nullable: false)
                 },
-                constraints: table =>
+                constraints: Table =>
                 {
-                    table.PrimaryKey("PK_student_cohort", x => new { x.student_id, x.cohort_id });
-                    table.ForeignKey(
+                    Table.PrimaryKey("PK_student_cohort", X => new { X.student_id, X.cohort_id });
+                    Table.ForeignKey(
                         name: "FK_student_cohort_cohorts_cohort_id",
-                        column: x => x.cohort_id,
+                        column: X => X.cohort_id,
                         principalTable: "cohorts",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
+                    Table.ForeignKey(
                         name: "FK_student_cohort_students_student_id",
-                        column: x => x.student_id,
+                        column: X => X.student_id,
                         principalTable: "students",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_answers_PollInstanceId",
                 table: "answers",
                 column: "PollInstanceId");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_cohorts_VariableId",
                 table: "cohorts",
                 column: "VariableId");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_poll_instances_StudentId",
                 table: "poll_instances",
                 column: "StudentId");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_poll_variable_variable_id",
                 table: "poll_variable",
                 column: "variable_id");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_student_cohort_cohort_id",
                 table: "student_cohort",
                 column: "cohort_id");
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_student_details_StudentId",
                 table: "student_details",
                 column: "StudentId",
                 unique: true);
 
-            migrationBuilder.CreateIndex(
+            MigrationBuilder.CreateIndex(
                 name: "IX_variables_ComponentId",
                 table: "variables",
                 column: "ComponentId");
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
+        protected override void Down(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "answers");
 
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "poll_variable");
 
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "student_cohort");
 
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "student_details");
 
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "poll_instances");
 
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "polls");
 
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "cohorts");
 
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "students");
 
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "variables");
 
-            migrationBuilder.DropTable(
+            MigrationBuilder.DropTable(
                 name: "components");
         }
     }

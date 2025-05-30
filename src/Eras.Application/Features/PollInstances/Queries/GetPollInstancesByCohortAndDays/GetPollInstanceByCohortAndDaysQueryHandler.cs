@@ -1,6 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
-using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using MediatR;
@@ -15,17 +14,17 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
         private readonly IPollInstanceRepository _pollInstanceRepository;
         private readonly ILogger<GetPollInstanceByCohortAndDaysQueryHandler> _logger;
 
-        public GetPollInstanceByCohortAndDaysQueryHandler(IPollInstanceRepository pollInstanceRepository, ILogger<GetPollInstanceByCohortAndDaysQueryHandler> logger)
+        public GetPollInstanceByCohortAndDaysQueryHandler(IPollInstanceRepository PollInstanceRepository, ILogger<GetPollInstanceByCohortAndDaysQueryHandler> Logger)
         {
-            _pollInstanceRepository = pollInstanceRepository;
-            _logger = logger;
+            _pollInstanceRepository = PollInstanceRepository;
+            _logger = Logger;
         }
-        public async Task<GetQueryResponse<IEnumerable<PollInstanceDTO>>> Handle(GetPollInstanceByCohortAndDaysQuery request, CancellationToken cancellationToken)
+        public async Task<GetQueryResponse<IEnumerable<PollInstanceDTO>>> Handle(GetPollInstanceByCohortAndDaysQuery Request, CancellationToken CancellationToken)
         {
             try
             {
-                var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(request.CohortId, request.Days);
-                var pollInstanceDTOs = pollInstances.Select(pollInstance => PollInstanceMapper.ToDTO(pollInstance)).OrderByDescending(pi => pi.FinishedAt);
+                var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(Request.CohortId, Request.Days);
+                var pollInstanceDTOs = pollInstances.Select(PollInstance => PollInstanceMapper.ToDTO(PollInstance)).OrderByDescending(Pi => Pi.FinishedAt);
                 return new GetQueryResponse<IEnumerable<PollInstanceDTO>>(pollInstanceDTOs ,"Success", true );
             }
             catch(Exception ex)

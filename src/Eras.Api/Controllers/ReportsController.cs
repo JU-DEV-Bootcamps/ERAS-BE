@@ -1,8 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
+using Eras.Application.Models.Consolidator;
 using Eras.Application.Features.Consolidator.Queries.Polls;
 using Eras.Application.Features.Consolidator.Queries.Students;
 using Eras.Application.Models.Response.Common;
+
 using Eras.Domain.Entities;
 
 using MediatR;
@@ -27,7 +29,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             var pollGuid = new Guid(PollInstanceUuid);
             var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId ?? 0 };
-            GetQueryResponse<Application.Models.Consolidator.AvgReportResponseVm> avgRisk = await _mediator.Send(query);
+            GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
             {
@@ -98,7 +100,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
                 Take = Take,
                 VariableIds = VariableIds
             };
-            var avgRisk = await _mediator.Send(query);
+            List<Application.DTOs.Views.ErasCalculationsByPollDTO>? avgRisk = await _mediator.Send(query);
 
             return
              Ok(new
@@ -121,7 +123,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             var pollGuid = new Guid(Uuid);
             var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId };
-            GetQueryResponse<Application.Models.Consolidator.AvgReportResponseVm> avgRisk = await _mediator.Send(query);
+            GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
             {
@@ -171,7 +173,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
                 PollUuid = new Guid(Uuid)
             };
             GetQueryResponse<List<Answer>> answers = await _mediator.Send(query);
-            var risks = answers.Body.Select(Answer => Answer.RiskLevel);
+            IEnumerable<int> risks = answers.Body.Select(Answer => Answer.RiskLevel);
             var averageRisk = risks.Any() ? risks.Average() : 0;
 
             return answers.Success

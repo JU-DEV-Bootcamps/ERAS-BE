@@ -1,90 +1,83 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.Response.Common;
-using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
 {
     internal class UpdateEvaluationCommandHandler : IRequestHandler<UpdateEvaluationCommand, CreateCommandResponse<Evaluation>>
     {
-        private readonly IEvaluationRepository _evaluationRepository;
+        private readonly IEvaluationRepository _EvaluationRepository;
         private readonly ILogger<UpdateEvaluationCommandHandler> _logger;
-        private readonly IPollRepository _pollRepository;
+        private readonly IPollRepository _PollRepository;
         private readonly IMediator _mediator;
-        public UpdateEvaluationCommandHandler(IEvaluationRepository evaluationRepository, IPollRepository pollRepository,
-            ILogger<UpdateEvaluationCommandHandler> logger, IMediator mediator)
+        public UpdateEvaluationCommandHandler(IEvaluationRepository EvaluationRepository, IPollRepository PollRepository,
+            ILogger<UpdateEvaluationCommandHandler> Logger, IMediator Mediator)
         {
-            _evaluationRepository = evaluationRepository;
-            _pollRepository = pollRepository;
-            _logger = logger;
-            _mediator = mediator;
+            _EvaluationRepository = EvaluationRepository;
+            _PollRepository = PollRepository;
+            _logger = Logger;
+            _mediator = Mediator;
         }
 
-        public async Task<CreateCommandResponse<Evaluation>> Handle(UpdateEvaluationCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Evaluation>> Handle(UpdateEvaluationCommand Request, CancellationToken CancellationToken)
         {
             try
             {
-                Evaluation? evaluationDB = await _evaluationRepository.GetByIdForUpdateAsync(request.EvaluationDTO.Id);
+                Evaluation? evaluationDB = await _EvaluationRepository.GetByIdForUpdateAsync(Request.EvaluationDTO.Id);
 
                 if (evaluationDB == null)
                 {
-                    _logger.LogWarning("Evaluation with ID {Id} not found", request.EvaluationDTO.Id);
+                    _logger.LogWarning("Evaluation with ID {Id} not found", Request.EvaluationDTO.Id);
                     return new CreateCommandResponse<Evaluation>(null, 0, "Evaluation not found", false);
                 }
 
                 // Fields always updatable
-                evaluationDB.Name = request.EvaluationDTO.Name;
-                evaluationDB.StartDate = request.EvaluationDTO.StartDate;
-                evaluationDB.EndDate = request.EvaluationDTO.EndDate;
+                evaluationDB.Name = Request.EvaluationDTO.Name;
+                evaluationDB.StartDate = Request.EvaluationDTO.StartDate;
+                evaluationDB.EndDate = Request.EvaluationDTO.EndDate;
                 evaluationDB.Audit.ModifiedAt = DateTime.UtcNow;
                 evaluationDB.Audit.ModifiedBy = "Controller";
 
                 // Only updatable if they were never set
                 if (string.IsNullOrEmpty(evaluationDB.PollName) || evaluationDB.Status == "Incomplete")
                 {
-                    if (! string.IsNullOrEmpty(request.EvaluationDTO.PollName))
+                    if (! string.IsNullOrEmpty(Request.EvaluationDTO.PollName))
                     {
-                        Poll?  poll = await _pollRepository.GetByNameAsync(request.EvaluationDTO.PollName);
+                        Poll?  poll = await _PollRepository.GetByNameAsync(Request.EvaluationDTO.PollName);
 
-                        evaluationDB.PollName = request.EvaluationDTO.PollName; 
+                        evaluationDB.PollName = Request.EvaluationDTO.PollName; 
                         if (poll != null)
                         {
                             try
                             {
                                 evaluationDB.Status = "Complete";
-                                request.EvaluationDTO.PollId = poll.Id;
-                                request.EvaluationDTO.Id = evaluationDB.Id;
+                                Request.EvaluationDTO.PollId = poll.Id;
+                                Request.EvaluationDTO.Id = evaluationDB.Id;
                                 CreateEvaluationPollCommand evaluationPollCommand = new CreateEvaluationPollCommand()
                                 {
-                                    EvaluationDTO = request.EvaluationDTO
+                                    EvaluationDTO = Request.EvaluationDTO
                                 };
                                 await _mediator.Send(evaluationPollCommand);
 
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogError(ex, "An error occurred updating the evaluation: " + request.EvaluationDTO.Name);
+                                _logger.LogError(ex, "An error occurred updating the evaluation: " + Request.EvaluationDTO.Name);
                                 return new CreateCommandResponse<Evaluation>(null, 0, "Error", false);
                             }
                         }
                     }
                 }
-                await _evaluationRepository.UpdateAsync(evaluationDB);
+                await _EvaluationRepository.UpdateAsync(evaluationDB);
 
                 _logger.LogInformation("Successfully updated Evaluation ID {Id}", evaluationDB.Id);
                 return new CreateCommandResponse<Evaluation>(evaluationDB, 1, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred updating the evaluation: " + request.EvaluationDTO.Name);
+                _logger.LogError(ex, "An error occurred updating the evaluation: " + Request.EvaluationDTO.Name);
                 return new CreateCommandResponse<Evaluation>(null, 0, "Error", false);
             }
         }

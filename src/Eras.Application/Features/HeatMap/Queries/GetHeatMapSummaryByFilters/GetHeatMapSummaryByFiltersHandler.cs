@@ -15,21 +15,21 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
         private readonly ILogger<GetHeatMapSummaryByFiltersHandler> _logger;
 
         public GetHeatMapSummaryByFiltersHandler(
-            IHeatMapRepository heatMapRepository, 
-            ILogger<GetHeatMapSummaryByFiltersHandler> logger)
+            IHeatMapRepository HeatMapRepository, 
+            ILogger<GetHeatMapSummaryByFiltersHandler> Logger)
         {
-            _heatMapRepository = heatMapRepository;
-            _logger = logger;
+            _heatMapRepository = HeatMapRepository;
+            _logger = Logger;
         }
 
         public async Task<GetQueryResponse<HeatMapSummaryResponseVm>> Handle(
-            GetHeatMapSummaryByFiltersQuery request, 
-            CancellationToken cancellationToken)
+            GetHeatMapSummaryByFiltersQuery Request, 
+            CancellationToken CancellationToken)
         {
             try
             {
-                var answersByFilters = await _heatMapRepository.GetHeatMapDataByCohortAndDaysAsync(request.CohortId, request.Days) 
-                    ?? throw new NotFoundException($"Error in query for filters: {request.CohortId} - {request.Days}");
+                var answersByFilters = await _heatMapRepository.GetHeatMapDataByCohortAndDaysAsync(Request.CohortId, Request.Days) 
+                    ?? throw new NotFoundException($"Error in query for filters: {Request.CohortId} - {Request.Days}");
                 
                 if (!answersByFilters.Any()) // Returns empty response
                     return new GetQueryResponse<HeatMapSummaryResponseVm>(new HeatMapSummaryResponseVm(), "Success", true);
@@ -41,7 +41,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
             catch (Exception ex) 
             {
                 _logger.LogError(ex, "An error occurred getting the heat map summary data by filters");
-                return new GetQueryResponse<HeatMapSummaryResponseVm>(Body: null, "Failed", false);
+                return new GetQueryResponse<HeatMapSummaryResponseVm>(new HeatMapSummaryResponseVm(), "Failed", false);
             }
         }
     }

@@ -38,7 +38,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             _mockContext = new Mock<AppDbContext>(options);
             _mockContext
-                .Setup(c => c.PollInstances)
+                .Setup(C => C.PollInstances)
                 .Returns(data.Object);
 
             _repository = new PollInstanceRepository(_mockContext.Object);
@@ -50,7 +50,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByCohortIdAndLastDays_Should_Return_ByDays()
+        public async Task GetByCohortIdAndLastDaysShouldReturnByDaysAsync()
         {
             // Arrange
             var data = new List<PollInstanceEntity>
@@ -60,7 +60,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             }.AsQueryable().BuildMockDbSet();
 
             _mockContext = new Mock<AppDbContext>(new DbContextOptions<AppDbContext>());
-            _mockContext.Setup(c => c.PollInstances).Returns(data.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(data.Object);
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 
@@ -72,7 +72,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByCohortIdAndLastDays_Should_Return_ByCohortIdAndDays()
+        public async Task GetByCohortIdAndLastDaysShouldReturnByCohortIdAndDaysAsync()
         {
             // Arrange
             var data = new List<PollInstanceEntity>
@@ -88,8 +88,8 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             }.AsQueryable().BuildMockDbSet();
 
             _mockContext = new Mock<AppDbContext>(new DbContextOptions<AppDbContext>());
-            _mockContext.Setup(c => c.PollInstances).Returns(data.Object);
-            _mockContext.Setup(c => c.StudentCohorts).Returns(studentCohorts.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(data.Object);
+            _mockContext.Setup(C => C.StudentCohorts).Returns(studentCohorts.Object);
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 
@@ -101,7 +101,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByCohortIdAndLastDays_Should_Return_All_When_Both_Parameters_Are_Zero()
+        public async Task GetByCohortIdAndLastDaysShouldReturnAllWhenBothParametersAreZeroAsync()
         {
             // Arrange
             var data = new List<PollInstanceEntity>
@@ -111,7 +111,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             }.AsQueryable().BuildMockDbSet();
 
             _mockContext = new Mock<AppDbContext>(new DbContextOptions<AppDbContext>());
-            _mockContext.Setup(c => c.PollInstances).Returns(data.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(data.Object);
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 

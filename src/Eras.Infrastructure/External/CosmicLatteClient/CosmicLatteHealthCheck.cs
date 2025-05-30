@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -28,7 +23,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
         }
 
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext Context, CancellationToken cancellationToken = default)
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext Context, CancellationToken CancellationToken = default)
         {
             string path = _API_URL + _PATH_EVALUATION;
             var request = new HttpRequestMessage(HttpMethod.Get, path + "?$filter=contains(name,' ')");

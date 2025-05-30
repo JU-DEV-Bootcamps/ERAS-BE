@@ -10,9 +10,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     public partial class addfinished_atfieldinpollinstancetable : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.AddColumn<DateTime>(
+            MigrationBuilder.AddColumn<DateTime>(
                 name: "FinishedAt",
                 table: "poll_instances",
                 type: "timestamp with time zone",
@@ -21,9 +21,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
+        protected override void Down(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "FinishedAt",
                 table: "poll_instances");
         }

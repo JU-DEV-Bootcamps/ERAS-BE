@@ -9,62 +9,62 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     public partial class entities_versioning : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
+        protected override void Up(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "version",
                 table: "polls");
 
-            migrationBuilder.AddColumn<int>(
+            MigrationBuilder.AddColumn<int>(
                 name: "last_version",
                 table: "polls",
                 type: "integer",
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.AddColumn<DateTime>(
+            MigrationBuilder.AddColumn<DateTime>(
                 name: "last_version_date",
                 table: "polls",
                 type: "timestamp with time zone",
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
-            migrationBuilder.AddColumn<DateTime>(
+            MigrationBuilder.AddColumn<DateTime>(
                 name: "version_date",
                 table: "poll_variable",
                 type: "timestamp with time zone",
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
-            migrationBuilder.AddColumn<int>(
+            MigrationBuilder.AddColumn<int>(
                 name: "version_number",
                 table: "poll_variable",
                 type: "integer",
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.AddColumn<int>(
+            MigrationBuilder.AddColumn<int>(
                 name: "last_version",
                 table: "poll_instances",
                 type: "integer",
                 nullable: false,
                 defaultValue: 0);
 
-            migrationBuilder.AddColumn<DateTime>(
+            MigrationBuilder.AddColumn<DateTime>(
                 name: "last_version_date",
                 table: "poll_instances",
                 type: "timestamp with time zone",
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
-            migrationBuilder.AddColumn<DateTime>(
+            MigrationBuilder.AddColumn<DateTime>(
                 name: "version_date",
                 table: "answers",
                 type: "timestamp with time zone",
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
 
-            migrationBuilder.AddColumn<int>(
+            MigrationBuilder.AddColumn<int>(
                 name: "version_number",
                 table: "answers",
                 type: "integer",
@@ -73,41 +73,41 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
         }
 
         /// <inheritdoc />
-        protected override void Down(MigrationBuilder migrationBuilder)
+        protected override void Down(MigrationBuilder MigrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "last_version",
                 table: "polls");
 
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "last_version_date",
                 table: "polls");
 
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "version_date",
                 table: "poll_variable");
 
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "version_number",
                 table: "poll_variable");
 
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "last_version",
                 table: "poll_instances");
 
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "last_version_date",
                 table: "poll_instances");
 
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "version_date",
                 table: "answers");
 
-            migrationBuilder.DropColumn(
+            MigrationBuilder.DropColumn(
                 name: "version_number",
                 table: "answers");
 
-            migrationBuilder.AddColumn<string>(
+            MigrationBuilder.AddColumn<string>(
                 name: "version",
                 table: "polls",
                 type: "text",

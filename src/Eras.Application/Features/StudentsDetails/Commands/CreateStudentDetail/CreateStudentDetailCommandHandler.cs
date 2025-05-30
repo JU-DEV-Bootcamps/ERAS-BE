@@ -1,16 +1,9 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
-using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
 {
@@ -19,21 +12,27 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
         private readonly IStudentDetailRepository _studentDetailRepository;
         private readonly ILogger<CreateStudentDetailCommandHandler> _logger;
 
-        public CreateStudentDetailCommandHandler(IStudentDetailRepository studentDetailRepository, 
-            ILogger<CreateStudentDetailCommandHandler> logger)
+        public CreateStudentDetailCommandHandler(IStudentDetailRepository StudentDetailRepository, 
+            ILogger<CreateStudentDetailCommandHandler> Logger)
         {
-            _studentDetailRepository = studentDetailRepository;
-            _logger = logger;
+            _studentDetailRepository = StudentDetailRepository;
+            _logger = Logger;
         }
 
 
-        public async Task<CreateCommandResponse<StudentDetail>> Handle(CreateStudentDetailCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<StudentDetail>> Handle(CreateStudentDetailCommand Request, CancellationToken CancellationToken)
         {
 
             try
             {
-                StudentDetail response = await _studentDetailRepository.GetByStudentId(request.StudentDetailDto.StudentId);
-                StudentDetail studentDetail = request.StudentDetailDto.ToDomain();
+                if (Request.StudentDetailDto == null)
+                {
+                    _logger.LogError($"An error occurred creating student detail: StudentDetailDto is null");
+                    return new CreateCommandResponse<StudentDetail>(null, 0, "Error", false);
+                }
+
+                StudentDetail? response = await _studentDetailRepository.GetByStudentId(Request.StudentDetailDto.StudentId);
+                StudentDetail studentDetail = Request.StudentDetailDto.ToDomain();
                 if (response != null)
                 {
                     response.EnrolledCourses = studentDetail.EnrolledCourses;
@@ -57,7 +56,7 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred creating student detail {request.StudentDetailDto}: {ex.Message}");
+                _logger.LogError($"An error occurred creating student detail {Request.StudentDetailDto}: {ex.Message}");
                 return new CreateCommandResponse<StudentDetail>(null, 0, "Error", false);
             }
         }

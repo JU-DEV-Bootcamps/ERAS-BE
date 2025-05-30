@@ -1,8 +1,6 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
-using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -15,21 +13,26 @@ namespace Eras.Application.Features.Components.Commands.CreateCommand
         private readonly ILogger<CreateComponentCommandHandler> _logger;
 
 
-        public CreateComponentCommandHandler(IComponentRepository componentRepository, ILogger<CreateComponentCommandHandler> logger)
+        public CreateComponentCommandHandler(IComponentRepository ComponentRepository, ILogger<CreateComponentCommandHandler> Logger)
         {
-            _componentRepository = componentRepository;
-            _logger = logger;
+            _componentRepository = ComponentRepository;
+            _logger = Logger;
         }
 
-        public async Task<CreateCommandResponse<Component>> Handle(CreateComponentCommand request, CancellationToken cancellationToken)
+        public async Task<CreateCommandResponse<Component>> Handle(CreateComponentCommand Request, CancellationToken CancellationToken)
         {
             try
             {
-                Component? componentnDB = await _componentRepository.GetByNameAsync(request.Component.Name);
-                if (componentnDB != null) return new CreateCommandResponse<Component>(componentnDB, 0, "Success", true);
+                if (Request.Component == null)
+                {
+                    _logger.LogError("Component is null");
+                    return new CreateCommandResponse<Component>(null, 0, "Error", false);
+                }
+                Component? componentDB = await _componentRepository.GetByNameAsync(Request.Component.Name);
+                if (componentDB != null) return new CreateCommandResponse<Component>(componentDB, 0, "Success", true);
 
-                Component? component = request.Component?.ToDomain();
-                if (component == null) return new CreateCommandResponse<Component>(null,0, "Error", false);
+                Component? component = Request.Component?.ToDomain();
+                if (component == null) return new CreateCommandResponse<Component>(null, 0, "Error", false);
                 Component createdComponent = await _componentRepository.AddAsync(component);
 
                 return new CreateCommandResponse<Component>(createdComponent, 1, "Success", true);
@@ -37,7 +40,7 @@ namespace Eras.Application.Features.Components.Commands.CreateCommand
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred creating the component: ");
-                return new CreateCommandResponse<Component>(null,0, "Error", false);
+                return new CreateCommandResponse<Component>(null, 0, "Error", false);
             }
         }
     }

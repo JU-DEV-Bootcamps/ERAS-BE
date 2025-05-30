@@ -2,9 +2,9 @@
 {
     public class ExternalServiceSample
     {
-        public Task<string> AuthenticateAsync(string token)
+        public Task<string> AuthenticateAsync(string Token)
         {
-            if (token == "valid_token")
+            if (Token == "valid_token")
             {
                 return Task.FromResult("Authenticated User ID: 12345");
             }

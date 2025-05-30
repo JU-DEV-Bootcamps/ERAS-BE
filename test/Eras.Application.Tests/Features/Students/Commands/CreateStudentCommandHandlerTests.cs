@@ -32,19 +32,19 @@ namespace Eras.Application.Tests.Features.Students.Commands
         }
 
         [Fact]
-        public async Task Handle_Student_CreatesNewStudent()
+        public async Task HandleStudentCreatesNewStudentAsync()
         {
             var newStudentDto = new StudentDTO() { Name= "newStudent" };
             var command = new CreateStudentCommand { StudentDTO = newStudentDto };
             var newStudent = newStudentDto.ToDomain;
 
-            _mockStudentRepository.Setup(repo => repo.AddAsync(It.IsAny<Student>()))
+            _mockStudentRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Student>()))
                 .ReturnsAsync(newStudent);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("newStudent", result.Entity.Name);
+            Assert.Equal("newStudent", result.Entity?.Name);
         }
 
     }

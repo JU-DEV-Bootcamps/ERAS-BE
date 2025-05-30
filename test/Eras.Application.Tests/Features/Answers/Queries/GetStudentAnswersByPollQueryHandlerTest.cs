@@ -44,7 +44,7 @@ public class GetStudentAnswersByPollQueryHandlerTest
         var pagedResult = new PagedResult<StudentAnswer>(studentAnswers.Count, studentAnswers);
 
         _mockAnswerRepository
-            .Setup(r => r.GetStudentAnswersPagedAsync(
+            .Setup(R => R.GetStudentAnswersPagedAsync(
                 It.Is<int>(StudentId => StudentId == 1),
                 It.Is<int>(PollId => PollId == 1),
                 1,

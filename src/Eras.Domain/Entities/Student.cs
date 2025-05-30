@@ -1,4 +1,3 @@
-using System.Text;
 using Eras.Domain.Common;
 
 namespace Eras.Domain.Entities
@@ -12,7 +11,7 @@ namespace Eras.Domain.Entities
         public StudentDetail StudentDetail { get; set; } = default!;
         public AuditInfo Audit { get; set; } = default!;
         public int CohortId { get; set; }
-        public Cohort? Cohort { get; set; } = default!;
+        public Cohort? Cohort { get; set; }
     }
 }
 

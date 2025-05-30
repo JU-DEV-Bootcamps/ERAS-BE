@@ -1,8 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using Eras.Application.Models.Response.Controllers.PollsController;
@@ -17,15 +12,15 @@ namespace Eras.Application.Features.Polls.Queries.GetPollsByStudent
         private readonly IStudentPollsRepository _repository;
         private readonly ILogger<GetPollsByStudentQueryHandler> _logger;
 
-        public GetPollsByStudentQueryHandler(IStudentPollsRepository repository, ILogger<GetPollsByStudentQueryHandler> logger)
+        public GetPollsByStudentQueryHandler(IStudentPollsRepository Repository, ILogger<GetPollsByStudentQueryHandler> Logger)
         {
-            _repository = repository;
-            _logger = logger;
+            _repository = Repository;
+            _logger = Logger;
         }
 
-        public async Task<List<GetPollsQueryResponse>> Handle(GetPollsByStudentQuery request, CancellationToken cancellationToken)
+        public async Task<List<GetPollsQueryResponse>> Handle(GetPollsByStudentQuery Request, CancellationToken CancellationToken)
         {
-            var listOfPolls = await _repository.GetPollsByStudentIdAsync(request.StudentId);
+            var listOfPolls = await _repository.GetPollsByStudentIdAsync(Request.StudentId);
             var pollsResponses = listOfPolls.Select(poll => new GetPollsQueryResponse
             {
                 Id = poll.Id,
@@ -38,6 +33,5 @@ namespace Eras.Application.Features.Polls.Queries.GetPollsByStudent
 
             return pollsResponses;
         }
-
     }
 }

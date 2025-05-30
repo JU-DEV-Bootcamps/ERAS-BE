@@ -63,7 +63,7 @@ public static class HeatMapMapper
             .GroupBy(Q => new { Q.ComponentId, Q.ComponentName })
             .Select(CompGroup => new Component
             {
-                Description = CompGroup.Key.ComponentName.ToUpper(),
+                Description = CompGroup.Key.ComponentName?.ToUpper() ?? "",
                 Variables = [.. CompGroup
                 .GroupBy(Var => Var.VariableId)
                 .Select(VarGr => new ComponentVars
@@ -115,12 +115,12 @@ IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse> QueryResponses)
             .GroupBy(Q => new { Q.ComponentName })
             .Select(CompGr => new Component
             {
-                Description = CompGr.Key.ComponentName?.ToUpper(),
+                Description = CompGr.Key.ComponentName?.ToUpper() ?? "NULL",
                 Variables = [.. CompGr
                     .GroupBy(Var => Var.Name)
                     .Select(VarGr => new ComponentVars
                     {
-                        Description = VarGr.Key,
+                        Description = VarGr.Key ?? "NULL",
                         AverageScore = (double) VarGr.First().VariableAverageRisk
                     })]
             })

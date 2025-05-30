@@ -13,7 +13,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250205185004_database-refactor")]
-    partial class databaserefactor
+    partial class DatabaseRefactor
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Text.Json;
 
@@ -11,24 +10,24 @@ namespace Eras.Api.Middleware
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionHandlerMiddleware> _logger;
 
-        public ExceptionHandlerMiddleware(RequestDelegate next, ILogger<ExceptionHandlerMiddleware> logger)
+        public ExceptionHandlerMiddleware(RequestDelegate Next, ILogger<ExceptionHandlerMiddleware> Logger)
         {
-            _next = next;
-            _logger = logger;
+            _next = Next;
+            _logger = Logger;
         }
 
-        public async Task Invoke(HttpContext context)
+        public async Task InvokeAsync(HttpContext Context)
         {
             try
             {
-                await _next(context);
+                await _next(Context);
             }
             catch (InvalidCastException ex)
             {
                 _logger.LogError(ex, "Data deserialization error in CosmicLatteAPIService.");
 
-                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
-                context.Response.ContentType = "application/json";
+                Context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                Context.Response.ContentType = "application/json";
 
                 var errorResponse = new
                 {
@@ -37,21 +36,21 @@ namespace Eras.Api.Middleware
                     detailed = ex.StackTrace
                 };
 
-                await context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
+                await Context.Response.WriteAsync(JsonSerializer.Serialize(errorResponse));
             }
             catch (Exception ex)
             {
-                await HandleExceptionAsync(context, ex);
+                await HandleExceptionAsync(Context, ex);
             }
         }
 
-        private async Task HandleExceptionAsync(HttpContext context, Exception exception)
+        private async Task HandleExceptionAsync(HttpContext Context, Exception Exception)
         {
-            _logger.LogError(exception, "Unhandled exception occurred.");
+            _logger.LogError(Exception, "Unhandled exception occurred.");
 
-            var response = context.Response;
+            var response = Context.Response;
             response.ContentType = "application/json";
-            response.StatusCode = exception switch
+            response.StatusCode = Exception switch
             {
                 KeyNotFoundException => (int)HttpStatusCode.NotFound,
                 UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
@@ -61,8 +60,8 @@ namespace Eras.Api.Middleware
             var errorResponse = new
             {
                 statusCode = response.StatusCode,
-                message = exception.Message,
-                detailed = exception.StackTrace
+                message = Exception.Message,
+                detailed = Exception.StackTrace
             };
 
             await response.WriteAsync(JsonSerializer.Serialize(errorResponse));

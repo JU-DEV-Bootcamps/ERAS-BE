@@ -3,11 +3,6 @@ using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Students.Queries.GetAllByPollAndDate
 {
@@ -18,24 +13,24 @@ namespace Eras.Application.Features.Students.Queries.GetAllByPollAndDate
 
 
         public GetAllStudentsByPollUuidAndDaysQueryHandler(
-            IStudentRepository studentRepository,
-            ILogger<GetAllStudentsByPollUuidAndDaysQueryHandler> logger
+            IStudentRepository StudentRepository,
+            ILogger<GetAllStudentsByPollUuidAndDaysQueryHandler> Logger
         )
         {
-            _studentRepository = studentRepository;
-            _logger = logger;
+            _studentRepository = StudentRepository;
+            _logger = Logger;
         }
 
-        public async Task<PagedResult<Student>> Handle(GetAllStudentsByPollUuidAndDaysQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResult<Student>> Handle(GetAllStudentsByPollUuidAndDaysQuery Request, CancellationToken CancellationToken)
         {
             try
             {
                 (IEnumerable<Student> students, int totalCount) = 
                     await _studentRepository.GetAllStudentsByPollUuidAndDaysQuery(
-                        request.Query.Page, 
-                        request.Query.PageSize, 
-                        request.PollUuid,
-                        request.Days);
+                        Request.Query.Page, 
+                        Request.Query.PageSize, 
+                        Request.PollUuid,
+                        Request.Days);
  
                 return new PagedResult<Student>(totalCount, students.ToList());
             }

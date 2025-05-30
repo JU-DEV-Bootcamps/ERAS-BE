@@ -28,19 +28,19 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
         }
 
         [Fact]
-        public async Task Handle_Component_CreatesNewComponentIncomplete()
+        public async Task HandleComponentCreatesNewComponentIncompleteAsync()
         {
             var newEvaluationDto = new EvaluationDTO() { Name = "newEvaluation", StartDate= DateTime.UtcNow, EndDate = DateTime.Now };
             var command = new CreateEvaluationCommand { EvaluationDTO = newEvaluationDto };
             var newComponent = newEvaluationDto.ToDomain;
 
-            _mockEvaluationRepository.Setup(repo => repo.AddAsync(It.IsAny<Evaluation>()))
+            _mockEvaluationRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Evaluation>()))
                 .ReturnsAsync(newComponent);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("newEvaluation", result.Entity.Name);
+            Assert.Equal("newEvaluation", result.Entity?.Name);
         }
     }
 }

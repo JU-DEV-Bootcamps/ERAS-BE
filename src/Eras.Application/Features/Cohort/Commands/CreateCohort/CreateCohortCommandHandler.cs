@@ -1,21 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
-using Eras.Domain.Common;
-using Eras.Domain.Entities;
 
 using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Cohort.Commands.CreateCohort
+namespace Eras.Application.Features.Cohorts.Commands.CreateCohort
 {
     public class CreateCohortCommandHandler : IRequestHandler<CreateCohortCommand, CreateCommandResponse<Domain.Entities.Cohort>>
     {

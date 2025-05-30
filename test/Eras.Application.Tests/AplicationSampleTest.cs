@@ -20,11 +20,11 @@ namespace Eras.Application.Tests
         }
 
         [Fact]
-        public async Task CreateStudent_ShouldReturnStudent_WhenStudentIsValid()
+        public async Task CreateStudentShouldReturnStudentWhenStudentIsValidAsync()
         {
             // Arrange
             var student = new Student { Id = 1, Name = "John Doe", Email = "john.doe@example.com" };
-            _studentRepositoryMock.Setup(repo => repo.AddAsync(student)).ReturnsAsync(student);
+            _studentRepositoryMock.Setup(Repo => Repo.AddAsync(student)).ReturnsAsync(student);
 
             // Act
             var result = await _studentService.CreateStudent(student);
@@ -34,7 +34,7 @@ namespace Eras.Application.Tests
             Assert.Equal(student.Id, result.Id);
             Assert.Equal(student.Name, result.Name);
             Assert.Equal(student.Email, result.Email);
-            _studentRepositoryMock.Verify(repo => repo.AddAsync(student), Times.Once);
+            _studentRepositoryMock.Verify(Repo => Repo.AddAsync(student), Times.Once);
         }
     }
 }

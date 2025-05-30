@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Application.Mappers;
+﻿using Eras.Application.Mappers;
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Eras.Domain.Entities;
 using Eras.Application.DTOs;
 using Eras.Domain.Common;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Features.Students.Queries.GetByEmail;
@@ -65,16 +58,17 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
                         studentCreatedOrChanged = await _mediator.Send(createStudentCommand);
                     }
-                    if (!studentCreatedOrChanged.Success)
+
+                    if (!studentCreatedOrChanged.Success && studentCreatedOrChanged.Entity != null)
                     {
                         errorStudents.Add(studentCreatedOrChanged.Entity);
                     }
                     else if (studentCreatedOrChanged.Success)
                     {
                         if (studentCreatedOrChanged.SuccessfullImports == 0)
-                            updatedStudents.Add(studentCreatedOrChanged.Entity);
-                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(studentCreatedOrChanged.Entity, dto);
-                        studentCreatedOrChanged.Entity.StudentDetail = createdStudentDetail.Entity;
+                            updatedStudents.Add(studentCreatedOrChanged.Entity!);
+                        CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(studentCreatedOrChanged.Entity!, dto);
+                        studentCreatedOrChanged.Entity!.StudentDetail = createdStudentDetail.Entity!;
                         createdStudents.Add(studentCreatedOrChanged.Entity);
                     }
                 }

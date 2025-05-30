@@ -1,34 +1,34 @@
-﻿using Eras.Application.Dtos;
-using Eras.Application.DTOs;
+﻿using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Mappers
 {
     public static class CohortMapper
     {
-        public static Cohort ToDomain(this CohortDTO dto)
+        public static Cohort ToDomain(this CohortDTO Dto)
         {
-            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(Dto);
             return new Cohort
             {
-                Name = dto.Name,
-                CourseCode = dto.CourseCode,
-                Audit = dto.Audit,
+                Name = Dto.Name,
+                CourseCode = Dto.CourseCode,
+                Audit = Dto.Audit?? new AuditInfo()
+                {
+                    CreatedBy = "Cohort Mapper",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                },
             };
         }
-        public static CohortDTO ToDto(this Cohort domain)
+        public static CohortDTO ToDto(this Cohort Domain)
         {
-            ArgumentNullException.ThrowIfNull(domain);
+            ArgumentNullException.ThrowIfNull(Domain);
             return new CohortDTO
             {
-                Name = domain.Name,
-                CourseCode = domain.CourseCode,
-                Audit = domain.Audit,
+                Name = Domain.Name,
+                CourseCode = Domain.CourseCode,
+                Audit = Domain.Audit,
             };
         }
     }

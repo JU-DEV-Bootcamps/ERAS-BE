@@ -10,15 +10,15 @@ namespace Eras.Application.Features.Components.Queries
         private readonly IComponentsAvgRepository _componentsAvgRepository;
         private readonly ILogger<GetComponentsAvgByStudentQueryHandler> _logger;
 
-        public GetComponentsAvgByStudentQueryHandler(IComponentsAvgRepository componentsAvgRepository, ILogger<GetComponentsAvgByStudentQueryHandler> logger)
+        public GetComponentsAvgByStudentQueryHandler(IComponentsAvgRepository ComponentsAvgRepository, ILogger<GetComponentsAvgByStudentQueryHandler> Logger)
         {
-            _componentsAvgRepository = componentsAvgRepository;
-            _logger = logger;
+            _componentsAvgRepository = ComponentsAvgRepository;
+            _logger = Logger;
         }
 
-        public async Task<List<ComponentsAvg>> Handle(GetComponentsAvgByStudentQuery request, CancellationToken cancellationToken)
+        public async Task<List<ComponentsAvg>> Handle(GetComponentsAvgByStudentQuery Request, CancellationToken CancellationToken)
         {
-            var listofComponents = await _componentsAvgRepository.ComponentsAvgByStudent(request.StudentId, request.PollId);
+            var listofComponents = await _componentsAvgRepository.ComponentsAvgByStudent(Request.StudentId, Request.PollId);
             return listofComponents;
         }
     }

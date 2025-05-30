@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Domain.Entities;
+﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
@@ -39,13 +33,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
         }
 
 
-        public static StudentCohortJoin ToPersistenceCohort(this Student student)
+        public static StudentCohortJoin ToPersistenceCohort(this Student Student)
         {
-            ArgumentNullException.ThrowIfNull(student);
+            ArgumentNullException.ThrowIfNull(Student);
             return new StudentCohortJoin()
             {
-                StudentId = student.Id,
-                CohortId = student.CohortId,
+                StudentId = Student.Id,
+                CohortId = Student.CohortId,
             };
         }
     }

@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-
-using Microsoft.Extensions.Primitives;
 
 namespace Eras.Application.DTOs.CL
 {
@@ -135,7 +128,7 @@ namespace Eras.Application.DTOs.CL
     public class Scores
     {
         [JsonExtensionData]
-        public Dictionary<string, JsonElement> Traits { get; set; } = new();
+        public Dictionary<string, JsonElement> Traits { get; set; } = [];
     }
 
     public class Answers

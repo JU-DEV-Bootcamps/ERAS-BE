@@ -6,7 +6,7 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Cohort.Queries.GetCohortTopRiskStudents;
+namespace Eras.Application.Features.Cohorts.Queries.GetCohortTopRiskStudents;
 public class GetCohortTopRiskStudentsQueryHandler : IRequestHandler<GetCohortTopRiskStudentsQuery, GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>>>
 {
     private readonly ICohortRepository _cohortRepository;

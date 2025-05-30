@@ -30,7 +30,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 )
                 .Join(
                     _context.Students,
-                    sc => sc.StudentId,
+                    Sc => Sc.StudentId,
                     Student => Student.Id,
                     (Sc, Student) => Student
                 )
@@ -56,7 +56,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     _context.Polls,
                     PollVariable => PollVariable.PollId,
                     Poll => Poll.Id,
-                    (PollVariable, poll) => poll
+                    (PollVariable, Poll) => Poll
                 )
                 .Distinct()
                 .ToListAsync();
@@ -87,13 +87,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<List<GetCohortComponentsByPollResponse>> GetCohortComponentsByPoll(string PollUuid)
         {
             var query = await _context.ErasCalculationsByPoll
-                        .Where(v => v.PollUuid == PollUuid)
-                        .Select(v => new GetCohortComponentsByPollResponse
+                        .Where(V => V.PollUuid == PollUuid)
+                        .Select(V => new GetCohortComponentsByPollResponse
                         {
-                            CohortId = v.CohortId,
-                            CohortName = v.CohortName,
-                            ComponentName = v.ComponentName,
-                            AverageRiskByCohortComponent = Math.Round(v.AverageRiskByCohortComponent, 2)
+                            CohortId = V.CohortId,
+                            CohortName = V.CohortName,
+                            ComponentName = V.ComponentName,
+                            AverageRiskByCohortComponent = Math.Round(V.AverageRiskByCohortComponent, 2)
                         })
                         .Distinct()
                         .ToListAsync();
@@ -103,18 +103,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<List<GetCohortStudentsRiskByPollResponse>> GetCohortStudentsRiskByPoll(string PollUuid, int CohortId)
         {
             var query = await _context.ErasCalculationsByPoll
-               .Where(v => v.PollUuid == PollUuid && v.CohortId == CohortId)
-               .OrderByDescending(v => v.PollInstanceRiskSum)
-               .Select(v => new GetCohortStudentsRiskByPollResponse
+               .Where(V => V.PollUuid == PollUuid && V.CohortId == CohortId)
+               .OrderByDescending(V => V.PollInstanceRiskSum)
+               .Select(V => new GetCohortStudentsRiskByPollResponse
                {
-                   PollInstanceId = v.PollInstanceId,
-                   StudentName = v.StudentName,
-                   PollInstanceRiskSum = v.PollInstanceRiskSum
+                   PollInstanceId = V.PollInstanceId,
+                   StudentName = V.StudentName,
+                   PollInstanceRiskSum = V.PollInstanceRiskSum
                })
                .ToListAsync();
 
             var distinctResult = query
-                .DistinctBy(x => x.PollInstanceId)
+                .DistinctBy(X => X.PollInstanceId)
                 .ToList();
 
             return distinctResult;

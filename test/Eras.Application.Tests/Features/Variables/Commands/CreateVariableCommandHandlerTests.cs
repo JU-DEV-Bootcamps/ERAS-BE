@@ -31,19 +31,19 @@ namespace Eras.Application.Tests.Features.Variables.Commands
         }
 
         [Fact]
-        public async Task Handle_Variable_CreatesNewVariable()
+        public async Task HandleVariableCreatesNewVariableAsync()
         {
             var newVariableDto = new VariableDTO() { Name= "newVariable" };
             var command = new CreateVariableCommand { Variable = newVariableDto };
             var newVariable = newVariableDto.ToDomain;
 
-            _mockVariableRepository.Setup(repo => repo.AddAsync(It.IsAny<Variable>()))
+            _mockVariableRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Variable>()))
                 .ReturnsAsync(newVariable);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("newVariable", result.Entity.Name);
+            Assert.Equal("newVariable", result.Entity?.Name);
         }
 
     }

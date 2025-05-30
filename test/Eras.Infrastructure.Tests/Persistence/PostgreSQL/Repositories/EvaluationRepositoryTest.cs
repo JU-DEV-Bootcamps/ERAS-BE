@@ -38,7 +38,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             _mockContext = new Mock<AppDbContext>(options);
             _mockContext
-                .Setup(c => c.Evaluations)
+                .Setup(C => C.Evaluations)
                 .Returns(data.Object);
 
             _repository = new EvaluationRepository(_mockContext.Object);

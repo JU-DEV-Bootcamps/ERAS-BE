@@ -8,27 +8,27 @@ namespace Eras.Application.Services
     {
 
         private readonly IPollRepository _pollRepository;
-        public PollService(IPollRepository pollRepository)
+        public PollService(IPollRepository PollRepository)
         {
-            _pollRepository = pollRepository;
+            _pollRepository = PollRepository;
         }
-        public async Task<Poll> CreatePoll(Poll poll)
+        public async Task<Poll> CreatePoll(Poll Poll)
         {
             try
             {
                 // we need to check bussiness logic to validate before save
-                return await _pollRepository.AddAsync(poll);
+                return await _pollRepository.AddAsync(Poll);
 
             }
             catch (Exception e)
             {
                 // todo pending custom exepcion? disscuss with team
-                throw new NotImplementedException("Error creating poll: "+e.Message);
+                throw new NotImplementedException($"Error creating poll: {e.Message}");
             }
         }
-        public async Task<Poll?> GetPollById(int pollId)
+        public async Task<Poll?> GetPollById(int PollId)
         {
-            return await _pollRepository.GetByIdAsync(pollId);
+            return await _pollRepository.GetByIdAsync(PollId);
         }
     }
 }

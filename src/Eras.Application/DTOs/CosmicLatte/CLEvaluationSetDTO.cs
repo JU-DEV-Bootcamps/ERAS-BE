@@ -1,7 +1,5 @@
 ﻿using System.Text.Json.Serialization;
 
-using Eras.Application.DTOs.CL;
-
 namespace Eras.Application.DTOs.CosmicLatte;
 public class CLEvaluationSetDTOList
 {

@@ -38,11 +38,11 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
         }
 
         [Fact]
-        public async Task Handle_Component_Deletes_Evaluation_NotFoundId()
+        public async Task HandleComponentDeletesEvaluationNotFoundIdAsync()
         {
             BaseResponse responseExample = new BaseResponse("Evaluation not found", false);
 
-            _mockEvaluationRepository.Setup(repo => repo.DeleteAsync(It.IsAny<Evaluation>()))
+            _mockEvaluationRepository.Setup(Repo => Repo.DeleteAsync(It.IsAny<Evaluation>()))
                 .Returns(Task.CompletedTask);
 
             DeleteEvaluationCommand command = new DeleteEvaluationCommand() { id = 1 };
@@ -53,19 +53,19 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
         }
         
         [Fact]
-        public async Task Handle_Component_Deletes_Evaluation()
+        public async Task HandleComponentDeletesEvaluationAsync()
         {
             var newEvaluationDto = new EvaluationDTO() { Name = "newEvaluation", StartDate = DateTime.UtcNow, EndDate = DateTime.Now };
             var newComponent = newEvaluationDto.ToDomain;
 
             _mockEvaluationRepository
-                .Setup(repo => repo.GetByIdForUpdateAsync(It.IsAny<int>()))
+                .Setup(Repo => Repo.GetByIdForUpdateAsync(It.IsAny<int>()))
                 .ReturnsAsync(newComponent);
 
             BaseResponse responseExample = new BaseResponse("Evaluation deleted", true);
 
             _mockEvaluationRepository
-                .Setup(repo => repo.DeleteAsync(It.IsAny<Evaluation>()))
+                .Setup(Repo => Repo.DeleteAsync(It.IsAny<Evaluation>()))
                 .Returns(Task.CompletedTask);
 
             DeleteEvaluationCommand command = new DeleteEvaluationCommand() { id = 1 };

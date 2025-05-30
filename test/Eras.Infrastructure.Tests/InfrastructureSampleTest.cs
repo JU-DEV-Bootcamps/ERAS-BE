@@ -4,7 +4,7 @@
     public class InfrastructureSampleTest
     {
         [Fact]
-        public async Task AuthenticateAsync_WithValidToken_ShouldReturnAuthenticatedUserId()
+        public async Task AuthenticateWithValidTokenShouldReturnAuthenticatedUserIdAsync()
         {
             // Arrange
             var service = new ExternalServiceSample();

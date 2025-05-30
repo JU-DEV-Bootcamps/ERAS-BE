@@ -28,19 +28,19 @@ namespace Eras.Application.Tests.Features.Polls.Commands
         }
 
         [Fact]
-        public async Task Handle_Poll_CreatesNewPoll()
+        public async Task HandlePollCreatesNewPollAsync()
         {
             var newPollDto = new PollDTO() { Name= "newPoll" };
             var command = new CreatePollCommand { Poll = newPollDto };
             var newPoll = newPollDto.ToDomain;
 
-            _mockPollRepository.Setup(repo => repo.AddAsync(It.IsAny<Poll>()))
+            _mockPollRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Poll>()))
                 .ReturnsAsync(newPoll);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("newPoll",result.Entity.Name);
+            Assert.Equal("newPoll",result.Entity?.Name);
         }
 
     }

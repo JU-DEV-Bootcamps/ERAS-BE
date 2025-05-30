@@ -24,7 +24,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatMapDetailsByCoh
         }
 
         [Fact]
-        public async Task Handle_ReturnsListOfStudentHeatMapDetailDto()
+        public async Task HandleReturnsListOfStudentHeatMapDetailDtoAsync()
         {
             var cohortId = "1";
             var limit = 5;
@@ -37,18 +37,18 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatMapDetailsByCoh
             };
 
             _mockStudentRepository
-                .Setup(repo => repo.GetStudentHeatMapDetailsByCohort(cohortId, limit))
+                .Setup(Repo => Repo.GetStudentHeatMapDetailsByCohort(cohortId, limit))
                 .ReturnsAsync(expectedList);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Equal(expectedList.Count, result.Count);
-            _mockStudentRepository.Verify(repo => repo.GetStudentHeatMapDetailsByCohort(cohortId, limit), Times.Once);
+            _mockStudentRepository.Verify(Repo => Repo.GetStudentHeatMapDetailsByCohort(cohortId, limit), Times.Once);
         }
 
         [Fact]
-        public async Task Handle_ReturnsEmptyList_WhenNoDataFound()
+        public async Task HandleReturnsEmptyListWhenNoDataFoundAsync()
         {
             var cohortId = "2";
             var limit = 5;
@@ -57,14 +57,14 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatMapDetailsByCoh
             var expectedList = new List<StudentHeatMapDetailDto>();
 
             _mockStudentRepository
-                .Setup(repo => repo.GetStudentHeatMapDetailsByCohort(cohortId, limit))
+                .Setup(Repo => Repo.GetStudentHeatMapDetailsByCohort(cohortId, limit))
                 .ReturnsAsync(expectedList);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 
             Assert.NotNull(result);
             Assert.Empty(result);
-            _mockStudentRepository.Verify(repo => repo.GetStudentHeatMapDetailsByCohort(cohortId, limit), Times.Once);
+            _mockStudentRepository.Verify(Repo => Repo.GetStudentHeatMapDetailsByCohort(cohortId, limit), Times.Once);
         }
     }
 }

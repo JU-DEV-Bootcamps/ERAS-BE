@@ -14,24 +14,24 @@ namespace Eras.Application.Features.Students.Queries.GetAll
         private readonly ILogger<GetAllStudentsQueryHandler> _logger;
 
         public GetAllStudentsQueryHandler(
-            IStudentRepository studentRepository,
-            ILogger<GetAllStudentsQueryHandler> logger
+            IStudentRepository StudentRepository,
+            ILogger<GetAllStudentsQueryHandler> Logger
         )
         {
-            _studentRepository = studentRepository;
-            _logger = logger;
+            _studentRepository = StudentRepository;
+            _logger = Logger;
         }
 
         public async Task<PagedResult<GetAllStudentsQueryResponse>> Handle(
-            GetAllStudentsQuery request,
-            CancellationToken cancellationToken
+            GetAllStudentsQuery Request,
+            CancellationToken CancellationToken
         )
         {
             try
             {
                 var students = await _studentRepository.GetPagedAsyncWithJoins(
-                    request.Query.Page,
-                    request.Query.PageSize
+                    Request.Query.Page,
+                    Request.Query.PageSize
                 );
                 var totalCount = await _studentRepository.CountAsync();
 

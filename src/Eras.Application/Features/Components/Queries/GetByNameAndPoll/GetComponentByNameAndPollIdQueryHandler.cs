@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Components.Queries.GetByName;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.Enums;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;

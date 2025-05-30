@@ -4,9 +4,9 @@ using Eras.Domain.Entities;
 
 using MediatR;
 
-namespace Eras.Application.Features.Cohort.Commands.CreateCohort
+namespace Eras.Application.Features.Cohorts.Commands.CreateCohort
 {
-    public class CreateCohortCommand : IRequest<CreateCommandResponse<Domain.Entities.Cohort>>
+    public class CreateCohortCommand : IRequest<CreateCommandResponse<Cohort>>
     {
         public required CohortDTO CohortDto;
     }

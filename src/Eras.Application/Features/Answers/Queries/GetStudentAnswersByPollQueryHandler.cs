@@ -1,6 +1,4 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Exceptions;
-using Eras.Application.Features.Components.Queries;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
 

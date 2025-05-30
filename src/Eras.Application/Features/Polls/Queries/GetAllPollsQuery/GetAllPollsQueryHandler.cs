@@ -5,11 +5,6 @@ using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Domain.Entities;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery
 {
@@ -18,27 +13,25 @@ namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery
         private readonly IPollRepository _pollRepository;
         private readonly ILogger<GetAllPollsQuery> _logger;
 
-        public GetAllPollsQueryHandler(
-            IPollRepository pollRepository,
-            ILogger<GetAllPollsQuery> logger
-        )
-        {
-            _pollRepository = pollRepository;
-            _logger = logger;
-        }
+    public GetAllPollsQueryHandler(IPollRepository PollRepository, ILogger<GetAllPollsQuery> Logger)
+    {
+        _pollRepository = PollRepository;
+        _logger = Logger;
+    }
 
-        public async Task<List<GetPollsQueryResponse>> Handle(GetAllPollsQuery request, CancellationToken cancellationToken)
+        public async Task<List<GetPollsQueryResponse>> Handle(GetAllPollsQuery Request, CancellationToken CancellationToke)
         {
             try
             {
-                var polls = _pollRepository.GetAllAsync().Result.ToList();
-                var pollsResponses = polls.Select(poll => new GetPollsQueryResponse
+                var polls = await _pollRepository.GetAllAsync();
+                var pollsList = polls.ToList();
+                var pollsResponses = pollsList.Select(Poll => new GetPollsQueryResponse
                 {
-                    Id = poll.Id,
-                    Uuid = poll.Uuid,
-                    Name = poll.Name,
-                    LastVersion = poll.LastVersion,
-                    LastVersionDate = poll.LastVersionDate,
+                    Id = Poll.Id,
+                    Uuid = Poll.Uuid,
+                    Name = Poll.Name,
+                    LastVersion = Poll.LastVersion,
+                    LastVersionDate = Poll.LastVersionDate,
                 }).ToList();
 
                 return pollsResponses;

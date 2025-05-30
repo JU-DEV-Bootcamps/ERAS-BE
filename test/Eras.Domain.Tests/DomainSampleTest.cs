@@ -7,7 +7,7 @@ namespace Eras.Domain.Tests
     public class DomainSampleTest
     {
         [Fact]
-        public async Task GetAllPollsAsync_ShouldReturnListOfPolls()
+        public async Task GetAllPollsShouldReturnListOfPollsAsync()
         {
             // Arrange
             var mockRepo = new Mock<IPollRepositorySample>();
@@ -26,7 +26,7 @@ namespace Eras.Domain.Tests
                 }
             };
 
-            mockRepo.Setup(repo => repo.GetAllPollsAsync()).ReturnsAsync(expectedPolls);
+            mockRepo.Setup(Repo => Repo.GetAllPollsAsync()).ReturnsAsync(expectedPolls);
 
             // Act
             var actualPolls = await mockRepo.Object.GetAllPollsAsync();

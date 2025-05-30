@@ -31,7 +31,7 @@ namespace Eras.Application.Tests.Mocks
                 new GetHeatMapByComponentsQueryResponse { ComponentId = 2, ComponentName = "Component2", VariableId = 3, VariableName = "Variable3", AnswerText = "Answer10", AnswerRiskLevel = 2 }
             };
 
-            mockupHeatmapRepository.Setup(repo => repo.GetHeatMapDataByComponentsAsync(It.IsAny<string>()
+            mockupHeatmapRepository.Setup(Repo => Repo.GetHeatMapDataByComponentsAsync(It.IsAny<string>()
                 )).ReturnsAsync(mockAnswers);
 
             return mockupHeatmapRepository;
@@ -46,7 +46,7 @@ namespace Eras.Application.Tests.Mocks
                 new Component { Id = 2, Name = "Component2", Variables = new List<Variable> { new Variable { Id = 3, Name = "Variable3" }, new Variable { Id = 4, Name = "Variable4" } } }
             };
 
-            mockupComponentRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(mockComponents);
+            mockupComponentRepository.Setup(Repo => Repo.GetAllAsync()).ReturnsAsync(mockComponents);
 
             return mockupComponentRepository;
         }

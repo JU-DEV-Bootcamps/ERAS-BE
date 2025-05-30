@@ -1,37 +1,37 @@
-﻿using Eras.Application.Dtos;
-using Eras.Application.DTOs;
+﻿using Eras.Application.DTOs;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Eras.Application.Mappers
 {
     public static class ComponentMapper
     {
-        public static Component ToDomain(this ComponentDTO dto)
+        public static Component ToDomain(this ComponentDTO Dto)
         {
-            ArgumentNullException.ThrowIfNull(dto);
-            ICollection<Variable> variables = dto.Variables?.Select(v => v.ToDomain()).ToList() ?? [];
+            ArgumentNullException.ThrowIfNull(Dto);
+            ICollection<Variable> variables = Dto.Variables?.Select(V => V.ToDomain()).ToList() ?? [];
             return new Component
             {
                 Id = default,
-                Name = dto.Name,
+                Name = Dto.Name,
                 Variables = variables,
-                Audit = dto.Audit
+                Audit = Dto.Audit?? new AuditInfo()
+                {
+                    CreatedBy = "Component Mapper",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                }
             };
         }
-        public static ComponentDTO ToDto(this Component domain)
+        public static ComponentDTO ToDto(this Component Domain)
         {
-            ArgumentNullException.ThrowIfNull(domain);
-            ICollection<VariableDTO> variables = domain.Variables?.Select(v => v.ToDto()).ToList() ?? [];
+            ArgumentNullException.ThrowIfNull(Domain);
+            ICollection<VariableDTO> variables = Domain.Variables?.Select(V => V.ToDto()).ToList() ?? [];
             return new ComponentDTO
             {
-                Name = domain.Name,
+                Name = Domain.Name,
                 Variables = variables,
-                Audit = domain.Audit
+                Audit = Domain.Audit
             };
         }
     }

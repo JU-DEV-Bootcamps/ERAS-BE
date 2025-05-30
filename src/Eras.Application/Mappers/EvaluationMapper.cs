@@ -1,43 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Eras.Application.Dtos;
-using Eras.Application.DTOs;
+﻿using Eras.Application.DTOs;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers
 {
     public static class EvaluationMapper
     {
-        public static Evaluation ToDomain(this EvaluationDTO dto)
+        public static Evaluation ToDomain(this EvaluationDTO Dto)
         {
-            ArgumentNullException.ThrowIfNull(dto);
+            ArgumentNullException.ThrowIfNull(Dto);
             return new Evaluation
             {
-                Id = dto.Id,
-                Name = dto.Name,
-                PollName = dto.PollName,
-                Country = dto.Country,
-                StartDate = dto.StartDate,
-                EndDate = dto.EndDate,
-                EvaluationPollId = dto.EvaluationPollId
+                Id = Dto.Id,
+                Name = Dto.Name,
+                PollName = Dto.PollName,
+                Country = Dto.Country,
+                StartDate = Dto.StartDate,
+                EndDate = Dto.EndDate,
+                EvaluationPollId = Dto.EvaluationPollId
             };
         }
-        public static EvaluationDTO ToDto(this Evaluation domain)
+        public static EvaluationDTO ToDto(this Evaluation Domain)
         {
-            ArgumentNullException.ThrowIfNull(domain);
+            ArgumentNullException.ThrowIfNull(Domain);
             return new EvaluationDTO
             {
-                Id = domain.Id,
-                Name = domain.Name,
-                PollName = domain.PollName,
-                Country = domain.Country,
-                StartDate = domain.StartDate,
-                EndDate = domain.EndDate,
-                Status = domain.Status,
-                EvaluationPollId = domain.EvaluationPollId
+                Id = Domain.Id,
+                Name = Domain.Name,
+                PollName = Domain.PollName,
+                Country = Domain.Country,
+                StartDate = Domain.StartDate,
+                EndDate = Domain.EndDate,
+                Status = Domain.Status,
+                EvaluationPollId = Domain.EvaluationPollId
             };
         }
     }

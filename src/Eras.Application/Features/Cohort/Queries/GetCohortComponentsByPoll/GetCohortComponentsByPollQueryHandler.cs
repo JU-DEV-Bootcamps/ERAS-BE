@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.Response.Calculations;
 
 using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Cohort.Queries.GetCohortComponentsByPoll;
+namespace Eras.Application.Features.Cohorts.Queries.GetCohortComponentsByPoll;
 public class GetCohortComponentsByPollQueryHandler : IRequestHandler<GetCohortComponentsByPollQuery, List<GetCohortComponentsByPollResponse>>
 {
     private readonly IPollCohortRepository _pollCohortRepository;
@@ -22,9 +16,9 @@ public class GetCohortComponentsByPollQueryHandler : IRequestHandler<GetCohortCo
         _logger = Logger;
     }
 
-    public async Task<List<GetCohortComponentsByPollResponse>> Handle(GetCohortComponentsByPollQuery request, CancellationToken cancellationToken)
+    public async Task<List<GetCohortComponentsByPollResponse>> Handle(GetCohortComponentsByPollQuery Request, CancellationToken CancellationToken)
     {
-        var listCohortComponentsByPoll = await _pollCohortRepository.GetCohortComponentsByPoll(request.PollUuid);
+        var listCohortComponentsByPoll = await _pollCohortRepository.GetCohortComponentsByPoll(Request.PollUuid);
         return listCohortComponentsByPoll;
     }
 }

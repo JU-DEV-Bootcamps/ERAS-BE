@@ -47,6 +47,6 @@ public class UpdatePollInstanceByIdCommandHandlerTest
         var result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.NotNull(result);
-        Assert.Equal("Uuid1", result.Entity.Uuid);
+        Assert.Equal("Uuid1", result.Entity?.Uuid);
     }
 }

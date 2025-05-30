@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace Eras.Application.Utils
 {
     public class PagedResult<T>
@@ -8,10 +6,10 @@ namespace Eras.Application.Utils
 
         public IList<T> Items { get; init; } = Array.Empty<T>();
 
-        public PagedResult(int count, IList<T> items)
+        public PagedResult(int Count, IList<T> Items)
         {
-            Count = count;
-            Items = items;
+            this.Count = Count;
+            this.Items = Items;
         }
 
         // used by json deserializer

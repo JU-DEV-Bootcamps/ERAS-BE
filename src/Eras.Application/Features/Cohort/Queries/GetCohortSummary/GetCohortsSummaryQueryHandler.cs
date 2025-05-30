@@ -5,7 +5,7 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-namespace Eras.Application.Features.Cohort.Queries
+namespace Eras.Application.Features.Cohorts.Queries
 {
     class GetCohortsSummaryQueryHandler(
         IStudentCohortRepository ScRepository,

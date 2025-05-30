@@ -31,19 +31,19 @@ namespace Eras.Application.Tests.Features.Components.Commands
         }
 
         [Fact]
-        public async Task Handle_Component_CreatesNewComponent()
+        public async Task HandleComponentCreatesNewComponentAsync()
         {
             var newAnswerDto = new AnswerDTO() { Answer= "newAnswer" };
             var command = new CreateAnswerCommand { Answer = newAnswerDto };
             var newPoll = newAnswerDto.ToDomain;
 
-            _mockAnswerRepository.Setup(repo => repo.AddAsync(It.IsAny<Answer>()))
+            _mockAnswerRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Answer>()))
                 .ReturnsAsync(newPoll);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("newAnswer", result.Entity.AnswerText);
+            Assert.Equal("newAnswer", result.Entity?.AnswerText);
         }
 
     }

@@ -66,17 +66,17 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                 new CohortEntity { Id = 2, Name = "Cohort2", CourseCode = "Course2" }
             }.AsQueryable().BuildMockDbSet();
 
-            _mockContext.Setup(c => c.PollInstances).Returns(pollInstances.Object);
-            _mockContext.Setup(c => c.Variables).Returns(variables.Object);
-            _mockContext.Setup(c => c.Components).Returns(components.Object);
-            _mockContext.Setup(c => c.Set<PollVariableJoin>()).Returns(pollVariableJoins.Object);
-            _mockContext.Setup(c => c.Answers).Returns(answers.Object);
-            _mockContext.Setup(c => c.StudentCohorts).Returns(studentCohorts.Object);
-            _mockContext.Setup(c => c.Cohorts).Returns(cohorts.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(pollInstances.Object);
+            _mockContext.Setup(C => C.Variables).Returns(variables.Object);
+            _mockContext.Setup(C => C.Components).Returns(components.Object);
+            _mockContext.Setup(C => C.Set<PollVariableJoin>()).Returns(pollVariableJoins.Object);
+            _mockContext.Setup(C => C.Answers).Returns(answers.Object);
+            _mockContext.Setup(C => C.StudentCohorts).Returns(studentCohorts.Object);
+            _mockContext.Setup(C => C.Cohorts).Returns(cohorts.Object);
         }
 
         [Fact]
-        public async Task GetHeatMapDataByCohortAndDaysAsync_ShouldReturnData_ByDays()
+        public async Task GetHeatMapDataByCohortAndDaysShouldReturnDataByDaysAsync()
         {
             // Act
             var result = await _repository.GetHeatMapDataByCohortAndDaysAsync(0, 7);
@@ -88,7 +88,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetHeatMapDataByCohortAndDaysAsync_ShouldReturnData_ByCohortId()
+        public async Task GetHeatMapDataByCohortAndDaysShouldReturnDataByCohortIdAsync()
         {
             // Act
             var result = await _repository.GetHeatMapDataByCohortAndDaysAsync(2, 0);
@@ -100,7 +100,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetHeatMapDataByCohortAndDaysAsync_ShouldReturnEmpty_WhenNoDataExists()
+        public async Task GetHeatMapDataByCohortAndDaysShouldReturnEmptyWhenNoDataExistsAsync()
         {
             // Act
             var result = await _repository.GetHeatMapDataByCohortAndDaysAsync(2, 7);
@@ -111,7 +111,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetHeatMapDataByCohortAndDaysAsync_ShouldReturnData_WhenCohortIdAndDaysAreZero()
+        public async Task GetHeatMapDataByCohortAndDaysShouldReturnDataWhenCohortIdAndDaysAreZeroAsync()
         {
             // Act
             var result = await _repository.GetHeatMapDataByCohortAndDaysAsync(0, 0);

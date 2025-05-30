@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.Models.Response.Calculations;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
-
-using Microsoft.AspNetCore.Components;
-using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
@@ -26,20 +15,20 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public Task<PagedResult<StudentAnswer>> GetStudentAnswersPagedAsync(int StudentId, int PollId, int Page, int PageSize)
         {
             var studentAnswers = _context.ErasCalculationsByPoll
-                .Where(e => e.StudentId == StudentId && e.PollId == PollId)
-                .Select(e => new StudentAnswer
+                .Where(E => E.StudentId == StudentId && E.PollId == PollId)
+                .Select(E => new StudentAnswer
                 {
-                    Variable = e.Question,
-                    Position = e.PollVariableId,
-                    Component = e.ComponentName,
-                    Answer = e.AnswerText,
-                    Score = e.AnswerRisk
+                    Variable = E.Question,
+                    Position = E.PollVariableId,
+                    Component = E.ComponentName,
+                    Answer = E.AnswerText,
+                    Score = E.AnswerRisk
                 })
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize);
 
             var totalCount = _context.ErasCalculationsByPoll
-                .Count(e => e.StudentId == StudentId && e.PollId == PollId);
+                .Count(E => E.StudentId == StudentId && E.PollId == PollId);
 
             return Task.FromResult(new PagedResult<StudentAnswer>(totalCount, studentAnswers.ToList()));
         }
