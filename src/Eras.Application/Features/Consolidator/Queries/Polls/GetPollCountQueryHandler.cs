@@ -22,8 +22,8 @@ public class PollCountQueryHandler(
         try
         {
 
-            var answersByFilters = await _pollInstanceRepository.GetCountReportByVariablesAsync(Req.PollUuid, Req.CohortId, Req.VariableIds)
-                ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortId}");
+            var answersByFilters = await _pollInstanceRepository.GetCountReportByVariablesAsync(Req.PollUuid, Req.CohortIds, Req.VariableIds)
+                ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortIds}");
 
             if (answersByFilters == null) // Returns empty response
                 return new GetQueryResponse<CountReportResponseVm>(new CountReportResponseVm(), "Success: No answered polls with that Uuid", true);
