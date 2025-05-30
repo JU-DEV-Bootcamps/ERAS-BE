@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-using Eras.Application.Models.Consolidator;
+using Eras.Application.Features.Consolidator.Queries;
 using Eras.Application.Features.Consolidator.Queries.Polls;
 using Eras.Application.Features.Consolidator.Queries.Students;
+using Eras.Application.Models.Consolidator;
 using Eras.Application.Models.Response.Common;
-
 using Eras.Domain.Entities;
 
 using MediatR;
@@ -193,5 +193,12 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             return NotFound(new { status = "error", message = ex.Message });
         }
+    }
+    [HttpGet("count")]
+    public async Task<IActionResult> GetCountSummaryAsync()
+    {
+        GetCountSummaryQuery query = new();
+        GetQueryResponse<Dictionary<string, int>> answer = await _mediator.Send(query);
+        return Ok(answer);
     }
 }
