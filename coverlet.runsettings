@@ -6,6 +6,10 @@
         <Configuration>
           <Exclude>[*]*Eras.Application.DTOs*</Exclude>
           <Exclude>[*]*Eras.Application.Contracts*</Exclude>
+          <Exclude>[*]*Eras.Application*</Exclude>
+          <Exclude>[*]*Eras.Domain*</Exclude>
+          <Exclude>[*]*Eras.Infrastructure*</Exclude>
+          <Exclude>[*]*Eras.Api*</Exclude>
           <Exclude>[*]*Eras.Domain.Entities*</Exclude>
           <Exclude>[*]*Eras.Application.Utils*</Exclude>
           <Exclude>[*]*Eras.Application.Exceptions*</Exclude>
