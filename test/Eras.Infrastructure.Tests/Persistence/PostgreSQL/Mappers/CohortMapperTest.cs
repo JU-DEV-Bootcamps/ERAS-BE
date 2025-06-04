@@ -1,6 +1,7 @@
 ﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Domain.Common;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
 {
@@ -30,6 +31,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
                 Id = 1,
                 Name = "Test Cohort",
                 CourseCode = "CS101",
+                Audit = new AuditInfo()
             };
             var result = model.ToPersistence();
             Assert.NotNull(result);

@@ -51,6 +51,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
                 PureScoreDiff = 10,
                 StandardScoreDiff = 5,
                 LastAccessDays = 3,
+                Audit = new Domain.Common.AuditInfo()
             };
             var result = model.ToPersistence();
             Assert.NotNull(result);
