@@ -53,7 +53,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         try
         {
             GetStudentTopQuery query = new() { CohortName = CohortName, PollName = PollName, Take = Take };
-            GetQueryResponse<List<(Student Student, List<Answer> Answers, double RiskIndex)>> avgRisk = await _mediator.Send(query);
+            GetQueryResponse<List<(Student Student, List<Answer> Answers, decimal RiskIndex)>> avgRisk = await _mediator.Send(query);
             var toprmessage = string.Join(", ", avgRisk.Body.Select(St => $"{St.Student.Uuid} - {St.Student.Name} - RISK = {St.RiskIndex}").ToList());
             var result = avgRisk.Body.Select(St => new
             {
@@ -173,7 +173,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
                 PollUuid = new Guid(Uuid)
             };
             GetQueryResponse<List<Answer>> answers = await _mediator.Send(query);
-            IEnumerable<int> risks = answers.Body.Select(Answer => Answer.RiskLevel);
+            IEnumerable<decimal> risks = answers.Body.Select(Answer => Answer.RiskLevel);
             var averageRisk = risks.Any() ? risks.Average() : 0;
 
             return answers.Success

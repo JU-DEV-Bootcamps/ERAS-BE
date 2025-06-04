@@ -14,7 +14,7 @@ public class GetStudentTopQueryHandler(
     IAnswerRepository AnswerRepository,
     IPollRepository PollRepository,
     ILogger<GetStudentTopQueryHandler> Logger
-  ) : IRequestHandler<GetStudentTopQuery, GetQueryResponse<List<(Student, List<Answer>, double)>>>
+  ) : IRequestHandler<GetStudentTopQuery, GetQueryResponse<List<(Student, List<Answer>, decimal)>>>
 {
     private readonly ICohortRepository _cohortRepository = CohortRepository;
     private readonly IStudentCohortRepository _studentCohortRepository = StudentCohortRepository;
@@ -24,7 +24,7 @@ public class GetStudentTopQueryHandler(
     private readonly ILogger<GetStudentTopQueryHandler> _logger = Logger;
     public int DefaultTakeNumber = 5;
 
-    public async Task<GetQueryResponse<List<(Student, List<Answer>, double)>>> Handle(GetStudentTopQuery Request, CancellationToken CancellationToken)
+    public async Task<GetQueryResponse<List<(Student, List<Answer>, decimal)>>> Handle(GetStudentTopQuery Request, CancellationToken CancellationToken)
     {
         try
         {
@@ -38,12 +38,12 @@ public class GetStudentTopQueryHandler(
                     : null
                 ) ?? throw new KeyNotFoundException("No students found for the cohort");
 
-            List<(Student Student, List<Answer> Answers, double RiskIndex)> studentsAnswers = [];
+            List<(Student Student, List<Answer> Answers, decimal RiskIndex)> studentsAnswers = [];
             foreach (var student in cohortStudents)
             {
                 List<Answer> answers = await _answerRepository.GetByStudentIdAsync(student.Uuid);
                 //Higher risk index calculator
-                double riskIndex = 0;
+                decimal riskIndex = 0;
                 if (answers.Count > 0)
                 {
                     riskIndex = answers.Average(A => A.RiskLevel);
@@ -56,12 +56,12 @@ public class GetStudentTopQueryHandler(
                 studentsAnswers.Add((student, answers, riskIndex));
             }
             var topN = studentsAnswers.OrderByDescending(S => S.RiskIndex).Take(TakeNStudents).ToList();
-            return new GetQueryResponse<List<(Student Student, List<Answer> Answers, double RiskIndex)>>(topN, "successful", true);
+            return new GetQueryResponse<List<(Student Student, List<Answer> Answers, decimal RiskIndex)>>(topN, "successful", true);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while calculating higher risk students");
-            return new GetQueryResponse<List<(Student Student, List<Answer> Answers, double RiskIndex)>>([], $"Failed to retrieve top risk students. Error: {ex.Message}", false);
+            return new GetQueryResponse<List<(Student Student, List<Answer> Answers, decimal RiskIndex)>>([], $"Failed to retrieve top risk students. Error: {ex.Message}", false);
         }
     }
 }

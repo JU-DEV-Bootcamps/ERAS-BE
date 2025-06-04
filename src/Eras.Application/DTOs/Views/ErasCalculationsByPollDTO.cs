@@ -9,7 +9,7 @@ public class ErasCalculationsByPollDTO
     public int PollInstanceId { get; set; }
     public string? StudentName { get; set; }
     public required string StudentEmail { get; set; }
-    public int AnswerRisk { get; set; }
+    public decimal AnswerRisk { get; set; }
     public int PollInstanceRiskSum { get; set; }
     public int PollInstanceAnswersCount { get; set; }
     public decimal ComponentAverageRisk { get; set; }
