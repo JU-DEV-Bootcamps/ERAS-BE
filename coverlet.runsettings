@@ -2,18 +2,12 @@
 <RunSettings>
   <DataCollectionRunSettings>
     <DataCollectors>
-      <DataCollector friendlyName="XPlat code coverage">
+      <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
           <ExcludeBy>
             <!-- Still not working -->
             
             <Namespace>.*Eras\.Application\.DTOs.*</Namespace>
-
-            <Namespace>.*Eras\.Application.*</Namespace>
-
-            <Namespace>.*Eras\.Domain.*</Namespace>
-
-            <Namespace>.*Eras\.Infrastructure.*</Namespace>
 
             <Namespace>.*Eras\.Application\.Contracts.*</Namespace>
 
