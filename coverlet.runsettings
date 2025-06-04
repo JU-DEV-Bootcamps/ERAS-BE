@@ -9,6 +9,12 @@
             
             <Namespace>.*Eras\.Application\.DTOs.*</Namespace>
 
+            <Namespace>.*Eras\.Application.*</Namespace>
+
+            <Namespace>.*Eras\.Domain.*</Namespace>
+
+            <Namespace>.*Eras\.Infrastructure.*</Namespace>
+
             <Namespace>.*Eras\.Application\.Contracts.*</Namespace>
 
             <Namespace>.*Eras\.Domain\.Entities.*</Namespace>
