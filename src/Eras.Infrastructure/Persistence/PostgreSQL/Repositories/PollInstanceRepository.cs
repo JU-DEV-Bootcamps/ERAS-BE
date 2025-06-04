@@ -63,10 +63,10 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     }
 
     public async Task<AvgReportResponseVm> GetReportByPollCohortAsync(
-    string PollUuid, int CohortId)
+    string PollUuid, int[] CohortIds)
     {
         List<string> emailsInCohort = await _context.StudentCohorts
-            .Where(SC => CohortId == 0 || SC.CohortId == CohortId)
+            .Where(SC => CohortIds.Contains(SC.CohortId))
             .Join(_context.Students,
                 SC => SC.StudentId,
                 S => S.Id,
@@ -81,12 +81,12 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         select new ErasCalculationsByPollDTO
         {
             ComponentName = A.ComponentName,
-            ComponentAverageRisk = A.ComponentAverageRisk,
             Question = A.Question,
             AnswerText = A.AnswerText,
             VariableAverageRisk = A.VariableAverageRisk,
             AnswerPercentage = A.AnswerPercentage,
-            StudentEmail = A.StudentEmail
+            StudentEmail = A.StudentEmail,
+            AnswerRisk = A.AnswerRisk
         };
 
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
@@ -96,7 +96,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         .Select(AnsPerComp => new AvgReportComponent
         {
             Description = AnsPerComp.Key.ToUpper(),
-            AverageRisk = Math.Round(AnsPerComp.First().ComponentAverageRisk, 2),
+            AverageRisk = Math.Round(AnsPerComp.Average(X => X.AnswerRisk), 2),
             Questions = [.. AnsPerComp
                 .OrderBy(A => A.VariableAverageRisk)
                 .GroupBy(A => A.Question)
@@ -104,7 +104,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 {
                     Question = AnsPerVar.Key,
                     AverageAnswer = AnsPerVar.GroupBy(A => A.AnswerText).OrderByDescending(A => A.Count()).First().Key,
-                    AverageRisk = Math.Round(AnsPerVar.First().VariableAverageRisk, 2),
+                    AverageRisk = Math.Round(AnsPerVar.Average(X => X.AnswerRisk), 2),
                     AnswersDetails = [.. AnsPerVar
                         .GroupBy(A => A.AnswerText)
                         .Select(AnsPerVar => new AnswerDetails

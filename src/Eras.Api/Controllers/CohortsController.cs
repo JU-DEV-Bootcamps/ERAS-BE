@@ -35,6 +35,25 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
         return Ok(res);
     }
 
+    [HttpGet("poll")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetCohortsByPollIdAsync([FromQuery] int? PollId)
+    {
+        GetCohortsListByPollIdQuery getCohortsListQuery = new();
+        if (PollId != null)
+        {
+            getCohortsListQuery.PollId = PollId;
+        }
+        else
+        {
+            _logger.LogInformation("PollUuid is empty. Getting all cohorts");
+        }
+        Application.Models.Response.Common.GetQueryResponse<List<Cohort>> res = await _mediator.Send(getCohortsListQuery);
+        return Ok(res);
+    }
+
+
     [HttpGet("summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

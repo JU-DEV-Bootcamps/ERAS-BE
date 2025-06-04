@@ -183,6 +183,45 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return await query.OrderByDescending(X => X.AvgRiskLevel).ToListAsync();
         }
 
+        public async Task<List<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
+            int [] CohortIds,
+            int PollId
+        )
+        {
+            var query = _context.Students
+                .Join(_context.StudentCohorts,
+                    S => S.Id,
+                    Sc => Sc.StudentId,
+                    (S, Sc) => new { S, Sc })
+                .Join(_context.PollInstances,
+                    Ss => Ss.S.Id,
+                    Pi => Pi.StudentId,
+                    (Ss, Pi) => new { Ss.S, Ss.Sc, Pi })
+                .Join(_context.Answers,
+                    Sspi => Sspi.Pi.Id,
+                    A => A.PollInstanceId,
+                    (Sspi, A) => new { Sspi.S, Sspi.Sc, Sspi.Pi, A })
+                .Join(_context.PollVariables,
+                    Sspia => Sspia.A.PollVariableId,
+                    Pv => Pv.Id,
+                    (Sspia, Pv) => new { Sspia.S, Sspia.Sc, Sspia.A, Pv })
+                .Join(_context.Cohorts,
+                    Sspiapv => Sspiapv.Sc.CohortId,
+                    C => C.Id,
+                    (Sspiapv, C) => new { Sspiapv.S, Sspiapv.A, Sspiapv.Pv, C })
+                .Where(X => CohortIds.Contains(X.C.Id) && X.Pv.PollId == PollId)
+                .GroupBy(X => new { X.S.Id, X.S.Name, X.S.Email })
+                .Select(G => new StudentAverageRiskDto
+                {
+                    StudentId = G.Key.Id,
+                    StudentName = G.Key.Name,
+                    Email = G.Key.Email,
+                    AvgRiskLevel = G.Average(X => X.A.RiskLevel)
+                });
+
+            return await query.OrderByDescending(X => X.AvgRiskLevel).ToListAsync();
+        }
+
         public new async Task<Student> UpdateAsync(Student Entity)
         {
 

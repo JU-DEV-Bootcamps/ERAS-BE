@@ -20,30 +20,6 @@ public class ReportsController(IMediator Mediator) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
 
-    [HttpGet("students/avg")]
-    public async Task<IActionResult> GetAvgRiskStudentsAsync(
-        [FromQuery] string PollInstanceUuid,
-        [FromQuery] int? CohortId)
-    {
-        try
-        {
-            var pollGuid = new Guid(PollInstanceUuid);
-            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId ?? 0 };
-            GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
-            return avgRisk.Success
-            ? Ok(new
-            {
-                status = "successful",
-                body = avgRisk
-            })
-            : BadRequest(new { status = "error", message = avgRisk.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { status = "error", message = ex.Message });
-        }
-    }
-
     [HttpGet("students/top")]
     public async Task<IActionResult> GetHigherRiskStudentsByCohortAsync(
         [FromQuery] string CohortName,
@@ -117,12 +93,21 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
     [HttpGet("polls/{Uuid}/avg")]
-    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] int CohortId)
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] string CohortIds)
     {
         try
         {
             var pollGuid = new Guid(Uuid);
-            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId };
+            int[] CohortIdsAsInts = CohortIds.Split(",", StringSplitOptions.RemoveEmptyEntries)
+            .Select(Id => int.TryParse(Id, out var parsed) ? parsed : 0)
+            .Where(Id => Id != 0)
+            .ToArray();
+
+            if (CohortIdsAsInts.Length <= 0)
+            {
+                return BadRequest(new { status = "error", message = "CohortIds has a bad format" });
+            }
+            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortIds = CohortIdsAsInts };
             GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
