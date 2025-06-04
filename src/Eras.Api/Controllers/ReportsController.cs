@@ -162,36 +162,25 @@ public class ReportsController(IMediator Mediator) : ControllerBase
             return StatusCode(500, new { status = "error", message = ex.Message });
         }
     }
-    [HttpGet("polls/{Uuid}/summary")]
+    [HttpGet("polls/{Uuid}/risk-count")]
     public async Task<IActionResult> GetComponentSummaryByPollAsync(
     [FromRoute] string Uuid)
     {
         try
         {
-            GetComponentSummaryQuery query = new()
+            GetRiskCountQuery query = new()
             {
                 PollUuid = new Guid(Uuid)
             };
-            GetQueryResponse<List<Answer>> answers = await _mediator.Send(query);
-            IEnumerable<int> risks = answers.Body.Select(Answer => Answer.RiskLevel);
-            var averageRisk = risks.Any() ? risks.Average() : 0;
+            GetQueryResponse<RiskCountResponseVm> riskCountSummary = await _mediator.Send(query);
 
-            return answers.Success
-            ? Ok(new
-            {
-                status = "successful",
-                message = $"Poll Variable summary:",
-                body = new
-                {
-                    risks,
-                    averageRisk
-                }
-            })
-            : BadRequest(new { status = "error", message = "Success" });
+            return riskCountSummary.Success
+            ? Ok(riskCountSummary)
+            : NotFound(riskCountSummary);
         }
         catch (Exception ex)
         {
-            return NotFound(new { status = "error", message = ex.Message });
+            return BadRequest(new { status = "error", message = ex.Message });
         }
     }
     [HttpGet("count")]
