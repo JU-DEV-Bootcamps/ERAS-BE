@@ -12,8 +12,8 @@
             <Namespace>.*Eras\.Domain\.Entities.*</Namespace>
 
             <Namespace>.*Eras\.Application\.Utils.*</Namespace>
-            
-            <Namespace>.*Eras\.Application\.Exceptions.*</Namespace>
+
+            <Namespace>Eras.Application.Exceptions</Namespace>
 
             <Namespace>.*Eras\.Infrastructure\.Persistence\.PostgreSQL\.Repositories.*</Namespace>
 
