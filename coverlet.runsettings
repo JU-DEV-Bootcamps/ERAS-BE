@@ -4,18 +4,16 @@
     <DataCollectors>
       <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
-          <Exclude>[*]*Eras.Application.DTOs*</Exclude>
-          <Exclude>[*]*Eras.Application.Contracts*</Exclude>
-          <Exclude>[*]*Eras.Application*</Exclude>
-          <Exclude>[*]*Eras.Domain*</Exclude>
-          <Exclude>[*]*Eras.Infrastructure*</Exclude>
-          <Exclude>[*]*Eras.Api*</Exclude>
-          <Exclude>[*]*Eras.Domain.Entities*</Exclude>
-          <Exclude>[*]*Eras.Application.Utils*</Exclude>
-          <Exclude>[*]*Eras.Application.Exceptions*</Exclude>
-          <Exclude>[*]*Eras.Infrastructure.Persistence.PostgreSQL.Repositories*</Exclude>
-          <Exclude>[*]*Eras.Infrastructure.Persistence.PostgreSQL.Migrations*</Exclude>
-          <IncludeTestAssembly>false</IncludeTestAssembly>
+          <ExcludeByFile>
+            **/DTOs/**/*.cs,
+            **/DTOs/*.cs,
+            **/Exceptions/**/*.cs,
+            **/Exceptions/*.cs,
+            **/Models/**/*.cs,
+            **/Models/*.cs,
+            **/Migrations/**/*.cs,
+            **/Migrations/*.cs,
+          </ExcludeByFile>
         </Configuration>
       </DataCollector>
     </DataCollectors>
