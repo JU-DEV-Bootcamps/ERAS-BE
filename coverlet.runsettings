@@ -2,22 +2,18 @@
 <RunSettings>
   <DataCollectionRunSettings>
     <DataCollectors>
-      <DataCollector friendlyName="XPlat code coverage">
+      <DataCollector friendlyName="XPlat Code Coverage">
         <Configuration>
-          <ExcludeBy>
-            <!-- Still not working -->
-            
-            <Namespace>.*Eras\.Application\.DTOs.*</Namespace>
-
-            <Namespace>.*Eras\.Domain\.Entities.*</Namespace>
-
-            <Namespace>.*Eras\.Application\.Utils.*</Namespace>
-
-            <Namespace>.*Eras\.Infrastructure\.Persistence\.PostgreSQL\.Repositories.*</Namespace>
-
-            <Namespace>.*Eras\.Infrastructure\.Persistence\.PostgreSQL\.Migrations.*</Namespace>
-          </ExcludeBy>
-          <IncludeTestAssembly>false</IncludeTestAssembly>
+          <ExcludeByFile>
+            **/DTOs/**/*.cs,
+            **/DTOs/*.cs,
+            **/Exceptions/**/*.cs,
+            **/Exceptions/*.cs,
+            **/Models/**/*.cs,
+            **/Models/*.cs,
+            **/Migrations/**/*.cs,
+            **/Migrations/*.cs,
+          </ExcludeByFile>
         </Configuration>
       </DataCollector>
     </DataCollectors>

@@ -307,11 +307,16 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             foreach (string answers in AnswersKVPair.Value.AnswersList)
             {
                 answerSB.Append(answers);
+                if (AnswersKVPair.Value.AnswersList.Length > 1 && 
+                    Array.IndexOf(AnswersKVPair.Value.AnswersList,answers) != (AnswersKVPair.Value.AnswersList.Length - 1))
+                    answerSB.Append("; ");
             }
-            double score = GetScoreByPositionAndAnswer(AnswersKVPair.Value.Position, ScoreItem);
-            return new AnswerDTO { Answer = answerSB.ToString(), Score = score, Student = Student, Version = new VersionInfo()};
+            decimal score = GetScoreByPositionAndAnswer(AnswersKVPair.Value.Position, ScoreItem);
+            score = AnswersKVPair.Value.AnswersList.Length > 0 ? score / AnswersKVPair.Value.AnswersList.Length : score; 
+            return new AnswerDTO { Answer = answerSB.ToString(), Score = Math.Round(score,2), 
+                Student = Student, Version = new VersionInfo()};
         }
-        private static double GetScoreByPositionAndAnswer(int Position, Score ScoreItem)
+        private static decimal GetScoreByPositionAndAnswer(int Position, Score ScoreItem)
         {
             ByPosition? byPositionItem = ScoreItem.byPosition.Find(Ans => Ans.position == Position);
             if (byPositionItem != null) return byPositionItem.score;

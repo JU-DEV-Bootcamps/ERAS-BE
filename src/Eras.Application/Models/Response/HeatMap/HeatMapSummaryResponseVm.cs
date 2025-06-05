@@ -15,7 +15,7 @@
     public class ComponentVars
     {
         public required string Description { get; set; }
-        public double AverageScore { get; set; }
+        public decimal AverageScore { get; set; }
     }
 
     public class SeriesSummary
@@ -27,7 +27,7 @@
     public class DataPointSummary
     {
         public required string X { get; set; }
-        public double Y { get; set; }
+        public decimal Y { get; set; }
         public required string Z { get; set; }
     }
 }

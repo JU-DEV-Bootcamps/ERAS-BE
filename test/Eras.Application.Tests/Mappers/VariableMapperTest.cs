@@ -1,6 +1,7 @@
 ﻿using Eras.Application.Mappers;
 using Eras.Application.DTOs;
 using Eras.Domain.Entities;
+using Eras.Domain.Common;
 
 namespace Eras.Application.Tests.Mappers;
 public class VariableMapperTest
@@ -23,6 +24,9 @@ public class VariableMapperTest
         var model = new Variable()
         {
             Name = "Name",
+            ComponentName = "Component1",
+            Audit = new AuditInfo(),
+            Version = new VersionInfo()
         };
         var result = model.ToDto();
         Assert.NotNull(result);

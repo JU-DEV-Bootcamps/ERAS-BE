@@ -5,7 +5,7 @@ namespace Eras.Application.DTOs;
 public class AnswerDTO
 {
     public string Answer { get; set; } = String.Empty;
-    public double Score { get; set; }
+    public decimal Score { get; set; }
     public int PollInstanceId { get; set; }
     public int PollVariableId { get; set; }
     public StudentDTO? Student { get; set; }
