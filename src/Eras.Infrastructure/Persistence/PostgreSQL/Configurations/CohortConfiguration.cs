@@ -21,9 +21,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasKey(Cohort => Cohort.Id);
             Builder.Property(Cohort => Cohort.Name)
                 .HasColumnName("name")
+                .HasMaxLength(50)
                 .IsRequired();
             Builder.Property(Cohort => Cohort.CourseCode)
-                .HasColumnName("course_name")
+                .HasColumnName("course_code")
+                .HasMaxLength(50)
                 .IsRequired();
         }
 

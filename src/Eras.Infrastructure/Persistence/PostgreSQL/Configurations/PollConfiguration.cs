@@ -21,12 +21,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasKey(Poll => Poll.Id);
             Builder.Property(Poll => Poll.Name)
                 .HasColumnName("name")
+                .HasMaxLength(100)
                 .IsRequired();
             Builder.Property(Poll => Poll.Uuid)
                 .HasColumnName("uuid")
+                .HasMaxLength(50)
                 .IsRequired();
             Builder.Property(Poll => Poll.LastVersion)
                 .HasColumnName("last_version")
+                .HasColumnType("smallint")
                 .IsRequired();
             Builder.Property(Poll => Poll.LastVersionDate)
                 .HasColumnName("last_version_date")
