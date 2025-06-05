@@ -33,11 +33,19 @@ public class GetStudentAnswersByPollQueryHandlerTest
         var studentAnswers = new List<StudentAnswer>() {
             new StudentAnswer
             {
-                Answer = "Answer1"
+                Position = 1,
+                Answer = "Answer1",
+                Variable = "Variable1",
+                Component = "Component1",
+                Score = 1,
             },
             new StudentAnswer
             {
-                Answer = "Answer2"
+                Position = 2,
+                Answer = "Answer2",
+                Variable = "Variable2",
+                Component = "Component2",
+                Score = 2,
             }
         };
 

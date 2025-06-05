@@ -14,8 +14,8 @@ public class ErasCalculationsByPollEntity
     public int PollInstanceAnswersCount { get; set; }
     public required string StudentName { get; set; }
     public required string StudentEmail { get; set; }
-    public int AnswerRisk { get; set; }
-    public int RiskCount { get; set; }
+    public decimal AnswerRisk { get; set; }
+    public decimal RiskCount { get; set; }
     public decimal AverageRisk { get; set; }
     public decimal ComponentAverageRisk { get; set; }
     public decimal VariableAverageRisk { get; set; }

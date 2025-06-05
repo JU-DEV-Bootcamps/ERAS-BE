@@ -6,7 +6,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
     public class AnswerEntity : BaseEntity, IAuditableEntity, IVersionableEntity
     {
         public string AnswerText { get; set; } = string.Empty;
-        public int RiskLevel { get; set; }
+        public decimal RiskLevel { get; set; }
         public int PollInstanceId { get; set; }
         public PollInstanceEntity PollInstance { get; set; } = default!;
         public int PollVariableId { get; set; } = default!;

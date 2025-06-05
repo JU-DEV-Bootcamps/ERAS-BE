@@ -123,7 +123,7 @@ namespace Eras.Application.DTOs.CL
     public class ByPosition
     {
         [JsonPropertyName("score")]
-        public double score { get; set; }
+        public decimal score { get; set; }
 
         [JsonPropertyName("position")]
         public int position { get; set; }

@@ -95,7 +95,7 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
             S.Student.Cohort,
             PollinstancesAverage = S.PollInstances.Average(P =>
             {
-                Func<Answer, int> selector = A => A.RiskLevel;
+                Func<Answer, decimal> selector = A => A.RiskLevel;
                 return P.Answers.Average(selector);
             }),
             Pollinstances = S.PollInstances

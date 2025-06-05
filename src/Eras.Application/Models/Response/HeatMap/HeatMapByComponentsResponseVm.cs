@@ -22,7 +22,7 @@
     public class PossibleAnswer
     {
         public required string Description { get; set; }
-        public int Value { get; set; }
+        public decimal Value { get; set; }
     }
 
     public class Series
