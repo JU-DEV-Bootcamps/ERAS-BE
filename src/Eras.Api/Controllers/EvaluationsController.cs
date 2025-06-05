@@ -131,16 +131,15 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         }
     }
 
-    [HttpGet("summary")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetEvaluationProcessSumaryAsync()
+    [HttpGet("{Id}")]
+    public async Task<IActionResult> GetEvaluationDetailsAsync(int Id)
     {
         _logger.LogInformation("Getting evaluation process summary");
-        GetEvaluationSummaryQuery summary = new();
-        QueryManyResponse<Evaluation> res = await _mediator.Send(summary);
-        return Ok(res);
+        GetEvaluationSummaryQuery summary = new() { EvaluationId = Id };
+        var res = await _mediator.Send(summary);
+        return res.Body == null ? NotFound(res): Ok(res);
     }
+
     [HttpGet]
     public async Task<IActionResult> GetAllEvaluationsAsync([FromQuery] Pagination Query)
     {
