@@ -27,7 +27,7 @@ public class GetPollAvgQueryTest
         var query = new PollAvgQuery()
         {
             PollUuid = Guid.NewGuid(),
-            CohortIds = [1,2]
+            CohortIds = [1, 2]
         };
 
         // Mock the repository to return an empty list of Answers and map to AvgReportResponseVm

@@ -6,6 +6,7 @@ using Eras.Application.Features.Consolidator.Queries.Students;
 using Eras.Application.Models.Consolidator;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+using Eras.Application.Utils;
 
 using MediatR;
 
@@ -98,14 +99,11 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         try
         {
             var pollGuid = new Guid(Uuid);
-            int[] CohortIdsAsInts = CohortIds.Split(",", StringSplitOptions.RemoveEmptyEntries)
-            .Select(Id => int.TryParse(Id, out var parsed) ? parsed : 0)
-            .Where(Id => Id != 0)
-            .ToArray();
+            List<int> CohortIdsAsInts = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);
 
-            if (CohortIdsAsInts.Length <= 0)
+            if (CohortIdsAsInts.Count <= 0)
             {
-                return BadRequest(new { status = "error", message = "CohortIds has a bad format" });
+                return BadRequest(new { status = "error", message = "Wrong format for cohortIds" });
             }
             var query = new PollAvgQuery() { PollUuid = pollGuid, CohortIds = CohortIdsAsInts };
             GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
@@ -131,7 +129,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         try
         {
             var VariableIdsAsInts = VariableIds.Split(',').Select(int.Parse).ToList();
-            var CohortIdsAsInts = CohortIds.Split(',').Select(int.Parse).ToList();
+            var CohortIdsAsInts = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);
             var query = new PollCountQuery() { PollUuid = Uuid, CohortIds = CohortIdsAsInts, VariableIds = VariableIdsAsInts };
             var count = await _mediator.Send(query);
             return count.Success

@@ -29,7 +29,7 @@ namespace Eras.Application.Contracts.Persistence
         );
 
         Task<List<StudentAverageRiskDto>> GetStudentAverageRiskAsync(int CohortId, int PollId);
-        Task<List<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(int[] CohortIds, int PollId);
+        Task<List<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(List<int> CohortIds, string PollUuid);
         Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize);
     }
 }

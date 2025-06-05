@@ -8,5 +8,5 @@ namespace Eras.Application.Features.Consolidator.Queries.Polls;
 public class PollAvgQuery : IRequest<GetQueryResponse<AvgReportResponseVm>>
 {
     public required Guid PollUuid { get; set; }
-    public required int[] CohortIds { get; set; }
+    public required List<int> CohortIds { get; set; }
 }

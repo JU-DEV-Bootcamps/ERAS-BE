@@ -115,38 +115,6 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         return Ok(result);
     }
 
-    [HttpGet("average/poll")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetAllAvgRiskByCohortAndPollAsync(
-        [FromQuery] string CohortIds,
-        [FromQuery] int PollId
-    )
-    {
-        try
-        {
-            int[] Ids = CohortIds.Split(",", StringSplitOptions.RemoveEmptyEntries)
-            .Select(Id => int.TryParse(Id, out var parsed) ? parsed : 0)
-            .Where(Id => Id != 0)
-            .ToArray();
-
-            if (Ids.Length <= 0)
-            {
-                _logger.LogWarning("Bad request: CohortIds is null");
-                return NotFound($"Could not get students for cohorts {Ids} of PollUuid={PollId}.\n");
-            }
-            List<StudentAverageRiskDto> result = await _mediator.Send(
-                new GetAllAverageRiskByCohortsAndPollQuery(Ids, PollId)
-            );
-            return Ok(result);
-        }
-        catch (Exception e)
-        {
-            _logger.LogWarning($"Could not get students risk\n{e}");
-            return NotFound($"Could not get students risk\n{e}");
-        }
-    }
-
     //TODO: Implement views as: ?view=sum; ?view=top; ?view=avg as query params
     [HttpGet("polls/{Uuid}/sum")]
     public async Task<IActionResult> GetPollRiskSumStudentsAsync([FromRoute] string Uuid, [FromQuery] int CohortId)

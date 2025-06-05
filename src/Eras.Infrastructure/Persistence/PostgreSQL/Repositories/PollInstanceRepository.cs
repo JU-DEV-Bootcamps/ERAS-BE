@@ -63,7 +63,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     }
 
     public async Task<AvgReportResponseVm> GetReportByPollCohortAsync(
-    string PollUuid, int[] CohortIds)
+    string PollUuid, List<int> CohortIds)
     {
         List<string> emailsInCohort = await _context.StudentCohorts
             .Where(SC => CohortIds.Contains(SC.CohortId))
