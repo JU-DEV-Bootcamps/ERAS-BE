@@ -11,14 +11,14 @@ public class AvgReportComponent
     public required string Description { get; set; }
     public virtual IEnumerable<AvgReportQuestions> Questions { get; set; } = [];
 
-    public required double AverageRisk { get; set; }
+    public required decimal AverageRisk { get; set; }
 }
 
 public class AvgReportQuestions
 {
     public required string Question { get; set; }
     public required string AverageAnswer { get; set; }
-    public double AverageRisk { get; set; }
+    public decimal AverageRisk { get; set; }
 
     public IEnumerable<AnswerDetails> AnswersDetails { get; set; } = [];
 }
