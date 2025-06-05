@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
-using Eras.Application.Models.Response.Common;
+
+using MediatR;
 
 namespace Eras.Application.Features.Evaluations.Queries;
 

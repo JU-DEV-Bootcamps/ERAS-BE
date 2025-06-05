@@ -137,7 +137,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         _logger.LogInformation("Getting evaluation process summary");
         GetEvaluationSummaryQuery summary = new() { EvaluationId = Id };
         var res = await _mediator.Send(summary);
-        return res.Body == null ? NotFound(res): Ok(res);
+        return res.Body == null ? NotFound(res) : Ok(res);
     }
 
     [HttpGet]
