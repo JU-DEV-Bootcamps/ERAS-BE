@@ -153,36 +153,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return (students.Select(Student => Student.ToDomain()), totalCount);
         }
 
-        public async Task<List<StudentAverageRiskDto>> GetStudentAverageRiskAsync(
-            int CohortId,
-            int PollId
-        )
-        {
-            var query =
-                from s in _context.Students
-                join sc in _context.StudentCohorts on s.Id equals sc.StudentId
-                join pi in _context.PollInstances on s.Id equals pi.StudentId
-                join a in _context.Answers on pi.Id equals a.PollInstanceId
-                join pv in _context.PollVariables on a.PollVariableId equals pv.Id
-                join c in _context.Cohorts on sc.CohortId equals c.Id
-                where c.Id == CohortId && pv.PollId == PollId
-                group a by new
-                {
-                    s.Id,
-                    s.Name,
-                    s.Email,
-                } into g
-                select new StudentAverageRiskDto
-                {
-                    StudentId = g.Key.Id,
-                    StudentName = g.Key.Name,
-                    Email = g.Key.Email,
-                    AvgRiskLevel = g.Average(X => X.RiskLevel),
-                };
-
-            return await query.OrderByDescending(X => X.AvgRiskLevel).ToListAsync();
-        }
-
         public async Task<List<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
             List<int> CohortIds,
             string PollUuid
@@ -196,7 +166,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     StudentId = G.First().StudentId,
                     StudentName = G.First().StudentName,
                     Email = G.Key,
-                    AvgRiskLevel = G.Average(X => X.AverageRisk)
+                    AvgRiskLevel = G.Average(X => X.AnswerRisk)
                 });
 
 
