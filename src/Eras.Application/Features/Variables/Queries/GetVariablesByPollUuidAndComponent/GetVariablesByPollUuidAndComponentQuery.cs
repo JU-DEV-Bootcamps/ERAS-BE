@@ -6,6 +6,7 @@ namespace Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndC
 {
     public sealed record GetVariablesByPollUuidAndComponentQuery(
         string pollUuid,
-        List<string> component
+        List<string> component,
+        bool LastVersion
     ) : IRequest<List<Variable>>;
 }

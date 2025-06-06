@@ -49,11 +49,12 @@ public class PollsController(IMediator Mediator, ILogger<PollsController> Logger
     [HttpGet("{Uuid}/variables")]
     public async Task<IActionResult> GetVariablesByComponentsAsync(
         [FromRoute] string Uuid,
-        [FromQuery] List<string> Component
+        [FromQuery] List<string> Component,
+        [FromQuery] bool LastVersion
     )
     {
         List<Variable> result = await _mediator.Send(
-            new GetVariablesByPollUuidAndComponentQuery(Uuid, Component)
+            new GetVariablesByPollUuidAndComponentQuery(Uuid, Component, LastVersion)
         );
         return Ok(result);
     }

@@ -141,13 +141,14 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     [HttpGet("polls/{Uuid}/count")]
     public async Task<IActionResult> GetPollResultsCountAsync([FromRoute] string Uuid,
         [FromQuery] string CohortIds,
-        [FromQuery] string VariableIds)
+        [FromQuery] string VariableIds,
+        [FromQuery] bool LastVersion)
     {
         try
         {
             var VariableIdsAsInts = VariableIds.Split(',').Select(int.Parse).ToList();
             var CohortIdsAsInts = CohortIds.Split(',').Select(int.Parse).ToList();
-            var query = new PollCountQuery() { PollUuid = Uuid, CohortIds = CohortIdsAsInts, VariableIds = VariableIdsAsInts };
+            var query = new PollCountQuery() { PollUuid = Uuid, CohortIds = CohortIdsAsInts, VariableIds = VariableIdsAsInts , LastVersion = LastVersion};
             var count = await _mediator.Send(query);
             return count.Success
             ? Ok(new

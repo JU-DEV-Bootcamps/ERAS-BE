@@ -38,6 +38,7 @@ public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasC
 
         Builder.Property(A => A.PollInstanceRiskSum)
             .HasColumnName("poll_instance_risk_sum");
+
         Builder.Property(A => A.StudentName)
             .HasColumnName("student_name");
 
@@ -73,5 +74,8 @@ public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasC
 
         Builder.Property(A => A.StudentId)
             .HasColumnName("student_id");
+
+        Builder.Property(A => A.PollVersion)
+            .HasColumnName("poll_version");
     }
 }

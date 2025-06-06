@@ -60,18 +60,37 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<List<Variable>> GetAllByPollUuidAsync(
             string PollUuid,
-            List<string> Components
+            List<string> Components,
+            bool LastVersion
         )
         {
-            var variables =
+            int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
+
+            if (LastVersion)
+            {
+                var variables =
                 from v in _context.Variables
                 join pv in _context.PollVariables on v.Id equals pv.VariableId
                 join p in _context.Polls on pv.PollId equals p.Id
                 join c in _context.Components on v.ComponentId equals c.Id
-                where p.Uuid == PollUuid && (Components.Count == 0 || Components.Contains(c.Name))
+                where p.Uuid == PollUuid && (Components.Count == 0 || Components.Contains(c.Name)) && pv.Version.VersionNumber == pollVersion
                 select new Variable { Id = v.Id, Name = v.Name, ComponentName = c.Name };
-
-            return await variables.ToListAsync();
+                return await variables.ToListAsync();
+            }
+            else
+            {
+                var variables =
+                from v in _context.Variables
+                join pv in _context.PollVariables on v.Id equals pv.VariableId
+                join p in _context.Polls on pv.PollId equals p.Id
+                join c in _context.Components on v.ComponentId equals c.Id
+                where p.Uuid == PollUuid && (Components.Count == 0 || Components.Contains(c.Name)) && pv.Version.VersionNumber != pollVersion
+                select new Variable { Id = v.Id, Name = v.Name, ComponentName = c.Name };
+                return await variables.ToListAsync();
+            }
         }
 
         public async Task<Variable?> GetByNameAndPollIdAsync(string Name, int PollId)
