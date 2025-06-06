@@ -33,19 +33,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
             Builder.Property(Detail => Detail.AvgScore)
                 .HasColumnName("avg_score")
-                .HasPrecision(10,4)
+                .HasPrecision(14,4)
                 .IsRequired();
             Builder.Property(Detail => Detail.CoursesUnderAvg)
                 .HasColumnName("courses_under_avg")
-                .HasPrecision(10, 4)
+                .HasPrecision(14, 4)
                 .IsRequired();
             Builder.Property(Detail => Detail.PureScoreDiff)
                 .HasColumnName("pure_score_diff")
-                .HasPrecision(10, 4)
+                .HasPrecision(14, 4)
                 .IsRequired();
             Builder.Property(Detail => Detail.StandardScoreDiff)
                 .HasColumnName("standard_score_diff")
-                .HasPrecision(10, 4)
+                .HasPrecision(14, 4)
                 .IsRequired();
             Builder.Property(Detail => Detail.LastAccessDays)
                 .HasColumnName("last_access_days")
