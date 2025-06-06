@@ -55,8 +55,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "name",
                 table: "students",
-                type: "character varying(800)",
-                maxLength: 800,
+                type: "character varying(254)",
+                maxLength: 254,
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "text");
@@ -74,8 +74,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "email",
                 table: "students",
-                type: "character varying(350)",
-                maxLength: 350,
+                type: "character varying(255)",
+                maxLength: 255,
                 nullable: false,
                 oldClrType: typeof(string),
                 oldType: "text");
@@ -487,8 +487,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 type: "text",
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "character varying(800)",
-                oldMaxLength: 800);
+                oldType: "character varying(254)",
+                oldMaxLength: 254);
 
             migrationBuilder.AlterColumn<string>(
                 name: "modified_by",
@@ -506,8 +506,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 type: "text",
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "character varying(350)",
-                oldMaxLength: 350);
+                oldType: "character varying(255)",
+                oldMaxLength: 255);
 
             migrationBuilder.AlterColumn<string>(
                 name: "created_by",

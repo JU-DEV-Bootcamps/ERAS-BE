@@ -21,11 +21,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasKey(Student => Student.Id);
             Builder.Property(Student => Student.Name)
                 .HasColumnName("name")
-                .HasMaxLength(800)
+                .HasMaxLength(254)
                 .IsRequired();
             Builder.Property(Student => Student.Email)
                 .HasColumnName("email")
-                .HasMaxLength(350)
+                .HasMaxLength(255)
                 .IsRequired();
             Builder.Property(Student => Student.Uuid)
                 .HasColumnName("uuid")

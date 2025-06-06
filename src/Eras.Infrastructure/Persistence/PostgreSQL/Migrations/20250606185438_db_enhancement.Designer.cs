@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250605210414_db_enhancement")]
+    [Migration("20250606185438_db_enhancement")]
     partial class db_enhancement
     {
         /// <inheritdoc />
@@ -403,8 +403,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(350)
-                        .HasColumnType("character varying(350)")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
                     b.Property<bool>("IsImported")
@@ -413,8 +413,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(800)
-                        .HasColumnType("character varying(800)")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
                         .HasColumnName("name");
 
                     b.Property<string>("Uuid")
