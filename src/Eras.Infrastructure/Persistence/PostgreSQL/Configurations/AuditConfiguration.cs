@@ -14,10 +14,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             {
                 Audit.Property(A => A.CreatedBy)
                     .HasColumnName("created_by")
+                    .HasMaxLength(50)
                     .IsRequired();
 
                 Audit.Property(A => A.ModifiedBy)
                     .HasColumnName("modified_by")
+                    .HasMaxLength(50)
                     .IsRequired(false);
 
                 Audit.Property(A => A.CreatedAt)
