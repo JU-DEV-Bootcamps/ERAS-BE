@@ -27,7 +27,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
             Builder.Property(Answer => Answer.RiskLevel)
                 .HasColumnName("risk_level")
-                .HasPrecision(3,4)
+                .HasPrecision(7,4)
                 .IsRequired();
             Builder.Property(Answer => Answer.PollInstanceId)
                 .HasColumnName("poll_instance_id")
