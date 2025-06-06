@@ -11,4 +11,5 @@ public interface ICohortRepository : IBaseRepository<Cohort>
     Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponentAsync(string PollUuid, string ComponentName, int CohortId);
     Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsAsync(string PollUuid, int CohortId);
     Task<List<Cohort>> GetCohortsByPollUuidAsync(string PollUuid);
+    Task<List<Cohort>> GetCohortsByPollIdAsync(int PollId);
 }

@@ -81,4 +81,17 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
             .Distinct().ToListAsync();
         return [.. cohorts.Select(P => P.ToDomain())];
     }
+
+    public async Task<List<Cohort>> GetCohortsByPollIdAsync(int PollId)
+    {
+        List<CohortEntity> cohorts = await _context.ErasCalculationsByPoll
+            .Where(View => View.PollId == PollId)
+            .Select(View => new CohortEntity
+            {
+                Id = View.CohortId,
+                Name = View.CohortName,
+            })
+            .Distinct().ToListAsync();
+        return [.. cohorts.Select(P => P.ToDomain())];
+    }
 }

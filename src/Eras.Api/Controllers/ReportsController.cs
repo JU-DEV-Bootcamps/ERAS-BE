@@ -6,6 +6,7 @@ using Eras.Application.Features.Consolidator.Queries.Students;
 using Eras.Application.Models.Consolidator;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+using Eras.Application.Utils;
 
 using MediatR;
 
@@ -19,30 +20,6 @@ namespace Eras.Api.Controllers;
 public class ReportsController(IMediator Mediator) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
-
-    [HttpGet("students/avg")]
-    public async Task<IActionResult> GetAvgRiskStudentsAsync(
-        [FromQuery] string PollInstanceUuid,
-        [FromQuery] int? CohortId)
-    {
-        try
-        {
-            var pollGuid = new Guid(PollInstanceUuid);
-            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId ?? 0 };
-            GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
-            return avgRisk.Success
-            ? Ok(new
-            {
-                status = "successful",
-                body = avgRisk
-            })
-            : BadRequest(new { status = "error", message = avgRisk.Message });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { status = "error", message = ex.Message });
-        }
-    }
 
     [HttpGet("students/top")]
     public async Task<IActionResult> GetHigherRiskStudentsByCohortAsync(
@@ -117,12 +94,18 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
     [HttpGet("polls/{Uuid}/avg")]
-    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] int CohortId)
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] string CohortIds)
     {
         try
         {
             var pollGuid = new Guid(Uuid);
-            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortId = CohortId };
+            List<int> CohortIdsAsInts = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);
+
+            if (CohortIdsAsInts.Count <= 0)
+            {
+                return BadRequest(new { status = "error", message = "Wrong format for cohortIds" });
+            }
+            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortIds = CohortIdsAsInts };
             GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
@@ -146,7 +129,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         try
         {
             var VariableIdsAsInts = VariableIds.Split(',').Select(int.Parse).ToList();
-            var CohortIdsAsInts = CohortIds.Split(',').Select(int.Parse).ToList();
+            var CohortIdsAsInts = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);
             var query = new PollCountQuery() { PollUuid = Uuid, CohortIds = CohortIdsAsInts, VariableIds = VariableIdsAsInts };
             var count = await _mediator.Send(query);
             return count.Success
