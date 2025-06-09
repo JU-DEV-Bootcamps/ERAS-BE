@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Models.Consolidator;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence;
@@ -10,7 +11,12 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
 
     Task<IEnumerable<PollInstance>> GetByLastDays(int Days);
 
-    Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? CohortId, int? Days);
+    Task<PagedResult<PollInstance>> GetByCohortIdAndLastDays(
+            int Page,
+            int PageSize,
+            int[] CohortId,
+            int? Days
+    );
 
     Task<AvgReportResponseVm> GetReportByPollCohortAsync(string PollUuid, int CohortId);
 

@@ -1,5 +1,6 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Views;
+using Eras.Application.Utils;
 using Eras.Application.Models.Consolidator;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
@@ -37,29 +38,45 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return pollInstanceCounts.Select(PollInstanceMapper.ToDomain);
     }
 
-    public async Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? CohortId, int? Days)
+    public async Task<PagedResult<PollInstance>> GetByCohortIdAndLastDays(
+            int Page,
+            int PageSize,
+            int[] CohortId,
+            int? Days
+    )
     {
-        IQueryable<PollInstanceEntity> query = _context.PollInstances.Include(PI => PI.Student);
+        var query = _context.PollInstances.Include(PI => PI.Student)
+            .Join(_context.StudentCohorts,
+                PollInstance => PollInstance.StudentId,
+                StudentCohort => StudentCohort.StudentId,
+                (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort })
+            .Where(Joined => CohortId.Contains(Joined.studentCohort.CohortId));
 
-        if (CohortId.HasValue && CohortId != 0)
-        {
-            query = query
-                .Join(_context.StudentCohorts,
-                    PollInstance => PollInstance.StudentId,
-                    StudentCohort => StudentCohort.StudentId,
-                    (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort })
-                .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value)
-                .Select(Joined => Joined.pollInstance);
-        }
 
         if (Days.HasValue && Days != 0)
         {
             DateTime dateLimit = DateTime.UtcNow.AddDays(-Days.Value);
-            query = query.Where(PI => PI.FinishedAt >= dateLimit);
+            query = query.Where(PI => PI.pollInstance.FinishedAt >= dateLimit);
         }
 
-        List<PollInstanceEntity> pollInstances = await query.Distinct().ToListAsync();
-        return [.. pollInstances.Select(PollInstanceMapper.ToDomain)];
+        var totalCount = await query.Distinct().CountAsync();
+        var pollInstances = await
+            query
+            .Distinct()
+            .Select(Resp => new PollInstance
+            {
+                Uuid = Resp.pollInstance.Uuid,
+                Student = Resp.pollInstance.Student.ToDomain(),
+                Audit = Resp.pollInstance.Audit,
+                LastVersion = Resp.pollInstance.LastVersion,
+                FinishedAt = Resp.pollInstance.FinishedAt,
+            })
+            .OrderBy(P => P.FinishedAt)
+            .Skip((Page - 1) * PageSize)
+            .Take(PageSize)
+            .ToListAsync();
+
+        return new PagedResult<PollInstance>(totalCount, pollInstances);
     }
 
     public async Task<AvgReportResponseVm> GetReportByPollCohortAsync(
