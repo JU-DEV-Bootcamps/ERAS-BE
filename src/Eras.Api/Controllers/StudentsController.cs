@@ -105,15 +105,17 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllAvgRiskByCohortAndPollAsync(
-        [FromQuery] int CohortId,
-        [FromQuery] int PollId
+        [FromQuery] string CohortIds,
+        [FromQuery] string PollUuid
     )
     {
+        List<int> Ids = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);
         List<StudentAverageRiskDto> result = await _mediator.Send(
-            new GetAllAverageRiskByCohortAndPollQuery(CohortId, PollId)
+            new GetAllAverageRiskByCohortAndPollQuery(Ids, PollUuid)
         );
         return Ok(result);
     }
+
     //TODO: Implement views as: ?view=sum; ?view=top; ?view=avg as query params
     [HttpGet("polls/{Uuid}/sum")]
     public async Task<IActionResult> GetPollRiskSumStudentsAsync([FromRoute] string Uuid, [FromQuery] int CohortId)

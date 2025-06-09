@@ -1,5 +1,4 @@
-DROP VIEW IF EXISTS vErasCalculationByPoll;
-CREATE OR REPLACE VIEW vErasCalculationByPoll AS
+CREATE VIEW vErasCalculationByPoll AS
 WITH PercentageCalc AS (
     SELECT
         a.poll_variable_id,

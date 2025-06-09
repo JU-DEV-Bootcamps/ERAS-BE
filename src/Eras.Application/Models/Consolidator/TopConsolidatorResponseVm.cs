@@ -21,7 +21,7 @@ public class CountReportQuestion
 }
 public class CountReportAnswer
 {
-    public required int AnswerRisk { get; set; }
+    public required decimal AnswerRisk { get; set; }
     public required int Count { get; set; }
     public IEnumerable<CountReportStudent> Students { get; set; } = [];
 }

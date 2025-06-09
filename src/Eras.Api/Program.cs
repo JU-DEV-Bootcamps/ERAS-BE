@@ -47,27 +47,54 @@ app.UseSerilogRequestLogging();
 // Apply database migrations
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
-
+    var dbContextDrop = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     // Read the view definition
-    var sqlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                                   "Persistence/PostgreSQL/Views/vErasCalculationByPoll.sql");
+    var sqlFilePathDrop = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                                   "Persistence/PostgreSQL/Views/vErasCalculationByPollDrop.sql");
 
-    if (!File.Exists(sqlFilePath))
+    if (!File.Exists(sqlFilePathDrop))
     {
-        throw new FileNotFoundException($"SQL File not found: {sqlFilePath}");
+        throw new FileNotFoundException($"SQL File not found: {sqlFilePathDrop}");
     }
 
-    var sqlScript = File.ReadAllText(sqlFilePath);
+    var sqlScriptDrop = File.ReadAllText(sqlFilePathDrop);
     // Execute the SQL query
-    using (var connection = dbContext.Database.GetDbConnection())
+    using (var connection = dbContextDrop.Database.GetDbConnection())
     {
         connection.Open();
         using (var command = connection.CreateCommand())
         {
-            command.CommandText = sqlScript;
+            command.CommandText = sqlScriptDrop;
             command.ExecuteNonQuery();
+        }
+    }
+}
+using (var scope = app.Services.CreateScope())
+{
+    using (var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>())
+    {
+        dbContext.Database.Migrate();
+    
+
+        // Read the view definition
+        var sqlFilePathUp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                                       "Persistence/PostgreSQL/Views/vErasCalculationByPoll.sql");
+
+        if (!File.Exists(sqlFilePathUp))
+        {
+            throw new FileNotFoundException($"SQL File not found: {sqlFilePathUp}");
+        }
+
+        var sqlScript = File.ReadAllText(sqlFilePathUp);
+        // Execute the SQL query
+        using (var connection = dbContext.Database.GetDbConnection())
+        {
+            connection.Open();
+            using (var command = connection.CreateCommand())
+            {
+                command.CommandText = sqlScript;
+                command.ExecuteNonQuery();
+            }
         }
     }
 

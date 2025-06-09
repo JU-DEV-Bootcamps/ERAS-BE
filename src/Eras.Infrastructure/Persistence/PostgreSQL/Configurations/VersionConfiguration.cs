@@ -14,6 +14,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             {
                 Vi.Property(A => A.VersionNumber)
                     .HasColumnName("version_number")
+                    .HasColumnType("smallint")
                     .IsRequired();
 
                 Vi.Property(A => A.VersionDate)

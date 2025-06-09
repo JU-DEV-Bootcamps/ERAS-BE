@@ -20,9 +20,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasKey(Evaluation => Evaluation.Id);
             Builder.Property(Evaluation => Evaluation.Name)
                 .HasColumnName("name")
+                .HasMaxLength(50)
                 .IsRequired();
             Builder.Property(Evaluation => Evaluation.Status)
                 .HasColumnName("status")
+                .HasMaxLength(30)
                 .IsRequired();
             Builder.Property(Evaluation => Evaluation.StartDate)
                 .HasColumnName("start_date")
@@ -31,9 +33,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .HasColumnName("end_date")
                 .IsRequired();
             Builder.Property(Evaluation => Evaluation.PollName)
-                .HasColumnName("poll_name");
+                .HasColumnName("poll_name")
+                .HasMaxLength(100);
             Builder.Property(Evaluation => Evaluation.Country)
-                .HasColumnName("country");
+                .HasColumnName("country")
+                .HasMaxLength(10);
         }
     }
 }

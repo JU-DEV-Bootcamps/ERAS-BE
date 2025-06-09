@@ -15,5 +15,5 @@ public class GetHeatMapByComponentsQueryResponse
     [Column("answer_text")]
     public required string AnswerText { get; set; }
     [Column("answer_risk_level")]
-    public int AnswerRiskLevel { get; set; }
+    public decimal AnswerRiskLevel { get; set; }
 }

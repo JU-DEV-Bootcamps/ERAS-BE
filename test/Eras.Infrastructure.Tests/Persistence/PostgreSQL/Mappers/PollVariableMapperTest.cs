@@ -18,7 +18,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
                 Variable = new VariableEntity
                 {
                     ComponentId = 4
-                }
+                },
             };
             var result = pollVariableJoin.ToDomain();
             Assert.NotNull(result);

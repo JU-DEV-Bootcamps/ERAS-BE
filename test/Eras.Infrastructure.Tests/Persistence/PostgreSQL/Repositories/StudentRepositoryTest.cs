@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Eras.Application.Mappers;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
@@ -39,6 +40,9 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             };
             Student student = new Student() {
                 Name = "Test",
+                CohortId = 1,
+                Audit = new AuditInfo(),
+                Cohort = new Cohort()
             };
             student.StudentDetail = studentDetail;
             var resultCreated = await _repository.AddAsync(student);

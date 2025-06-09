@@ -68,5 +68,29 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 PollInstances = [.. pollInstances.Where(Pi => evaluationPolls.Any(Ep => Ep.Poll.Uuid == Pi.Uuid && Ep.EvaluationId == Entity.Id)).Select(Pi => PollInstanceMapper.ToDomain(Pi))]
             })];
         }
+
+        public new Task<Evaluation?> GetByIdAsync(int EvalId)
+        {
+            EvaluationEntity? ev = _context.Evaluations.FirstOrDefault(E => E.Id == EvalId);
+            if (ev == null)
+            {
+                return Task.FromResult<Evaluation?>(null);
+            }
+            var polls = _context.EvaluationPolls.Where(EP => EP.EvaluationId == EvalId)
+                .Select(EP => EP.Poll)
+                .Select(P => P.ToDomain()).ToList();
+            IEnumerable<string> pollUuids = polls.Select(P => P.Uuid);
+            var pollIntances = _context.PollInstances
+                //TODO! Verify behavior for poll date submit
+                //.Where(PI => PI.FinishedAt > ev.StartDate && PI.FinishedAt < ev.EndDate)
+                .Where(PI => pollUuids.Contains(PI.Uuid))
+                .Select(PI => PI.ToDomain())
+                .ToList();
+            Evaluation evaluation = ev.ToDomain();
+            evaluation.Polls = polls;
+            evaluation.PollInstances = pollIntances;
+            evaluation.Status = ev.CurrentStatus;
+            return Task.FromResult<Evaluation?>(evaluation);
+        }
     }
 }
