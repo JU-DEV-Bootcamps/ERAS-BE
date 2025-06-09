@@ -1,4 +1,5 @@
 ﻿
+using Eras.Application.Utils;
 using Eras.Api.Controllers;
 using Eras.Application.DTOs;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
@@ -30,21 +31,25 @@ namespace Eras.Api.Tests.Controllers
         public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Success_ResponseAsync()
         {
             // Arrange
-            var cohortId = 1;
+            var cohortId = new int[] { 1, 2 };
             var days = 10;
+            var pagination = new Pagination();
             var pollInstanceDTOs = new List<PollInstanceDTO>
             {
                 new PollInstanceDTO { Uuid = "uuid1", FinishedAt = DateTime.UtcNow },
                 new PollInstanceDTO { Uuid = "uuid2", FinishedAt = DateTime.UtcNow.AddDays(-5) }
             };
-            var response = new GetQueryResponse<IEnumerable<PollInstanceDTO>>(pollInstanceDTOs, "Success", true);
+
+            var pagedResult = new PagedResult<PollInstanceDTO>(pollInstanceDTOs.Count(), pollInstanceDTOs);
+
+            var response = new GetQueryResponse<PagedResult<PollInstanceDTO>>(pagedResult, "Success", true);
 
             _mockMediator
                 .Setup(M => M.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             // Act
-            var result = await _controller.GetPollInstancesByCohortIdAndDaysAsync(cohortId, days) as OkObjectResult;
+            var result = await _controller.GetPollInstancesByCohortIdAndDaysAsync(cohortId, days, pagination) as OkObjectResult;
 
             // Assert
             Assert.NotNull(result);
@@ -55,16 +60,19 @@ namespace Eras.Api.Tests.Controllers
         public async Task GetPollInstancesByCohortIdAndDays_Should_Return_Failure_If_Days_Is_ZeroAsync()
         {
             // Arrange
-            var cohortId = 1;
-            var days = 0;
-            var response = new GetQueryResponse<IEnumerable<PollInstanceDTO>>([], "Failed", false);
+            var cohortId = new int[] { 1, 2 };
+            var days = 10;
+            var pagination = new Pagination();
+
+            var pagedResult = new PagedResult<PollInstanceDTO>(0, []);
+            var response = new GetQueryResponse<PagedResult<PollInstanceDTO>>(pagedResult, "Success", true);
 
             _mockMediator
                 .Setup(M => M.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
 
             // Act
-            var result = await _controller.GetPollInstancesByCohortIdAndDaysAsync(days, cohortId) as ObjectResult;
+            var result = await _controller.GetPollInstancesByCohortIdAndDaysAsync(cohortId, days, pagination) as ObjectResult;
 
             // Assert
             Assert.NotNull(result);
