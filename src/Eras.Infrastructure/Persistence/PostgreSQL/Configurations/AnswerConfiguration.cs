@@ -23,9 +23,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasKey(Answer => Answer.Id);
             Builder.Property(Answer => Answer.AnswerText)
                 .HasColumnName("answer_text")
+                .HasMaxLength(500)
                 .IsRequired();
             Builder.Property(Answer => Answer.RiskLevel)
                 .HasColumnName("risk_level")
+                .HasPrecision(7,4)
                 .IsRequired();
             Builder.Property(Answer => Answer.PollInstanceId)
                 .HasColumnName("poll_instance_id")

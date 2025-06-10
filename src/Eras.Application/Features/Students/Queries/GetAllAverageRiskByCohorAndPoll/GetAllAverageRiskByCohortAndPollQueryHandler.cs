@@ -25,10 +25,10 @@ namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAnd
             CancellationToken CancellationToken
         )
         {
-            _logger.LogDebug($"get all average risk = {Request.cohortId} {Request.pollId}");
-            return await _studentRepository.GetStudentAverageRiskAsync(
-                Request.cohortId,
-                Request.pollId
+            _logger.LogDebug($"get all average risk = {Request.CohortIds} {Request.PollUuid}");
+            return await _studentRepository.GetStudentAverageRiskByCohortsAsync(
+                Request.CohortIds,
+                Request.PollUuid
             );
         }
     }

@@ -29,7 +29,8 @@ namespace Eras.Application.Tests.Features.Variables.Queries.GetVariablesByPollId
         {
             var polluuid = $"{Guid.NewGuid()}";
             var components = new List<string> { "academico" };
-            var request = new GetVariablesByPollUuidAndComponentQuery(polluuid, components);
+            var lastVersion = true;
+            var request = new GetVariablesByPollUuidAndComponentQuery(polluuid, components, lastVersion);
 
             var variablesData = new List<Variable>
             {
@@ -38,7 +39,7 @@ namespace Eras.Application.Tests.Features.Variables.Queries.GetVariablesByPollId
             };
 
             _mockVariableRepository
-                .Setup(Repo => Repo.GetAllByPollUuidAsync(polluuid, components))
+                .Setup(Repo => Repo.GetAllByPollUuidAsync(polluuid, components, lastVersion))
                 .ReturnsAsync(variablesData);
 
             var result = await _handler.Handle(request, CancellationToken.None);

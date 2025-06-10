@@ -6,6 +6,6 @@
         public int Position { get; set; }
         public string Component { get; set; } = string.Empty;
         public string Answer { get; set; } = string.Empty;
-        public int Score { get; set; }
+        public decimal Score { get; set; }
     }
 }

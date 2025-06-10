@@ -11,13 +11,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
     [ExcludeFromCodeCoverage]
-    public class PollVariableRepository : BaseRepository<Variable, PollVariableJoin>, IPollVariableRepository
+    public class PollVariableRepository(AppDbContext Context) : BaseRepository<Variable, PollVariableJoin>(Context, PollVariableMapper.ToDomain, PollVariableMapper.ToPersistenceVariable), IPollVariableRepository
     {
-        public PollVariableRepository(AppDbContext Context)
-            : base(Context, PollVariableMapper.ToDomain, PollVariableMapper.ToPersistenceVariable)
-        {
-
-        }
         public async Task<Variable?> GetByPollIdAndVariableIdAsync(int PollId, int VariableId)
         {
             var pollVariable = await _context.PollVariables
@@ -85,16 +80,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return groupedResults.Select(G => (G.Answer, G.Variable, G.Student)).ToList();
         }
 
-        public Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, int VaribaleId) => throw new NotImplementedException();
-        public async Task<List<Answer>> GetSummaryByPollUuidAsync(string PollUuid)
+        public async Task<List<Answer>> GetAnswersByPollUuidAsync(string PollUuid)
         {
-            //Assuming the pollUuid and pollInstance Uuid are the same. This query uses the pollIntanceUuid
             var answers = await (from pi in _context.PollInstances
                                  join a in _context.Answers on pi.Id equals a.PollInstanceId
                                  where pi.Uuid == PollUuid
                                  select new { Answer = a.ToDomain() }
                      ).ToListAsync();
-            return [.. answers.Select(A => (A.Answer))];
+            return [.. answers.Select(A => A.Answer)];
         }
 
     }

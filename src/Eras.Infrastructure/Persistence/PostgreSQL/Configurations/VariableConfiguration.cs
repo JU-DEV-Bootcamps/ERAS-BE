@@ -21,6 +21,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasKey(Variable => Variable.Id);
             Builder.Property(Variable => Variable.Name)
                 .HasColumnName("name")
+                .HasMaxLength(250)
                 .IsRequired();
             Builder.Property(Variable => Variable.ComponentId)
                 .HasColumnName("component_id")

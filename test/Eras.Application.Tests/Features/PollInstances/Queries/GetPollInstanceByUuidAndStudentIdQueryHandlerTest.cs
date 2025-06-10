@@ -31,7 +31,7 @@ public class GetPollInstanceByUuidAndStudentIdQueryHandlerTest
         // Arrange
         var query = new GetPollInstanceByUuidAndStudentIdQuery() { PollUuid = "uuid1", StudentId = 1 };
         var pollInstance = new PollInstance { Id=1,Uuid = "uuid1", FinishedAt = DateTime.UtcNow,
-            LastVersionDate = DateTime.Now};
+            LastVersionDate = DateTime.Now, LastVersion = 1 , Answers = new List<Answer>()};
         _mockPollRepository
         .Setup(Repo => Repo.GetByUuidAndStudentIdAsync(It.IsAny<string>(), It.IsAny<int>()))
         .ReturnsAsync(pollInstance);

@@ -47,7 +47,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("AnswerText")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("answer_text");
 
                     b.Property<int>("PollInstanceId")
@@ -58,8 +59,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("poll_variable_id");
 
-                    b.Property<int>("RiskLevel")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("RiskLevel")
+                        .HasPrecision(7, 4)
+                        .HasColumnType("numeric(7,4)")
                         .HasColumnName("risk_level");
 
                     b.HasKey("Id");
@@ -82,12 +84,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("CourseCode")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("course_name");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("course_code");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("name");
 
                     b.HasKey("Id");
@@ -105,7 +109,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
                         .HasColumnName("name");
 
                     b.HasKey("Id");
@@ -123,8 +128,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("answer_percentage");
 
-                    b.Property<int>("AnswerRisk")
-                        .HasColumnType("integer")
+                    b.Property<decimal>("AnswerRisk")
+                        .HasColumnType("numeric")
                         .HasColumnName("answer_risk");
 
                     b.Property<string>("AnswerText")
@@ -191,13 +196,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("text")
                         .HasColumnName("question");
 
-                    b.Property<int>("RiskCount")
-                        .HasColumnType("integer");
+                    b.Property<decimal>("RiskCount")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("StudentEmail")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("student_email");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("student_id");
 
                     b.Property<string>("StudentName")
                         .IsRequired()
@@ -223,7 +232,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Country")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
                         .HasColumnName("country");
 
                     b.Property<DateTime>("EndDate")
@@ -232,12 +242,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("name");
 
                     b.Property<string>("PollName")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("poll_name");
 
                     b.Property<DateTime>("StartDate")
@@ -246,7 +258,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
                         .HasColumnName("status");
 
                     b.HasKey("Id");
@@ -262,8 +275,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("LastVersion")
-                        .HasColumnType("integer")
+                    b.Property<short>("LastVersion")
+                        .HasColumnType("smallint")
                         .HasColumnName("last_version");
 
                     b.Property<DateTime>("LastVersionDate")
@@ -272,12 +285,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasColumnName("name");
 
                     b.Property<string>("Uuid")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("uuid");
 
                     b.HasKey("Id");
@@ -296,8 +311,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Property<DateTime>("FinishedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("LastVersion")
-                        .HasColumnType("integer")
+                    b.Property<short>("LastVersion")
+                        .HasColumnType("smallint")
                         .HasColumnName("last_version");
 
                     b.Property<DateTime>("LastVersionDate")
@@ -309,7 +324,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Uuid")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("uuid");
 
                     b.HasKey("Id");
@@ -328,38 +344,42 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<decimal>("AvgScore")
-                        .HasColumnType("numeric")
+                        .HasPrecision(14, 4)
+                        .HasColumnType("numeric(14,4)")
                         .HasColumnName("avg_score");
 
                     b.Property<decimal>("CoursesUnderAvg")
-                        .HasColumnType("numeric")
+                        .HasPrecision(14, 4)
+                        .HasColumnType("numeric(14,4)")
                         .HasColumnName("courses_under_avg");
 
-                    b.Property<int>("EnrolledCourses")
-                        .HasColumnType("integer")
+                    b.Property<short>("EnrolledCourses")
+                        .HasColumnType("smallint")
                         .HasColumnName("enrolled_courses");
 
-                    b.Property<int>("GradedCourses")
-                        .HasColumnType("integer")
+                    b.Property<short>("GradedCourses")
+                        .HasColumnType("smallint")
                         .HasColumnName("graded_courses");
 
-                    b.Property<int>("LastAccessDays")
-                        .HasColumnType("integer")
+                    b.Property<short>("LastAccessDays")
+                        .HasColumnType("smallint")
                         .HasColumnName("last_access_days");
 
                     b.Property<decimal>("PureScoreDiff")
-                        .HasColumnType("numeric")
+                        .HasPrecision(14, 4)
+                        .HasColumnType("numeric(14,4)")
                         .HasColumnName("pure_score_diff");
 
                     b.Property<decimal>("StandardScoreDiff")
-                        .HasColumnType("numeric")
+                        .HasPrecision(14, 4)
+                        .HasColumnType("numeric(14,4)")
                         .HasColumnName("standard_score_diff");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("TimeDeliveryRate")
-                        .HasColumnType("integer")
+                    b.Property<short>("TimeDeliveryRate")
+                        .HasColumnType("smallint")
                         .HasColumnName("time_delivery_rate");
 
                     b.HasKey("Id");
@@ -380,7 +400,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
                         .HasColumnName("email");
 
                     b.Property<bool>("IsImported")
@@ -389,12 +410,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
                         .HasColumnName("name");
 
                     b.Property<string>("Uuid")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
                         .HasColumnName("uuid");
 
                     b.HasKey("Id");
@@ -416,7 +439,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)")
                         .HasColumnName("name");
 
                     b.HasKey("Id");
@@ -541,7 +565,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.Property<string>("CreatedBy")
                                 .IsRequired()
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("created_by");
 
                             b1.Property<DateTime?>("ModifiedAt")
@@ -549,7 +574,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnName("updated_at");
 
                             b1.Property<string>("ModifiedBy")
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
                             b1.HasKey("AnswerEntityId");
@@ -569,8 +595,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnType("timestamp with time zone")
                                 .HasColumnName("version_date");
 
-                            b1.Property<int>("VersionNumber")
-                                .HasColumnType("integer")
+                            b1.Property<short>("VersionNumber")
+                                .HasColumnType("smallint")
                                 .HasColumnName("version_number");
 
                             b1.HasKey("AnswerEntityId");
@@ -605,7 +631,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.Property<string>("CreatedBy")
                                 .IsRequired()
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("created_by");
 
                             b1.Property<DateTime?>("ModifiedAt")
@@ -613,7 +640,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnName("updated_at");
 
                             b1.Property<string>("ModifiedBy")
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
                             b1.HasKey("CohortEntityId");
@@ -641,7 +669,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.Property<string>("CreatedBy")
                                 .IsRequired()
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("created_by");
 
                             b1.Property<DateTime?>("ModifiedAt")
@@ -649,7 +678,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnName("updated_at");
 
                             b1.Property<string>("ModifiedBy")
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
                             b1.HasKey("ComponentEntityId");
@@ -677,7 +707,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.Property<string>("CreatedBy")
                                 .IsRequired()
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("created_by");
 
                             b1.Property<DateTime?>("ModifiedAt")
@@ -685,7 +716,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnName("updated_at");
 
                             b1.Property<string>("ModifiedBy")
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
                             b1.HasKey("EvaluationEntityId");
@@ -713,7 +745,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.Property<string>("CreatedBy")
                                 .IsRequired()
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("created_by");
 
                             b1.Property<DateTime?>("ModifiedAt")
@@ -721,7 +754,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnName("updated_at");
 
                             b1.Property<string>("ModifiedBy")
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
                             b1.HasKey("PollEntityId");
@@ -755,7 +789,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.Property<string>("CreatedBy")
                                 .IsRequired()
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("created_by");
 
                             b1.Property<DateTime?>("ModifiedAt")
@@ -763,7 +798,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnName("updated_at");
 
                             b1.Property<string>("ModifiedBy")
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
                             b1.HasKey("PollInstanceEntityId");
@@ -799,7 +835,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.Property<string>("CreatedBy")
                                 .IsRequired()
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("created_by");
 
                             b1.Property<DateTime?>("ModifiedAt")
@@ -807,7 +844,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnName("updated_at");
 
                             b1.Property<string>("ModifiedBy")
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
                             b1.HasKey("StudentDetailEntityId");
@@ -837,7 +875,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.Property<string>("CreatedBy")
                                 .IsRequired()
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("created_by");
 
                             b1.Property<DateTime?>("ModifiedAt")
@@ -845,7 +884,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnName("updated_at");
 
                             b1.Property<string>("ModifiedBy")
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
                             b1.HasKey("StudentEntityId");
@@ -879,7 +919,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.Property<string>("CreatedBy")
                                 .IsRequired()
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("created_by");
 
                             b1.Property<DateTime?>("ModifiedAt")
@@ -887,7 +928,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnName("updated_at");
 
                             b1.Property<string>("ModifiedBy")
-                                .HasColumnType("text")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
                             b1.HasKey("VariableEntityId");
@@ -946,8 +988,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnType("timestamp with time zone")
                                 .HasColumnName("version_date");
 
-                            b1.Property<int>("VersionNumber")
-                                .HasColumnType("integer")
+                            b1.Property<short>("VersionNumber")
+                                .HasColumnType("smallint")
                                 .HasColumnName("version_number");
 
                             b1.HasKey("PollVariableJoinId");

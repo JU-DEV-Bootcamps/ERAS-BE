@@ -33,6 +33,9 @@
 		<None Update="Persistence/PostgreSQL/Views/vErasCalculationByPoll.sql">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+		<None Update="Persistence\PostgreSQL\Views\vErasCalculationByPollDrop.sql">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 

@@ -21,6 +21,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasKey(Component => Component.Id);
             Builder.Property(Component => Component.Name)
                 .HasColumnName("name")
+                .HasMaxLength(30)
                 .IsRequired();
         }
 

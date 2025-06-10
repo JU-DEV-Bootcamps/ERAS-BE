@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Evaluations.Queries.GetAll;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -35,10 +36,10 @@ public class GetAllEvaluationsQueryHandlerTest
         var evaluations = new List<Evaluation>() {
             new Evaluation(){ Name = "Evaluation", Status = "Active", 
                 StartDate = DateTime.Now, EndDate = DateTime.Now, Polls = polls, 
-                PollInstances = pollInstances },
+                PollInstances = pollInstances, Audit = new AuditInfo() },
             new Evaluation(){ Name = "Evaluation2", Status = "Active",
                 StartDate = DateTime.Now, EndDate = DateTime.Now, Polls = polls,
-                PollInstances = pollInstances },
+                PollInstances = pollInstances, Audit = new AuditInfo() },
         };
 
         _mockEvaluationRepository

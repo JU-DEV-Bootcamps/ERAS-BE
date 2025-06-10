@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Domain.Entities;
+using Eras.Domain.Common;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
 {
@@ -41,7 +42,9 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
                 RiskLevel = 1,
                 AnswerText = "This is an answer.",
                 PollInstanceId = 10,
-                PollVariableId = 20
+                PollVariableId = 20,
+                Variable = new Variable(),
+                Version = new VersionInfo(),
             };
             var result = model.ToPersistence();
             Assert.NotNull(result);

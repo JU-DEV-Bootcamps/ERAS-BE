@@ -21,27 +21,35 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasKey(Detail => Detail.Id);
             Builder.Property(Detail => Detail.EnrolledCourses)
                 .HasColumnName("enrolled_courses")
+                .HasColumnType("smallint")
                 .IsRequired();
             Builder.Property(Detail => Detail.GradedCourses)
                 .HasColumnName("graded_courses")
+                .HasColumnType("smallint")
                 .IsRequired();
             Builder.Property(Detail => Detail.TimeDeliveryRate)
                 .HasColumnName("time_delivery_rate")
+                .HasColumnType("smallint")
                 .IsRequired();
             Builder.Property(Detail => Detail.AvgScore)
                 .HasColumnName("avg_score")
+                .HasPrecision(14,4)
                 .IsRequired();
             Builder.Property(Detail => Detail.CoursesUnderAvg)
                 .HasColumnName("courses_under_avg")
+                .HasPrecision(14, 4)
                 .IsRequired();
             Builder.Property(Detail => Detail.PureScoreDiff)
                 .HasColumnName("pure_score_diff")
+                .HasPrecision(14, 4)
                 .IsRequired();
             Builder.Property(Detail => Detail.StandardScoreDiff)
                 .HasColumnName("standard_score_diff")
+                .HasPrecision(14, 4)
                 .IsRequired();
             Builder.Property(Detail => Detail.LastAccessDays)
                 .HasColumnName("last_access_days")
+                .HasColumnType("smallint")
                 .IsRequired();
         }
 

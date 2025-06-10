@@ -17,13 +17,12 @@ public class PollAvgHandler(
     private readonly IPollInstanceRepository _pollInstanceRepository = PollInstanceRepository;
     private readonly ILogger<PollAvgHandler> _logger = Logger;
 
-    public async Task<GetQueryResponse<AvgReportResponseVm>> Handle(PollAvgQuery Req, CancellationToken CancToken)
+    public async Task<GetQueryResponse<AvgReportResponseVm>> Handle(PollAvgQuery Request, CancellationToken CancellationToken)
     {
         try
         {
-
-            var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Req.PollUuid.ToString(), Req.CohortId)
-                ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortId}");
+            var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Request.PollUuid.ToString(), Request.CohortIds)
+                ?? throw new NotFoundException($"Error in query for filters: {Request.PollUuid}; {Request.CohortIds}");
 
             if (answersByFilters == null) // Returns empty response
                 return new GetQueryResponse<AvgReportResponseVm>(new AvgReportResponseVm(), "Success: No answered polls with that Uuid", true);

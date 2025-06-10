@@ -95,7 +95,7 @@ public static class HeatMapMapper
         {
             while (serie.Data.Count < maxDataCount)
             {
-                serie.Data.Insert(0, new DataPointSummary { X = "No Answer", Y = -1.0, Z = "" });
+                serie.Data.Insert(0, new DataPointSummary { X = "No Answer", Y = -1.0m, Z = "" });
             }
         }
 
@@ -121,7 +121,7 @@ IEnumerable<GetHeatMapAnswersPercentageByVariableQueryResponse> QueryResponses)
                     .Select(VarGr => new ComponentVars
                     {
                         Description = VarGr.Key ?? "NULL",
-                        AverageScore = (double) VarGr.First().VariableAverageRisk
+                        AverageScore = VarGr.First().VariableAverageRisk
                     })]
             })
             .ToList();
