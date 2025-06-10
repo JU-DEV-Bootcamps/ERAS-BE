@@ -2,6 +2,7 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.HeatMap;
 using Eras.Application.DTOs.Student;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -153,12 +154,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return (students.Select(Student => Student.ToDomain()), totalCount);
         }
 
-        public async Task<List<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
+        public Task<PagedResult<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
+            Pagination Pagination,
             List<int> CohortIds,
             string PollUuid
         )
         {
-            IQueryable<StudentAverageRiskDto> query = _context.ErasCalculationsByPoll
+            var query = _context.ErasCalculationsByPoll
                 .Where(X => CohortIds.Contains(X.CohortId) && X.PollUuid == PollUuid)
                 .GroupBy(X => X.StudentEmail)
                 .Select(G => new StudentAverageRiskDto
@@ -169,8 +171,16 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     AvgRiskLevel = G.Average(X => X.AnswerRisk)
                 });
 
+            var count = query.Count();
 
-            return await query.OrderByDescending(X => X.AvgRiskLevel).ToListAsync();
+            var data = query
+                .OrderByDescending(X => X.AvgRiskLevel)
+                .Skip((Pagination.Page - 1) * Pagination.PageSize)
+                .Take(Pagination.PageSize)
+                .ToList();
+
+            return Task.FromResult(new PagedResult<StudentAverageRiskDto>(count, data));
+
         }
 
         public new async Task<Student> UpdateAsync(Student Entity)
