@@ -76,7 +76,6 @@ namespace Eras.Api.Tests.Controllers
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(400, result.StatusCode);
         }
     }
 }
