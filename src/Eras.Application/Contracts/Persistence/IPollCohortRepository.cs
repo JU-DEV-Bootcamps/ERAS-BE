@@ -8,7 +8,7 @@ namespace Eras.Application.Contracts.Persistence
     {
         Task<List<Poll>> GetPollsByCohortIdAsync(int CohortId);
         Task<List<PollVariableDto>> GetPollVariablesAsync(int PollId, int CohortId);
-        Task<List<GetCohortComponentsByPollResponse>> GetCohortComponentsByPoll(string PollUuid);
+        Task<List<GetCohortComponentsByPollResponse>> GetCohortComponentsByPoll(string PollUuid, bool LastVersion);
         Task<List<GetCohortStudentsRiskByPollResponse>> GetCohortStudentsRiskByPoll(string PollUuid, int CohortId);
     }
 }

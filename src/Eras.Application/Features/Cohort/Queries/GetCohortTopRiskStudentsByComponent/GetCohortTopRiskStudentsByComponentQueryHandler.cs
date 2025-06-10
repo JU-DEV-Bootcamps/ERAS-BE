@@ -14,7 +14,7 @@ public class GetCohortTopRiskStudentsByComponentQueryHandler(ICohortRepository C
 
     public async Task<GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>>> Handle(GetCohortTopRiskStudentsByComponentQuery Request, CancellationToken CancellationToken)
     {
-        List<GetCohortTopRiskStudentsByComponentResponse> listStudents = await _cohortRepository.GetCohortTopRiskStudentsByComponentAsync(Request.PollUuid, Request.ComponentName, Request.CohortId);
+        List<GetCohortTopRiskStudentsByComponentResponse> listStudents = await _cohortRepository.GetCohortTopRiskStudentsByComponentAsync(Request.PollUuid, Request.ComponentName, Request.CohortId, Request.LastVersion);
         return new GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>>(listStudents);
     }
 }

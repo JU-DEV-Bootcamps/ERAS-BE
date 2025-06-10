@@ -9,4 +9,5 @@ public class GetCohortTopRiskStudentsByComponentQuery : IRequest<GetQueryRespons
     public required string PollUuid { get; set; }
     public required string ComponentName { get; set; }
     public int CohortId { get; set; }
+    public bool LastVersion { get; set; }
 }

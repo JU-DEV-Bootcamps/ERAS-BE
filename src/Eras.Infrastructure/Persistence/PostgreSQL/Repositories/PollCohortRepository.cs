@@ -84,10 +84,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return await query.Distinct().ToListAsync();
         }
 
-        public async Task<List<GetCohortComponentsByPollResponse>> GetCohortComponentsByPoll(string PollUuid)
+        public async Task<List<GetCohortComponentsByPollResponse>> GetCohortComponentsByPoll(string PollUuid, bool LastVersion)
         {
-            var query = await _context.ErasCalculationsByPoll
-                        .Where(V => V.PollUuid == PollUuid)
+
+            int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
+
+            if (LastVersion)
+            {
+                var query = await _context.ErasCalculationsByPoll
+                        .Where(V => V.PollUuid == PollUuid && V.PollVersion == pollVersion)
                         .Select(V => new GetCohortComponentsByPollResponse
                         {
                             CohortId = V.CohortId,
@@ -97,7 +105,23 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                         })
                         .Distinct()
                         .ToListAsync();
-            return query;
+                return query;
+            }
+            else
+            {
+                var query = await _context.ErasCalculationsByPoll
+                        .Where(V => V.PollUuid == PollUuid && V.PollVersion != pollVersion)
+                        .Select(V => new GetCohortComponentsByPollResponse
+                        {
+                            CohortId = V.CohortId,
+                            CohortName = V.CohortName,
+                            ComponentName = V.ComponentName,
+                            AverageRiskByCohortComponent = Math.Round(V.AverageRiskByCohortComponent, 2)
+                        })
+                        .Distinct()
+                        .ToListAsync();
+                return query;
+            }
         }
 
         public async Task<List<GetCohortStudentsRiskByPollResponse>> GetCohortStudentsRiskByPoll(string PollUuid, int CohortId)

@@ -8,4 +8,5 @@ public class GetCohortTopRiskStudentsQuery : IRequest<GetQueryResponse<List<GetC
 {
     public required string PollUuid { get; set; }
     public int CohortId { get; set; }
+    public bool LastVersion { get; set; }
 }

@@ -34,10 +34,18 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
         return [.. cohorts.Select(P => P.ToDomain())];
     }
 
-    public async Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponentAsync(string PollUuid, string ComponentName, int CohortId)
+    public async Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponentAsync(string PollUuid, string ComponentName, int CohortId, bool LastVersion)
     {
-        List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
-                        .Where(View => View.PollUuid == PollUuid && View.ComponentName == ComponentName && View.CohortId == CohortId)
+
+        int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
+
+        if (LastVersion)
+        {
+            List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
+                        .Where(View => View.PollUuid == PollUuid && View.ComponentName == ComponentName && View.CohortId == CohortId && View.PollVersion == pollVersion)
                         .GroupBy(V => new { V.PollInstanceId, V.StudentName })
                         .Select(Group => new GetCohortTopRiskStudentsByComponentResponse
                         {
@@ -48,25 +56,70 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
                         })
                         .OrderByDescending(G => G.RiskSum)
                         .ToListAsync();
-        return result;
-
-    }
-
-    public async Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsAsync(string PollUuid, int CohortId)
-    {
-        List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
-                        .Where(V => V.PollUuid == PollUuid && V.CohortId == CohortId)
+            return result;
+        }
+        else
+        {
+            List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
+                        .Where(View => View.PollUuid == PollUuid && View.ComponentName == ComponentName && View.CohortId == CohortId && View.PollVersion != pollVersion)
                         .GroupBy(V => new { V.PollInstanceId, V.StudentName })
-                        .Select(G => new GetCohortTopRiskStudentsByComponentResponse
+                        .Select(Group => new GetCohortTopRiskStudentsByComponentResponse
                         {
-                            StudentId = G.Key.PollInstanceId,
-                            StudentName = G.Key.StudentName,
-                            AnswerAverage = Math.Round((decimal)G.Average(V => V.AnswerRisk), 2),
-                            RiskSum = G.Sum(V => V.AnswerRisk)
+                            StudentId = Group.Key.PollInstanceId,
+                            StudentName = Group.Key.StudentName,
+                            AnswerAverage = Math.Round((decimal)Group.Average(V => V.AnswerRisk), 2),
+                            RiskSum = Group.Sum(V => V.AnswerRisk)
                         })
                         .OrderByDescending(G => G.RiskSum)
                         .ToListAsync();
-        return result;
+            return result;
+        }
+
+        
+
+    }
+
+    public async Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsAsync(string PollUuid, int CohortId, bool LastVersion)
+    {
+        int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
+
+        if (LastVersion)
+        {
+            List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
+                            .Where(V => V.PollUuid == PollUuid && V.CohortId == CohortId && V.PollVersion == pollVersion)
+                            .GroupBy(V => new { V.PollInstanceId, V.StudentName })
+                            .Select(G => new GetCohortTopRiskStudentsByComponentResponse
+                            {
+                                StudentId = G.Key.PollInstanceId,
+                                StudentName = G.Key.StudentName,
+                                AnswerAverage = Math.Round((decimal)G.Average(V => V.AnswerRisk), 2),
+                                RiskSum = G.Sum(V => V.AnswerRisk)
+                            })
+                            .OrderByDescending(G => G.RiskSum)
+                            .ToListAsync();
+            return result;
+        }
+        else
+        {
+            List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
+                            .Where(V => V.PollUuid == PollUuid && V.CohortId == CohortId && V.PollVersion != pollVersion)
+                            .GroupBy(V => new { V.PollInstanceId, V.StudentName })
+                            .Select(G => new GetCohortTopRiskStudentsByComponentResponse
+                            {
+                                StudentId = G.Key.PollInstanceId,
+                                StudentName = G.Key.StudentName,
+                                AnswerAverage = Math.Round((decimal)G.Average(V => V.AnswerRisk), 2),
+                                RiskSum = G.Sum(V => V.AnswerRisk)
+                            })
+                            .OrderByDescending(G => G.RiskSum)
+                            .ToListAsync();
+            return result;
+        }
+
+            
     }
 
     public async Task<List<Cohort>> GetCohortsByPollUuidAsync(string PollUuid)
