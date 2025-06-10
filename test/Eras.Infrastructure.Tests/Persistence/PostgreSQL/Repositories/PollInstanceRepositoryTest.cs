@@ -1,14 +1,15 @@
 ﻿using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+using Eras.Domain.Entities;
+using Eras.Application.Utils;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Microsoft.EntityFrameworkCore;
 using MockQueryable.Moq;
 using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
-{   
-
+{
     public class PollInstanceRepositoryTest
     {
         private Mock<DbSet<PollInstanceEntity>> _mockSet;
@@ -53,22 +54,32 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         public async Task GetByCohortIdAndLastDaysShouldReturnByDaysAsync()
         {
             // Arrange
-            var data = new List<PollInstanceEntity>
+            var data = new List<PollInstance>
             {
-                new PollInstanceEntity { Id = 1, FinishedAt = DateTime.UtcNow, StudentId = 1 },
-                new PollInstanceEntity { Id = 2, FinishedAt = DateTime.UtcNow.AddDays(-100), StudentId = 2 }
-            }.AsQueryable().BuildMockDbSet();
+                new PollInstance { Id = 1, FinishedAt = DateTime.UtcNow,  },
+                new PollInstance { Id = 2, FinishedAt = DateTime.UtcNow.AddDays(-100) }
+            }.AsQueryable();
+
+            _mockSet.As<IQueryable<PollInstance>>().Setup(M => M.Provider).Returns(data.Provider);
+            _mockSet.As<IQueryable<PollInstance>>().Setup(M => M.Expression).Returns(data.Expression);
+            _mockSet.As<IQueryable<PollInstance>>().Setup(M => M.ElementType).Returns(data.ElementType);
+            _mockSet.As<IQueryable<PollInstance>>().Setup(M => M.GetEnumerator()).Returns(data.GetEnumerator());
 
             _mockContext = new Mock<AppDbContext>(new DbContextOptions<AppDbContext>());
-            _mockContext.Setup(C => C.PollInstances).Returns(data.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(_mockSet.Object);
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 
+            var pagination = new Pagination();
+
             // Act
-            var result = await _repository.GetByCohortIdAndLastDays(null, 10);
+            var result = await _repository.GetByCohortIdAndLastDays(pagination.Page, pagination.PageSize, [1, 2], 10);
 
             // Assert
-            Assert.Single(result);
+            Assert.NotNull(result);
+            Assert.Equal(2, result.Count);
+            Assert.Contains(result.Items, P => P.Id == 1);
+            Assert.Contains(result.Items, P => P.Id == 2);
         }
 
         [Fact]
@@ -93,11 +104,12 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 
+            var pagination = new Pagination();
             // Act
-            var result = await _repository.GetByCohortIdAndLastDays(1, 10);
+            var result = await _repository.GetByCohortIdAndLastDays(pagination.Page, pagination.PageSize, [1, 2], 10);
 
             // Assert
-            Assert.Single(result);
+            Assert.Single(result.Items);
         }
 
         [Fact]
@@ -115,11 +127,13 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 
+            var pagination = new Pagination();
             // Act
-            var result = await _repository.GetByCohortIdAndLastDays(0, 0);
+            var result = await _repository.GetByCohortIdAndLastDays(pagination.Page, pagination.PageSize, [1, 2], 10);
+
 
             // Assert
-            Assert.Equal(2, result.Count());
+            Assert.Equal(2, result.Count);
         }
 
     }
