@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
+using Eras.Application.Utils;
 using Eras.Application.Features.Cohorts.Queries.GetCohortComponentsByPoll;
 using Eras.Application.Features.Components.Queries;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
@@ -21,16 +22,13 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
     private readonly ILogger<StudentsController> _logger = Logger;
 
     [HttpGet]
-    public async Task<IActionResult> GetPollInstancesByCohortIdAndDaysAsync([FromQuery] int Days, [FromQuery] int CohortId = 0)
+    public async Task<IActionResult> GetPollInstancesByCohortIdAndDaysAsync(
+            [FromQuery] int[] CohortId,
+            [FromQuery] int Days,
+            [FromQuery] Pagination Query
+    )
     {
-        if (Days == 0) return BadRequest($"Days need to be greater than 0");
-        if (CohortId == 0)
-        {
-            _logger.LogInformation("Getting poll instances in the last {days} for all cohorts", Days);
-            return Ok(await _mediator.Send(new GetPollInstancesByLastDaysQuery() { LastDays = Days }));
-        }
-        _logger.LogInformation("Getting poll instances in the last {days} for cohort {cohortId}", Days, CohortId);
-        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(CohortId, Days)));
+        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(Query, CohortId, Days)));
     }
 
     [HttpGet("{Uuid}/cohorts/avg")]

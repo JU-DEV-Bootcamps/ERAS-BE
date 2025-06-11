@@ -2,13 +2,14 @@
 using Eras.Application.DTOs;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
+using Eras.Application.Utils;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays
 {
     public class GetPollInstanceByCohortAndDaysQueryHandler :
-        IRequestHandler<GetPollInstanceByCohortAndDaysQuery, GetQueryResponse<IEnumerable<PollInstanceDTO>>>
+        IRequestHandler<GetPollInstanceByCohortAndDaysQuery, GetQueryResponse<PagedResult<PollInstanceDTO>>>
     {
 
         private readonly IPollInstanceRepository _pollInstanceRepository;
@@ -19,19 +20,22 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
             _pollInstanceRepository = PollInstanceRepository;
             _logger = Logger;
         }
-        public async Task<GetQueryResponse<IEnumerable<PollInstanceDTO>>> Handle(GetPollInstanceByCohortAndDaysQuery Request, CancellationToken CancellationToken)
+        public async Task<GetQueryResponse<PagedResult<PollInstanceDTO>>> Handle(GetPollInstanceByCohortAndDaysQuery Request, CancellationToken CancellationToken)
         {
             try
             {
-                var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(Request.CohortId, Request.Days);
-                var pollInstanceDTOs = pollInstances.Select(PollInstance => PollInstanceMapper.ToDTO(PollInstance)).OrderByDescending(Pi => Pi.FinishedAt);
-                return new GetQueryResponse<IEnumerable<PollInstanceDTO>>(pollInstanceDTOs ,"Success", true );
+                var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(Request.Pagination.Page, Request.Pagination.PageSize, Request.CohortId, Request.Days);
+                var pollInstanceDTOs =
+                    pollInstances.Items
+                    .Select(PollInstance => PollInstanceMapper.ToDTO(PollInstance)).ToList();
+                return new GetQueryResponse<PagedResult<PollInstanceDTO>>(new PagedResult<PollInstanceDTO>(pollInstances.Count, pollInstanceDTOs), "Success", true);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred getting the poll instance");
-                return new GetQueryResponse<IEnumerable<PollInstanceDTO>>([], "Failed", false);
+                return new GetQueryResponse<PagedResult<PollInstanceDTO>>(new PagedResult<PollInstanceDTO>(0, []), "Failed", false);
             }
         }
+
     }
 }
