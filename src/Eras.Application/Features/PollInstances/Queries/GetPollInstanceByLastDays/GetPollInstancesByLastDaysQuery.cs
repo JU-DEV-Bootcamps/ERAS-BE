@@ -8,5 +8,7 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastD
     public class GetPollInstancesByLastDaysQuery : IRequest<GetQueryResponse<List<PollInstance>>>
     {
         public int LastDays;
+        public bool LastVersion;
+        public string PollUuid = String.Empty;
     }
 }

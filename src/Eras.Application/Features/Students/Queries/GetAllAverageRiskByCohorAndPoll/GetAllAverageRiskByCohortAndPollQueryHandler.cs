@@ -28,7 +28,8 @@ namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAnd
             _logger.LogDebug($"get all average risk = {Request.CohortIds} {Request.PollUuid}");
             return await _studentRepository.GetStudentAverageRiskByCohortsAsync(
                 Request.CohortIds,
-                Request.PollUuid
+                Request.PollUuid,
+                Request.LastVersion
             );
         }
     }

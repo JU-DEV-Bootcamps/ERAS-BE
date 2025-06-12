@@ -26,36 +26,73 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     }
 
 
-    public async Task<IEnumerable<PollInstance>> GetByLastDays(int Days)
+    public async Task<IEnumerable<PollInstance>> GetByLastDays(int Days, bool LastVersion, string PollUuid)
     {
         DateTime dateLimit = DateTime.UtcNow.AddDays(-Days);
-        List<PollInstanceEntity> pollInstanceCounts = await _context.PollInstances
-        .Include(PI => PI.Student)
-        .Where(PI => PI.FinishedAt >= dateLimit)
-        .ToListAsync();
+
+        int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
+        
+        List<PollInstanceEntity> pollInstanceCounts;
+        
+        if (LastVersion)
+        {
+            pollInstanceCounts = await _context.PollInstances
+                .Include(PI => PI.Student)
+                .Where(PI => PI.FinishedAt >= dateLimit && PI.LastVersion == pollVersion)
+                .ToListAsync();
+        }
+        else
+        {
+            pollInstanceCounts = await _context.PollInstances
+                .Include(PI => PI.Student)
+                .Where(PI => PI.FinishedAt >= dateLimit && PI.LastVersion != pollVersion)
+                .ToListAsync();
+        }
 
         return pollInstanceCounts.Select(PollInstanceMapper.ToDomain);
     }
 
-    public async Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? CohortId, int? Days)
+    public async Task<IEnumerable<PollInstance>> GetByCohortIdAndLastDays(int? CohortId, int? Days, bool LastVersion, string PollUuid)
     {
         IQueryable<PollInstanceEntity> query = _context.PollInstances.Include(PI => PI.Student);
 
-        if (CohortId.HasValue && CohortId != 0)
+        int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
+
+        if (CohortId.HasValue && CohortId != 0 && LastVersion)
         {
             query = query
                 .Join(_context.StudentCohorts,
                     PollInstance => PollInstance.StudentId,
                     StudentCohort => StudentCohort.StudentId,
                     (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort })
-                .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value)
+                .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value && Joined.pollInstance.LastVersion == pollVersion)
+                .Select(Joined => Joined.pollInstance);
+        } else
+        {
+            query = query
+                .Join(_context.StudentCohorts,
+                    PollInstance => PollInstance.StudentId,
+                    StudentCohort => StudentCohort.StudentId,
+                    (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort })
+                .Where(Joined => Joined.studentCohort.CohortId == CohortId.Value && Joined.pollInstance.LastVersion != pollVersion)
                 .Select(Joined => Joined.pollInstance);
         }
 
-        if (Days.HasValue && Days != 0)
+        if (Days.HasValue && Days != 0 && LastVersion)
         {
             DateTime dateLimit = DateTime.UtcNow.AddDays(-Days.Value);
-            query = query.Where(PI => PI.FinishedAt >= dateLimit);
+            query = query.Where(PI => PI.FinishedAt >= dateLimit && PI.LastVersion == pollVersion);
+        } 
+        else
+        {
+            DateTime dateLimit = DateTime.UtcNow.AddDays(-Days.Value);
+            query = query.Where(PI => PI.FinishedAt >= dateLimit && PI.LastVersion == pollVersion);
         }
 
         List<PollInstanceEntity> pollInstances = await query.Distinct().ToListAsync();
@@ -63,7 +100,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     }
 
     public async Task<AvgReportResponseVm> GetReportByPollCohortAsync(
-    string PollUuid, List<int> CohortIds)
+    string PollUuid, List<int> CohortIds, bool LastVersion)
     {
         List<string> emailsInCohort = await _context.StudentCohorts
             .Where(SC => CohortIds.Contains(SC.CohortId))
@@ -73,21 +110,48 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 (SC, S) => new { SC, S })
             .Select(SC => SC.S.Email)
             .ToListAsync();
+        IQueryable<ErasCalculationsByPollDTO> reportQuery;
 
-        IQueryable<ErasCalculationsByPollDTO> reportQuery =
-        from A in _context.ErasCalculationsByPoll
-        where A.PollUuid == PollUuid
-        where emailsInCohort.Contains(A.StudentEmail)
-        select new ErasCalculationsByPollDTO
+        int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
+
+        if (LastVersion) {
+            reportQuery =
+            from A in _context.ErasCalculationsByPoll
+            where A.PollUuid == PollUuid
+            where A.PollVersion == pollVersion
+            where emailsInCohort.Contains(A.StudentEmail)
+            select new ErasCalculationsByPollDTO
+            {
+                ComponentName = A.ComponentName,
+                Question = A.Question,
+                AnswerText = A.AnswerText,
+                VariableAverageRisk = A.VariableAverageRisk,
+                AnswerPercentage = A.AnswerPercentage,
+                StudentEmail = A.StudentEmail,
+                AnswerRisk = A.AnswerRisk
+            };
+        }
+        else
         {
-            ComponentName = A.ComponentName,
-            Question = A.Question,
-            AnswerText = A.AnswerText,
-            VariableAverageRisk = A.VariableAverageRisk,
-            AnswerPercentage = A.AnswerPercentage,
-            StudentEmail = A.StudentEmail,
-            AnswerRisk = A.AnswerRisk
-        };
+            reportQuery =
+            from A in _context.ErasCalculationsByPoll
+            where A.PollUuid == PollUuid
+            where A.PollVersion != pollVersion
+            where emailsInCohort.Contains(A.StudentEmail)
+            select new ErasCalculationsByPollDTO
+            {
+                ComponentName = A.ComponentName,
+                Question = A.Question,
+                AnswerText = A.AnswerText,
+                VariableAverageRisk = A.VariableAverageRisk,
+                AnswerPercentage = A.AnswerPercentage,
+                StudentEmail = A.StudentEmail,
+                AnswerRisk = A.AnswerRisk
+            };
+        }   
 
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 

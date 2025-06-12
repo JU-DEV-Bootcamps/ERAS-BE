@@ -4,6 +4,6 @@ using MediatR;
 
 namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAndPoll
 {
-    public sealed record GetAllAverageRiskByCohortsAndPollQuery(List<int> cohortIds, string PollUuid)
+    public sealed record GetAllAverageRiskByCohortsAndPollQuery(List<int> cohortIds, string PollUuid, bool LastVersion)
         : IRequest<List<StudentAverageRiskDto>>;
 }

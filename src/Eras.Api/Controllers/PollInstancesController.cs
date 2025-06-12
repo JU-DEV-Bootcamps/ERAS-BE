@@ -20,17 +20,17 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<StudentsController> _logger = Logger;
 
-    [HttpGet]
-    public async Task<IActionResult> GetPollInstancesByCohortIdAndDaysAsync([FromQuery] int Days, [FromQuery] int CohortId = 0)
+    [HttpGet("{PollUuid}")]
+    public async Task<IActionResult> GetPollInstancesByCohortIdAndDaysAsync([FromQuery] int Days, [FromQuery] int CohortId = 0, [FromQuery] bool LastVersion = true, [FromRoute] string PollUuid = "")
     {
         if (Days == 0) return BadRequest($"Days need to be greater than 0");
         if (CohortId == 0)
         {
             _logger.LogInformation("Getting poll instances in the last {days} for all cohorts", Days);
-            return Ok(await _mediator.Send(new GetPollInstancesByLastDaysQuery() { LastDays = Days }));
+            return Ok(await _mediator.Send(new GetPollInstancesByLastDaysQuery() { LastDays = Days, LastVersion = LastVersion, PollUuid = PollUuid }));
         }
         _logger.LogInformation("Getting poll instances in the last {days} for cohort {cohortId}", Days, CohortId);
-        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(CohortId, Days)));
+        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(CohortId, Days, LastVersion, PollUuid)));
     }
 
     [HttpGet("{Uuid}/cohorts/avg")]

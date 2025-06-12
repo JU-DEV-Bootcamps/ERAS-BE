@@ -155,20 +155,43 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<List<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
             List<int> CohortIds,
-            string PollUuid
+            string PollUuid,
+            bool LastVersion
         )
         {
-            IQueryable<StudentAverageRiskDto> query = _context.ErasCalculationsByPoll
-                .Where(X => CohortIds.Contains(X.CohortId) && X.PollUuid == PollUuid)
-                .GroupBy(X => X.StudentEmail)
-                .Select(G => new StudentAverageRiskDto
-                {
-                    StudentId = G.First().StudentId,
-                    StudentName = G.First().StudentName,
-                    Email = G.Key,
-                    AvgRiskLevel = G.Average(X => X.AnswerRisk)
-                });
+            int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
 
+            IQueryable<StudentAverageRiskDto> query;
+
+            if (LastVersion)
+            {
+                query = _context.ErasCalculationsByPoll
+                    .Where(X => CohortIds.Contains(X.CohortId) && X.PollUuid == PollUuid && X.PollVersion == pollVersion)
+                    .GroupBy(X => X.StudentEmail)
+                    .Select(G => new StudentAverageRiskDto
+                    {
+                        StudentId = G.First().StudentId,
+                        StudentName = G.First().StudentName,
+                        Email = G.Key,
+                        AvgRiskLevel = G.Average(X => X.AnswerRisk)
+                    });
+            }
+            else
+            {
+                query = _context.ErasCalculationsByPoll
+                    .Where(X => CohortIds.Contains(X.CohortId) && X.PollUuid == PollUuid && X.PollVersion != pollVersion)
+                    .GroupBy(X => X.StudentEmail)
+                    .Select(G => new StudentAverageRiskDto
+                    {
+                        StudentId = G.First().StudentId,
+                        StudentName = G.First().StudentName,
+                        Email = G.Key,
+                        AvgRiskLevel = G.Average(X => X.AnswerRisk)
+                    });
+            }
 
             return await query.OrderByDescending(X => X.AvgRiskLevel).ToListAsync();
         }
