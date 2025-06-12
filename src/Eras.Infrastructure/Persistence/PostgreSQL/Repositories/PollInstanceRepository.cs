@@ -31,11 +31,11 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     {
         DateTime dateLimit = DateTime.UtcNow.AddDays(-Days);
 
-        int pollVersion = _context.Polls
+        int? pollVersion = _context.Polls
             .Where(A => A.Uuid == PollUuid)
-            .Select(A => A.LastVersion)
-            .FirstOrDefault();
-
+            .Select(A => (int?)A.LastVersion)
+            .FirstOrDefault() ?? throw new InvalidOperationException($"No se encontró una encuesta con UUID {PollUuid}");
+        
         List<PollInstanceEntity> pollInstanceCounts;
 
         if (LastVersion)

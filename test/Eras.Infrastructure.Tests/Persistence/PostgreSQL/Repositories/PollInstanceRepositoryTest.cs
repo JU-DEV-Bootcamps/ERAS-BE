@@ -23,30 +23,41 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public void GetByLastDays_Should_Return()
         {
-            // Arrange
-            var data = new List<PollInstanceEntity>
+            var pollData = new List<PollEntity>
             {
-                new PollInstanceEntity { Id = 1, FinishedAt = DateTime.UtcNow, StudentId = 1 },
-                new PollInstanceEntity { Id = 2, FinishedAt = DateTime.UtcNow.AddDays(-100), StudentId = 1 }
+                new PollEntity { Uuid = "poll-Uuid", LastVersion = 1 }
             }.AsQueryable().BuildMockDbSet();
 
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: "UserServiceTest")
-                .Options;
+                    var pollInstanceData = new List<PollInstanceEntity>
+            {
+                new PollInstanceEntity { Id = 1, FinishedAt = DateTime.UtcNow, StudentId = 1, LastVersion = 1 },
+                new PollInstanceEntity { Id = 2, FinishedAt = DateTime.UtcNow.AddDays(-100), StudentId = 1, LastVersion = 2 }
+            }.AsQueryable().BuildMockDbSet();
 
-            _mockContext = new Mock<AppDbContext>(options);
-            _mockContext
-                .Setup(C => C.PollInstances)
-                .Returns(data.Object);
+                    var options = new DbContextOptionsBuilder<AppDbContext>()
+                        .UseInMemoryDatabase(databaseName: "UserServiceTest")
+                        .Options;
 
-            _repository = new PollInstanceRepository(_mockContext.Object);
+                    _mockContext = new Mock<AppDbContext>(options);
 
-            // Act
-            var result = _repository.GetByLastDays(10, true, "poll-Uuid").Result;
+                    _mockContext
+                        .Setup(C => C.Polls)
+                        .Returns(pollData.Object);
+                    
+                    _mockContext
+                        .Setup(C => C.PollInstances)
+                        .Returns(pollInstanceData.Object);
 
-            Assert.NotNull(result);
-            Assert.Single(result);
+                    _repository = new PollInstanceRepository(_mockContext.Object);
+
+                    
+                    var result = _repository.GetByLastDays(10, true, "poll-Uuid").Result;
+
+                    
+                    Assert.NotNull(result);
+                    Assert.Single(result); 
         }
+
 
     }
 }
