@@ -59,10 +59,10 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
 
 
             // Arrange
-            var query = new GetPollInstanceByCohortAndDaysQuery(pagination, cohortId, days);
+            var query = new GetPollInstanceByCohortAndDaysQuery(pagination, cohortId, days, true, "poll-Uuid");
 
             _mockPollInstanceRepository
-                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>()))
+                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .ThrowsAsync(new Exception("Database error"));
 
             // Act
