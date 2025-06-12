@@ -27,12 +27,13 @@ public class GetPollAvgQueryTest
         var query = new PollAvgQuery()
         {
             PollUuid = Guid.NewGuid(),
-            CohortIds = [1, 2]
+            CohortIds = [1, 2],
+            LastVersion = true
         };
 
         // Mock the repository to return an empty list of Answers and map to AvgReportResponseVm
         _mockPollInstanceRepo
-            .Setup(Repo => Repo.GetReportByPollCohortAsync(query.PollUuid.ToString(), query.CohortIds))
+            .Setup(Repo => Repo.GetReportByPollCohortAsync(query.PollUuid.ToString(), query.CohortIds, query.LastVersion))
             .Returns(Task.FromResult(new AvgReportResponseVm())); // Simulate no data
 
         // Act

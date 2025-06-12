@@ -42,7 +42,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             _repository = new PollInstanceRepository(_mockContext.Object);
 
             // Act
-            var result = _repository.GetByLastDays(10).Result;
+            var result = _repository.GetByLastDays(10, true, "poll-Uuid").Result;
 
             Assert.NotNull(result);
             Assert.Single(result);
