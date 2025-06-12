@@ -26,22 +26,14 @@ namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAnd
             CancellationToken CancellationToken
         )
         {
-<<<<<<< HEAD
-            _logger.LogDebug($"get all average risk = {Request.CohortIds} {Request.PollUuid}");
-            return await _studentRepository.GetStudentAverageRiskByCohortsAsync(
-                Request.CohortIds,
-                Request.PollUuid,
-                Request.LastVersion
-            );
-=======
             var result = await _studentRepository.GetStudentAverageRiskByCohortsAsync(
                Request.Pagination,
                Request.CohortIds,
-               Request.PollUuid
+               Request.PollUuid,
+               Request.LastVersion
            );
 
             return result;
->>>>>>> e9b0c55b5e44d163e90bd31a48fecfe3e2bc471d
         }
     }
 }
