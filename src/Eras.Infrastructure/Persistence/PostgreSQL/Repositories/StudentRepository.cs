@@ -157,11 +157,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public Task<PagedResult<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
             Pagination Pagination,
             List<int> CohortIds,
-            string PollUuid
+            string PollUuid,
+            bool LastVersion
         )
         {
-            var query = _context.ErasCalculationsByPoll
-                .Where(X => CohortIds.Contains(X.CohortId) && X.PollUuid == PollUuid)
+            int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
+            IQueryable<StudentAverageRiskDto> query;
+            if (LastVersion)
+            {
+            query = _context.ErasCalculationsByPoll
+                .Where(X => CohortIds.Contains(X.CohortId) && X.PollUuid == PollUuid && X.PollVersion == pollVersion)
                 .GroupBy(X => X.StudentEmail)
                 .Select(G => new StudentAverageRiskDto
                 {
@@ -170,6 +178,20 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     Email = G.Key,
                     AvgRiskLevel = G.Average(X => X.AnswerRisk)
                 });
+            }
+            else
+            {
+                query = _context.ErasCalculationsByPoll
+                    .Where(X => CohortIds.Contains(X.CohortId) && X.PollUuid == PollUuid && X.PollVersion != pollVersion)
+                    .GroupBy(X => X.StudentEmail)
+                    .Select(G => new StudentAverageRiskDto
+                    {
+                        StudentId = G.First().StudentId,
+                        StudentName = G.First().StudentName,
+                        Email = G.Key,
+                        AvgRiskLevel = G.Average(X => X.AnswerRisk)
+                    });
+            }
 
             var count = query.Count();
 

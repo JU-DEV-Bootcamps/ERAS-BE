@@ -29,7 +29,8 @@ namespace Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndC
         {
             var variables = await _variableRepository.GetAllByPollUuidAsync(
                 Request.pollUuid,
-                Request.component
+                Request.component,
+                Request.LastVersion
             );
             return variables;
         }

@@ -107,12 +107,13 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     public async Task<IActionResult> GetAllAvgRiskByCohortAndPollAsync(
         [FromQuery] string CohortIds,
         [FromQuery] string PollUuid,
-        [FromQuery] Pagination Query
+        [FromQuery] Pagination Query,
+        [FromQuery] bool LastVersion
     )
     {
         List<int> Ids = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);
         PagedResult<StudentAverageRiskDto> result = await _mediator.Send(
-            new GetAllAverageRiskByCohortAndPollQuery(Query, Ids, PollUuid)
+            new GetAllAverageRiskByCohortAndPollQuery(Query, Ids, PollUuid, LastVersion)
         );
         return Ok(result);
     }
@@ -133,13 +134,14 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("polls/{Uuid}/top")]
-    public async Task<IActionResult> GetPollTopStudentsAsync([FromRoute] string Uuid, [FromQuery] int CohortId)
+    public async Task<IActionResult> GetPollTopStudentsAsync([FromRoute] string Uuid, [FromQuery] int CohortId, [FromQuery] bool LastVersion)
     {
         var getCohortTopRiskStudentsQuery = new GetCohortTopRiskStudentsQuery()
         {
             PollUuid = Uuid,
             //Todo: Cohort Filter should be optional
             CohortId = CohortId,
+            LastVersion = LastVersion
         };
         GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>> queryResponse = await _mediator.Send(getCohortTopRiskStudentsQuery);
 
@@ -147,13 +149,14 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("polls/{Uuid}/components/top")]
-    public async Task<IActionResult> GetComponentTopStudentsAsync([FromRoute] string Uuid, [FromQuery] string ComponentName, [FromQuery] int CohortId)
+    public async Task<IActionResult> GetComponentTopStudentsAsync([FromRoute] string Uuid, [FromQuery] string ComponentName, [FromQuery] int CohortId, [FromQuery] bool LastVersion)
     {
         var getCohortTopRiskStudentsByComponentQuery = new GetCohortTopRiskStudentsByComponentQuery()
         {
             PollUuid = Uuid,
             ComponentName = ComponentName,
             CohortId = CohortId,
+            LastVersion = LastVersion,
         };
         GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>> queryResponse = await _mediator.Send(getCohortTopRiskStudentsByComponentQuery);
 

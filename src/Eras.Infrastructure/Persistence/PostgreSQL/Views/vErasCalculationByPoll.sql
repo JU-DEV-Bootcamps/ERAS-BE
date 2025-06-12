@@ -88,7 +88,8 @@ select
     pc.answer_percentage,
     sc.cohort_id,
     coh."name" AS cohort_name,
-    racbc.average_risk_by_cohort_component
+    racbc.average_risk_by_cohort_component,
+    a.version_number as poll_version
 FROM
     answers a
 JOIN poll_variable pv ON a.poll_variable_id = pv."Id"
@@ -125,7 +126,8 @@ GROUP by
     coh."name",
     racbc.average_risk_by_cohort_component,
     c."name",
-    a.risk_level
+    a.risk_level,
+    poll_version
 ORDER BY
     pc.poll_variable_id,
     pc.answer_percentage DESC;

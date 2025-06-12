@@ -23,7 +23,7 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastD
         {
             try
             {
-                IEnumerable<PollInstance> pollInstances = await _pollInstanceRepository.GetByLastDays(Request.LastDays);
+                IEnumerable<PollInstance> pollInstances = await _pollInstanceRepository.GetByLastDays(Request.LastDays, Request.LastVersion, Request.PollUuid);
                 return new GetQueryResponse<List<PollInstance>>(pollInstances.ToList(), "PollInstances obtained", true);
             }
             catch (Exception ex)

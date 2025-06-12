@@ -94,7 +94,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
     [HttpGet("polls/{Uuid}/avg")]
-    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] string CohortIds)
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] string CohortIds, [FromQuery] bool LastVersion)
     {
         try
         {
@@ -105,7 +105,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
             {
                 return BadRequest(new { status = "error", message = "Wrong format for cohortIds" });
             }
-            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortIds = CohortIdsAsInts };
+            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortIds = CohortIdsAsInts, LastVersion = LastVersion };
             GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
@@ -124,13 +124,14 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     [HttpGet("polls/{Uuid}/count")]
     public async Task<IActionResult> GetPollResultsCountAsync([FromRoute] string Uuid,
         [FromQuery] string CohortIds,
-        [FromQuery] string VariableIds)
+        [FromQuery] string VariableIds,
+        [FromQuery] bool LastVersion)
     {
         try
         {
             var VariableIdsAsInts = VariableIds.Split(',').Select(int.Parse).ToList();
             var CohortIdsAsInts = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);
-            var query = new PollCountQuery() { PollUuid = Uuid, CohortIds = CohortIdsAsInts, VariableIds = VariableIdsAsInts };
+            var query = new PollCountQuery() { PollUuid = Uuid, CohortIds = CohortIdsAsInts, VariableIds = VariableIdsAsInts, LastVersion = LastVersion };
             var count = await _mediator.Send(query);
             return count.Success
             ? Ok(new

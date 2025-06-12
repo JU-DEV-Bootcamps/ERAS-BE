@@ -19,7 +19,7 @@ public class GetCohortTopRiskStudentsQueryHandler : IRequestHandler<GetCohortTop
 
     public async Task<GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>>> Handle(GetCohortTopRiskStudentsQuery Request, CancellationToken CancellationToken)
     {
-        var studentsList = await _cohortRepository.GetCohortTopRiskStudentsAsync(Request.PollUuid, Request.CohortId);
+        var studentsList = await _cohortRepository.GetCohortTopRiskStudentsAsync(Request.PollUuid, Request.CohortId, Request.LastVersion);
         return new GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>>(studentsList);
     }
 }

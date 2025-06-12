@@ -26,10 +26,10 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
             var cohortId = new int[] { 1, 2 };
             var days = 10;
             var pagination = new Pagination();
-
+            var pollUuid = "poll-uuid";
 
             // Arrange
-            var query = new GetPollInstanceByCohortAndDaysQuery(pagination, cohortId, days);
+            var query = new GetPollInstanceByCohortAndDaysQuery(pagination, cohortId, days, true, pollUuid);
             var pollInstances = new List<PollInstance>
             {
                 new PollInstance { Uuid = "uuid1", FinishedAt = DateTime.UtcNow },
@@ -38,7 +38,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
             var pagedResult = new PagedResult<PollInstance>(pollInstances.Count(), pollInstances);
 
             _mockPollInstanceRepository
-                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>()))
+                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>(), It.IsAny<bool>(),It.IsAny<string>()))
                 .ReturnsAsync(pagedResult);
 
             // Act
@@ -59,10 +59,10 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
 
 
             // Arrange
-            var query = new GetPollInstanceByCohortAndDaysQuery(pagination, cohortId, days);
+            var query = new GetPollInstanceByCohortAndDaysQuery(pagination, cohortId, days, true, "poll-Uuid");
 
             _mockPollInstanceRepository
-                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>()))
+                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>(), It.IsAny<bool>(), It.IsAny<string>()))
                 .ThrowsAsync(new Exception("Database error"));
 
             // Act

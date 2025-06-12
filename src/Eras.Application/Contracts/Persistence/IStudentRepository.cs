@@ -32,7 +32,8 @@ namespace Eras.Application.Contracts.Persistence
         Task<PagedResult<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
             Pagination Pagination,
             List<int> CohortIds,
-            string PollUuid
+            string PollUuid,
+            bool LastVersion
         );
 
         Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize);

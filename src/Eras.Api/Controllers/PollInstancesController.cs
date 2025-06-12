@@ -21,20 +21,22 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<StudentsController> _logger = Logger;
 
-    [HttpGet]
+    [HttpGet("{PollUuid}")]
     public async Task<IActionResult> GetPollInstancesByCohortIdAndDaysAsync(
             [FromQuery] int[] CohortId,
             [FromQuery] int Days,
-            [FromQuery] Pagination Query
+            [FromQuery] Pagination Query,
+            [FromQuery] bool LastVersion = true,
+            [FromRoute] string PollUuid = ""
     )
     {
-        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(Query, CohortId, Days)));
+        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(Query, CohortId, Days, LastVersion, PollUuid)));
     }
 
     [HttpGet("{Uuid}/cohorts/avg")]
-    public async Task<IActionResult> GetComponentsAvgGroupedByCohortAsync([FromRoute] string Uuid)
+    public async Task<IActionResult> GetComponentsAvgGroupedByCohortAsync([FromRoute] string Uuid, [FromQuery] bool LastVersion)
     {
-        var getCohortComponentsByPollQuery = new GetCohortComponentsByPollQuery() { PollUuid = Uuid };
+        var getCohortComponentsByPollQuery = new GetCohortComponentsByPollQuery() { PollUuid = Uuid, LastVersion = LastVersion };
         List<Application.Models.Response.Calculations.GetCohortComponentsByPollResponse> queryResponse = await _mediator.Send(getCohortComponentsByPollQuery);
         var mappedResponse = queryResponse
             .GroupBy(X => new { X.CohortId, X.CohortName })

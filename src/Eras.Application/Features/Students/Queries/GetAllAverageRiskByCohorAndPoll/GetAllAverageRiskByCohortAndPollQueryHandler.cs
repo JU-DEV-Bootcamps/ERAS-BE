@@ -29,7 +29,8 @@ namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAnd
             var result = await _studentRepository.GetStudentAverageRiskByCohortsAsync(
                Request.Pagination,
                Request.CohortIds,
-               Request.PollUuid
+               Request.PollUuid,
+               Request.LastVersion
            );
 
             return result;
