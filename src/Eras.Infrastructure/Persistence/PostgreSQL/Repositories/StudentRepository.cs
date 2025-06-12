@@ -2,6 +2,7 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.HeatMap;
 using Eras.Application.DTOs.Student;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -153,7 +154,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return (students.Select(Student => Student.ToDomain()), totalCount);
         }
 
-        public async Task<List<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
+        public Task<PagedResult<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
+            Pagination Pagination,
             List<int> CohortIds,
             string PollUuid,
             bool LastVersion
@@ -163,21 +165,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             .Where(A => A.Uuid == PollUuid)
             .Select(A => A.LastVersion)
             .FirstOrDefault();
-
             IQueryable<StudentAverageRiskDto> query;
-
             if (LastVersion)
             {
-                query = _context.ErasCalculationsByPoll
-                    .Where(X => CohortIds.Contains(X.CohortId) && X.PollUuid == PollUuid && X.PollVersion == pollVersion)
-                    .GroupBy(X => X.StudentEmail)
-                    .Select(G => new StudentAverageRiskDto
-                    {
-                        StudentId = G.First().StudentId,
-                        StudentName = G.First().StudentName,
-                        Email = G.Key,
-                        AvgRiskLevel = G.Average(X => X.AnswerRisk)
-                    });
+            query = _context.ErasCalculationsByPoll
+                .Where(X => CohortIds.Contains(X.CohortId) && X.PollUuid == PollUuid && X.PollVersion == pollVersion)
+                .GroupBy(X => X.StudentEmail)
+                .Select(G => new StudentAverageRiskDto
+                {
+                    StudentId = G.First().StudentId,
+                    StudentName = G.First().StudentName,
+                    Email = G.Key,
+                    AvgRiskLevel = G.Average(X => X.AnswerRisk)
+                });
             }
             else
             {
@@ -193,7 +193,16 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     });
             }
 
-            return await query.OrderByDescending(X => X.AvgRiskLevel).ToListAsync();
+            var count = query.Count();
+
+            var data = query
+                .OrderByDescending(X => X.AvgRiskLevel)
+                .Skip((Pagination.Page - 1) * Pagination.PageSize)
+                .Take(Pagination.PageSize)
+                .ToList();
+
+            return Task.FromResult(new PagedResult<StudentAverageRiskDto>(count, data));
+
         }
 
         public new async Task<Student> UpdateAsync(Student Entity)

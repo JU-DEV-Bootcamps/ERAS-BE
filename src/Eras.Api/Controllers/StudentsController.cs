@@ -107,12 +107,13 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     public async Task<IActionResult> GetAllAvgRiskByCohortAndPollAsync(
         [FromQuery] string CohortIds,
         [FromQuery] string PollUuid,
+        [FromQuery] Pagination Query,
         [FromQuery] bool LastVersion
     )
     {
         List<int> Ids = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);
-        List<StudentAverageRiskDto> result = await _mediator.Send(
-            new GetAllAverageRiskByCohortAndPollQuery(Ids, PollUuid, LastVersion)
+        PagedResult<StudentAverageRiskDto> result = await _mediator.Send(
+            new GetAllAverageRiskByCohortAndPollQuery(Query, Ids, PollUuid, LastVersion)
         );
         return Ok(result);
     }

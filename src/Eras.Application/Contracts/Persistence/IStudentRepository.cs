@@ -1,5 +1,6 @@
 ﻿using Eras.Application.DTOs.HeatMap;
 using Eras.Application.DTOs.Student;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence
@@ -28,7 +29,13 @@ namespace Eras.Application.Contracts.Persistence
             int? Days
         );
 
-        Task<List<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(List<int> CohortIds, string PollUuid, bool LastVersion);
+        Task<PagedResult<StudentAverageRiskDto>> GetStudentAverageRiskByCohortsAsync(
+            Pagination Pagination,
+            List<int> CohortIds,
+            string PollUuid,
+            bool LastVersion
+        );
+
         Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize);
     }
 }
