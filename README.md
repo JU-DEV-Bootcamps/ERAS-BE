@@ -34,6 +34,12 @@ Run the project from the command line
  dotnet run --project src/Eras.Api/Eras.Api.csproj
 ```
 
+# Test project
+```bash
+ dotnet test
+```
+
+
 > [!NOTE]
 > If you are using Visual Studio you can use the Run and Debug feature to run the project. Set as startup project the same path `src/Presentation`.
 
