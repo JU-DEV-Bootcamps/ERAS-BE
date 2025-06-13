@@ -28,7 +28,7 @@ jobs:
         run: dotnet restore
 
       - name: Run Tests with Coverage
-        run: dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults
+        run: dotnet test --collect:"XPlat Code Coverage" --results-directory ./TestResults --settings coverlet.runsettings
 
       - name: Merge Coverage Reports
         run: |
