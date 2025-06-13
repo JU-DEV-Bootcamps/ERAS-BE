@@ -19,6 +19,9 @@ jobs:
         with:
           dotnet-version: "8.0"
 
+      - name: Cleaning up old coverage reports
+        run: rm -rf CoverletReport TestResults
+
       - name: Install ReportGenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
