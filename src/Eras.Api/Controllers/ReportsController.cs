@@ -7,6 +7,7 @@ using Eras.Application.Models.Consolidator;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using Eras.Application.Utils;
+using Eras.Application.DTOs.Views;
 
 using MediatR;
 
@@ -66,7 +67,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     [HttpGet("polls/{Uuid}/top")]
     public async Task<IActionResult> GetHigherRiskStudentsByPollAsync(
     [FromRoute] string Uuid,
-    [FromQuery] int Take,
+    [FromQuery] Pagination Pagination,
     [FromQuery] int VariableIds)
     {
         try
@@ -74,10 +75,10 @@ public class ReportsController(IMediator Mediator) : ControllerBase
             GetPollTopQuery query = new()
             {
                 PollUuid = new Guid(Uuid),
-                Take = Take,
+                Pagination = Pagination,
                 VariableIds = VariableIds
             };
-            List<Application.DTOs.Views.ErasCalculationsByPollDTO>? avgRisk = await _mediator.Send(query);
+            PagedResult<ErasCalculationsByPollDTO>? avgRisk = await _mediator.Send(query);
 
             return
              Ok(new
