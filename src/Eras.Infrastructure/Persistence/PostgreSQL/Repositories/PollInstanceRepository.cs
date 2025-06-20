@@ -84,7 +84,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         }
         else
         {
-            DateTime dateLimit = DateTime.UtcNow.AddDays(-Days.Value);
+            DateTime dateLimit = DateTime.UtcNow.AddDays(Days.HasValue? - Days.Value : 0);
             query = query.Where(PI => PI.pollInstance.FinishedAt >= dateLimit && PI.pollInstance.LastVersion != pollVersion);
         }
 
