@@ -23,10 +23,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return pollVariable?.ToDomain();
         }
 
-        public async Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, int VariableId, Pagination Pagination)
+        public async Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, List<int> VariableIds, Pagination Pagination)
         {
             var topRiskQuery = _context.ErasCalculationsByPoll
-                .Where(Calculation => Calculation.PollUuid == PollUuid && Calculation.PollVariableId == VariableId)
+                .Where(Calculation => Calculation.PollUuid == PollUuid && VariableIds.Contains(Calculation.PollVariableId))
                 .Select(Result => new ErasCalculationsByPollDTO
                 {
                     PollUuid = Result.PollUuid,
@@ -47,8 +47,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     StudentId = Result.StudentId,
                 });
 
-            var Count = topRiskQuery.Count();
-            var Items = await topRiskQuery.Skip((Pagination.Page - 1) * Pagination.PageSize)
+            var Count = topRiskQuery.Distinct().Count();
+            var Items = await topRiskQuery.Skip((Pagination.Page) * Pagination.PageSize)
                 .Take(Pagination.PageSize)
                 .ToListAsync();
 

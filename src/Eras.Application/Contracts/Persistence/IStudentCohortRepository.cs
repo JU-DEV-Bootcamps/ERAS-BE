@@ -1,4 +1,6 @@
-﻿using Eras.Domain.Entities;
+﻿using Eras.Application.Models.Response.Controllers.CohortsController;
+using Eras.Application.Utils;
+using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence
 {
@@ -6,6 +8,6 @@ namespace Eras.Application.Contracts.Persistence
     {
         Task<Student?> GetByCohortIdAndStudentIdAsync(int CohortId, int StudentId);
         Task<IEnumerable<Student>?> GetAllStudentsByCohortIdAsync(int CohortId);
-        Task<List<(Student Student, List<PollInstance> PollInstances)>> GetCohortsSummaryAsync();
+        Task<CohortSummaryResponse> GetCohortsSummaryAsync(Pagination Pagination);
     }
 }

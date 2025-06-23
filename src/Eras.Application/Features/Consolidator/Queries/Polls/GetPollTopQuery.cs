@@ -9,5 +9,5 @@ public class GetPollTopQuery : IRequest<PagedResult<ErasCalculationsByPollDTO>?>
 {
     public required Guid PollUuid { get; set; }
     public required Pagination Pagination { get; set; }
-    public required int VariableIds { get; set; }
+    public required List<int> VariableIds { get; set; }
 }

@@ -68,15 +68,16 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     public async Task<IActionResult> GetHigherRiskStudentsByPollAsync(
     [FromRoute] string Uuid,
     [FromQuery] Pagination Pagination,
-    [FromQuery] int VariableIds)
+    [FromQuery] string VariableIds)
     {
         try
         {
+            List<int> VariableIdsAsInts = VariableIds.Split(',').Select(int.Parse).ToList();
             GetPollTopQuery query = new()
             {
                 PollUuid = new Guid(Uuid),
                 Pagination = Pagination,
-                VariableIds = VariableIds
+                VariableIds = VariableIdsAsInts
             };
             PagedResult<ErasCalculationsByPollDTO>? avgRisk = await _mediator.Send(query);
 
