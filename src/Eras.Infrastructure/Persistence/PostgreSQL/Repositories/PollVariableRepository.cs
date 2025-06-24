@@ -48,7 +48,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 });
 
             var Count = topRiskQuery.Distinct().Count();
-            var Items = await topRiskQuery.Skip((Pagination.Page) * Pagination.PageSize)
+            var Items = await topRiskQuery.Skip((Pagination.Page - 1) * Pagination.PageSize)
                 .Take(Pagination.PageSize)
                 .ToListAsync();
 
