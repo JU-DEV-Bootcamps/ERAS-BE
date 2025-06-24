@@ -21,15 +21,14 @@ namespace Eras.Application.Features.Polls.Queries.GetPollsByStudent
         public async Task<List<GetPollsQueryResponse>> Handle(GetPollsByStudentQuery Request, CancellationToken CancellationToken)
         {
             var listOfPolls = await _repository.GetPollsByStudentIdAsync(Request.StudentId);
-            var pollsResponses = listOfPolls.Select(poll => new GetPollsQueryResponse
+            var pollsResponses = listOfPolls.Select(Poll => new GetPollsQueryResponse
             {
-                Id = poll.Id,
-                Uuid = poll.Uuid,
-                Name = poll.Name,
-                LastVersion = poll.LastVersion,
-                LastVersionDate = poll.LastVersionDate,
+                Id = Poll.Id,
+                Uuid = Poll.Uuid,
+                Name = Poll.Name,
+                LastVersion = Poll.LastVersion,
+                LastVersionDate = Poll.LastVersionDate,
             }).ToList();
-
 
             return pollsResponses;
         }
