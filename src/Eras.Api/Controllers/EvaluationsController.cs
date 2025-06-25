@@ -12,11 +12,13 @@ using Eras.Domain.Entities;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
 [Route("api/v1/evaluations")]
 [ApiController]
+[Authorize]
 public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
@@ -137,7 +139,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         _logger.LogInformation("Getting evaluation process summary");
         GetEvaluationSummaryQuery summary = new() { EvaluationId = Id };
         var res = await _mediator.Send(summary);
-        return res.Body == null ? NotFound(res): Ok(res);
+        return res.Body == null ? NotFound(res) : Ok(res);
     }
 
     [HttpGet]

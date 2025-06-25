@@ -2,11 +2,13 @@
 using Eras.Application.Services;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/cosmic-latte")]
+[Authorize]
 public class CosmicLatteController(ICosmicLatteAPIService CosmicLatteService) : ControllerBase
 {
     private readonly ICosmicLatteAPIService _cosmicLatteService = CosmicLatteService;

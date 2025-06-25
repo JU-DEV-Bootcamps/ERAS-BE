@@ -36,9 +36,9 @@ builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
 
-builder.Services.AddHealthChecks()                          
-    .AddCheck<CosmicLatteHealthCheck>("cosmicLatteApi");  
-                                                            
+builder.Services.AddHealthChecks()
+    .AddCheck<CosmicLatteHealthCheck>("cosmicLatteApi");
+
 var app = builder.Build();
 
 // Automitcally log HTTP requests
@@ -74,7 +74,7 @@ using (var scope = app.Services.CreateScope())
     using (var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>())
     {
         dbContext.Database.Migrate();
-    
+
 
         // Read the view definition
         var sqlFilePathUp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -108,11 +108,8 @@ app.MapHealthChecks("/api/v1/health", new HealthCheckOptions()
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHsts();
 app.UseHttpsRedirection();

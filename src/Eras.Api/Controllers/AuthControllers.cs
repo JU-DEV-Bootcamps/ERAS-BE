@@ -1,17 +1,21 @@
 using System.Diagnostics.CodeAnalysis;
 
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Infrastructure.External.KeycloakClient;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
+[AllowAnonymous]
 [Route("api/v1/auth")]
 [ApiController]
 [ExcludeFromCodeCoverage]
-public class AuthController(KeycloakAuthService KeycloakAuthService, ILogger<AuthController> Logger) : ControllerBase
+public class AuthController(
+    IKeycloakAuthService<TokenResponse> KeycloakAuthService, ILogger<AuthController> Logger) : ControllerBase
 {
-    private readonly KeycloakAuthService _keycloakAuthService = KeycloakAuthService;
+    private readonly IKeycloakAuthService<TokenResponse> _keycloakAuthService = KeycloakAuthService;
     private readonly ILogger<AuthController> _logger = Logger;
 
     [HttpPost("login")]

@@ -9,11 +9,13 @@ using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAn
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
 [Route("api/v1/poll-instances")]
 [ApiController]
+[Authorize]
 [ExcludeFromCodeCoverage]
 public class PollInstancesController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {
