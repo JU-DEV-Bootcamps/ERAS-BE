@@ -1,12 +1,15 @@
 ﻿using System.ComponentModel;
 
 using Eras.Application.Features.Cohorts.Queries;
+using Eras.Application.Models.Response.Controllers.CohortsController;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Eras.Api.Controllers;
 
@@ -40,54 +43,31 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
     [HttpGet("summary")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetCohortsSummaryAsync()
+    public async Task<IActionResult> GetCohortsSummaryAsync(
+        [FromQuery] Pagination Pagination
+    )
     {
-        GetCohortsSummaryQuery getCohortsSummaryQuery = new();
-        List<(Student Student, List<PollInstance> PollInstances)> queryRes = await _mediator.Send(getCohortsSummaryQuery);
+        GetCohortsSummaryQuery getCohortsSummaryQuery = new()
+        {
+            Pagination = Pagination
+        };
+        CohortSummaryResponse res = await _mediator.Send(getCohortsSummaryQuery);
 
-        var result = queryRes.Select(S => new
-        {
-            StudentUuid = S.Student.Uuid,
-            StudentName = S.Student.Name,
-            CohortId = S.Student.Cohort?.Id,
-            CohortName = S.Student.Cohort?.Name,
-            PollinstancesAverage = S.PollInstances.Average(P => P.Answers.Average(A => A.RiskLevel)),
-            PollinstancesCount = S.PollInstances.Count,
-        }).ToList();
-        return Ok(new
-        {
-            CohortCount = result.Select(S => S.CohortName).Distinct().Count(),
-            StudentCount = result.Count,
-            Summary = result
-        });
+        return Ok(res);
     }
     [HttpGet("details")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetCohortsDetailsAsync()
+    public async Task<IActionResult> GetCohortsDetailsAsync(
+        [FromQuery] Pagination Pagination
+    )
     {
-        GetCohortsSummaryQuery getCohortsSummaryQuery = new();
-        List<(Student Student, List<PollInstance> PollInstances)> queryRes = await _mediator.Send(getCohortsSummaryQuery);
+        GetCohortsSummaryQuery getCohortsSummaryQuery = new()
+        {
+            Pagination = Pagination
+        };
+        CohortSummaryResponse res = await _mediator.Send(getCohortsSummaryQuery);
 
-        var result = queryRes.Select(S => new
-        {
-            StudentUuid = S.Student.Uuid,
-            StudentName = S.Student.Name,
-            S.Student,
-            CohortName = S.Student.Cohort?.Name,
-            S.Student.Cohort,
-            PollinstancesAverage = S.PollInstances.Average(P =>
-            {
-                Func<Answer, decimal> selector = A => A.RiskLevel;
-                return P.Answers.Average(selector);
-            }),
-            Pollinstances = S.PollInstances
-        }).ToList();
-        return Ok(new
-        {
-            CohortCount = result.Select(S => S.CohortName).Distinct().Count(),
-            StudentCount = result.Count,
-            Summary = result
-        });
+        return Ok(res);
     }
 }

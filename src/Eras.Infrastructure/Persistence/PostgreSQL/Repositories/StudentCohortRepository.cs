@@ -1,4 +1,7 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Models.Response.Controllers.CohortsController;
+
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -31,20 +34,44 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return domainStudents;
         }
 
-        public async Task<List<(Student Student, List<PollInstance> PollInstances)>> GetCohortsSummaryAsync()
+        public async Task<CohortSummaryResponse> GetCohortsSummaryAsync(Pagination Pagination)
         {
-            var cohorts = await _context.StudentCohorts.
-                Include(Cs => Cs.Cohort).
-                Include(Cs => Cs.Student).
-                ThenInclude(S => S.PollInstances).
-                ThenInclude(P => P.Answers).
-                ThenInclude(A => A.PollVariable).
-                ToListAsync();
-            var cohortsDomain = cohorts.Select(C => (
-                Student: C.ToJoinDomain(),
-                PollInstances: C.Student.PollInstances.Select(P => P.ToSummaryDomain()).ToList())
-            ).ToList();
-            return cohortsDomain;
+            var cohortStudents = _context.StudentCohorts
+                .Include(Cs => Cs.Cohort)
+                .Include(Cs => Cs.Student);
+            int StudentCount = cohortStudents.Distinct().Count();
+
+            var cohorts = await cohortStudents
+                .ThenInclude(S => S.PollInstances)
+                .ThenInclude(P => P.Answers)
+                .ThenInclude(A => A.PollVariable)
+                .ToListAsync();
+            var cohortsDomain = cohorts.Select(C => new CohortStudentPollsSummary
+            {
+                Student = C.ToJoinDomain(),
+                PollInstances = C.Student.PollInstances.Select(P => P.ToSummaryDomain()).ToList()
+            })
+            .Skip((Pagination.Page - 1) * Pagination.PageSize)
+            .Take(Pagination.PageSize);
+
+            int CohortCount = cohorts.Distinct().Count();
+
+            IEnumerable<StudentSummary> Summary = cohortsDomain.Select(S => new StudentSummary()
+            {
+                StudentUuid = S.Student.Uuid,
+                StudentName = S.Student.Name,
+                CohortId = S.Student.Cohort?.Id,
+                CohortName = S.Student.Cohort?.Name,
+                PollinstancesAverage = S.PollInstances.Average(P => P.Answers.Average(A => A.RiskLevel)),
+                PollinstancesCount = S.PollInstances.Count,
+            }).ToList();
+
+            return new CohortSummaryResponse
+            {
+                CohortCount = CohortCount,
+                StudentCount = StudentCount,
+                Summary = Summary
+            };
         }
     }
 }
