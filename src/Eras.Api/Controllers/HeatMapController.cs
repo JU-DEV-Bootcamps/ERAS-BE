@@ -11,11 +11,13 @@ using Eras.Application.Models.Response.Common;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/heat-map")]
+[Authorize]
 public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Logger)
     : ControllerBase
 {

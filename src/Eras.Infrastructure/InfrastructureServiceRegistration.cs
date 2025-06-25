@@ -40,39 +40,38 @@ namespace Eras.Infrastructure
                 out string? keycloakBaseUrl,
                 out string? keycloakRealm);
 
-            Services.AddAuthorization();
-            Services.AddAuthentication(Options =>
-            {
-                Options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                Options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(Options =>
-            {
-                Options.TokenValidationParameters = new TokenValidationParameters
+            Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(Options =>
                 {
-                    ValidateIssuer = true,
-                    ValidIssuer = $"{keycloakBaseUrl}/realms/{keycloakRealm}",
-
-                    ValidateAudience = true,
-                    ValidAudience = "account",
-
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = false,
-
-                    IssuerSigningKeyResolver = (Token, SecurityToken, Kid, Parameters) =>
+                    Options.Authority = $"{keycloakBaseUrl}/realms/{keycloakRealm}";
+                    Options.Audience = Configuration["Keycloak:ClientId"];
+                    Options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        var client = new HttpClient();
-                        var keyUri = $"{Parameters.ValidIssuer}/protocol/openid-connect/certs";
-                        var response = client.GetAsync(keyUri).Result;
-                        var keys = new JsonWebKeySet(response.Content.ReadAsStringAsync().Result);
+                        ValidateIssuer = true,
+                        ValidIssuer = $"{keycloakBaseUrl}/realms/{keycloakRealm}",
 
-                        return keys.GetSigningKeys();
-                    }
-                };
+                        ValidateAudience = true,
+                        ValidAudience = "account",
 
-                Options.RequireHttpsMetadata = false; // Only in develop environment
-                Options.SaveToken = true;
-            });
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = false,
+
+                        IssuerSigningKeyResolver = (Token, SecurityToken, Kid, Parameters) =>
+                        {
+                            var client = new HttpClient();
+                            var keyUri = $"{Parameters.ValidIssuer}/protocol/openid-connect/certs";
+                            var response = client.GetAsync(keyUri).Result;
+                            var keys = new JsonWebKeySet(response.Content.ReadAsStringAsync().Result);
+
+                            return keys.GetSigningKeys();
+                        }
+                    };
+
+                    Options.RequireHttpsMetadata = false; // Only in develop environment
+                    Options.SaveToken = true;
+
+                });
+
         }
     }
 }
