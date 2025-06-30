@@ -109,7 +109,13 @@ app.MapHealthChecks("/api/v1/health", new HealthCheckOptions()
 });
 // Configure the HTTP request pipeline.
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(_ =>
+        {
+            _.EnableDeepLinking();
+            _.OAuthClientId("api-client");
+            _.OAuthAppName("Swagger new ");
+        }
+        );
 
 app.UseHsts();
 app.UseHttpsRedirection();

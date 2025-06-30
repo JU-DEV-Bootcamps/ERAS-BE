@@ -68,9 +68,9 @@ namespace Eras.Infrastructure
                     };
 
                     Options.RequireHttpsMetadata = false; // Only in develop environment
-                    Options.SaveToken = true;
 
                 });
+            Services.AddAuthorization();
 
         }
     }

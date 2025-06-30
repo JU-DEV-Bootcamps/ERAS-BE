@@ -18,11 +18,16 @@ namespace Eras.Api
                 Options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,
-                    Description = "",
+                    Description = "Enter 'Bearer {token}' here",
                     Name = "Authorization",
-                    Type = SecuritySchemeType.Http,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
                     BearerFormat = "JWT",
-                    Scheme = "bearer"
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
                 }
                 );
 
@@ -33,7 +38,7 @@ namespace Eras.Api
                             Reference = new OpenApiReference
                             {
                                 Type = ReferenceType.SecurityScheme,
-                                Id = "Scheme"
+                                Id = "Bearer"
                             }
                         },
                         Array.Empty<string>()

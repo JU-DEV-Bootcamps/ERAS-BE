@@ -7,15 +7,12 @@ using Eras.Domain.Entities;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Eras.Api.Controllers;
 
 [Description("Only for cohort level data. If Cohort is used only as filter use the students controller")]
 [ApiController]
-[Authorize]
 [Route("api/v1/cohorts")]
 public class CohortsController(IMediator Mediator, ILogger<CohortsController> Logger) : ControllerBase
 {

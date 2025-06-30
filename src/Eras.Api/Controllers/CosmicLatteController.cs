@@ -8,7 +8,6 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/cosmic-latte")]
-[Authorize]
 public class CosmicLatteController(ICosmicLatteAPIService CosmicLatteService) : ControllerBase
 {
     private readonly ICosmicLatteAPIService _cosmicLatteService = CosmicLatteService;
@@ -20,6 +19,7 @@ public class CosmicLatteController(ICosmicLatteAPIService CosmicLatteService) : 
     [FromQuery] string EndDate = ""
     ) => Ok(await _cosmicLatteService.GetAllPollsPreview(EvaluationSetName, StartDate, EndDate));
 
+    [Authorize]
     [HttpPost("polls")]
     public async Task<IActionResult> SavePreviewPollsAsync([FromBody] List<PollDTO> PollsInstances) => Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances));
 

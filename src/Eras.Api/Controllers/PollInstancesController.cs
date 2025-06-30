@@ -3,19 +3,16 @@
 using Eras.Application.Utils;
 using Eras.Application.Features.Cohorts.Queries.GetCohortComponentsByPoll;
 using Eras.Application.Features.Components.Queries;
-using Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
 [Route("api/v1/poll-instances")]
 [ApiController]
-[Authorize]
 [ExcludeFromCodeCoverage]
 public class PollInstancesController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {

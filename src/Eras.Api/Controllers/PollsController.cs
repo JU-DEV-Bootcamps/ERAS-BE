@@ -10,13 +10,11 @@ using Eras.Domain.Entities;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/polls")]
-[Authorize]
 [ExcludeFromCodeCoverage]
 public class PollsController(IMediator Mediator, ILogger<PollsController> Logger) : ControllerBase
 {

@@ -18,13 +18,13 @@ namespace Eras.Api.Controllers;
 
 [Route("api/v1/evaluations")]
 [ApiController]
-[Authorize]
 public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<EvaluationsController> _logger = Logger;
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteEvaluationAsync(int Id)
     {
         try
@@ -62,6 +62,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
 
         }
     }
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateEvaluationAsync(int Id, [FromBody] EvaluationDTO EvaluationDTO)
     {
@@ -106,6 +107,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         }
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateEvaluationAsync([FromBody] EvaluationDTO EvaluationDTO)
     {

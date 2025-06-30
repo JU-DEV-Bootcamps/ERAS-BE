@@ -17,7 +17,6 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/heat-map")]
-[Authorize]
 public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Logger)
     : ControllerBase
 {
@@ -99,6 +98,7 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
