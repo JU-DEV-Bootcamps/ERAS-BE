@@ -2,10 +2,12 @@
 
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Views;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -21,10 +23,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return pollVariable?.ToDomain();
         }
 
-        public async Task<List<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, int VaribaleId)
+        public async Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, List<int> VariableIds, Pagination Pagination)
         {
-            var topRisk = await _context.ErasCalculationsByPoll
-                .Where(Calculation => Calculation.PollUuid == PollUuid && Calculation.PollVariableId == VaribaleId)
+            var topRiskQuery = _context.ErasCalculationsByPoll
+                .Where(Calculation => Calculation.PollUuid == PollUuid && VariableIds.Contains(Calculation.PollVariableId))
                 .Select(Result => new ErasCalculationsByPollDTO
                 {
                     PollUuid = Result.PollUuid,
@@ -43,10 +45,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     AnswerCount = Result.AnswerCount,
                     AnswerPercentage = Result.AnswerPercentage,
                     StudentId = Result.StudentId,
-                })
+                });
+
+            var Count = topRiskQuery.Distinct().Count();
+            var Items = await topRiskQuery.Skip((Pagination.Page - 1) * Pagination.PageSize)
+                .Take(Pagination.PageSize)
                 .ToListAsync();
 
-            return topRisk;
+            return new PagedResult<ErasCalculationsByPollDTO>(Count, Items);
         }
         public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, string VariableIds)
         {
