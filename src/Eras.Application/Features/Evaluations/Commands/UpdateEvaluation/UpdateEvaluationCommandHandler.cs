@@ -39,15 +39,16 @@ namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
                 evaluationDB.EndDate = Request.EvaluationDTO.EndDate;
                 evaluationDB.Audit.ModifiedAt = DateTime.UtcNow;
                 evaluationDB.Audit.ModifiedBy = "Controller";
+                evaluationDB.Country = Request.EvaluationDTO.Country;
 
                 // Only updatable if they were never set
                 if (string.IsNullOrEmpty(evaluationDB.PollName) || evaluationDB.Status == "Incomplete")
                 {
-                    if (! string.IsNullOrEmpty(Request.EvaluationDTO.PollName))
+                    if (!string.IsNullOrEmpty(Request.EvaluationDTO.PollName))
                     {
-                        Poll?  poll = await _PollRepository.GetByNameAsync(Request.EvaluationDTO.PollName);
+                        Poll? poll = await _PollRepository.GetByNameAsync(Request.EvaluationDTO.PollName);
 
-                        evaluationDB.PollName = Request.EvaluationDTO.PollName; 
+                        evaluationDB.PollName = Request.EvaluationDTO.PollName;
                         if (poll != null)
                         {
                             try
