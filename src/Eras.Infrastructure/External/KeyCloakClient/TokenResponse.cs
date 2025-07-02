@@ -11,8 +11,5 @@ namespace Eras.Infrastructure.External.KeycloakClient
 
         [JsonPropertyName("expires_in")]
         public int ExpiresIn { get; set; }
-
-        [JsonPropertyName("refresh_token")]
-        public required string RefreshToken { get; set; }
     }
 }

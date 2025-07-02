@@ -2,6 +2,7 @@
 using Eras.Application.Services;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
@@ -18,6 +19,7 @@ public class CosmicLatteController(ICosmicLatteAPIService CosmicLatteService) : 
     [FromQuery] string EndDate = ""
     ) => Ok(await _cosmicLatteService.GetAllPollsPreview(EvaluationSetName, StartDate, EndDate));
 
+    [Authorize]
     [HttpPost("polls")]
     public async Task<IActionResult> SavePreviewPollsAsync([FromBody] List<PollDTO> PollsInstances) => Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances));
 

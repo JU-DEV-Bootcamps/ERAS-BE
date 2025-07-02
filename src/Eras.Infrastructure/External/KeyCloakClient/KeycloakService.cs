@@ -1,7 +1,10 @@
-﻿using Eras.Application.Contracts.Infrastructure;
-using Microsoft.Extensions.Configuration;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+
+using Eras.Application.Contracts.Infrastructure;
+
+using Microsoft.Extensions.Configuration;
+
 
 namespace Eras.Infrastructure.External.KeycloakClient
 {
@@ -21,28 +24,25 @@ namespace Eras.Infrastructure.External.KeycloakClient
         {
             var baseUrl = _configuration["Keycloak:BaseUrl"];
             var realm = _configuration["Keycloak:Realm"];
-            var clientId =  _configuration["Keycloak:ClientId"];
+            var clientId = _configuration["Keycloak:ClientId"];
             var clientSecret = _configuration["Keycloak:ClientSecret"];
             var tokenEndpoint = $"{baseUrl}/realms/{realm}/protocol/openid-connect/token";
 
-            var requestBody = new Dictionary<string, string?>{
-                { "grant_type", "password" },
-                { "client_id",  clientId},
-                { "client_secret", clientSecret },
-                { "username", Username },
-                { "password", Password }
-            };
-
-            var content = new FormUrlEncodedContent(requestBody);
+            var content = new FormUrlEncodedContent(new[]{
+                new KeyValuePair<string,string>("grant_type", "password"),
+                new KeyValuePair<string,string>("client_id", clientId!),
+                new KeyValuePair<string,string>("client_secret", clientSecret!),
+                new KeyValuePair<string, string>("username", Username),
+                new KeyValuePair<string, string>("password", Password),
+            });
 
             var response = await _httpClient.PostAsync(tokenEndpoint, content);
 
             if (response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                var tokenResult = JsonSerializer.Deserialize<TokenResponse>(responseContent);
 
-                return tokenResult!;
+                return JsonSerializer.Deserialize<TokenResponse>(responseContent)!;
             }
 
             throw new Exception($"Authentication failed {response.StatusCode}: \n{response.Content}");

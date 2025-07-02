@@ -11,6 +11,7 @@ using Eras.Application.Models.Response.Common;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
@@ -97,6 +98,7 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         return Ok(result);
     }
 
+    [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
