@@ -43,18 +43,22 @@ namespace Eras.Infrastructure
             Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(Options =>
                 {
+                    var audience = Configuration["Keycloak:ClientId"];
+
                     Options.Authority = $"{keycloakBaseUrl}/realms/{keycloakRealm}";
-                    Options.Audience = Configuration["Keycloak:ClientId"];
+
+                    Options.Audience = audience;
+
                     Options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
                         ValidIssuer = $"{keycloakBaseUrl}/realms/{keycloakRealm}",
 
                         ValidateAudience = true,
-                        ValidAudience = "account",
+                        ValidAudience = audience,
 
                         ValidateIssuerSigningKey = true,
-                        ValidateLifetime = false,
+                        ValidateLifetime = true,
 
                         IssuerSigningKeyResolver = (Token, SecurityToken, Kid, Parameters) =>
                         {

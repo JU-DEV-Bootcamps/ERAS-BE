@@ -28,9 +28,8 @@ namespace Eras.Infrastructure.External.KeycloakClient
             var clientSecret = _configuration["Keycloak:ClientSecret"];
             var tokenEndpoint = $"{baseUrl}/realms/{realm}/protocol/openid-connect/token";
 
-
             var content = new FormUrlEncodedContent(new[]{
-                new KeyValuePair<string,string>("grant_type", "client_credentials"),
+                new KeyValuePair<string,string>("grant_type", "password"),
                 new KeyValuePair<string,string>("client_id", clientId!),
                 new KeyValuePair<string,string>("client_secret", clientSecret!),
                 new KeyValuePair<string, string>("username", Username),
