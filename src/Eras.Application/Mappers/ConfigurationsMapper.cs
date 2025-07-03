@@ -21,6 +21,7 @@ public static class ConfigurationsMapper
             BaseURL = Dto.BaseURL,
             EncryptedKey = Dto.EncryptedKey,
             ServiceProviderId = Dto.ServiceProviderId,
+            IsDeleted = Dto.IsDeleted,
             Audit = Dto.Audit ?? new AuditInfo()
             {
                 CreatedBy = "Configurations Mapper",
@@ -39,6 +40,7 @@ public static class ConfigurationsMapper
             BaseURL = Domain.BaseURL,
             EncryptedKey = Domain.EncryptedKey,
             ServiceProviderId = Domain.ServiceProviderId,
+            IsDeleted = Domain.IsDeleted,
             Audit = Domain.Audit,
         };
     }

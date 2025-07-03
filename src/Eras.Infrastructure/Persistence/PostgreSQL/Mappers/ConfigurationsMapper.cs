@@ -16,6 +16,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 BaseURL = Entity.BaseURL,
                 EncryptedKey = Entity.EncryptedKey,
                 ServiceProviderId = Entity.ServiceProviderId,
+                IsDeleted = Entity.IsDeleted,
                 Audit = Entity.Audit,
             };
         }
@@ -30,6 +31,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 BaseURL = Model.BaseURL,
                 EncryptedKey = Model.EncryptedKey,
                 ServiceProviderId = Model.ServiceProviderId,
+                IsDeleted = Model.IsDeleted,
                 Audit = Model.Audit,
             };
         }
