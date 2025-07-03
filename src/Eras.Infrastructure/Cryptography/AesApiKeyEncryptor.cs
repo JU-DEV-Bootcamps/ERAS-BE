@@ -6,20 +6,30 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Eras.Domain.Common;
+using Microsoft.Extensions.Configuration;
 
 namespace Eras.Infrastructure.Cryptography;
 public class AesApiKeyEncryptor : IApiKeyEncryptor
 {
 
-    private static readonly byte[] Key = Convert.FromHexString("c0427fcd4880380275616fbb3019c339584defa39cbb0f7185a29dabe9befa9d");
-    private static readonly byte[] IV = Convert.FromHexString("4d59d9b834ccbf185d29922fbeec2f4c");
+    private readonly byte[] _key;
+    private readonly byte[] _IV;
+
+    public AesApiKeyEncryptor(IConfiguration configuration)
+    {
+
+        var keyHex = configuration.GetSection("Encryption:Key").Value ?? throw new Exception("Key not found");
+        _key = Convert.FromHexString(keyHex);
+        var IVHex = configuration.GetSection("Encryption:IV").Value ?? throw new Exception("IV not found");
+        _IV = Convert.FromHexString(IVHex);
+    }
 
     public string Decrypt(string CipherText)
     {
 
         using var aes = Aes.Create();
-        aes.Key = Key;
-        aes.IV = IV;
+        aes.Key = _key;
+        aes.IV = _IV;
 
         using var decryptor = aes.CreateDecryptor(aes.Key, aes.IV);
         using var ms = new MemoryStream(Convert.FromBase64String(CipherText));
@@ -32,8 +42,8 @@ public class AesApiKeyEncryptor : IApiKeyEncryptor
     {
 
         using var aes = Aes.Create();
-        aes.Key = Key;
-        aes.IV = IV;
+        aes.Key = _key;
+        aes.IV = _IV;
 
         using var encryptor = aes.CreateEncryptor(aes.Key, aes.IV);
         using var ms = new MemoryStream();

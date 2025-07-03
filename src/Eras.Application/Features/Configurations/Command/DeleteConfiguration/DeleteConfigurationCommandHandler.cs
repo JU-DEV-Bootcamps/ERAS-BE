@@ -28,14 +28,14 @@ public class DeleteConfigurationCommandHandler : IRequestHandler<DeleteConfigura
     {
         try
         {
-            Domain.Entities.Configurations evaluation = await _configurationsRepository.GetByIdAsyncNoTracking(Request.ConfigurationId);
+            Domain.Entities.Configurations configuration = await _configurationsRepository.GetByIdAsyncNoTracking(Request.ConfigurationId);
 
-            if (evaluation == null)
+            if (configuration == null)
             {
                 _logger.LogWarning("Configuration with ID {Id} not found", Request.ConfigurationId);
                 return new BaseResponse("Configuration not found", false);
             }
-            await _configurationsRepository.DeleteAsync(evaluation);
+            await _configurationsRepository.UpdateDeleteStatus(configuration.Id);
             return new BaseResponse("Configuration deleted", true);
         }
         catch (Exception ex)

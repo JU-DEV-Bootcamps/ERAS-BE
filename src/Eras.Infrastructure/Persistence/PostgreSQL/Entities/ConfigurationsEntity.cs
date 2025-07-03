@@ -14,6 +14,7 @@ public class ConfigurationsEntity : BaseEntity, IAuditableEntity
     public required string BaseURL { get; set; }
     public required string EncryptedKey { get; set; }
     public int ServiceProviderId { get; set; }
+    public bool IsDeleted { get; set; }
     public ServiceProvidersEntity ServiceProvider { get; set; }
     public AuditInfo Audit { get; set; }
 }

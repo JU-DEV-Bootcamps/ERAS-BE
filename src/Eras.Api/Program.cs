@@ -100,11 +100,6 @@ using (var scope = app.Services.CreateScope())
 // Enable CORS
 app.UseCors("CORSPolicy");
 
-//app.MapHealthChecks("/api/v1/health", new HealthCheckOptions()
-//{
-//    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-//});
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

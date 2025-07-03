@@ -15,5 +15,6 @@ public class ConfigurationsDTO
     public string BaseURL { get; set; }
     public string EncryptedKey { get; set; }
     public int ServiceProviderId { get; set; }
+    public bool IsDeleted { get; set; }
     public AuditInfo Audit { get; set; }
 }

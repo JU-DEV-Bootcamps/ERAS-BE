@@ -16,7 +16,8 @@ namespace Eras.Application.Mappers
                 Country = Dto.Country,
                 StartDate = Dto.StartDate,
                 EndDate = Dto.EndDate,
-                EvaluationPollId = Dto.EvaluationPollId
+                EvaluationPollId = Dto.EvaluationPollId,
+                ConfigurationId = Dto.ConfigurationId
             };
         }
         public static EvaluationDTO ToDto(this Evaluation Domain)
@@ -31,7 +32,8 @@ namespace Eras.Application.Mappers
                 StartDate = Domain.StartDate,
                 EndDate = Domain.EndDate,
                 Status = Domain.Status,
-                EvaluationPollId = Domain.EvaluationPollId
+                EvaluationPollId = Domain.EvaluationPollId,
+                ConfigurationId = Domain.ConfigurationId
             };
         }
     }

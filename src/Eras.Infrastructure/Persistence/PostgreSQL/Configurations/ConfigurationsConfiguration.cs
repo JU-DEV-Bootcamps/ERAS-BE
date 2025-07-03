@@ -34,6 +34,10 @@ public class ConfigurationsConfiguration : IEntityTypeConfiguration<Configuratio
 
         Builder.Property(C => C.EncryptedKey)
             .IsRequired();
+
+        Builder.Property(C => C.IsDeleted)
+            .HasDefaultValue(false)
+            .IsRequired();
     }
 
     private static void ConfigureRelationShips(EntityTypeBuilder<ConfigurationsEntity> Builder)

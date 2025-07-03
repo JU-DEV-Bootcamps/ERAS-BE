@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250702170439_added-isdeleted-configurations")]
+    partial class addedisdeletedconfigurations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,10 +278,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ConfigurationId")
-                        .HasColumnType("integer")
-                        .HasColumnName("configuration_id");
-
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -312,8 +311,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnName("status");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ConfigurationId");
 
                     b.ToTable("evaluation", (string)null);
                 });
@@ -843,12 +840,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.EvaluationEntity", b =>
                 {
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ConfigurationsEntity", "Configuration")
-                        .WithMany()
-                        .HasForeignKey("ConfigurationId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
                         {
                             b1.Property<int>("EvaluationEntityId")
@@ -883,8 +874,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
-
-                    b.Navigation("Configuration");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollEntity", b =>

@@ -26,6 +26,7 @@ public class EvaluationDTO
     public string Country { get; set; } = string.Empty;
     public int EvaluationPollId { get; set; }
     public int PollId { get; set; }
+    public int ConfigurationId { get; set; }
 
     [MaxLength(30)]
     public string Status { get; set; } = String.Empty;
