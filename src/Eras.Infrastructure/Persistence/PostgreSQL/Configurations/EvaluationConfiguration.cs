@@ -1,4 +1,5 @@
 ﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -12,6 +13,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.ToTable("evaluation");
 
             ConfigureColumns(Builder);
+            ConfigureRelationShips(Builder);
             AuditConfiguration.Configure(Builder);
         }
 
@@ -38,6 +40,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Evaluation => Evaluation.Country)
                 .HasColumnName("country")
                 .HasMaxLength(10);
+            Builder.Property(e => e.ConfigurationId)
+             .HasColumnName("configuration_id")
+             .IsRequired();
+
+        }
+
+        private static void ConfigureRelationShips(EntityTypeBuilder<EvaluationEntity> Builder)
+        {
+            Builder.HasOne(e => e.Configuration)
+                .WithMany()
+                .HasForeignKey(e => e.ConfigurationId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

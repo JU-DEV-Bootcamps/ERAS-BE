@@ -17,10 +17,9 @@ namespace Eras.Api.Tests
             var mockService = new Mock<ICosmicLatteAPIService>();
             var expectedStatus = new CosmicLatteStatus(true);
 
-            mockService.Setup(Service => Service.CosmicApiIsHealthy())
+            mockService.Setup(Service => Service.CosmicApiIsHealthy("",""))
                 .ReturnsAsync(expectedStatus);
 
-            var controller = new CosmicLatteController(mockService.Object);
 
             // Act
             // var result = await controller.CosmicApiIsHealthy();

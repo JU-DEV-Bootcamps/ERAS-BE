@@ -16,6 +16,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Country = Entity.Country,
                 StartDate = Entity.StartDate,
                 EndDate = Entity.EndDate,
+                ConfigurationId = Entity.ConfigurationId,
                 Audit = Entity.Audit,
             };
         }
@@ -31,6 +32,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Status = Model.Status,
                 StartDate = Model.StartDate,
                 EndDate = Model.EndDate,
+                ConfigurationId = Model.ConfigurationId,
                 Audit = Model.Audit,
             };
         }
