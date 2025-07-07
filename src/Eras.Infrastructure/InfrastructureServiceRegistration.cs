@@ -1,5 +1,7 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Services;
+using Eras.Domain.Common;
+using Eras.Infrastructure.Cryptography;
 using Eras.Infrastructure.External.CosmicLatteClient;
 using Eras.Infrastructure.External.KeycloakClient;
 
@@ -18,6 +20,7 @@ namespace Eras.Infrastructure
         {
             Services.AddScoped<IKeycloakAuthService<TokenResponse>, KeycloakAuthService>();
             Services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
+            Services.AddScoped<IApiKeyEncryptor, AesApiKeyEncryptor>();
 
             AddAuthentication(Services, Configuration);
 

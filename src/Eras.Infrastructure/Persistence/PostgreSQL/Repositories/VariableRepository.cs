@@ -65,32 +65,30 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         )
         {
             int pollVersion = _context.Polls
+            .AsNoTracking()
             .Where(A => A.Uuid == PollUuid)
             .Select(A => A.LastVersion)
             .FirstOrDefault();
+            
+            var query = _context.Variables
+                .Join(_context.PollVariables, V => V.Id, Pv => Pv.VariableId, (V, Pv) => new { V, Pv })
+                .Join(_context.Polls, Vp => Vp.Pv.PollId, P => P.Id, (Vp, P) => new { Vp.V, Vp.Pv, P })
+                .Join(_context.Components, Vpp => Vpp.V.ComponentId, C => C.Id, (Vpp, C) => new { Vpp.V, Vpp.Pv, Vpp.P, C })
+                .Where(X => X.P.Uuid == PollUuid
+                    && (Components.Count == 0 || Components.Contains(X.C.Name))
+                    && (LastVersion ? X.Pv.Version.VersionNumber == pollVersion : X.Pv.Version.VersionNumber != pollVersion))
+                .Select(X => new Variable
+                {
+                    Id = X.V.Id,
+                    Name = X.V.Name,
+                    ComponentName = X.C.Name,
+                    Audit = X.V.Audit,
+                    IdComponent = X.C.Id,
+                    PollVariableId = X.V.Id,
+                    IdPoll = X.P.Id
+                });
 
-            if (LastVersion)
-            {
-                var variables =
-                from v in _context.Variables
-                join pv in _context.PollVariables on v.Id equals pv.VariableId
-                join p in _context.Polls on pv.PollId equals p.Id
-                join c in _context.Components on v.ComponentId equals c.Id
-                where p.Uuid == PollUuid && (Components.Count == 0 || Components.Contains(c.Name)) && pv.Version.VersionNumber == pollVersion
-                select new Variable { Id = v.Id, Name = v.Name, ComponentName = c.Name };
-                return await variables.ToListAsync();
-            }
-            else
-            {
-                var variables =
-                from v in _context.Variables
-                join pv in _context.PollVariables on v.Id equals pv.VariableId
-                join p in _context.Polls on pv.PollId equals p.Id
-                join c in _context.Components on v.ComponentId equals c.Id
-                where p.Uuid == PollUuid && (Components.Count == 0 || Components.Contains(c.Name)) && pv.Version.VersionNumber != pollVersion
-                select new Variable { Id = v.Id, Name = v.Name, ComponentName = c.Name };
-                return await variables.ToListAsync();
-            }
+            return await query.AsNoTracking().ToListAsync();
         }
 
         public async Task<Variable?> GetByNameAndPollIdAsync(string Name, int PollId)

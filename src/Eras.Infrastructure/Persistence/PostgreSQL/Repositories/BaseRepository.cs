@@ -87,9 +87,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
                 return Entity;
             }
-            catch (Exception) 
+            catch (Exception e) 
             {
-                throw new DatabaseCustomException("Error on Repository");
+                throw new DatabaseCustomException("Error on Repository" + e.Message);
             }
         }
     }

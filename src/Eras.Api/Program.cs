@@ -35,10 +35,7 @@ builder.Services.AddApiServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
-
-builder.Services.AddHealthChecks()
-    .AddCheck<CosmicLatteHealthCheck>("cosmicLatteApi");
-
+                                                            
 var app = builder.Build();
 
 // Automitcally log HTTP requests
@@ -103,10 +100,6 @@ using (var scope = app.Services.CreateScope())
 // Enable CORS
 app.UseCors("CORSPolicy");
 
-app.MapHealthChecks("/api/v1/health", new HealthCheckOptions()
-{
-    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-});
 // Configure the HTTP request pipeline.
 app.UseSwagger();
 app.UseSwaggerUI(_ =>

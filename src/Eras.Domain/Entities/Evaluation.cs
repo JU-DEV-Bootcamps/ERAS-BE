@@ -12,6 +12,7 @@ namespace Eras.Domain.Entities
         public string PollName { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public int PollId { get; set; }
+        public int ConfigurationId { get; set; }
         public int EvaluationPollId { get; set; }
         public ICollection<Poll> Polls { get; set; } = [];
         public ICollection<PollInstance>? PollInstances { get; set; }

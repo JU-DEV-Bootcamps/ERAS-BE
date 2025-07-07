@@ -118,6 +118,47 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("components", (string)null);
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ConfigurationsEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BaseURL")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("ConfigurationName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("EncryptedKey")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("ServiceProviderId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceProviderId");
+
+                    b.ToTable("configurations", (string)null);
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ErasCalculationsByPollEntity", b =>
                 {
                     b.Property<int>("AnswerCount")
@@ -191,6 +232,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("poll_variable_id");
 
+                    b.Property<int>("PollVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("poll_version");
+
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasColumnType("text")
@@ -230,6 +275,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ConfigurationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("configuration_id");
+
                     b.Property<string>("Country")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -263,6 +312,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnName("status");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ConfigurationId");
 
                     b.ToTable("evaluation", (string)null);
                 });
@@ -333,6 +384,28 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("poll_instances", (string)null);
+                });
+
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ServiceProvidersEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ServiceProviderLogo")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServiceProviderName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("serviceProviders", (string)null);
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentDetailEntity", b =>
@@ -423,6 +496,34 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("students", (string)null);
+                });
+
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.UserPollsEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ConfigurationId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PollId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConfigurationId");
+
+                    b.HasIndex("PollId");
+
+                    b.ToTable("userPolls", (string)null);
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.VariableEntity", b =>
@@ -694,8 +795,60 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ConfigurationsEntity", b =>
+                {
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ServiceProvidersEntity", "ServiceProvider")
+                        .WithMany("Configurations")
+                        .HasForeignKey("ServiceProviderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
+                        {
+                            b1.Property<int>("ConfigurationsEntityId")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTime>("CreatedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("created_at");
+
+                            b1.Property<string>("CreatedBy")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("created_by");
+
+                            b1.Property<DateTime?>("ModifiedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("updated_at");
+
+                            b1.Property<string>("ModifiedBy")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("modified_by");
+
+                            b1.HasKey("ConfigurationsEntityId");
+
+                            b1.ToTable("configurations");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ConfigurationsEntityId");
+                        });
+
+                    b.Navigation("Audit")
+                        .IsRequired();
+
+                    b.Navigation("ServiceProvider");
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.EvaluationEntity", b =>
                 {
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ConfigurationsEntity", "Configuration")
+                        .WithMany()
+                        .HasForeignKey("ConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
                         {
                             b1.Property<int>("EvaluationEntityId")
@@ -730,6 +883,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
+
+                    b.Navigation("Configuration");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollEntity", b =>
@@ -816,6 +971,44 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ServiceProvidersEntity", b =>
+                {
+                    b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
+                        {
+                            b1.Property<int>("ServiceProvidersEntityId")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTime>("CreatedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("created_at");
+
+                            b1.Property<string>("CreatedBy")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("created_by");
+
+                            b1.Property<DateTime?>("ModifiedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("updated_at");
+
+                            b1.Property<string>("ModifiedBy")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("modified_by");
+
+                            b1.HasKey("ServiceProvidersEntityId");
+
+                            b1.ToTable("serviceProviders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ServiceProvidersEntityId");
+                        });
+
+                    b.Navigation("Audit")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentDetailEntity", b =>
                 {
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
@@ -898,6 +1091,60 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.UserPollsEntity", b =>
+                {
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ConfigurationsEntity", "Configuration")
+                        .WithMany()
+                        .HasForeignKey("ConfigurationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollEntity", "Poll")
+                        .WithMany()
+                        .HasForeignKey("PollId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
+                        {
+                            b1.Property<int>("UserPollsEntityId")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTime>("CreatedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("created_at");
+
+                            b1.Property<string>("CreatedBy")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("created_by");
+
+                            b1.Property<DateTime?>("ModifiedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("updated_at");
+
+                            b1.Property<string>("ModifiedBy")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("modified_by");
+
+                            b1.HasKey("UserPollsEntityId");
+
+                            b1.ToTable("userPolls");
+
+                            b1.WithOwner()
+                                .HasForeignKey("UserPollsEntityId");
+                        });
+
+                    b.Navigation("Audit")
+                        .IsRequired();
+
+                    b.Navigation("Configuration");
+
+                    b.Navigation("Poll");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.VariableEntity", b =>
@@ -1052,6 +1299,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollInstanceEntity", b =>
                 {
                     b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ServiceProvidersEntity", b =>
+                {
+                    b.Navigation("Configurations");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", b =>
