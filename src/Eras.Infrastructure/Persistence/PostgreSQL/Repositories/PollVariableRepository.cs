@@ -25,8 +25,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, List<int> VariableIds, Pagination Pagination)
         {
+            var pollId = await _context.Polls
+                .Where(P => P.Uuid == PollUuid)
+                .Select(P => P.Id)
+                .FirstOrDefaultAsync();
+
+            var filteredVariableIds = await _context.PollVariables
+                .Where(V => VariableIds.Contains(V.VariableId) && V.PollId == pollId)
+                .Select(V => V.Id)
+                .ToListAsync();
+
             var topRiskQuery = _context.ErasCalculationsByPoll
-                .Where(Calculation => Calculation.PollUuid == PollUuid && VariableIds.Contains(Calculation.PollVariableId))
+                .Where(Calculation => Calculation.PollUuid == PollUuid && filteredVariableIds.Contains(Calculation.PollVariableId))
                 .Select(Result => new ErasCalculationsByPollDTO
                 {
                     PollUuid = Result.PollUuid,
