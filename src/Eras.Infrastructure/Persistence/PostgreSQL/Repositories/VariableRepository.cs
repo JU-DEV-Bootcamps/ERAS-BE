@@ -84,7 +84,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     ComponentName = X.C.Name,
                     Audit = X.V.Audit,
                     IdComponent = X.C.Id,
-                    PollVariableId = X.V.Id,
+                    PollVariableId = X.Pv.Id,
                     IdPoll = X.P.Id
                 });
 
