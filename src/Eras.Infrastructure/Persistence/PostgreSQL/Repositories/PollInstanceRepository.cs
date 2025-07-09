@@ -35,7 +35,6 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             .Where(A => A.Uuid == PollUuid)
             .Select(A => (int?)A.LastVersion)
             .FirstOrDefault() ?? throw new InvalidOperationException($"No se encontró una encuesta con UUID {PollUuid}");
-        
         List<PollInstanceEntity> pollInstanceCounts;
 
         if (LastVersion)
@@ -70,7 +69,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 PollInstance => PollInstance.StudentId,
                 StudentCohort => StudentCohort.StudentId,
                 (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort })
-            .Where(Joined => CohortId.Contains(Joined.studentCohort.CohortId));
+            .Where(Joined => CohortId.Contains(Joined.studentCohort.CohortId) && Joined.pollInstance.Uuid == PollUuid);
 
         int pollVersion = _context.Polls
             .Where(A => A.Uuid == PollUuid)
@@ -84,7 +83,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         }
         else
         {
-            DateTime dateLimit = DateTime.UtcNow.AddDays(Days.HasValue? - Days.Value : 0);
+            DateTime dateLimit = DateTime.UtcNow.AddDays(Days.HasValue ? -Days.Value : 0);
             query = query.Where(PI => PI.pollInstance.FinishedAt >= dateLimit && PI.pollInstance.LastVersion != pollVersion);
         }
 
