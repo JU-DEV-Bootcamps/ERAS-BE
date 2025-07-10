@@ -46,7 +46,7 @@ namespace Eras.Infrastructure
             Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(Options =>
                 {
-                    var audience = Configuration["Keycloak:ClientId"];
+                    var audience = Configuration["Keycloak:Audience"];
 
                     Options.Authority = $"{keycloakBaseUrl}/realms/{keycloakRealm}";
 

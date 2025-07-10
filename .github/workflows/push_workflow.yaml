@@ -74,6 +74,7 @@ jobs:
           sed -i "s|__DB_HOST__|${{ vars.DB_HOST }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__KEYCLOAK_URL__|${{ vars.KEYCLOAK_URL }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__KEYCLOAK_CLIENT_SECRET__|${{ secrets.KEYCLOAK_CLIENT_SECRET }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__KEYCLOAK_CLIENT_AUDIENCE__|${{ secrets.KEYCLOAK_CLIENT_AUDIENCE }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__CLIENT_ID__|${{ vars.CLIENT_ID }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__ENCRYPTION_KEY__|${{ secrets.ENCRYPTION_KEY }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__ENCRYPTION_IV__|${{ secrets.ENCRYPTION_IV }}|g" src/Eras.Api/appsettings.Production.json
