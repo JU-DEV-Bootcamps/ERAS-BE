@@ -20,11 +20,13 @@ using Eras.Domain.Entities;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/students")]
+[Authorize]
 [ExcludeFromCodeCoverage]
 public class StudentsController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {

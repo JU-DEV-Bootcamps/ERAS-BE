@@ -71,7 +71,7 @@ using (var scope = app.Services.CreateScope())
     using (var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>())
     {
         dbContext.Database.Migrate();
-    
+
 
         // Read the view definition
         var sqlFilePathUp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -101,11 +101,14 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("CORSPolicy");
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI(_ =>
+        {
+            _.EnableDeepLinking();
+            _.OAuthClientId("api-client");
+            _.OAuthAppName("Swagger new ");
+        }
+        );
 
 app.UseHsts();
 app.UseHttpsRedirection();

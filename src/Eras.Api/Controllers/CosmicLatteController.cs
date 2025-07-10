@@ -5,6 +5,7 @@ using Eras.Application.Services;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
@@ -36,6 +37,7 @@ public class CosmicLatteController(IMediator Mediator, ICosmicLatteAPIService Co
         return Ok(await _cosmicLatteService.CosmicApiIsHealthy(configuration.EncryptedKey, configuration.BaseURL));
     }
 
+    [Authorize]
     [HttpPost("polls")]
     public async Task<IActionResult> SavePreviewPollsAsync([FromBody] List<PollDTO> PollsInstances) => Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances));
 

@@ -12,6 +12,7 @@ using Eras.Domain.Entities;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
@@ -23,6 +24,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
     private readonly ILogger<EvaluationsController> _logger = Logger;
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> DeleteEvaluationAsync(int Id)
     {
         try
@@ -60,6 +62,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
 
         }
     }
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateEvaluationAsync(int Id, [FromBody] EvaluationDTO EvaluationDTO)
     {
@@ -104,6 +107,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         }
     }
 
+    [Authorize]
     [HttpPost]
     public async Task<IActionResult> CreateEvaluationAsync([FromBody] EvaluationDTO EvaluationDTO)
     {
@@ -137,7 +141,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         _logger.LogInformation("Getting evaluation process summary");
         GetEvaluationSummaryQuery summary = new() { EvaluationId = Id };
         var res = await _mediator.Send(summary);
-        return res.Body == null ? NotFound(res): Ok(res);
+        return res.Body == null ? NotFound(res) : Ok(res);
     }
 
     [HttpGet]

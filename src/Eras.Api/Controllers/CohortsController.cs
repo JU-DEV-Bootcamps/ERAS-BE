@@ -8,7 +8,6 @@ using Eras.Domain.Entities;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Eras.Api.Controllers;
 
