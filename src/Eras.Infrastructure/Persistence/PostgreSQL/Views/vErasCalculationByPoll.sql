@@ -16,6 +16,7 @@ WITH PercentageCalc AS (
 ),
 RiskAverageByComponent AS (
     SELECT
+        pv.poll_id,
         c."name" AS component_name,
         ROUND(AVG(a.risk_level),2) AS average_risk
     FROM
@@ -24,7 +25,7 @@ RiskAverageByComponent AS (
     JOIN variables v ON pv.variable_id = v."Id"
     JOIN components c ON v.component_id = c."Id"
     GROUP BY
-        c."name" /*, pv.poll_id Repeating result by some reason*/
+        pv.poll_id, c."name"
 ),
 RiskAverageByVariable AS (
     SELECT
@@ -100,7 +101,8 @@ JOIN poll_instances pi ON a.poll_instance_id = pi."Id"
 JOIN student_cohort sc ON sc.student_id = pi."StudentId"
 JOIN cohorts coh ON coh."Id" = sc.cohort_id
 JOIN PercentageCalc pc ON a.poll_variable_id = pc.poll_variable_id AND a.answer_text = pc.answer_text
-JOIN RiskAverageByComponent rac ON c."name" = rac.component_name
+JOIN RiskAverageByComponent rac 
+  ON c."name" = rac.component_name AND p."Id" = rac.poll_id
 JOIN RiskAverageByVariable rav ON v."Id" = rav.variable_id
 JOIN RiskCountByPollInstance rcbi ON a.poll_instance_id = rcbi.poll_instance_id
 JOIN RiskAvgByCohortComponent racbc ON racbc.cohort_id = sc.cohort_id AND racbc.component_id = c."Id"
