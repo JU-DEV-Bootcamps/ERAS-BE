@@ -222,6 +222,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize)
         {
             var persistenceEntity = await _context.Set<StudentEntity>()
+                .OrderBy(Stu => Stu.Name)
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize)
                 .Include(E => E.StudentDetail)
