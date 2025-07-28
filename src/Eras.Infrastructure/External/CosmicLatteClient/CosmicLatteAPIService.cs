@@ -23,7 +23,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
     {
         private const string PathEvalautionSet = "evaluationSets";
         private const string PathEvalaution = "evaluations";
-        private const string HeaderApiKey = "x-apikey";        
+        private const string HeaderApiKey = "x-apikey";
         private readonly HttpClient _httpClient;
         private readonly ILogger<CosmicLatteAPIService> _logger;
         private readonly PollOrchestratorService _pollOrchestratorService;
@@ -352,14 +352,19 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             foreach (string answers in AnswersKVPair.Value.AnswersList)
             {
                 answerSB.Append(answers);
-                if (AnswersKVPair.Value.AnswersList.Length > 1 && 
-                    Array.IndexOf(AnswersKVPair.Value.AnswersList,answers) != (AnswersKVPair.Value.AnswersList.Length - 1))
+                if (AnswersKVPair.Value.AnswersList.Length > 1 &&
+                    Array.IndexOf(AnswersKVPair.Value.AnswersList, answers) != (AnswersKVPair.Value.AnswersList.Length - 1))
                     answerSB.Append("; ");
             }
             decimal score = GetScoreByPositionAndAnswer(AnswersKVPair.Value.Position, ScoreItem);
-            score = AnswersKVPair.Value.AnswersList.Length > 0 ? score / AnswersKVPair.Value.AnswersList.Length : score; 
-            return new AnswerDTO { Answer = answerSB.ToString(), Score = Math.Round(score,2), 
-                Student = Student, Version = new VersionInfo()};
+            score = AnswersKVPair.Value.AnswersList.Length > 0 ? score / AnswersKVPair.Value.AnswersList.Length : score;
+            return new AnswerDTO
+            {
+                Answer = answerSB.ToString(),
+                Score = Math.Round(score, 2),
+                Student = Student,
+                Version = new VersionInfo()
+            };
         }
         private static decimal GetScoreByPositionAndAnswer(int Position, Score ScoreItem)
         {
@@ -382,7 +387,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             try
             {
                 var decryptedApiKey = _encryptor.Decrypt(ApiKey);
-                string path = BaseUrl + PathEvalautionSet;
+                string path = BaseUrl + PathEvalautionSet + "?$top=100";
                 var request = new HttpRequestMessage(HttpMethod.Get, path);
                 request.Headers.Add(HeaderApiKey, decryptedApiKey);
 
@@ -403,7 +408,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
         private async Task<string> GetEvaluationSetIdAsync(string EvaluationName, string ApiKey, string ApiUrl)
         {
-            string pathEvaluationSet = $"{ApiUrl}{PathEvalautionSet}";
+            string pathEvaluationSet = $"{ApiUrl}{PathEvalautionSet}?$top=100";
             var requestEvaluationSet = new HttpRequestMessage(HttpMethod.Get, pathEvaluationSet);
             requestEvaluationSet.Headers.Add(HeaderApiKey, ApiKey);
 
