@@ -1,12 +1,24 @@
-﻿using Eras.Domain.Common;
+﻿using System.ComponentModel.DataAnnotations;
+using Eras.Domain.Common;
 
 namespace Eras.Application.DTOs;
 
 public class StudentDTO
 {
+    [Required(ErrorMessage = "Student Id is required.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Student Id must be greater than 0.")]
     public int Id { get; set; }
+    [Required(ErrorMessage = "UUID is required.")]
+    [StringLength(36, MinimumLength = 36, ErrorMessage = "UUID must be exactly 36 characters.")]
+    [RegularExpression(@"^[a-fA-F0-9\-]{36}$", ErrorMessage = "UUID format is invalid.")]
     public string Uuid { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Student name is required.")]
+    [StringLength(50, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 50 characters.")]
+    [RegularExpression(@"^[a-zA-ZÀ-ÿ\s]+$", ErrorMessage = "Name can only contain letters and spaces.")]
     public string Name { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Email is required.")]
+    [StringLength(100, ErrorMessage = "Email must be less than 100 characters.")]
+    [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Email format is invalid.")]
     public string Email { get; set; } = string.Empty;
     public bool IsImported { get; set; }
     public StudentDetailDTO? StudentDetail { get; set; }
