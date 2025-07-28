@@ -7,6 +7,7 @@ using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
 using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Models.Response.Common;
+using Eras.Application.Utils;
 using Eras.Application.Services;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
@@ -91,15 +92,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             string evaluationSetId = await GetEvaluationSetIdAsync(EvaluationSetName, decryptedApiKey, ApiUrl);
             string path = $"{ApiUrl}{PathEvalaution}";
 
-            if (!string.IsNullOrEmpty(evaluationSetId) || !string.IsNullOrEmpty(StartDate) || !string.IsNullOrEmpty(EndDate))
+            if (!string.IsNullOrEmpty(evaluationSetId))
             {
                 path += "?$filter=";
                 if (!string.IsNullOrEmpty(evaluationSetId))
                     path += $"contains(parent,'evaluationSets:{evaluationSetId}')";
-                if (!string.IsNullOrEmpty(StartDate))
-                    path += $" and startedAt ge {ConvertStringToIsoExtendedDate(StartDate)}";
-                if (!string.IsNullOrEmpty(EndDate))
-                    path += $" and startedAt le {ConvertStringToIsoExtendedDate(EndDate)}";
             }
 
             var request = new HttpRequestMessage(HttpMethod.Get, path);
@@ -138,7 +135,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                         responseToPollInstance.Id,
                         responseToPollInstance.score,
                         decryptedApiKey,
-                        ApiUrl);
+                        ApiUrl,
+                        StartDate,
+                        EndDate);
 
                     if (populatedComponents.Count > 0)
                     {
@@ -162,7 +161,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string? PollId,
                 Score? ScoreItem,
                 string ApiKey,
-                string ApiUrl)
+                string ApiUrl,
+                string StartDate,
+                string EndDate)
         {
             if (PollId == null || ScoreItem == null)
             {
@@ -192,22 +193,26 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
                 string studentCohort = apiResponse.Data.Answers.ElementAt(2).Value.AnswersList[0];
                 StudentDTO studentDto = CreateStudent(studentName, studentEmail, studentCohort);
+                List<ComponentDTO> clonedListComponents = new List<ComponentDTO>();
 
-                // Clonar lista de componentes
-                var clonedListComponents = Components.Select(c => new ComponentDTO
+                if(string.IsNullOrEmpty(StartDate) &&
+                    string.IsNullOrEmpty(EndDate))
                 {
-                    Name = c.Name,
-                    Variables = c.Variables.Select(v => new VariableDTO
-                    {
-                        Name = v.Name,
-                        Position = v.Position,
-                        Type = v.Type,
-                        Answer = new AnswerDTO(),
-                        Audit = v.Audit,
-                        Version = v.Version
-                    }).ToList(),
-                    Audit = c.Audit
-                }).ToList();
+                    clonedListComponents = CloneComponentsList(Components);
+                }else if (!string.IsNullOrEmpty(StartDate) && 
+                    !string.IsNullOrEmpty(EndDate) && 
+                    CohortsHelper.CohortInDateRange(CohortsHelper.NormalizeCohort(studentCohort) ,DateTime.Parse(StartDate), DateTime.Parse(EndDate))
+                    )
+                {
+                    clonedListComponents = CloneComponentsList(Components);
+                }
+                else if(!string.IsNullOrEmpty(StartDate) &&
+                    string.IsNullOrEmpty(EndDate) &&
+                    CohortsHelper.GetCohort(DateTime.Parse(StartDate)) == CohortsHelper.NormalizeCohort(studentCohort)
+                    )
+                {
+                    clonedListComponents = CloneComponentsList(Components);
+                }
 
                 foreach (var answerCL in apiResponse.Data.Answers)
                 {
@@ -230,6 +235,25 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 _logger.LogError($"Cosmic latte server error: {e.Message}");
                 return new List<ComponentDTO>();
             }
+        }
+
+        public static List<ComponentDTO> CloneComponentsList(List<ComponentDTO> ComponentsList)
+        {
+            var clonedListComponents = ComponentsList.Select(c => new ComponentDTO
+            {
+                Name = c.Name,
+                Variables = c.Variables.Select(v => new VariableDTO
+                {
+                    Name = v.Name,
+                    Position = v.Position,
+                    Type = v.Type,
+                    Answer = new AnswerDTO(),
+                    Audit = v.Audit,
+                    Version = v.Version
+                }).ToList(),
+                Audit = c.Audit
+            }).ToList();
+            return clonedListComponents;
         }
 
         public Dictionary<string, List<int>> GetListOfVariablePositionByComponents(DataItem ClDataItem)
