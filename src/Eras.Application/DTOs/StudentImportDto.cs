@@ -5,33 +5,32 @@ namespace Eras.Application.DTOs;
 
 public class StudentImportDto
 {
-    [StringLength(30, MinimumLength = 3, ErrorMessage = "Cohort must be between 3 and 30 characters.")]
+    [StringLength(50, MinimumLength = 3, ErrorMessage = "Cohort must be between 3 and 50 characters.")]
     [RegularExpression(@"^[a-zA-Z0-9\s\-]+$", ErrorMessage = "Cohort can only contain letters, numbers, spaces, and hyphens.")]
     public string? Cohort { get; set; }
 
     [Required(ErrorMessage = "Name is required.")]
-    [StringLength(50, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 50 characters.")]
+    [StringLength(254, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 254 characters.")]
     [RegularExpression(@"^[a-zA-ZÀ-ÿ\s]+$", ErrorMessage = "Name can only contain letters and spaces.")]
     [JsonPropertyName(nameof(Name))]
     public required string Name { get; set; }
 
     [Required(ErrorMessage = "Email is required.")]
     [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid email format.")]
-    [StringLength(100, ErrorMessage = "Email must not exceed 100 characters.")]
+    [StringLength(255, ErrorMessage = "Email must not exceed 255 characters.")]
     [JsonPropertyName(nameof(Email))]
     public required string Email { get; set; }
 
     [Required(ErrorMessage = "SIS ID is required.")]
-    [StringLength(20, MinimumLength = 3, ErrorMessage = "SIS ID must be between 3 and 20 characters.")]
     [RegularExpression(@"^[a-zA-Z0-9\-]+$", ErrorMessage = "SIS ID can only contain letters, numbers, and hyphens.")]
     [JsonPropertyName(nameof(SISId))]
     public required string SISId { get; set; }
 
-    [Range(0, 1000, ErrorMessage = "Enrolled courses must be between 0 and 1000.")]
+    [Range(0, 32767, ErrorMessage = "Enrolled courses must be between 0 and 32767.")]
     [JsonPropertyName(nameof(EnrolledCourses))]
     public int EnrolledCourses { get; set; }
 
-    [Range(0, 1000, ErrorMessage = "Graded courses must be between 0 and 1000.")]
+    [Range(0, 32767, ErrorMessage = "Graded courses must be between 0 and 32767.")]
     [JsonPropertyName(nameof(GradedCourses))]
     public int GradedCourses { get; set; }
 
@@ -39,11 +38,11 @@ public class StudentImportDto
     [JsonPropertyName(nameof(TimelySubmissions))]
     public int TimelySubmissions { get; set; }
 
-    [Range(0, 100, ErrorMessage = "Average score must be between 0 and 100.")]
+    [Range(0, 18, ErrorMessage = "Average score must be between 0 and 18.")]
     [JsonPropertyName(nameof(AverageScore))]
     public decimal AverageScore { get; set; }
 
-    [Range(0, 1000, ErrorMessage = "Courses below average must be between 0 and 1000.")]
+    [Range(0, 18, ErrorMessage = "Courses below average must be between 0 and 18.")]
     [JsonPropertyName(nameof(CoursesBelowAverage))]
     public int CoursesBelowAverage { get; set; }
 
@@ -51,7 +50,7 @@ public class StudentImportDto
     [JsonPropertyName(nameof(RawScoreDifference))]
     public decimal RawScoreDifference { get; set; }
 
-    [Range(-5, 5, ErrorMessage = "Standard score difference must be between -5 and 5.")]
+    [Range(0, 18, ErrorMessage = "Standard score difference must be between 0 and 18.")]
     [JsonPropertyName(nameof(StandardScoreDifference))]
     public decimal StandardScoreDifference { get; set; }
 
