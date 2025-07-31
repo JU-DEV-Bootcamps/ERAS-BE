@@ -9,6 +9,7 @@ using Eras.Application.Features.Configurations.Command.DeleteConfiguration;
 using Eras.Application.Features.Evaluations.Commands;
 using Eras.Application.Features.Evaluations.Commands.UpdateEvaluation;
 using Eras.Application.Models.Response.Common;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
 using MediatR;
@@ -21,11 +22,13 @@ public class EditConfigurationCommandHandler : IRequestHandler<EditConfiguration
     private readonly IConfigurationsRepository _configurationsRepository;
     private readonly IServiceProvidersRepository _serviceProvidersRepository;
     private readonly ILogger<EditConfigurationCommandHandler> _logger;
-    public EditConfigurationCommandHandler(IConfigurationsRepository ConfigurationsRepository, IServiceProvidersRepository ServiceProvidersRepository, ILogger<EditConfigurationCommandHandler> Logger)
+    private readonly IApiKeyEncryptor _encryptor;
+    public EditConfigurationCommandHandler(IConfigurationsRepository ConfigurationsRepository, IServiceProvidersRepository ServiceProvidersRepository, ILogger<EditConfigurationCommandHandler> Logger, IApiKeyEncryptor Encryptor)
     {
         _configurationsRepository = ConfigurationsRepository;
         _serviceProvidersRepository = ServiceProvidersRepository;
         _logger = Logger;
+        _encryptor = Encryptor;
     }
 
     public async Task<CreateCommandResponse<Domain.Entities.Configurations>> Handle(EditConfigurationCommand Request, CancellationToken CancellationToken)
@@ -44,7 +47,7 @@ public class EditConfigurationCommandHandler : IRequestHandler<EditConfiguration
             configurationDB.ConfigurationName = Request.ConfigurationDTO.ConfigurationName;
             configurationDB.ServiceProviderId = Request.ConfigurationDTO.ServiceProviderId;
             configurationDB.BaseURL = Request.ConfigurationDTO.BaseURL;
-            configurationDB.EncryptedKey = Request.ConfigurationDTO.EncryptedKey;
+            configurationDB.EncryptedKey = _encryptor.Encrypt(Request.ConfigurationDTO.EncryptedKey);
             configurationDB.Audit.ModifiedAt = DateTime.UtcNow;
             configurationDB.Audit.ModifiedBy = Request.ConfigurationDTO.UserId;
             
