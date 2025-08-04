@@ -20,7 +20,7 @@ public class GetCohortsListQueryHandler(ICohortRepository Repository, ILogger<Ge
             var res = await _repository.GetCohortsAsync();
             return new GetQueryResponse<List<Domain.Entities.Cohort>>(res, $"All {res.Count} Cohorts retrieved successfully", true);
         }
-        List<Domain.Entities.Cohort> listOfCohorts = await _repository.GetCohortsByPollUuidAsync(Request.PollUuid);
+        List<Domain.Entities.Cohort> listOfCohorts = await _repository.GetCohortsByPollUuidAsync(Request.PollUuid, Request.LastVersion);
         return new GetQueryResponse<List<Domain.Entities.Cohort>>(listOfCohorts, $"{listOfCohorts} cohorts retrieved from poll {Request.PollUuid} successfully", true);
     }
 }
