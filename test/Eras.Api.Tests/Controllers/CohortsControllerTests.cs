@@ -27,7 +27,7 @@ public class CohortsControllerTests
     public async Task GetCohorts_ReturnsOkResultAsync()
     {
         // Act
-        IActionResult result = await _controller.GetCohortsAsync(null);
+        IActionResult result = await _controller.GetCohortsAsync(null, false);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);

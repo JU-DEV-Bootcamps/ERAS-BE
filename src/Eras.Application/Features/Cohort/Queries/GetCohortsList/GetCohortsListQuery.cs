@@ -8,5 +8,6 @@ namespace Eras.Application.Features.Cohorts.Queries
     public class GetCohortsListQuery : IRequest<GetQueryResponse<List<Cohort>>>
     {
         public string PollUuid { get; set; } = string.Empty;
+        public bool LastVersion { get; set; } = true;
     }
 }

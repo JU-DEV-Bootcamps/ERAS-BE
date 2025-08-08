@@ -22,9 +22,11 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetCohortsAsync([FromQuery] string? PollUuid)
+    public async Task<IActionResult> GetCohortsAsync([FromQuery] string? PollUuid, [FromQuery] bool LastVersion)
     {
         GetCohortsListQuery getCohortsListQuery = new();
+
+        getCohortsListQuery.LastVersion = LastVersion;
         if (!string.IsNullOrEmpty(PollUuid))
         {
             getCohortsListQuery.PollUuid = PollUuid;
