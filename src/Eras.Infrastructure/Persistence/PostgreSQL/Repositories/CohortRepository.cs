@@ -118,20 +118,36 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
                             .ToListAsync();
             return result;
         }
-
-            
     }
 
-    public async Task<List<Cohort>> GetCohortsByPollUuidAsync(string PollUuid)
+    public async Task<List<Cohort>> GetCohortsByPollUuidAsync(string PollUuid, bool LastVersion)
     {
-        List<CohortEntity> cohorts = await _context.ErasCalculationsByPoll
-            .Where(View => View.PollUuid == PollUuid)
-            .Select(View => new CohortEntity
-            {
-                Id = View.CohortId,
-                Name = View.CohortName,
-            })
-            .Distinct().ToListAsync();
+        int lastPollVersion = _context.Polls.Where(A => A.Uuid == PollUuid).Select(A => A.LastVersion).FirstOrDefault();
+        IQueryable<CohortEntity> query;
+        List<CohortEntity> cohorts;
+
+        if (LastVersion)
+        {
+            query = _context.ErasCalculationsByPoll
+                .Where(View => View.PollUuid == PollUuid && View.PollVersion == lastPollVersion)
+                .Select(View => new CohortEntity
+                {
+                    Id = View.CohortId,
+                    Name = View.CohortName,
+                });
+        }
+        else
+        {
+            query = _context.ErasCalculationsByPoll
+                .Where(View => View.PollUuid == PollUuid && View.PollVersion != lastPollVersion)
+                .Select(View => new CohortEntity
+                {
+                    Id = View.CohortId,
+                    Name = View.CohortName,
+                });
+        }
+        cohorts = await query.Distinct().ToListAsync();
+
         return [.. cohorts.Select(P => P.ToDomain())];
     }
 
