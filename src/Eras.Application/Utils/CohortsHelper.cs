@@ -11,14 +11,13 @@ public class CohortsHelper
 {
     public static DateTime? ParseCohortDate(string Cohort)
     {
-        var regex = new Regex(@"\(\s*([A-Za-zÁÉÍÓÚáéíóúñ]+)\s+(\d{4})\s*\)", RegexOptions.IgnoreCase);
+        var regex = new Regex(@"\(\s*(\p{L}+)\s+(\d{4})\s*\)", RegexOptions.IgnoreCase);
         var match = regex.Match(Cohort);
         if (match.Success)
         {
             string monthName = match.Groups[1].Value;
             string year = match.Groups[2].Value;
 
-            // Try parsing with Spanish culture first, then fallback to English
             string dateString = $"01 {monthName} {year}";
             string[] cultures = { "es-ES", "en-US" };
 
