@@ -201,14 +201,14 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     clonedListComponents = CloneComponentsList(Components);
                 }else if (!string.IsNullOrEmpty(StartDate) && 
                     !string.IsNullOrEmpty(EndDate) && 
-                    CohortsHelper.CohortInDateRange(CohortsHelper.NormalizeCohort(studentCohort) ,DateTime.Parse(StartDate), DateTime.Parse(EndDate))
+                    CohortsHelper.CohortInDateRange(studentCohort ,DateTime.Parse(StartDate), DateTime.Parse(EndDate))
                     )
                 {
                     clonedListComponents = CloneComponentsList(Components);
                 }
                 else if(!string.IsNullOrEmpty(StartDate) &&
                     string.IsNullOrEmpty(EndDate) &&
-                    CohortsHelper.GetCohort(DateTime.Parse(StartDate)) == CohortsHelper.NormalizeCohort(studentCohort)
+                    CohortsHelper.GetCohort(DateTime.Parse(StartDate)) == studentCohort
                     )
                 {
                     clonedListComponents = CloneComponentsList(Components);
