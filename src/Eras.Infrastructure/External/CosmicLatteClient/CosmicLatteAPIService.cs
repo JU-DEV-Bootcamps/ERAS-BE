@@ -143,9 +143,13 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     {
                         var pollDto = new PollDTO
                         {
-                            Name = responseToPollInstance.name,
-                            Components = populatedComponents,
-                            FinishedAt = responseToPollInstance.finishedAt
+                            IdCosmicLatte = responseToPollInstance.Id ?? string.Empty,
+                            Uuid = Guid.NewGuid().ToString(),
+                            Name = SqlInjectionValidator.Sanitize(responseToPollInstance.name),
+                            FinishedAt = responseToPollInstance.finishedAt,
+                            LastVersion = 1,
+                            LastVersionDate = DateTime.UtcNow,
+                            Components = SanitizeComponents(populatedComponents)
                         };
                         pollsDtos.Add(pollDto);
                     }
@@ -436,6 +440,31 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 throw new Exception($"There was an error with the request: {e.Message}");
             }
         }
+
+        private static List<ComponentDTO> SanitizeComponents(List<ComponentDTO> components)
+        {
+            foreach (var component in components)
+            {
+                component.Name = SqlInjectionValidator.Sanitize(component.Name);
+                
+                foreach (var variable in component.Variables)
+                {
+                    variable.Name = SqlInjectionValidator.Sanitize(variable.Name);
+                    
+                    if (!string.IsNullOrEmpty(variable.Type))
+                    {
+                        variable.Type = SqlInjectionValidator.Sanitize(variable.Type);
+                    }
+                    
+                    if (variable.Answer != null && !string.IsNullOrEmpty(variable.Answer.Answer))
+                    {
+                        variable.Answer.Answer = SqlInjectionValidator.Sanitize(variable.Answer.Answer);
+                    }
+                }
+            }
+            return components;
+        }
+
 
     }
 }
