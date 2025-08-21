@@ -46,10 +46,10 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
         {
             List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
                         .Where(View => View.PollUuid == PollUuid && View.ComponentName == ComponentName && View.CohortId == CohortId && View.PollVersion == pollVersion)
-                        .GroupBy(V => new { V.PollInstanceId, V.StudentName })
+                        .GroupBy(V => new { V.PollInstanceId, V.StudentName, V.StudentId })
                         .Select(Group => new GetCohortTopRiskStudentsByComponentResponse
                         {
-                            StudentId = Group.Key.PollInstanceId,
+                            StudentId = Group.Key.StudentId,
                             StudentName = Group.Key.StudentName,
                             AnswerAverage = Math.Round((decimal)Group.Average(V => V.AnswerRisk), 2),
                             RiskSum = Group.Sum(V => V.AnswerRisk)
@@ -62,10 +62,10 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
         {
             List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
                         .Where(View => View.PollUuid == PollUuid && View.ComponentName == ComponentName && View.CohortId == CohortId && View.PollVersion != pollVersion)
-                        .GroupBy(V => new { V.PollInstanceId, V.StudentName })
+                        .GroupBy(V => new { V.PollInstanceId, V.StudentName, V.StudentId })
                         .Select(Group => new GetCohortTopRiskStudentsByComponentResponse
                         {
-                            StudentId = Group.Key.PollInstanceId,
+                            StudentId = Group.Key.StudentId,
                             StudentName = Group.Key.StudentName,
                             AnswerAverage = Math.Round((decimal)Group.Average(V => V.AnswerRisk), 2),
                             RiskSum = Group.Sum(V => V.AnswerRisk)
@@ -90,10 +90,10 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
         {
             List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
                             .Where(V => V.PollUuid == PollUuid && V.CohortId == CohortId && V.PollVersion == pollVersion)
-                            .GroupBy(V => new { V.PollInstanceId, V.StudentName })
+                            .GroupBy(V => new { V.PollInstanceId, V.StudentName, V.StudentId })
                             .Select(G => new GetCohortTopRiskStudentsByComponentResponse
                             {
-                                StudentId = G.Key.PollInstanceId,
+                                StudentId = G.Key.StudentId,
                                 StudentName = G.Key.StudentName,
                                 AnswerAverage = Math.Round((decimal)G.Average(V => V.AnswerRisk), 2),
                                 RiskSum = G.Sum(V => V.AnswerRisk)
@@ -106,10 +106,10 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
         {
             List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
                             .Where(V => V.PollUuid == PollUuid && V.CohortId == CohortId && V.PollVersion != pollVersion)
-                            .GroupBy(V => new { V.PollInstanceId, V.StudentName })
+                            .GroupBy(V => new { V.PollInstanceId, V.StudentName, V.StudentId })
                             .Select(G => new GetCohortTopRiskStudentsByComponentResponse
                             {
-                                StudentId = G.Key.PollInstanceId,
+                                StudentId = G.Key.StudentId,
                                 StudentName = G.Key.StudentName,
                                 AnswerAverage = Math.Round((decimal)G.Average(V => V.AnswerRisk), 2),
                                 RiskSum = G.Sum(V => V.AnswerRisk)
