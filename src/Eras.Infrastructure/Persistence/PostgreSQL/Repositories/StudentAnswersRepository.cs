@@ -14,21 +14,29 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         }
         public Task<PagedResult<StudentAnswer>> GetStudentAnswersPagedAsync(int StudentId, int PollId, int Page, int PageSize)
         {
-            var studentAnswers = _context.ErasCalculationsByPoll
-                .Where(E => E.StudentId == StudentId && E.PollId == PollId)
-                .Select(E => new StudentAnswer
-                {
-                    Variable = E.Question,
-                    Position = E.PollVariableId,
-                    Component = E.ComponentName,
-                    Answer = E.AnswerText,
-                    Score = E.AnswerRisk
-                })
-                .Skip((Page - 1) * PageSize)
-                .Take(PageSize);
+            var studentAnswers = (from a in _context.Answers
+                                 join pi2 in _context.PollInstances on a.PollInstanceId equals pi2.Id
+                                 join pv in _context.PollVariables on a.PollVariableId equals pv.Id
+                                 join v in _context.Variables on pv.VariableId equals v.Id
+                                 join c in _context.Components on v.ComponentId equals c.Id
+                                 where pv.PollId == PollId && pi2.StudentId == StudentId
+                                 orderby a.Id
+                                 select new StudentAnswer
+                                 {
+                                     Variable = v.Name,
+                                     Position = a.Id,
+                                     Component = c.Name,
+                                     Answer = a.AnswerText,
+                                     Score = a.RiskLevel
+                                 })
+                                .Skip((Page - 1) * PageSize)
+                                .Take(PageSize);
 
-            var totalCount = _context.ErasCalculationsByPoll
-                .Count(E => E.StudentId == StudentId && E.PollId == PollId);
+            var totalCount = (from a in _context.Answers
+                             join pi2 in _context.PollInstances on a.PollInstanceId equals pi2.Id
+                             join pv in _context.PollVariables on a.PollVariableId equals pv.Id
+                             where pv.PollId == PollId && pi2.StudentId == StudentId
+                             select a).Count();
 
             return Task.FromResult(new PagedResult<StudentAnswer>(totalCount, studentAnswers.ToList()));
         }
