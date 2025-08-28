@@ -1,4 +1,5 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
 using Microsoft.EntityFrameworkCore;
@@ -23,6 +24,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<ConfigurationsEntity> Configurations { get; set; }
         public virtual DbSet<ServiceProvidersEntity> ServiceProviders { get; set; }
         public virtual DbSet<UserPollsEntity> UserPolls { get; set; }
+        public virtual DbSet<JURemissionEntity> Remissions { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> Options)
             : base(Options)
