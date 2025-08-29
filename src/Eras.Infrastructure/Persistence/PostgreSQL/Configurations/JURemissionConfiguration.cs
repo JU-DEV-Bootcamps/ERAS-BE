@@ -16,45 +16,44 @@ public class JURemissionConfiguration : IEntityTypeConfiguration<JURemissionEnti
 
     private void ConfigureColumns(EntityTypeBuilder<JURemissionEntity> Builder)
     {
-        Builder.HasKey(r => r.Id);
+        Builder.HasKey(R => R.Id);
 
-        Builder.Property(r => r.SubmitterUuid)
+        Builder.Property(R => R.SubmitterUuid)
             .HasColumnName("submitter_uuid")
             .HasMaxLength(100)
             .IsRequired();
 
-        Builder.Property(r => r.AssignedProfessionalUuid)
+        Builder.Property(R => R.AssignedProfessionalUuid)
             .HasColumnName("assigned_professional_uuid")
             .HasMaxLength(100)
             .IsRequired();
 
-        Builder.Property(r => r.Comment)
+        Builder.Property(R => R.Comment)
             .HasColumnName("comment")
             .HasMaxLength(1000);
 
-        Builder.Property(r => r.Date)
+        Builder.Property(R => R.Date)
             .HasColumnName("date")
             .IsRequired();
 
-        Builder.Property(r => r.Status)
+        Builder.Property(R => R.Status)
             .HasColumnName("status")
             .HasMaxLength(50)
             .IsRequired();
 
-        Builder.Property(r => r.StudentId)
+        Builder.Property(R => R.StudentId)
             .HasColumnName("student_id")
             .IsRequired();
 
-        Builder.Property(r => r.JUServiceId)
+        Builder.Property(R => R.JUServiceId)
             .HasColumnName("ju_service_id")
             .IsRequired();
     }
     private void ConfigureRelationShips(EntityTypeBuilder<JURemissionEntity> Builder)
     {
-        Builder.HasOne(R => R.Students)
-            .WithMany()
-            .HasForeignKey(R => R.StudentId)
-            .OnDelete(DeleteBehavior.Restrict);
+        Builder.HasMany(R => R.Students)
+            .WithMany(S => S.Remissions)
+            .UsingEntity(J => J.ToTable("student_remissions"));
 
         Builder.HasOne(R => R.JUService)
             .WithMany()
