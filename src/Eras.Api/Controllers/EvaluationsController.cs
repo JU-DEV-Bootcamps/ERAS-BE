@@ -54,7 +54,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
             _logger.LogError(
                 "Failed to get information. Reason: {ResponseMessage}",
                 ex.Message
-);
+            );
             return StatusCode(
                 500,
                 new { status = "error", message = "An error occurred during deletion operation" }
@@ -98,7 +98,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
             _logger.LogError(
                 "Failed to get information. Reason: {ResponseMessage}",
                 ex.Message
-);
+            );
             return StatusCode(
                 500,
                 new { status = "error", message = "An error occurred during the information access" }
@@ -127,7 +127,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
             _logger.LogError(
                 "Failed to create Evaluation. Reason: {ResponseMessage}",
                 response.Message
-);
+            );
             return StatusCode(
                 400,
                 new { status = "error", message = "An error occurred during the evaluation creation process" }
@@ -165,8 +165,4 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
             );
         }
     }
-
-
-
-
 }

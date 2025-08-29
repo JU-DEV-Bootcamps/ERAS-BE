@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Features.Remmisions.Queries.GetRemissions;
 using Eras.Application.Models.Response.Controllers.RemissionsController;
 using Eras.Application.Utils;
+using Eras.Domain.Entities;
 
 using MediatR;
 
@@ -24,15 +25,15 @@ public class RemissionsController(IMediator Mediator, ILogger<RemissionsControll
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetRemissionsAsync([FromQuery] Pagination Query)
     {
-        PagedResult<GetRemissionsQueryResponse> Result = await _mediator.Send(new GetRemissionsQuery(Query));
+        List<JURemission> Result = await _mediator.Send(new GetRemissionsQuery());
         return Ok(Result);
     }
     
-    [HttpGet("{Id}")]
+    /*[HttpGet("{Id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetRemissionByIdAsync(
         [FromRoute] int Id
-    ) => Ok(await _mediator.Send(new GetRemissionByIdQuery(Id)));
+    ) => Ok(await _mediator.Send(new GetRemissionByIdQuery(Id)));*/
 
 }
