@@ -24,6 +24,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return remission?.ToDomain();
         }
 
+        public new async Task<JURemission?> GetByIdAsync(int Id)
+        {
+            var remission = await _context.Remissions
+                .FirstOrDefaultAsync(Remission => Remission.Id == Id);
+
+            return remission?.ToDomain();
+        }
         public new async Task<JURemission> UpdateAsync(JURemission Entity)
         {
 

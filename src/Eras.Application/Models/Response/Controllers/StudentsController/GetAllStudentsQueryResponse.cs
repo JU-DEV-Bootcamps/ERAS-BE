@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.DTOs;
-using Eras.Domain.Common;
-
-namespace Eras.Application.Models.Response.Controllers.StudentsController;
+﻿namespace Eras.Application.Models.Response.Controllers.StudentsController;
 public class GetAllStudentsQueryResponse
 {
     public int Id { get; set; }

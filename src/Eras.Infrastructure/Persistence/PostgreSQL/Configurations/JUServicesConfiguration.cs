@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
-public class JUServicesConfiguration : IEntityTypeConfiguration<JUServicesEntity>
+public class JUServicesConfiguration : IEntityTypeConfiguration<JUServiceEntity>
 {
-    public void Configure(EntityTypeBuilder<JUServicesEntity> Builder)
+    public void Configure(EntityTypeBuilder<JUServiceEntity> Builder)
     {
         Builder.ToTable("ju_services");
 
@@ -20,11 +14,11 @@ public class JUServicesConfiguration : IEntityTypeConfiguration<JUServicesEntity
         AuditConfiguration.Configure(Builder);
     }
 
-    private void ConfigureColumns(EntityTypeBuilder<JUServicesEntity> Builder)
+    private void ConfigureColumns(EntityTypeBuilder<JUServiceEntity> Builder)
     {
         Builder.HasKey(S => S.Id);
 
-        Builder.Property(S => S.ServiceName)
+        Builder.Property(S => S.Name)
             .HasColumnName("service_name")
             .HasMaxLength(100)
             .IsRequired();

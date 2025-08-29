@@ -1,4 +1,3 @@
-
 using Eras.Application.DTOs;
 using Eras.Domain.Entities;
 
@@ -9,32 +8,34 @@ namespace Eras.Application.Mappers
         public static JURemission ToDomain(this JURemissionDTO Dto)
         {
             ArgumentNullException.ThrowIfNull(Dto);
-            ICollection<Answer> answers = Dto.Answers?.Select(Ans => Ans.ToDomain()).ToList() ?? [];
-            return new JURemission ()
+
+            return new JURemission()
             {
                 Id = Dto.Id,
-                Uuid = Dto.Uuid,             
-                
+                SubmitterUuid = Dto.SubmitterUuid,
+                JUService = Dto.JUService.ToDomain(),
+                AssignedProfessional = Dto.AssignedProfessional.ToDomain(),
+                Comment = Dto.Comment,
+                Date = Dto.Date,
+                Status = Dto.Status,
+                Students = Dto.Students.Select(Stu => Stu.ToDomain()).ToList(),
                 Audit = Dto.Audit,
-                FinishedAt = Dto.FinishedAt,
-                LastVersion = Dto.LastVersion,
-                LastVersionDate = Dto.LastVersionDate,
             };
         }
-        public static PollInstanceDTO ToDTO(this PollInstance Entity)
+        public static JURemissionDTO ToDTO(this JURemission Entity)
         {
             ArgumentNullException.ThrowIfNull(Entity);
-            ICollection<AnswerDTO> answers = Entity.Answers?.Select(Ans => Ans.ToDto()).ToList() ?? [];
-            return new PollInstanceDTO()
+            return new JURemissionDTO()
             {
                 Id = Entity.Id,
-                Uuid = Entity.Uuid,
-                Student = Entity.Student?.ToDto() ?? new StudentDTO(),
-                Answers = answers,
+                SubmitterUuid = Entity.SubmitterUuid,
+                JUService = Entity.JUService.ToDTO(),
+                AssignedProfessional = Entity.AssignedProfessional.ToDTO(),
+                Comment = Entity.Comment,
+                Date = Entity.Date,
+                Status = Entity.Status,
+                Students = Entity.Students.Select(Stu => Stu.ToDto()).ToList(),
                 Audit = Entity.Audit,
-                FinishedAt = Entity.FinishedAt,
-                LastVersion = Entity.LastVersion,
-                LastVersionDate = Entity.LastVersionDate,
             };
 
         }

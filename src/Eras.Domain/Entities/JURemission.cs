@@ -1,6 +1,6 @@
 using Eras.Domain.Common;
 
-using static Eras.Domain.Entities.RemissionsConstants;
+using static Eras.Domain.Entities.JURemissionsConstants;
 
 namespace Eras.Domain.Entities
 {

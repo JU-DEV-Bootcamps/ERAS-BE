@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -57,14 +51,14 @@ public class JURemissionConfiguration : IEntityTypeConfiguration<JURemissionEnti
     }
     private void ConfigureRelationShips(EntityTypeBuilder<JURemissionEntity> Builder)
     {
-        Builder.HasOne(r => r.Student)
+        Builder.HasOne(R => R.Students)
             .WithMany()
-            .HasForeignKey(r => r.StudentId)
+            .HasForeignKey(R => R.StudentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        Builder.HasOne(r => r.JUService)
+        Builder.HasOne(R => R.JUService)
             .WithMany()
-            .HasForeignKey(r => r.JUServiceId)
+            .HasForeignKey(R => R.JUServiceId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -2,11 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 using Eras.Domain.Common;
 
-using static Eras.Domain.Entities.RemissionsConstants;
+using static Eras.Domain.Entities.JURemissionsConstants;
 
 namespace Eras.Application.DTOs;
 public class JURemissionDTO 
 {
+    [Required(ErrorMessage = "JURemission Id is required.")]
+    [Range(0, 2147483647, ErrorMessage = "Id must be greater than 0.")]
+    public int Id { get; set; }
+
     [Required(ErrorMessage = "JURemission SubmitterID is required.")]
     [StringLength(36, MinimumLength = 36, ErrorMessage = "JURemission Submitter UUID must be exactly 36 characters.")]
     [RegularExpression(@"^[a-fA-F0-9\-]{36}$", ErrorMessage = "JURemission UUID must follow a valid GUID format.")]
