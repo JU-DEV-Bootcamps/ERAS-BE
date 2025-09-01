@@ -6,7 +6,7 @@ namespace Eras.Application.DTOs;
 public class ConfigurationsDTO
 {
     [Required(ErrorMessage = "Configuration Id is required.")]
-    [Range(1, 2147483647, ErrorMessage = "Id must be greater than 0.")]
+    [Range(0, 2147483647, ErrorMessage = "Id must be greater or equal to 0.")]
     public int Id { get; set; }
 
     [Required(ErrorMessage = "UserId is required.")]
@@ -27,7 +27,7 @@ public class ConfigurationsDTO
     public string EncryptedKey { get; set; }
 
     [Required(ErrorMessage = "Service provider Id is required.")]
-    [Range(1, 2147483647, ErrorMessage = "Service Provider Id must be greater than 0.")]
+    [Range(0, 2147483647, ErrorMessage = "Service Provider Id must be greater or equal to 0.")]
     public int ServiceProviderId { get; set; }
 
     public bool IsDeleted { get; set; }
