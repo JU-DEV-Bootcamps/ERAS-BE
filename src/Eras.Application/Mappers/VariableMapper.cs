@@ -11,7 +11,8 @@ namespace Eras.Application.Mappers
             ArgumentNullException.ThrowIfNull(Dto);
             return new Variable
             {
-                Name = Dto.Name,    
+                Name = Dto.Name,
+                Position = Dto.Position,
                 Audit = Dto.Audit?? new AuditInfo(),
                 Version = Dto.Version,
             };
@@ -22,6 +23,7 @@ namespace Eras.Application.Mappers
             return new VariableDTO
             {
                 Name = Domain.Name,
+                Position = Domain.Position,
                 Audit = Domain.Audit,
                 Version = Domain.Version,
             };

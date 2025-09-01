@@ -30,6 +30,9 @@ public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasC
         Builder.Property(A => A.Question)
             .HasColumnName("question");
 
+        Builder.Property(A => A.Position)
+            .HasColumnName("position");
+
         Builder.Property(A => A.AnswerText)
             .HasColumnName("answer_text");
 
