@@ -398,33 +398,6 @@ namespace Eras.Application.Services
             await _mediator.Send(createAnswerListCommand);
         }
 
-        private Variable? FindMatchingVariable(VariableDTO VariableDto, int Index, List<Variable> VariablesList)
-        {
-            if (Index < VariablesList.Count && VariablesList[Index].Name == VariableDto.Name)
-                return VariablesList[Index];
-
-            return VariablesList.FirstOrDefault(v => v.Name == VariableDto.Name);
-        }
-
-        private AnswerDTO BuildAnswerDTO(VariableDTO VariableDto, Variable MatchingVariable, int PollInstanceId)
-        {
-            AnswerDTO answer = VariableDto.Answer ?? new AnswerDTO();
-            answer.PollVariableId = MatchingVariable.PollVariableId;
-            answer.PollInstanceId = PollInstanceId;
-            answer.Audit = new AuditInfo
-            {
-                CreatedBy = "Cosmic latte import",
-                CreatedAt = DateTime.UtcNow,
-                ModifiedAt = DateTime.UtcNow
-            };
-            answer.Version = new VersionInfo
-            {
-                VersionNumber = VersionNumber,
-                VersionDate = InitDate
-            };
-            return answer;
-        }
-
         public async Task<CreateCommandResponse<Component>> CreateComponentAsync(ComponentDTO ComponentDto)
         {
             try
