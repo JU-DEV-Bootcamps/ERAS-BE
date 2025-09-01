@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250901143202_JUEntities")]
-    partial class JUEntities
+    [Migration("20250901202210_JUInterventions")]
+    partial class JUInterventions
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,8 +69,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("PollInstanceId", "PollVariableId", "AnswerText")
-                        .HasName("Unique_PollInstanceId_PollVariableId_AnswerText");
+                    b.HasIndex("PollInstanceId");
 
                     b.HasIndex("PollVariableId");
 

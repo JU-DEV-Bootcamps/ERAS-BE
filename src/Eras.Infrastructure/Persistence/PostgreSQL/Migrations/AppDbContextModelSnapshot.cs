@@ -317,7 +317,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("evaluation", (string)null);
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionsEntity", b =>
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -400,7 +400,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("date");
 
-                    b.Property<int?>("JUInterventionsEntityId")
+                    b.Property<int?>("JUInterventionEntityId")
                         .HasColumnType("integer");
 
                     b.Property<int>("JUServiceId")
@@ -427,7 +427,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasIndex("AssignedProfessionalId");
 
-                    b.HasIndex("JUInterventionsEntityId");
+                    b.HasIndex("JUInterventionEntityId");
 
                     b.HasIndex("JUServiceId");
 
@@ -1037,7 +1037,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("Configuration");
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionsEntity", b =>
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>
                 {
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
                         .WithMany()
@@ -1047,7 +1047,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
                         {
-                            b1.Property<int>("JUInterventionsEntityId")
+                            b1.Property<int>("JUInterventionEntityId")
                                 .HasColumnType("integer");
 
                             b1.Property<DateTime>("CreatedAt")
@@ -1069,12 +1069,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
-                            b1.HasKey("JUInterventionsEntityId");
+                            b1.HasKey("JUInterventionEntityId");
 
                             b1.ToTable("ju_interventions");
 
                             b1.WithOwner()
-                                .HasForeignKey("JUInterventionsEntityId");
+                                .HasForeignKey("JUInterventionEntityId");
                         });
 
                     b.Navigation("Audit")
@@ -1129,9 +1129,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionsEntity", null)
-                        .WithMany("RemissionsList")
-                        .HasForeignKey("JUInterventionsEntityId")
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", null)
+                        .WithMany("Remissions")
+                        .HasForeignKey("JUInterventionEntityId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServiceEntity", "JUService")
@@ -1635,9 +1635,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("EvaluationPolls");
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionsEntity", b =>
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>
                 {
-                    b.Navigation("RemissionsList");
+                    b.Navigation("Remissions");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollEntity", b =>

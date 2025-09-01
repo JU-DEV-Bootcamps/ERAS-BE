@@ -1,4 +1,3 @@
-
 using System.Diagnostics.CodeAnalysis;
 
 using Eras.Application.Contracts.Persistence;
@@ -21,7 +20,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var professionals = await _context.Professionals
                 .ToListAsync();
-            return professionals.Select(Component => Component.ToDomain());
+            return professionals.Select(Professional => Professional.ToDomain());
         }
 
         public new async Task<JUProfessional?> GetByIdAsync(int Id)

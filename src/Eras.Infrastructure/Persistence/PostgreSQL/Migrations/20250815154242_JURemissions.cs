@@ -71,14 +71,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     modified_by = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    JUInterventionsEntityId = table.Column<int>(type: "integer", nullable: true)
+                    JUInterventionEntityId = table.Column<int>(type: "integer", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ju_remissions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ju_remissions_ju_interventions_JUInterventionsEntityId",
-                        column: x => x.JUInterventionsEntityId,
+                        name: "FK_ju_remissions_ju_interventions_JUInterventionEntityId",
+                        column: x => x.JUInterventionEntityId,
                         principalTable: "ju_interventions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -107,9 +107,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 column: "ju_service_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ju_remissions_JUInterventionsEntityId",
+                name: "IX_ju_remissions_JUInterventionEntityId",
                 table: "ju_remissions",
-                column: "JUInterventionsEntityId");
+                column: "JUInterventionEntityId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ju_remissions_student_id",
