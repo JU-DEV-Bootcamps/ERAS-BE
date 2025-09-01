@@ -4,17 +4,17 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
-    public static class ProfessionalMapper
+    public static class JUProfessionalMapper
     {
-        public static Professional ToDomain(this ProfessionalEntity Entity) => new Professional
+        public static JUProfessional ToDomain(this JUProfessionalEntity Entity) => new JUProfessional
         {
             Id = Entity.Id,
             Uuid = Entity.Uuid,
             Audit = Entity.Audit,
         };
-        public static ProfessionalEntity ToPersistence(this Professional Model)
+        public static JUProfessionalEntity ToPersistence(this JUProfessional Model)
         {
-            return new ProfessionalEntity
+            return new JUProfessionalEntity
             {
                 Id = Model.Id,
                 Uuid = Model.Uuid,

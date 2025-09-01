@@ -3,7 +3,7 @@ using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers
 {
-    public static class RemissionMapper
+    public static class JURemissionMapper
     {
         public static JURemission ToDomain(this JURemissionDTO Dto)
         {

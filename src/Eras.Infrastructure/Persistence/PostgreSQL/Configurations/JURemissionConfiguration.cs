@@ -1,7 +1,10 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+using static Eras.Domain.Entities.JURemissionsConstants;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
 public class JURemissionConfiguration : IEntityTypeConfiguration<JURemissionEntity>
@@ -38,6 +41,9 @@ public class JURemissionConfiguration : IEntityTypeConfiguration<JURemissionEnti
 
         Builder.Property(R => R.Status)
             .HasColumnName("status")
+            .HasConversion(
+                V => V.ToString(),
+                V => (RemissionsStatus)Enum.Parse(typeof(RemissionsStatus), V))
             .HasMaxLength(50)
             .IsRequired();
 

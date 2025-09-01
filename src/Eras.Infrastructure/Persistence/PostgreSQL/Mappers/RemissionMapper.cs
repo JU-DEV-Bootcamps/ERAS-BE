@@ -3,7 +3,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 {
-    public static class RemissionMapper
+    public static class JURemissionMapper
     {
         public static JURemission ToDomain(this JURemissionEntity Entity)
         {
@@ -12,7 +12,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Id = Entity.Id,
                 SubmitterUuid = Entity.SubmitterUuid,
                 JUService = Entity.JUService?.ToDomain() ?? new JUService(),
-                AssignedProfessional = Entity.AssignedProfessional?.ToDomain() ?? new Professional(),
+                AssignedProfessional = Entity.AssignedProfessional?.ToDomain() ?? new JUProfessional(),
                 Comment = Entity.Comment,
                 Date = Entity.Date,
                 Status = Entity.Status,

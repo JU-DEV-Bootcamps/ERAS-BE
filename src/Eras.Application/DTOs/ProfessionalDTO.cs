@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Eras.Domain.Common;
 
 namespace Eras.Application.DTOs;
-public class ProfessionalDTO
+public class JUProfessionalDTO
 {
     [Required(ErrorMessage = "Professional name is required.")]
     [StringLength(255, MinimumLength = 3, ErrorMessage = "Professional name must be between 3 and 255 characters.")]

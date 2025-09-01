@@ -3,13 +3,13 @@ using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers
 {
-    public static class ProfessionalMapper
+    public static class JUProfessionalMapper
     {
-        public static Professional ToDomain(this ProfessionalDTO Dto)
+        public static JUProfessional ToDomain(this JUProfessionalDTO Dto)
         {
             ArgumentNullException.ThrowIfNull(Dto);
 
-            return new Professional()
+            return new JUProfessional()
             {
                 Name = Dto.Name,
                 Uuid = Dto.Uuid,
@@ -17,11 +17,11 @@ namespace Eras.Application.Mappers
             };
         }
 
-        public static ProfessionalDTO ToDTO(this Professional Entity)
+        public static JUProfessionalDTO ToDTO(this JUProfessional Entity)
         {
             ArgumentNullException.ThrowIfNull(Entity);
 
-            return new ProfessionalDTO()
+            return new JUProfessionalDTO()
             {
                 Name = Entity.Name,
                 Uuid = Entity.Uuid,

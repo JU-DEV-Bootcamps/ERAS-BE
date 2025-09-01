@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Domain.Common;
+﻿using Eras.Domain.Common;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 public class JUInterventionsEntity : BaseEntity, IAuditableEntity

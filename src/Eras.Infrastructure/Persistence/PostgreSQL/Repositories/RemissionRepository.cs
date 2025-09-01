@@ -14,7 +14,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     public class RemissionRepository : BaseRepository<JURemission, JURemissionEntity>, IRemissionRepository
     {
         public RemissionRepository(AppDbContext Context)
-            : base(Context, RemissionMapper.ToDomain, RemissionMapper.ToPersistence) { }
+            : base(Context, JURemissionMapper.ToDomain, JURemissionMapper.ToPersistence) { }
 
         public async Task<JURemission?> GetBySubmitterUuidAsync(string SubmitterUuid)
         {
@@ -38,7 +38,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             if (existingEntity != null)
             {
-                var updatedEntity = RemissionMapper.ToPersistence(Entity);
+                var updatedEntity = JURemissionMapper.ToPersistence(Entity);
                 _context.Entry(existingEntity).CurrentValues.SetValues(updatedEntity);
                 await _context.SaveChangesAsync();
             }

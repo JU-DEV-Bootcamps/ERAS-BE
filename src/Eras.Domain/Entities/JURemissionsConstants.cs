@@ -9,7 +9,7 @@ public static class JURemissionsConstants
         Created,
         [Description("Remission remitted to a professional")]
         Remitted,
-        [Description("Remission assigned to a professional but not working on it")]
+        [Description("Remission assigned to a JUProfessional but not working on it")]
         OnHold,
         [Description("Remission it's in progress by a professional")]
         InProgress,

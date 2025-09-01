@@ -16,7 +16,7 @@ public class JURemissionDTO
     [RegularExpression(@"^[a-fA-F0-9\-]{36}$", ErrorMessage = "JURemission UUID must follow a valid GUID format.")]
     public string SubmitterUuid { get; set; } = string.Empty;
     public JUServiceDTO JUService { get; set; } = default!;
-    public ProfessionalDTO AssignedProfessional = default!;
+    public JUProfessionalDTO AssignedProfessional = default!;
 
     [StringLength(255, MinimumLength = 3, ErrorMessage = "JURemission Comment must be at least 3 characters long and at most 255")]
     public string Comment { get; set; } = string.Empty;

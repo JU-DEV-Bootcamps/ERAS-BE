@@ -1,5 +1,7 @@
 using Eras.Domain.Common;
-public class ProfessionalEntity: BaseEntity, IAuditableEntity
+
+namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+public class JUProfessionalEntity: BaseEntity, IAuditableEntity
 {
     public string Name { get; set; } = string.Empty;
     public string Uuid { get; set; } = string.Empty;
