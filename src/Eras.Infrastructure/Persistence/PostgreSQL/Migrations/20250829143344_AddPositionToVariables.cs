@@ -24,11 +24,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     SELECT 
                         v.""Id"",
                         ROW_NUMBER() OVER (
-                            PARTITION BY pv.poll_id 
-                            ORDER BY pv.created_at ASC, pv.""Id"" ASC
+                            PARTITION BY COALESCE(pv.poll_id, 0) 
+                            ORDER BY v.""Id"" ASC
                         ) as new_position
                     FROM variables v
-                    JOIN poll_variable pv ON v.""Id"" = pv.variable_id
+                    LEFT JOIN poll_variable pv ON v.""Id"" = pv.variable_id
                 ) AS subquery 
                 WHERE variables.""Id"" = subquery.""Id"";
             ");
