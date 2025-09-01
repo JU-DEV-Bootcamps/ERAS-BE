@@ -1,9 +1,6 @@
 using Eras.Application.DTOs;
-using Eras.Application.Features.Professionals.Command.CreateProfessional;
-using Eras.Application.Features.Professionals.Command.DeleteProfessional;
-using Eras.Application.Features.Professionals.Command.EditProfessional;
-using Eras.Application.Features.Professionals.Queries.GetAllProfessionals;
-using Eras.Application.Features.Professionals.Queries.GetUserProfessionals;
+using Eras.Application.Features.Professionals.Commands.CreateProfessional;
+using Eras.Application.Features.Professionals.Queries.GetProfessionals;
 
 using MediatR;
 
@@ -25,19 +22,11 @@ public class ProfessionalsController(IMediator Mediator, ILogger<ProfessionalsCo
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetProfessionalsAsync()
     {
-        return Ok(await _mediator.Send(new GetAllProfessionalsQuery()));
-    }
-
-    [HttpGet("{Id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetProfessionalsAsync([FromRoute] string Id)
-    {
-        return Ok(await _mediator.Send(new GetProfessionalsQuery() { Id = Id}));
+        return Ok(await _mediator.Send(new GetProfessionalsQuery()));
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateProfessionalAsync([FromBody] ProfessionalDTO Professional)
+    public async Task<IActionResult> CreateProfessionalAsync([FromBody] JUProfessionalDTO Professional)
     {
         if (Professional == null)
         {

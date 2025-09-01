@@ -55,6 +55,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             Services.AddScoped<IConfigurationsRepository, ConfigurationsRepository>();
             Services.AddScoped<IServiceProvidersRepository, ServiceProvidersRepository>();
             Services.AddScoped<IRemissionRepository, RemissionRepository>();
+            Services.AddScoped<IProfessionalRepository, ProfessionalRepository>();
 
             return Services;
         }
