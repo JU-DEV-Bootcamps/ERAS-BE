@@ -17,6 +17,7 @@ public class CountReportQuestion
 {
     public required string Question { get; set; }
     public required double AverageRisk { get; set; }
+    public required int Position { get; set; }
     public required IEnumerable<CountReportAnswer> Answers { get; set; }
 }
 public class CountReportAnswer

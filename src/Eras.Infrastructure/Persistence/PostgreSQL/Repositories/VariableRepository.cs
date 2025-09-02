@@ -82,11 +82,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     Id = X.V.Id,
                     Name = X.V.Name,
                     ComponentName = X.C.Name,
+                    Position = X.V.Position,
                     Audit = X.V.Audit,
                     IdComponent = X.C.Id,
                     PollVariableId = X.Pv.Id,
                     IdPoll = X.P.Id
-                });
+                })
+                .OrderBy(X => X.Position);
 
             return await query.AsNoTracking().ToListAsync();
         }
@@ -102,6 +104,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Where(Cv => Cv.PollVariable.PollId == PollId)
                 .Select(Cv => Cv.Variable)
                 .FirstOrDefaultAsync();
+            return variable?.ToDomain();
+        }
+
+        public async Task<Variable?> GetByNameAndPositionAsync(string Name, int Position)
+        {
+            var variable = await _context.Variables.FirstOrDefaultAsync(Variable =>
+                Variable.Name == Name && Variable.Position == Position
+            );
+
             return variable?.ToDomain();
         }
     }
