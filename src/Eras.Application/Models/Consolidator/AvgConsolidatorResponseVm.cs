@@ -19,6 +19,7 @@ public class AvgReportQuestions
     public required string Question { get; set; }
     public required string AverageAnswer { get; set; }
     public decimal AverageRisk { get; set; }
+    public int Position { get; set; }
 
     public IEnumerable<AnswerDetails> AnswersDetails { get; set; } = [];
 }

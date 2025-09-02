@@ -6,6 +6,7 @@ namespace Eras.Domain.Entities
     {
         public string Name { get; set; } = string.Empty;
         public string ComponentName { get; set; } = string.Empty;
+        public int Position { get; set; } = 0;
         public AuditInfo Audit { get; set; } = default!;
         public VersionInfo Version { get; set; } = default!;
         public int IdComponent { get; set; }

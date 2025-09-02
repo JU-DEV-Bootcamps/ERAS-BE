@@ -5,6 +5,7 @@ public class ErasCalculationsByPollDTO
     public required string ComponentName { get; set; }
     public int PollVariableId { get; set; }
     public required string Question { get; set; }
+    public int Position { get; set; }
     public required string AnswerText { get; set; }
     public int PollInstanceId { get; set; }
     public string? StudentName { get; set; }

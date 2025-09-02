@@ -26,6 +26,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Variable => Variable.ComponentId)
                 .HasColumnName("component_id")
                 .IsRequired();
+            Builder.Property(Variable => Variable.Position)
+                .HasColumnName("position")
+                .HasDefaultValue(0)
+                .IsRequired();
         }
 
         private void ConfigureRelationShips(EntityTypeBuilder<VariableEntity> Builder)

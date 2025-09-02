@@ -14,24 +14,42 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         }
         public Task<PagedResult<StudentAnswer>> GetStudentAnswersPagedAsync(int StudentId, int PollId, int Page, int PageSize)
         {
-            var studentAnswers = _context.ErasCalculationsByPoll
+            var distinctQuestions = _context.ErasCalculationsByPoll
                 .Where(E => E.StudentId == StudentId && E.PollId == PollId)
-                .Select(E => new StudentAnswer
-                {
-                    Variable = E.Question,
-                    Position = E.PollVariableId,
-                    Component = E.ComponentName,
-                    Answer = E.AnswerText,
-                    Score = E.AnswerRisk
-                })
+                .Select(E => new { E.Question, E.Position, E.ComponentName })
+                .Distinct()
+                .OrderBy(q => q.Position);
+
+            var totalCount = distinctQuestions.Count();
+
+            var pagedQuestions = distinctQuestions
                 .Skip((Page - 1) * PageSize)
-                .Take(PageSize);
+                .Take(PageSize)
+                .ToList();
 
-            var totalCount = _context.ErasCalculationsByPoll
-                .Count(E => E.StudentId == StudentId && E.PollId == PollId);
+            var studentAnswers = new List<StudentAnswer>();
+            foreach (var q in pagedQuestions)
+            {
+                var answer = _context.ErasCalculationsByPoll
+                    .Where(E => E.StudentId == StudentId && E.PollId == PollId && 
+                               E.Question == q.Question && E.Position == q.Position && 
+                               E.ComponentName == q.ComponentName)
+                    .Select(E => new StudentAnswer
+                    {
+                        Variable = E.Question,
+                        Position = E.Position,
+                        Component = E.ComponentName,
+                        Answer = E.AnswerText,
+                        Score = E.AnswerRisk
+                    })
+                    .First();
+                
+                studentAnswers.Add(answer);
+            }
 
-            return Task.FromResult(new PagedResult<StudentAnswer>(totalCount, studentAnswers.ToList()));
+            return Task.FromResult(new PagedResult<StudentAnswer>(totalCount, studentAnswers));
         }
+        
         public Task<List<StudentAnswer>> GetStudentAnswersAsync(int StudentId, int PollId)
         {
             var studentAnswers = from a in _context.Answers
