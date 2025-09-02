@@ -14,14 +14,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 name: "FK_ju_remissions_ju_interventions_JUInterventionEntityId",
                 table: "ju_remissions");
 
-            migrationBuilder.DropUniqueConstraint(
-                name: "Unique_PollInstanceId_PollVariableId_AnswerText",
-                table: "answers");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_answers_poll_instance_id",
-                table: "answers",
-                column: "poll_instance_id");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ju_remissions_ju_interventions_JUInterventionEntityId",
@@ -38,15 +30,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             migrationBuilder.DropForeignKey(
                 name: "FK_ju_remissions_ju_interventions_JUInterventionEntityId",
                 table: "ju_remissions");
-
-            migrationBuilder.DropIndex(
-                name: "IX_answers_poll_instance_id",
-                table: "answers");
-
-            migrationBuilder.AddUniqueConstraint(
-                name: "Unique_PollInstanceId_PollVariableId_AnswerText",
-                table: "answers",
-                columns: new[] { "poll_instance_id", "poll_variable_id", "answer_text" });
 
             migrationBuilder.AddForeignKey(
                 name: "FK_ju_remissions_ju_interventions_JUInterventionEntityId",

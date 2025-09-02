@@ -34,7 +34,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasIndex("StudentsId");
 
-                    b.ToTable("CohortEntityStudentEntity");
+                    b.ToTable("CohortEntityStudentEntity", (string)null);
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.AnswerEntity", b =>
@@ -831,7 +831,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("AnswerEntityId");
 
-                            b1.ToTable("answers");
+                            b1.ToTable("answers", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AnswerEntityId");
@@ -852,7 +852,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("AnswerEntityId");
 
-                            b1.ToTable("answers");
+                            b1.ToTable("answers", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AnswerEntityId");
@@ -897,7 +897,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("CohortEntityId");
 
-                            b1.ToTable("cohorts");
+                            b1.ToTable("cohorts", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CohortEntityId");
@@ -935,7 +935,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("ComponentEntityId");
 
-                            b1.ToTable("components");
+                            b1.ToTable("components", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ComponentEntityId");
@@ -979,7 +979,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("ConfigurationsEntityId");
 
-                            b1.ToTable("configurations");
+                            b1.ToTable("configurations", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ConfigurationsEntityId");
@@ -1025,7 +1025,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("EvaluationEntityId");
 
-                            b1.ToTable("evaluation");
+                            b1.ToTable("evaluation", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("EvaluationEntityId");
@@ -1071,7 +1071,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("JUInterventionEntityId");
 
-                            b1.ToTable("ju_interventions");
+                            b1.ToTable("ju_interventions", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("JUInterventionEntityId");
@@ -1111,7 +1111,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("JUProfessionalEntityId");
 
-                            b1.ToTable("ju_professionals");
+                            b1.ToTable("ju_professionals", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("JUProfessionalEntityId");
@@ -1166,7 +1166,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("JURemissionEntityId");
 
-                            b1.ToTable("ju_remissions");
+                            b1.ToTable("ju_remissions", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("JURemissionEntityId");
@@ -1208,7 +1208,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("JUServiceEntityId");
 
-                            b1.ToTable("ju_services");
+                            b1.ToTable("ju_services", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("JUServiceEntityId");
@@ -1246,7 +1246,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("PollEntityId");
 
-                            b1.ToTable("polls");
+                            b1.ToTable("polls", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PollEntityId");
@@ -1290,7 +1290,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("PollInstanceEntityId");
 
-                            b1.ToTable("poll_instances");
+                            b1.ToTable("poll_instances", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PollInstanceEntityId");
@@ -1330,7 +1330,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("ServiceProvidersEntityId");
 
-                            b1.ToTable("serviceProviders");
+                            b1.ToTable("serviceProviders", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ServiceProvidersEntityId");
@@ -1374,7 +1374,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("StudentDetailEntityId");
 
-                            b1.ToTable("student_details");
+                            b1.ToTable("student_details", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("StudentDetailEntityId");
@@ -1414,7 +1414,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("StudentEntityId");
 
-                            b1.ToTable("students");
+                            b1.ToTable("students", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("StudentEntityId");
@@ -1464,7 +1464,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("UserPollsEntityId");
 
-                            b1.ToTable("userPolls");
+                            b1.ToTable("userPolls", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("UserPollsEntityId");
@@ -1512,7 +1512,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("VariableEntityId");
 
-                            b1.ToTable("variables");
+                            b1.ToTable("variables", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("VariableEntityId");
@@ -1572,7 +1572,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("PollVariableJoinId");
 
-                            b1.ToTable("poll_variable");
+                            b1.ToTable("poll_variable", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PollVariableJoinId");
