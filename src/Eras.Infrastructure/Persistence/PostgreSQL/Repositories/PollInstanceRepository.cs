@@ -270,13 +270,14 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         .GroupBy(A => A.ComponentName)
         .Select(AnsPerComp => new CountReportComponent {
             Description = AnsPerComp.Key.ToUpper(),
-            AverageRisk = (double)Math.Round(AnsPerComp.Average(A=>A.AnswerRisk), 2),
+            AverageRisk = (double)Math.Round(AnsPerComp.Average(A => A.AnswerRisk), 2),
             Questions = [.. AnsPerComp
                 .OrderBy(Q => Q.AnswerRisk)
-                .GroupBy(Q => Q.Question)
+                .GroupBy(Q => new { Q.Position, Q.Question })
                 .Select(AnsPerQuestion => new CountReportQuestion {
                     AverageRisk = (double)Math.Round(AnsPerQuestion.Average(A => A.AnswerRisk),2),
-                    Question = AnsPerQuestion.Key,
+                    Position = AnsPerQuestion.Key.Position,
+                    Question = AnsPerQuestion.Key.Question,
                     Answers = [.. AnsPerQuestion
                         .GroupBy(A => A.AnswerRisk)
                         .Select(AnsPerAns => new CountReportAnswer
