@@ -1132,7 +1132,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", null)
                         .WithMany("Remissions")
                         .HasForeignKey("JUInterventionEntityId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServiceEntity", "JUService")
                         .WithMany()

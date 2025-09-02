@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250901202210_JUInterventions")]
+    [Migration("20250902143002_JUInterventions")]
     partial class JUInterventions
     {
         /// <inheritdoc />
@@ -1135,7 +1135,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", null)
                         .WithMany("Remissions")
                         .HasForeignKey("JUInterventionEntityId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServiceEntity", "JUService")
                         .WithMany()

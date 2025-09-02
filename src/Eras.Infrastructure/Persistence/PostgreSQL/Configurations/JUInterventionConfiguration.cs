@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
-public class JUInterventionsConfiguration : IEntityTypeConfiguration<JUInterventionEntity>
+public class JUInterventionConfiguration : IEntityTypeConfiguration<JUInterventionEntity>
 {
     public void Configure(EntityTypeBuilder<JUInterventionEntity> Builder)
     {
@@ -17,29 +17,29 @@ public class JUInterventionsConfiguration : IEntityTypeConfiguration<JUIntervent
 
     private void ConfigureColumns(EntityTypeBuilder<JUInterventionEntity> Builder)
     {
-        Builder.HasKey(i => i.Id);
+        Builder.HasKey(I => I.Id);
 
-        Builder.Property(i => i.Diagnostic)
+        Builder.Property(I  => I.Diagnostic)
             .HasColumnName("diagnostic")
             .HasMaxLength(500);
 
-        Builder.Property(i => i.Objective)
+        Builder.Property(I => I.Objective)
             .HasColumnName("objective")
             .HasMaxLength(500);
 
-        Builder.Property(i => i.StudentId)
+        Builder.Property(I => I.StudentId)
             .HasColumnName("student_id")
             .IsRequired();
     }
     private void ConfigureRelationShips(EntityTypeBuilder<JUInterventionEntity> Builder)
     {
-        Builder.HasOne(i => i.Student)
+        Builder.HasOne(I => I.Student)
             .WithMany()
-            .HasForeignKey(i => i.StudentId)
+            .HasForeignKey(I => I.StudentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        Builder.HasMany(i => i.Remissions)
+        Builder.HasMany(I => I.Remissions)
             .WithOne()
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

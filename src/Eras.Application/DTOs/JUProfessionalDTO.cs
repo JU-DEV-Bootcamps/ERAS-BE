@@ -11,7 +11,7 @@ public class JUProfessionalDTO
 
     [Required(ErrorMessage = "Professional name is required.")]
     [StringLength(255, MinimumLength = 3, ErrorMessage = "Professional name must be between 3 and 255 characters.")]
-    [RegularExpression(@"^[a-zA-Z0-9\s\-&.]+$", ErrorMessage = "Proffesional name can only contain letters, numbers, spaces, dashes, dots, and the '&' symbol.")]
+    [RegularExpression(@"^[a-zA-Z0-9\s\-&.]+$", ErrorMessage = "Professional name can only contain letters, numbers, spaces, dashes, dots, and the '&' symbol.")]
     public required string Name { get; set; }
 
     [Required(ErrorMessage = "Professional UUID is required.")]
