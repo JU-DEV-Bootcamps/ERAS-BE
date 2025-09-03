@@ -1,4 +1,3 @@
-
 using System.Diagnostics.CodeAnalysis;
 
 using Eras.Application.Contracts.Persistence;

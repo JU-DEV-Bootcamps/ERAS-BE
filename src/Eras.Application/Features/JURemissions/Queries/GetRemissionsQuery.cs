@@ -1,4 +1,3 @@
-using Eras.Application.Models.Response.Controllers.RemissionsController;
 using Eras.Domain.Entities;
 
 using MediatR;

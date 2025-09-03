@@ -1,0 +1,49 @@
+using Eras.Application.DTOs;
+using Eras.Application.Features.Services.Commands.CreateServices;
+using Eras.Application.Features.Services.Queries.GetServices;
+
+using MediatR;
+
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
+
+namespace Eras.Api.Controllers;
+
+[ApiController]
+[Route("api/v1/ju_services")]
+[ExcludeFromCodeCoverage]
+public class JUServiceController(IMediator Mediator, ILogger<JUServiceController> Logger) : ControllerBase
+{
+    private readonly IMediator _mediator = Mediator;
+    private readonly ILogger<JUServiceController> _logger = Logger;
+    
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetServicesAsync()
+    {
+        return Ok(await _mediator.Send(new GetJUServicesQuery()));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateServiceAsync([FromBody] JUServiceDTO Service)
+    {
+        if (Service == null)
+        {
+            _logger.LogError("Service is null");
+            return BadRequest("Service cannot be null");
+        }
+        CreateJUServiceCommand createJUServiceCommand = new CreateJUServiceCommand()
+        {
+            Service = Service
+        };
+        var result = await _mediator.Send(createJUServiceCommand);
+
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return BadRequest(result.Message);
+    }
+}
