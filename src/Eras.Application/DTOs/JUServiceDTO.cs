@@ -10,5 +10,5 @@ public class JUServiceDTO
     [RegularExpression(@"^[a-zA-Z0-9\s\-&.]+$", ErrorMessage = "JUService name can only contain letters, numbers, spaces, dashes, dots, and the '&' symbol.")]
     public required string Name { get; set; }
 
-    public AuditInfo Audit { get; set; }
+    public AuditInfo? Audit { get; set; } = default!;
 }

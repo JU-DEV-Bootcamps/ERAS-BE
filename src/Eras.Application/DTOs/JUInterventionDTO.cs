@@ -26,5 +26,5 @@ public class JUInterventionDTO
 
     public StudentDTO Student { get; set; } = default!;
     public IEnumerable<JURemissionDTO> Remissions { get; set; } = [];
-    public AuditInfo Audit { get; set; }
+    public AuditInfo? Audit { get; set; } = default!;
 }

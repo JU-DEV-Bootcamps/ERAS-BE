@@ -18,5 +18,5 @@ public class JUProfessionalDTO
     [StringLength(36, MinimumLength = 36, ErrorMessage = "Professional UUID must be exactly 36 characters.")]
     [RegularExpression(@"^[a-fA-F0-9\-]{36}$", ErrorMessage = "Professional must follow a valid GUID format.")]
     public string Uuid { get; set; } = string.Empty;
-    public AuditInfo Audit { get; set; }
+    public AuditInfo? Audit { get; set; } = default!;
 }
