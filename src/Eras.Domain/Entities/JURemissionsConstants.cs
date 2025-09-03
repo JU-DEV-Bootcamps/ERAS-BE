@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel;
 
 namespace Eras.Domain.Entities;
-public static class RemissionsConstants
+public static class JURemissionsConstants
 {
     public enum RemissionsStatus
     {
@@ -14,7 +9,7 @@ public static class RemissionsConstants
         Created,
         [Description("Remission remitted to a professional")]
         Remitted,
-        [Description("Remission assigned to a professional but not working on it")]
+        [Description("Remission assigned to a JUProfessional but not working on it")]
         OnHold,
         [Description("Remission it's in progress by a professional")]
         InProgress,

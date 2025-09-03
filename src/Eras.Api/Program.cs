@@ -6,9 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Eras.Api;
 using Eras.Infrastructure;
 using Eras.Api.Middleware;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using HealthChecks.UI.Client;
-using Eras.Infrastructure.External.CosmicLatteClient;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,7 +32,7 @@ builder.Services.AddApiServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
-                                                            
+
 var app = builder.Build();
 
 // Automitcally log HTTP requests

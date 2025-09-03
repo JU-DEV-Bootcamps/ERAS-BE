@@ -17,7 +17,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -317,7 +317,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("evaluation", (string)null);
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionsEntity", b =>
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -348,6 +348,31 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("ju_interventions", (string)null);
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUProfessionalEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Uuid")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ju_professionals", (string)null);
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JURemissionEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -355,6 +380,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AssignedProfessionalId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("AssignedProfessionalUuid")
                         .IsRequired()
@@ -372,7 +400,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("date");
 
-                    b.Property<int?>("JUInterventionsEntityId")
+                    b.Property<int?>("JUInterventionEntityId")
                         .HasColumnType("integer");
 
                     b.Property<int>("JUServiceId")
@@ -397,16 +425,16 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("JUInterventionsEntityId");
+                    b.HasIndex("AssignedProfessionalId");
+
+                    b.HasIndex("JUInterventionEntityId");
 
                     b.HasIndex("JUServiceId");
-
-                    b.HasIndex("StudentId");
 
                     b.ToTable("ju_remissions", (string)null);
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServicesEntity", b =>
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServiceEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -414,7 +442,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ServiceName")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
@@ -739,6 +767,21 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("student_cohort", (string)null);
                 });
 
+            modelBuilder.Entity("JURemissionEntityStudentEntity", b =>
+                {
+                    b.Property<int>("RemissionsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StudentsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("RemissionsId", "StudentsId");
+
+                    b.HasIndex("StudentsId");
+
+                    b.ToTable("student_remissions", (string)null);
+                });
+
             modelBuilder.Entity("CohortEntityStudentEntity", b =>
                 {
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.CohortEntity", null)
@@ -1000,7 +1043,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("Configuration");
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionsEntity", b =>
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>
                 {
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
                         .WithMany()
@@ -1010,7 +1053,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
                         {
-                            b1.Property<int>("JUInterventionsEntityId")
+                            b1.Property<int>("JUInterventionEntityId")
                                 .HasColumnType("integer");
 
                             b1.Property<DateTime>("CreatedAt")
@@ -1032,12 +1075,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
-                            b1.HasKey("JUInterventionsEntityId");
+                            b1.HasKey("JUInterventionEntityId");
 
-                            b1.ToTable("ju_interventions");
+                            b1.ToTable("ju_interventions", (string)null);
 
                             b1.WithOwner()
-                                .HasForeignKey("JUInterventionsEntityId");
+                                .HasForeignKey("JUInterventionEntityId");
                         });
 
                     b.Navigation("Audit")
@@ -1046,22 +1089,60 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUProfessionalEntity", b =>
+                {
+                    b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
+                        {
+                            b1.Property<int>("JUProfessionalEntityId")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTime>("CreatedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("created_at");
+
+                            b1.Property<string>("CreatedBy")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("created_by");
+
+                            b1.Property<DateTime?>("ModifiedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("updated_at");
+
+                            b1.Property<string>("ModifiedBy")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("modified_by");
+
+                            b1.HasKey("JUProfessionalEntityId");
+
+                            b1.ToTable("ju_professionals", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("JUProfessionalEntityId");
+                        });
+
+                    b.Navigation("Audit")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JURemissionEntity", b =>
                 {
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionsEntity", null)
-                        .WithMany("RemissionsList")
-                        .HasForeignKey("JUInterventionsEntityId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServicesEntity", "JUService")
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUProfessionalEntity", "AssignedProfessional")
                         .WithMany()
-                        .HasForeignKey("JUServiceId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasForeignKey("AssignedProfessionalId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", null)
+                        .WithMany("Remissions")
+                        .HasForeignKey("JUInterventionEntityId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServiceEntity", "JUService")
                         .WithMany()
-                        .HasForeignKey("StudentId")
+                        .HasForeignKey("JUServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1091,25 +1172,25 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("JURemissionEntityId");
 
-                            b1.ToTable("ju_remissions");
+                            b1.ToTable("ju_remissions", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("JURemissionEntityId");
                         });
 
+                    b.Navigation("AssignedProfessional");
+
                     b.Navigation("Audit")
                         .IsRequired();
 
                     b.Navigation("JUService");
-
-                    b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServicesEntity", b =>
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServiceEntity", b =>
                 {
                     b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
                         {
-                            b1.Property<int>("JUServicesEntityId")
+                            b1.Property<int>("JUServiceEntityId")
                                 .HasColumnType("integer");
 
                             b1.Property<DateTime>("CreatedAt")
@@ -1131,12 +1212,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 .HasColumnType("character varying(50)")
                                 .HasColumnName("modified_by");
 
-                            b1.HasKey("JUServicesEntityId");
+                            b1.HasKey("JUServiceEntityId");
 
-                            b1.ToTable("ju_services");
+                            b1.ToTable("ju_services", (string)null);
 
                             b1.WithOwner()
-                                .HasForeignKey("JUServicesEntityId");
+                                .HasForeignKey("JUServiceEntityId");
                         });
 
                     b.Navigation("Audit")
@@ -1530,6 +1611,21 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("JURemissionEntityStudentEntity", b =>
+                {
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JURemissionEntity", null)
+                        .WithMany()
+                        .HasForeignKey("RemissionsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", null)
+                        .WithMany()
+                        .HasForeignKey("StudentsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.CohortEntity", b =>
                 {
                     b.Navigation("StudentCohorts");
@@ -1545,9 +1641,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Navigation("EvaluationPolls");
                 });
 
-            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionsEntity", b =>
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>
                 {
-                    b.Navigation("RemissionsList");
+                    b.Navigation("Remissions");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollEntity", b =>
