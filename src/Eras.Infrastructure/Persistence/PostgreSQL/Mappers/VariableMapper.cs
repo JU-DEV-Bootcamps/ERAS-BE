@@ -9,12 +9,14 @@ public static class VariableMapper
     {
         Id = Entity.Id,
         Name = Entity.Name,
+        Position = Entity.Position,
         Audit = Entity.Audit,
     };
     public static VariableEntity ToPersistence(this Variable Model) => new()
     {
         Id = Model.Id,
         Name = Model.Name,
+        Position = Model.Position,
         Audit = Model.Audit,
         ComponentId = Model.IdComponent
     };

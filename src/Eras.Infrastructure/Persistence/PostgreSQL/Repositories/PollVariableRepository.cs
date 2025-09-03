@@ -43,6 +43,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     ComponentName = Result.ComponentName,
                     PollVariableId = Result.PollVariableId,
                     Question = Result.Question,
+                    Position = Result.Position,
                     AnswerText = Result.AnswerText,
                     PollInstanceId = Result.PollInstanceId,
                     StudentName = Result.StudentName,

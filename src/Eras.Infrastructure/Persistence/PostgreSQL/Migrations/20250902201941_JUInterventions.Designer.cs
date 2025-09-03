@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250902143002_JUInterventions")]
+    [Migration("20250902201941_JUInterventions")]
     partial class JUInterventions
     {
         /// <inheritdoc />
