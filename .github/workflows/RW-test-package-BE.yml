@@ -47,7 +47,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'A  branch name passed from the caller workflow'
+        description: 'A branch name passed from the caller workflow'
         default: 'develop'
         required: true
         type: string
@@ -68,12 +68,12 @@ on:
         type: string
       keycloak_client_id:
         description: 'ERAS backend client id for Authentication'
-        default: 'eras-api'
+        default: 'eras-stage-api'
         required: true
         type: string
       environment_tag:
         description: 'ERAS environment tag'
-        default: 'dev'
+        default: 'stage'
         required: true
         type: string
 jobs:
