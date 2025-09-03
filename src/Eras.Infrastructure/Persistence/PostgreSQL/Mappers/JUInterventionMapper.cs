@@ -11,7 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             Id = Entity.Id,
             Diagnostic = Entity.Diagnostic,
             Objective = Entity.Objective,
-            Student = Entity.Student.ToDomain(),
+            StudentId = Entity.StudentId,
             Audit = Entity.Audit,
         };
         public static JUInterventionEntity ToPersistence(this JUIntervention Model)
@@ -21,7 +21,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Id = Model.Id,
                 Diagnostic = Model.Diagnostic,
                 Objective = Model.Objective,
-                Student = Model.Student.ToPersistence(),
+                StudentId = Model.StudentId,
                 Remissions = Model.Remissions.Select(Rem => Rem.ToPersistence()).ToList() ?? [],
                 Audit = Model.Audit,
             };

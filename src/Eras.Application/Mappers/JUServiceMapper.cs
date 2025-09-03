@@ -11,6 +11,7 @@ namespace Eras.Application.Mappers
 
             return new JUService()
             {
+                Id = Dto.Id,
                 Name = Dto.Name,
                 Audit = Dto.Audit,
             };
@@ -22,6 +23,7 @@ namespace Eras.Application.Mappers
 
             return new JUServiceDTO()
             {
+                Id = Entity.Id,
                 Name = Entity.Name,
                 Audit = Entity.Audit,
             };

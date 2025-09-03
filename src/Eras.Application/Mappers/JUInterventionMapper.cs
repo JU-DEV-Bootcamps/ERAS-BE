@@ -13,7 +13,7 @@ namespace Eras.Application.Mappers
             {
                 Diagnostic = Dto.Diagnostic,
                 Objective = Dto.Objective,
-                Student = Dto.Student.ToDomain(),
+                StudentId = Dto.StudentId,
                 Remissions = Dto.Remissions.Select((Rem) => Rem.ToDomain()),
                 Audit = Dto.Audit,
             };
@@ -27,7 +27,7 @@ namespace Eras.Application.Mappers
             {
                 Diagnostic = Entity.Diagnostic,
                 Objective = Entity.Objective,
-                Student = Entity.Student.ToDto(),
+                StudentId = Entity.StudentId,
                 Remissions = Entity.Remissions.Select((Rem) => Rem.ToDTO()),
                 Audit = Entity.Audit,
             };

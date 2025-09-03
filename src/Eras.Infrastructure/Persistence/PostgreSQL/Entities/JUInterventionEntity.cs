@@ -4,7 +4,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 public class JUInterventionEntity : BaseEntity, IAuditableEntity
 {
     public int StudentId { get; set; }
-    public required StudentEntity Student { get; set; }
     public string Diagnostic { get; set; } = string.Empty;
     public string Objective { get; set; } = string.Empty;
     public IEnumerable<JURemissionEntity> Remissions { get; set; } = [];

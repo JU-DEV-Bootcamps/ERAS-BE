@@ -1,6 +1,6 @@
 using Eras.Application.DTOs;
-using Eras.Application.Features.Services.Commands.CreateServices;
-using Eras.Application.Features.Services.Queries.GetServices;
+using Eras.Application.Features.JUServices.Commands.CreateJUService;
+using Eras.Application.Features.JUServices.Queries.GetJUServices;
 
 using MediatR;
 

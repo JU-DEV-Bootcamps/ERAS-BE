@@ -11,8 +11,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = Entity.Id,
                 SubmitterUuid = Entity.SubmitterUuid,
-                JUService = Entity.JUService?.ToDomain() ?? new JUService(),
-                AssignedProfessional = Entity.AssignedProfessional?.ToDomain() ?? new JUProfessional(),
+                JUServiceId = Entity.JUServiceId,
+                AssignedProfessionalId = Entity.AssignedProfessionalId,
                 Comment = Entity.Comment,
                 Date = Entity.Date,
                 Status = Entity.Status,
@@ -27,8 +27,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = Model.Id,
                 SubmitterUuid = Model.SubmitterUuid,
-                JUService = Model.JUService?.ToPersistence() ?? null,
-                AssignedProfessionalUuid = Model.AssignedProfessional.Uuid,
+                JUServiceId = Model.JUServiceId,
+                AssignedProfessionalId = Model.AssignedProfessionalId,
                 Comment = Model.Comment,
                 Date = Model.Date,
                 Status = Model.Status,

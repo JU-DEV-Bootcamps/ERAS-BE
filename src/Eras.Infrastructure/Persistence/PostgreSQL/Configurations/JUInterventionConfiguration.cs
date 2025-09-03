@@ -33,11 +33,6 @@ public class JUInterventionConfiguration : IEntityTypeConfiguration<JUInterventi
     }
     private void ConfigureRelationShips(EntityTypeBuilder<JUInterventionEntity> Builder)
     {
-        Builder.HasOne(I => I.Student)
-            .WithMany()
-            .HasForeignKey(I => I.StudentId)
-            .OnDelete(DeleteBehavior.Restrict);
-
         Builder.HasMany(I => I.Remissions)
             .WithOne()
             .OnDelete(DeleteBehavior.Restrict);

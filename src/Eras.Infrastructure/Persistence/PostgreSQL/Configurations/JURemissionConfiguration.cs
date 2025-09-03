@@ -1,5 +1,4 @@
-﻿using Eras.Domain.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -26,8 +25,8 @@ public class JURemissionConfiguration : IEntityTypeConfiguration<JURemissionEnti
             .HasMaxLength(100)
             .IsRequired();
 
-        Builder.Property(R => R.AssignedProfessionalUuid)
-            .HasColumnName("assigned_professional_uuid")
+        Builder.Property(R => R.AssignedProfessionalId)
+            .HasColumnName("assigned_professional_id")
             .HasMaxLength(100)
             .IsRequired();
 
@@ -60,10 +59,5 @@ public class JURemissionConfiguration : IEntityTypeConfiguration<JURemissionEnti
         Builder.HasMany(R => R.Students)
             .WithMany(S => S.Remissions)
             .UsingEntity(J => J.ToTable("student_remissions"));
-
-        Builder.HasOne(R => R.JUService)
-            .WithMany()
-            .HasForeignKey(R => R.JUServiceId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

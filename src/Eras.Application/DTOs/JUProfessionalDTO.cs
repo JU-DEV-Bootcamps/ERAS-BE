@@ -6,8 +6,8 @@ namespace Eras.Application.DTOs;
 public class JUProfessionalDTO
 {
     [Required(ErrorMessage = "Configuration Id is required.")]
-    [Range(1, 2147483647, ErrorMessage = "Id must be greater than 0.")]
-    public int? Id { get; set; }
+    [Range(0, 2147483647, ErrorMessage = "Id must be greater than or equals 0.")]
+    public int Id { get; set; }
 
     [Required(ErrorMessage = "Professional name is required.")]
     [StringLength(255, MinimumLength = 3, ErrorMessage = "Professional name must be between 3 and 255 characters.")]
