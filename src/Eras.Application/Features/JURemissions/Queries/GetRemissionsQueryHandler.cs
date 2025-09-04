@@ -23,13 +23,13 @@ namespace Eras.Application.Features.Remmisions.Queries.GetRemissions
         {
             try
             {
-                var remissions = await _remissionRepository.GetAllAsync();
+                var remissions = await _remissionRepository.GetPagedAsync(Request.Query.Page, Request.Query.PageSize);
 
                 return remissions.ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while getting polls: " + ex.Message);
+                _logger.LogError(ex, "An error occurred while getting remissions: " + ex.Message);
                 return new List<JURemission>();
             }
         }

@@ -1,6 +1,7 @@
 using Eras.Application.DTOs;
 using Eras.Application.Features.JUServices.Commands.CreateJUService;
 using Eras.Application.Features.JUServices.Queries.GetJUServices;
+using Eras.Application.Utils;
 
 using MediatR;
 
@@ -20,7 +21,7 @@ public class JUServiceController(IMediator Mediator, ILogger<JUServiceController
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetServicesAsync()
+    public async Task<IActionResult> GetServicesAsync([FromQuery] Pagination Query)
     {
         return Ok(await _mediator.Send(new GetJUServicesQuery()));
     }

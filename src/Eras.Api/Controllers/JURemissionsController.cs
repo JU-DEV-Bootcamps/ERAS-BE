@@ -26,7 +26,7 @@ public class RemissionsController(IMediator Mediator, ILogger<RemissionsControll
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetRemissionsAsync([FromQuery] Pagination Query)
     {
-        List<JURemission> Result = await _mediator.Send(new GetRemissionsQuery());
+        List<JURemission> Result = await _mediator.Send(new GetRemissionsQuery() { Query = Query });
         return Ok(Result);
     }
 

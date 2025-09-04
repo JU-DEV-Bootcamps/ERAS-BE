@@ -18,7 +18,15 @@ public class GetInterventionsQueryHandler : IRequestHandler<GetInterventionsQuer
 
     public async Task<List<JUIntervention>> Handle(GetInterventionsQuery Request, CancellationToken CancellationToken)
     {
-        var listOfInterventions = await _professionalRepository.GetAllAsync();
-        return listOfInterventions.ToList();
+        try
+            {
+            var listOfInterventions = await _professionalRepository.GetPagedAsync(Request.Query.Page, Request.Query.PageSize);
+            return listOfInterventions.ToList();
+        }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while getting interventions: " + ex.Message);
+                return new List<JUIntervention>();
+            }
     }
 }
