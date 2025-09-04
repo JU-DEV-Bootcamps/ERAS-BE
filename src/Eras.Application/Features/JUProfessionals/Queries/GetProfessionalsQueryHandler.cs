@@ -18,7 +18,15 @@ public class GetProfessionalsQueryHandler : IRequestHandler<GetProfessionalsQuer
 
     public async Task<List<JUProfessional>> Handle(GetProfessionalsQuery Request, CancellationToken CancellationToken)
     {
-        var listOfProfessionals = await _professionalRepository.GetAllAsync();
-        return listOfProfessionals.ToList();
+        try
+        {
+            var listOfProfessionals = await _professionalRepository.GetAllAsync();
+            return listOfProfessionals.ToList();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while getting professionals: " + ex.Message);
+            return new List<JUProfessional>();
+        }
     }
 }

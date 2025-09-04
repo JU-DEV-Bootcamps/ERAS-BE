@@ -29,7 +29,7 @@ namespace Eras.Application.Features.JUServices.Queries.GetJUServices
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while getting polls: " + ex.Message);
+                _logger.LogError(ex, "An error occurred while getting Services: " + ex.Message);
                 return new List<JUService>();
             }
         }
