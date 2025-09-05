@@ -14,7 +14,6 @@ public class JURemissionEntity : BaseEntity, IAuditableEntity
     public ICollection<StudentEntity> Students { get; set; } = [];
     public string Comment { get; set; } = string.Empty;
     public DateTime Date { get; set; }
-
     public RemissionsStatus Status { get; set; } = RemissionsStatus.Created;
     public AuditInfo Audit { get; set; } = default!;
 }
