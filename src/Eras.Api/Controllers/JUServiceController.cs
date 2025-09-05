@@ -5,6 +5,7 @@ using Eras.Application.Utils;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
 
@@ -27,6 +28,7 @@ public class JUServiceController(IMediator Mediator, ILogger<JUServiceController
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateServiceAsync([FromBody] JUServiceDTO Service)
     {
         if (Service == null)

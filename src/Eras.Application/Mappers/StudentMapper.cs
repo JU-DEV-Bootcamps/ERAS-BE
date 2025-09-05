@@ -40,8 +40,9 @@ public static class StudentMapper
             Email = Dto.Email,
             IsImported = Dto.IsImported,
             Cohort = cohort,
-            CohortId = cohort!=null ? cohort.Id : 0,
+            CohortId = cohort != null ? cohort.Id : 0,
             StudentDetail = details,
+            RemissionIds = Dto.RemissionIds,
             Audit = audit,
         };
 

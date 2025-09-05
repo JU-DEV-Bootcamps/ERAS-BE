@@ -5,6 +5,7 @@ using Eras.Application.Utils;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
 
@@ -27,6 +28,7 @@ public class InterventionsController(IMediator Mediator, ILogger<InterventionsCo
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateInterventionAsync([FromBody] JUInterventionDTO Intervention)
     {
         if (Intervention == null)

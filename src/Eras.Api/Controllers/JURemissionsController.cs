@@ -9,6 +9,7 @@ using Eras.Domain.Entities;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
@@ -38,6 +39,7 @@ public class RemissionsController(IMediator Mediator, ILogger<RemissionsControll
     ) => Ok(await _mediator.Send(new GetRemissionByIdQuery() { Id = Id }));
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> CreateRemissionAsync([FromBody] JURemissionDTO Remission)
     {
         if (Remission == null)
