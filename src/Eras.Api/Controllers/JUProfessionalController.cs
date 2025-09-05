@@ -1,6 +1,7 @@
 using Eras.Application.DTOs;
 using Eras.Application.Features.Professionals.Commands.CreateProfessional;
 using Eras.Application.Features.Professionals.Queries.GetProfessionals;
+using Eras.Application.Utils;
 
 using MediatR;
 
@@ -20,9 +21,9 @@ public class ProfessionalsController(IMediator Mediator, ILogger<ProfessionalsCo
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetProfessionalsAsync()
+    public async Task<IActionResult> GetProfessionalsAsync([FromQuery] Pagination Query)
     {
-        return Ok(await _mediator.Send(new GetProfessionalsQuery()));
+        return Ok(await _mediator.Send(new GetProfessionalsQuery() { Query = Query }));
     }
 
     [HttpPost]

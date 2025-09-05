@@ -11,6 +11,7 @@ namespace Eras.Application.Mappers
 
             return new JUProfessional()
             {
+                Id = Dto.Id,
                 Name = Dto.Name,
                 Uuid = Dto.Uuid,
                 Audit = Dto.Audit,
@@ -23,6 +24,7 @@ namespace Eras.Application.Mappers
 
             return new JUProfessionalDTO()
             {
+                Id = Entity.Id,
                 Name = Entity.Name,
                 Uuid = Entity.Uuid,
                 Audit = Entity.Audit,

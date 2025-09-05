@@ -11,12 +11,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = Entity.Id,
                 SubmitterUuid = Entity.SubmitterUuid,
-                JUService = Entity.JUService?.ToDomain() ?? new JUService(),
-                AssignedProfessional = Entity.AssignedProfessional?.ToDomain() ?? new JUProfessional(),
+                JUServiceId = Entity.JUServiceId,
+                JUService = Entity.JUService?.ToDomain(),
+                AssignedProfessionalId = Entity.AssignedProfessionalId,
+                AssignedProfessional = Entity.AssignedProfessional?.ToDomain(),
                 Comment = Entity.Comment,
                 Date = Entity.Date,
                 Status = Entity.Status,
-                Students = Entity.Students.Select(Stu => Stu.ToDomain()).ToList() ?? [],
+                StudentIds = Entity.StudentIds,
                 Audit = Entity.Audit,
             };
         }
@@ -27,12 +29,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = Model.Id,
                 SubmitterUuid = Model.SubmitterUuid,
-                JUService = Model.JUService?.ToPersistence() ?? null,
-                AssignedProfessionalUuid = Model.AssignedProfessional.Uuid,
+                JUServiceId = Model.JUServiceId,
+                AssignedProfessionalId = Model.AssignedProfessionalId,
                 Comment = Model.Comment,
                 Date = Model.Date,
                 Status = Model.Status,
-                Students = Model.Students.Select(Stu => Stu.ToPersistence()).ToList() ?? [],
+                StudentIds = Model.StudentIds,
                 Audit = Model.Audit,
             };
         }

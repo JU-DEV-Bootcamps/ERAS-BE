@@ -23,6 +23,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return interventions.Select(Intervention => Intervention.ToDomain());
         }
 
+        public async new Task<IEnumerable<JUIntervention>> GetPagedAsync(int Page, int PageSize)
+        {
+            var interventions = await _context.Interventions
+                .Include(I => I.Student)
+                .Skip((Page - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
+
+            return interventions.Select(I => I.ToDomain());
+        }
+
         public new async Task<JUIntervention?> GetByIdAsync(int Id)
         {
             var intervention = await _context.Interventions

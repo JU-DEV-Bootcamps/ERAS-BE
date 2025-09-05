@@ -14,16 +14,16 @@ public class ConfigurationsDTO
     public string UserId { get; set; }
 
     [Required(ErrorMessage = "Configuration name is required.")]
-    [StringLength(10485760, MinimumLength = 3, ErrorMessage = "Configuration Name must be greater than 0.")]
-    public string ConfigurationName { get; set; }
+    [StringLength(10485760, MinimumLength = 3, ErrorMessage = "Configuration Name must have more than 3 characters.")]
+    public required string ConfigurationName { get; set; }
 
     [Required(ErrorMessage = "Base URL is required.")]
     [Url(ErrorMessage = "Base URL must be a valid URL.")]
     [StringLength(500, ErrorMessage = "Base URL must be less than 501 characters.")]
-    public string BaseURL { get; set; }
+    public required string BaseURL { get; set; }
 
     [Required(ErrorMessage = "Encrypted key is required.")]
-    [StringLength(10485760, MinimumLength = 10, ErrorMessage = "Encrypted Key must be greater than 10.")]
+    [StringLength(10485760, MinimumLength = 10, ErrorMessage = "Encrypted Key must be longer than 10 characters.")]
     public string EncryptedKey { get; set; }
 
     [Required(ErrorMessage = "Service provider Id is required.")]

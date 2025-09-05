@@ -7,11 +7,11 @@ public class JURemissionEntity : BaseEntity, IAuditableEntity
 {
     public required string SubmitterUuid { get; set; }
     public int JUServiceId { get; set; }
-    public required JUServiceEntity JUService { get; set; }
-    public required string AssignedProfessionalUuid { get; set; }
+    public JUServiceEntity JUService { get; set; } = default!;
+    public required int AssignedProfessionalId { get; set; }
     public JUProfessionalEntity AssignedProfessional { get; set; } = default!;
-    public int StudentId { get; set; }
-    public required ICollection<StudentEntity> Students { get; set; } = [];
+    public required ICollection<int> StudentIds { get; set; } = [];
+    public ICollection<StudentEntity> Students { get; set; } = [];
     public string Comment { get; set; } = string.Empty;
     public DateTime Date { get; set; }
 

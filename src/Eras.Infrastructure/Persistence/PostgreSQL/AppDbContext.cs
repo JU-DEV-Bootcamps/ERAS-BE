@@ -27,6 +27,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<JURemissionEntity> Remissions { get; set; }
         public virtual DbSet<JUInterventionEntity> Interventions { get; set; }
         public virtual DbSet<JUProfessionalEntity> Professionals { get; set; }
+        public virtual DbSet<JUServiceEntity> JUServices { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> Options)
             : base(Options)

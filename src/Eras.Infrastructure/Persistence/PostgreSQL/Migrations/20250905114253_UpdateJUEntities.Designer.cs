@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250905114253_UpdateJUEntities")]
+    partial class UpdateJUEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -341,10 +344,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("objective");
 
-                    b.PrimitiveCollection<int[]>("RemissionIds")
-                        .IsRequired()
-                        .HasColumnType("integer[]");
-
                     b.Property<int>("StudentId")
                         .HasColumnType("integer")
                         .HasColumnName("student_id");
@@ -417,9 +416,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("status");
 
-                    b.PrimitiveCollection<int[]>("StudentIds")
-                        .IsRequired()
-                        .HasColumnType("integer[]");
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("student_id");
 
                     b.Property<string>("SubmitterUuid")
                         .IsRequired()

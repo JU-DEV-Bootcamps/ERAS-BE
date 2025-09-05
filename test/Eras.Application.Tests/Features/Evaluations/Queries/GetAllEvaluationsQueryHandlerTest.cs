@@ -30,7 +30,7 @@ public class GetAllEvaluationsQueryHandlerTest
     public async Task Handle_Should_Return_Success_ResponseAsync()
     {
         // Arrange
-        var query = new GetAllEvaluationsQuery(new Utils.Pagination());
+        var query = new GetAllEvaluationsQuery() { Query = new Utils.Pagination() };
         var polls = new List<Poll>();
         var pollInstances = new List<PollInstance>();
         var evaluations = new List<Evaluation>() {

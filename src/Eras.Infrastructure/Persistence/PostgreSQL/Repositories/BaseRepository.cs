@@ -36,7 +36,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
                 return _toDomain(response.Entity);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 _context.ChangeTracker.Clear();
                 throw new DatabaseCustomException("Error on Repository");

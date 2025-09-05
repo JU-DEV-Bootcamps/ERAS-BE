@@ -1,6 +1,7 @@
 using Eras.Application.DTOs;
 using Eras.Application.Features.Interventions.Commands.CreateIntervention;
 using Eras.Application.Features.Interventions.Queries.GetInterventions;
+using Eras.Application.Utils;
 
 using MediatR;
 
@@ -20,9 +21,9 @@ public class InterventionsController(IMediator Mediator, ILogger<InterventionsCo
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetInterventionsAsync()
+    public async Task<IActionResult> GetInterventionsAsync([FromQuery] Pagination Query)
     {
-        return Ok(await _mediator.Send(new GetInterventionsQuery()));
+        return Ok(await _mediator.Send(new GetInterventionsQuery() { Query = Query }));
     }
 
     [HttpPost]

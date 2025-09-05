@@ -10,6 +10,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
         {
             Id = Entity.Id,
             Uuid = Entity.Uuid,
+            Name = Entity.Name,
             Audit = Entity.Audit,
         };
         public static JUProfessionalEntity ToPersistence(this JUProfessional Model)
@@ -18,6 +19,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = Model.Id,
                 Uuid = Model.Uuid,
+                Name = Model.Name,
                 Audit = Model.Audit,
             };
         }
