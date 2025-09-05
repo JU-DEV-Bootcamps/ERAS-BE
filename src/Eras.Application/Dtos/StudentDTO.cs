@@ -25,5 +25,6 @@ public class StudentDTO
     public bool IsImported { get; set; }
     public StudentDetailDTO? StudentDetail { get; set; }
     public CohortDTO? Cohort { get; set; } = default!;
+    public ICollection<int> RemissionIds { get; set; } = [];
     public AuditInfo? Audit { get; set; } = default!;
 }
