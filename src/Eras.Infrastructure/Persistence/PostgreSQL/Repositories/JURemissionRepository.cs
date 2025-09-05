@@ -23,9 +23,25 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return remission?.ToDomain();
         }
 
+        public async new Task<IEnumerable<JURemission>> GetPagedAsync(int Page, int PageSize)
+        {
+            var remissions = await _context.Remissions
+                .Include(R => R.JUService)
+                .Include(R => R.AssignedProfessional)
+                .Include(R => R.Students)
+                .Skip((Page - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
+
+            return remissions.Select(R => R.ToDomain());
+        }
+
         public new async Task<JURemission?> GetByIdAsync(int Id)
         {
             var remission = await _context.Remissions
+                .Include(r => r.JUService)
+                .Include(r => r.AssignedProfessional)
+                .Include(r => r.Students)
                 .FirstOrDefaultAsync(Remission => Remission.Id == Id);
 
             return remission?.ToDomain();

@@ -11,10 +11,11 @@ namespace Eras.Application.Mappers
 
             return new JUIntervention()
             {
+                Id = Dto.Id,
                 Diagnostic = Dto.Diagnostic,
                 Objective = Dto.Objective,
                 StudentId = Dto.StudentId,
-                Remissions = Dto.Remissions.Select((Rem) => Rem.ToDomain()),
+                RemissionIds = Dto.RemissionIds,
                 Audit = Dto.Audit,
             };
         }
@@ -25,10 +26,11 @@ namespace Eras.Application.Mappers
 
             return new JUInterventionDTO()
             {
+                Id = Entity.Id,
                 Diagnostic = Entity.Diagnostic,
                 Objective = Entity.Objective,
                 StudentId = Entity.StudentId,
-                Remissions = Entity.Remissions.Select((Rem) => Rem.ToDTO()),
+                RemissionIds = Entity.RemissionIds,
                 Audit = Entity.Audit,
             };
         }

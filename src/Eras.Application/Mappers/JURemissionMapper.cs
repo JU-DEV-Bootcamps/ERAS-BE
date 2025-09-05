@@ -18,7 +18,7 @@ namespace Eras.Application.Mappers
                 Comment = Dto.Comment,
                 Date = Dto.Date,
                 Status = Dto.Status,
-                Students = Dto.Students.Select(Stu => Stu.ToDomain()).ToList(),
+                StudentIds = Dto.StudentIds,
                 Audit = Dto.Audit,
             };
         }
@@ -34,7 +34,7 @@ namespace Eras.Application.Mappers
                 Comment = Entity.Comment,
                 Date = Entity.Date,
                 Status = Entity.Status,
-                Students = Entity.Students.Select(Stu => Stu.ToDto()).ToList(),
+                StudentIds = Entity.StudentIds,
                 Audit = Entity.Audit,
             };
 

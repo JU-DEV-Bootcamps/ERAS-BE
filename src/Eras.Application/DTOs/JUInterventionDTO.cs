@@ -19,7 +19,16 @@ public class JUInterventionDTO
     [RegularExpression(@"^[a-zA-Z0-9\s\-&.]+$", ErrorMessage = "Intervention Objective can only contain letters, numbers, spaces, dashes, dots, and the '&' symbol.")]
     public required string Objective { get; set; }
 
+    [Required(ErrorMessage = "Intervention StudentId is required.")]
+    [Range(0, 2147483647, ErrorMessage = "StudentId must be greater than or equals 0.")]
     public required int StudentId { get; set; }
-    public IEnumerable<JURemissionDTO> Remissions { get; set; } = [];
-    public AuditInfo? Audit { get; set; } = default!;
+    public StudentDTO? Student { get; set; }
+    public IEnumerable<int> RemissionIds { get; set; } = [];
+    public List<JURemissionDTO> Remissions { get; set; } = [];
+    public AuditInfo Audit { get; set; } = new AuditInfo()
+    {
+        CreatedBy = "Default constructor",
+        CreatedAt = DateTime.UtcNow,
+        ModifiedAt = DateTime.UtcNow,
+    };
 }

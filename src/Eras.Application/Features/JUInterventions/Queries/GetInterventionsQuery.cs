@@ -5,7 +5,7 @@ using MediatR;
 
 namespace Eras.Application.Features.Interventions.Queries.GetInterventions;
 
-public class GetInterventionsQuery : IRequest<List<JUIntervention>>
+public class GetInterventionsQuery : IRequest<PagedResult<JUIntervention>>
 {
     public Pagination Query { get; set; } = new Pagination();
 }

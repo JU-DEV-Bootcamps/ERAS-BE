@@ -7,7 +7,14 @@ namespace Eras.Domain.Entities
         public string Diagnostic { get; set; } = string.Empty;
         public string Objective { get; set; } = string.Empty;
         public int StudentId { get; set; } = default!;
-        public IEnumerable<JURemission> Remissions { get; set; } = [];
-        public AuditInfo Audit { get; set; } = default!;
+        public Student? Student { get; set; }
+        public IEnumerable<int> RemissionIds { get; set; } = [];
+        public List<JURemission> Remissions { get; set; } = [];
+        public AuditInfo Audit { get; set; } = new AuditInfo()
+        {
+            CreatedBy = "Default constructor",
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow,
+        };
     }
 }

@@ -23,7 +23,7 @@ public class JUServiceController(IMediator Mediator, ILogger<JUServiceController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetServicesAsync([FromQuery] Pagination Query)
     {
-        return Ok(await _mediator.Send(new GetJUServicesQuery()));
+        return Ok(await _mediator.Send(new GetJUServicesQuery() { Query = Query }));
     }
 
     [HttpPost]

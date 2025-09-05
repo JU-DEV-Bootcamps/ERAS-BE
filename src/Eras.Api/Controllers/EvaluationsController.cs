@@ -149,7 +149,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
     {
         try
         {
-            GetAllEvaluationsQuery command = new(Query);
+            GetAllEvaluationsQuery command = new() { Query = new Pagination() };
             PagedResult<Evaluation> response = await _mediator.Send(command);
             return Ok(response);
         }

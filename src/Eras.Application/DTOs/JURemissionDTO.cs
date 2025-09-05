@@ -22,6 +22,6 @@ public class JURemissionDTO
     public string Comment { get; set; } = string.Empty;
     public DateTime Date { get; set; }
     public RemissionsStatus Status { get; set; } = RemissionsStatus.Created;
-    public ICollection<StudentDTO> Students { get; set; } = [];
+    public ICollection<int> StudentIds { get; set; } = [];
     public AuditInfo? Audit { get; set; } = default!;
 }

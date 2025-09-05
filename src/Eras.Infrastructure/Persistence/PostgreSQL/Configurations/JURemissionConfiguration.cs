@@ -46,10 +46,6 @@ public class JURemissionConfiguration : IEntityTypeConfiguration<JURemissionEnti
             .HasMaxLength(50)
             .IsRequired();
 
-        Builder.Property(R => R.StudentId)
-            .HasColumnName("student_id")
-            .IsRequired();
-
         Builder.Property(R => R.JUServiceId)
             .HasColumnName("ju_service_id")
             .IsRequired();

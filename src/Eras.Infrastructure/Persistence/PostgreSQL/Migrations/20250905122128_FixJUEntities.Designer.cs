@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250903195507_UpdateJUEntities")]
-    partial class UpdateJUEntities
+    [Migration("20250905122128_FixJUEntities")]
+    partial class FixJUEntities
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -350,6 +350,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("StudentId");
+
                     b.ToTable("ju_interventions", (string)null);
                 });
 
@@ -414,9 +416,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("status");
 
-                    b.Property<int>("StudentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("student_id");
+                    b.PrimitiveCollection<int[]>("StudentIds")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
 
                     b.Property<string>("SubmitterUuid")
                         .IsRequired()
@@ -429,6 +431,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.HasIndex("AssignedProfessionalId");
 
                     b.HasIndex("JUInterventionEntityId");
+
+                    b.HasIndex("JUServiceId");
 
                     b.ToTable("ju_remissions", (string)null);
                 });
@@ -1044,6 +1048,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>
                 {
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
                         {
                             b1.Property<int>("JUInterventionEntityId")
@@ -1078,6 +1088,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUProfessionalEntity", b =>
@@ -1128,8 +1140,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", null)
                         .WithMany("Remissions")
-                        .HasForeignKey("JUInterventionEntityId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .HasForeignKey("JUInterventionEntityId");
+
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServiceEntity", "JUService")
+                        .WithMany()
+                        .HasForeignKey("JUServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
                         {
@@ -1167,6 +1184,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
+
+                    b.Navigation("JUService");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUServiceEntity", b =>

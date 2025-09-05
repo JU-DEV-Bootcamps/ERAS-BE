@@ -11,7 +11,6 @@ public class JUInterventionConfiguration : IEntityTypeConfiguration<JUInterventi
         Builder.ToTable("ju_interventions");
 
         ConfigureColumns(Builder);
-        ConfigureRelationShips(Builder);
         AuditConfiguration.Configure(Builder);
     }
 
@@ -30,11 +29,5 @@ public class JUInterventionConfiguration : IEntityTypeConfiguration<JUInterventi
         Builder.Property(I => I.StudentId)
             .HasColumnName("student_id")
             .IsRequired();
-    }
-    private void ConfigureRelationShips(EntityTypeBuilder<JUInterventionEntity> Builder)
-    {
-        Builder.HasMany(I => I.Remissions)
-            .WithOne()
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

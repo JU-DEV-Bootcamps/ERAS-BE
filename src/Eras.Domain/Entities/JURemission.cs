@@ -8,11 +8,13 @@ namespace Eras.Domain.Entities
     {
         public string SubmitterUuid { get; set; } = string.Empty;
         public int JUServiceId { get; set; } = default!;
-        public int AssignedProfessionalId = default!;
+        public JUService? JUService { get; set; } = default!;
+        public int AssignedProfessionalId { get; set; } = default!;
+        public JUProfessional? AssignedProfessional { get; set; } = default!;
         public string Comment { get; set; } = string.Empty;
         public DateTime Date { get; set; }
         public RemissionsStatus Status { get; set; } = RemissionsStatus.Created;
-        public ICollection<Student> Students { get; set; } = [];
+        public ICollection<int> StudentIds { get; set; } = [];
         public AuditInfo Audit { get; set; } = default!;
     }
 }

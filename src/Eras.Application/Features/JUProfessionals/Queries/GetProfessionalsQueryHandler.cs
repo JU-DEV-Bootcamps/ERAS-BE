@@ -1,11 +1,12 @@
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Professionals.Queries.GetProfessionals;
-public class GetProfessionalsQueryHandler : IRequestHandler<GetProfessionalsQuery, List<JUProfessional>>
+public class GetProfessionalsQueryHandler : IRequestHandler<GetProfessionalsQuery, PagedResult<JUProfessional>>
 {
     private readonly IProfessionalRepository _professionalRepository;
     private readonly ILogger<GetProfessionalsQueryHandler> _logger;
@@ -16,17 +17,23 @@ public class GetProfessionalsQueryHandler : IRequestHandler<GetProfessionalsQuer
         _logger = Logger;
     }
 
-    public async Task<List<JUProfessional>> Handle(GetProfessionalsQuery Request, CancellationToken CancellationToken)
+    public async Task<PagedResult<JUProfessional>> Handle(GetProfessionalsQuery Request, CancellationToken CancellationToken)
     {
         try
         {
-            var listOfProfessionals = await _professionalRepository.GetAllAsync();
-            return listOfProfessionals.ToList();
+            var professionals = await _professionalRepository.GetPagedAsync(Request.Query.Page, Request.Query.PageSize);
+            var totalCount = await _professionalRepository.CountAsync();
+            PagedResult<JUProfessional> pagedResult = new PagedResult<JUProfessional>(
+                totalCount,
+                professionals.ToList()
+            );
+
+            return pagedResult;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while getting professionals: " + ex.Message);
-            return new List<JUProfessional>();
+            return new PagedResult<JUProfessional>(0, []);
         }
     }
 }
