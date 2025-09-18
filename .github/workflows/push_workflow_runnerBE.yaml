@@ -1,4 +1,4 @@
-name: Push_main workflow
+name: Push_main workflow on runner
 
 on:
   push:
@@ -13,6 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set environment variables
+        run: |
+          echo "DOTNET_ROOT=$HOME/.dotnet" >> $GITHUB_ENV
+          echo "PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools" >> $GITHUB_ENV
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -21,8 +26,8 @@ jobs:
       - name: Cleaning up old coverage reports
         run: rm -rf CoverletReport TestResults
 
-      - name: Install ReportGenerator
-        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+      - name: Install ReportGenerator (local)
+        run: dotnet tool install --tool-path ./tools dotnet-reportgenerator-globaltool
 
       - name: Restore dependencies
         run: dotnet restore
