@@ -165,7 +165,7 @@ jobs:
           echo "{\"ERAS-BE\": \"$TAG\"}" > be_tag.json
   
       - name: Upload BE tag artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: eras-be-tag
           path: be_tag.json
