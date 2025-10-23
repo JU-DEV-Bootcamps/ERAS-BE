@@ -158,10 +158,16 @@ jobs:
           file: ./src/Eras.Api/Dockerfile
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}
-      - name: Update the env file    
+         
+      - name: Save BE tag as JSON
         run: |
           TAG="${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
-          sed -i "s/^BE_VERSION=.*/BE_VERSION=$TAG/" app/.env
-          ``
+          echo "{\"ERAS-BE\": \"$TAG\"}" > be_tag.json
+  
+      - name: Upload BE tag artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: eras-be-tag
+          path: be_tag.json
 
 
