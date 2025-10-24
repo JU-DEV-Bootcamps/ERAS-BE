@@ -163,11 +163,14 @@ jobs:
         run: |
           TAG="${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
           echo "{\"ERAS-BE\": \"$TAG\"}" > be_tag.json
-  
-      - name: Upload BE tag artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: eras-be-tag
-          path: be_tag.json
 
+      - name: Verify files before zipping
+        run: |
+          test -f be_tag.json || (echo "be_tag.json not found" && exit 1)
+          test -d build-output || (echo "build-output directory not found" && exit 1)
+
+      - name: Save artifact locally
+        run: |
+          mkdir -p /home/ubuntu/Eras_versions/
+          zip -r /home/ubuntu/Eras_versions/eras-be-tag.zip ./build-output be_tag.json
 
