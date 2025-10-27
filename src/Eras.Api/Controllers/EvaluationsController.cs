@@ -23,7 +23,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<EvaluationsController> _logger = Logger;
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{Id}")]
     [Authorize]
     public async Task<IActionResult> DeleteEvaluationAsync(int Id)
     {
@@ -63,7 +63,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         }
     }
     [Authorize]
-    [HttpPut("{id}")]
+    [HttpPut("{Id}")]
     public async Task<IActionResult> UpdateEvaluationAsync(int Id, [FromBody] EvaluationDTO EvaluationDTO)
     {
         try
