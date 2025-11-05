@@ -1,15 +1,21 @@
+using Eras.Api;
+using Eras.Api.Filters;
+using Eras.Api.Middleware;
+using Eras.Application.Services;
+using Eras.Infrastructure;
+using Eras.Infrastructure.Persistence.PostgreSQL;
+
+using Microsoft.EntityFrameworkCore;
+
 using Serilog;
 using Serilog.Events;
-using Eras.Application.Services;
-using Eras.Infrastructure.Persistence.PostgreSQL;
-using Microsoft.EntityFrameworkCore;
-using Eras.Api;
-using Eras.Infrastructure;
-using Eras.Api.Middleware;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddControllers(
+    options => options.Filters.Add<ErrorFilter>());
 
 LogEventLevel minimumLevel = builder.Environment.IsDevelopment()
     ? LogEventLevel.Debug

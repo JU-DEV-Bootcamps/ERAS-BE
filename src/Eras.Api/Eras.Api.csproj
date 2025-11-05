@@ -32,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Eras.Error\Eras.Error.csproj" />
     <ProjectReference Include="..\Eras.Application\Eras.Application.csproj" />
     <ProjectReference Include="..\Eras.Infrastructure\Eras.Infrastructure.csproj" />
   </ItemGroup>
