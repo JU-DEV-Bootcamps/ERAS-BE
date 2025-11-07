@@ -70,11 +70,6 @@ on:
         default: 'eras-stage-api'
         required: true
         type: string
-      keycloak_audience:
-        description: 'Keycloack audience'
-        default: 'account'
-        required: true
-        type: string
       environment_tag:
         description: 'ERAS environment tag'
         default: 'stage'
