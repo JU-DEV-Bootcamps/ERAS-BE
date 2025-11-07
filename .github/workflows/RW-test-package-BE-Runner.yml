@@ -146,7 +146,7 @@ jobs:
           sed -i "s|__DB_HOST__|${{ inputs.db_host }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__KEYCLOAK_URL__|${{ inputs.keycloak_url }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__KEYCLOAK_CLIENT_SECRET__|${{ secrets.KEYCLOAK_CLIENT_SECRET }}|g" src/Eras.Api/appsettings.Production.json
-          sed -i "s|__KEYCLOAK_CLIENT_AUDIENCE__|${{ inputs.keycloak_audience }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__KEYCLOAK_CLIENT_AUDIENCE__|"account"|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__CLIENT_ID__|${{ inputs.keycloak_client_id }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__ENCRYPTION_KEY__|${{ secrets.ENCRYPTION_KEY }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__ENCRYPTION_IV__|${{ secrets.ENCRYPTION_IV }}|g" src/Eras.Api/appsettings.Production.json
