@@ -1,18 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿namespace Eras.Error;
 
-namespace Eras.Error;
-
-public abstract class ErasException<T> : Exception, IErasException
-{
-    private readonly ILogger<T> _logger;
-
+public abstract class ErasException : Exception, IErasException
+{    
+    public event LogDelegate OnLoggingException;
     public int StatusCode { get; protected set; }
     public string FriendlyMessage { get; protected set; }
     public new Exception InnerException { get; set; }
     protected Severity Severity { get; }
     
     protected ErasException(
-        ILogger<T> Logger,
         string FriendlyMessage, 
         Severity Severity,
         int StatusCode)
@@ -20,40 +16,21 @@ public abstract class ErasException<T> : Exception, IErasException
         this.FriendlyMessage = FriendlyMessage;
         this.Severity = Severity;
         this.StatusCode = StatusCode;
-        _logger = Logger;
     }
 
     protected ErasException(
-        ILogger<T> Logger,
         string FriendlyMessage,
         Exception InnerException,
         Severity Severity,
         int StatusCode) 
-        : this(Logger, FriendlyMessage, Severity, StatusCode)
+        : this(FriendlyMessage, Severity, StatusCode)
     {
         this.InnerException = InnerException;
     }
 
     protected void LogMessage(string Message)
     {
-        switch (Severity)
-        {
-            case Severity.DEBUG:
-                _logger.LogDebug(Message); 
-                break;
-            case Severity.INFORMATION:
-                _logger.LogInformation(Message);
-                break;
-            case Severity.WARNING: 
-                _logger.LogWarning(Message);
-                break;
-            case Severity.ERROR:
-                _logger.LogError(Message);
-                break;
-            case Severity.FATAL: 
-                _logger.LogCritical(Message);
-                break;
-        }
+        OnLoggingException?.Invoke(Severity, Message);
     }
 
     public abstract void LogException();

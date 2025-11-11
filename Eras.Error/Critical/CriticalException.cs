@@ -1,12 +1,11 @@
 ﻿using Eras.Error.Properties;
-using Microsoft.Extensions.Logging;
 
 namespace Eras.Error.Critical;
 
-public class CriticalException<T> : ErasException<T>
+public class CriticalException : ErasException
 {
-    public CriticalException(ILogger<T> Logger, Exception Exception)
-          : base(Logger, Resources.GeneralMessage, Exception, Severity.ERROR, 500)
+    public CriticalException(Exception Exception, string FriendlyMessage = "")
+          : base(string.IsNullOrEmpty(FriendlyMessage) ? Resources.GeneralMessage :  FriendlyMessage, Exception, Severity.ERROR, 500)
     { }
 
     public override void LogException()

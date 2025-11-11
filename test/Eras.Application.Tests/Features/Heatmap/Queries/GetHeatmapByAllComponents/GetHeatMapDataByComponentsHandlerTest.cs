@@ -1,8 +1,9 @@
 ﻿
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Exceptions;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents;
 using Eras.Application.Tests.Mocks;
+using Eras.Error.Bussiness;
+
 using Microsoft.Extensions.Logging;
 using Moq;
 

@@ -61,6 +61,15 @@ namespace Eras.Error.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Error on Repository.
+        /// </summary>
+        internal static string DatabaseExceptionMessage {
+            get {
+                return ResourceManager.GetString("DatabaseExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An internal error has occurred. Please contact your administrator..
         /// </summary>
         internal static string GeneralMessage {

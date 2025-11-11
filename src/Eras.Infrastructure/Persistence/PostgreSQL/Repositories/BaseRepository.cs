@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Exceptions;
+using Eras.Error.Critical;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -39,7 +39,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             catch (Exception ex)
             {
                 _context.ChangeTracker.Clear();
-                throw new DatabaseCustomException("Error on Repository");
+                throw new DatabaseCustomException(ex);
             }
         }
         public async Task DeleteAsync(TDomain Entity)
@@ -89,7 +89,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             }
             catch (Exception e) 
             {
-                throw new DatabaseCustomException("Error on Repository" + e.Message);
+                throw new DatabaseCustomException(e);
             }
         }
     }

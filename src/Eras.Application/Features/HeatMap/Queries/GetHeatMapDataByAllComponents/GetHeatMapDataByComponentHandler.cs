@@ -2,9 +2,9 @@
 using Eras.Application.Mappers;
 using Microsoft.Extensions.Logging;
 using MediatR;
-using Eras.Application.Exceptions;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.HeatMap;
+using Eras.Error.Bussiness;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents
 {

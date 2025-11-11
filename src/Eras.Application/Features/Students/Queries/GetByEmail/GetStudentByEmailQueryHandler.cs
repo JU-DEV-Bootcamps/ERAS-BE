@@ -1,7 +1,8 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Exceptions;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+using Eras.Error.Bussiness;
+
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -21,7 +22,7 @@ namespace Eras.Application.Features.Students.Queries.GetByEmail
 
         public async Task<GetQueryResponse<Student>> Handle(GetStudentByEmailQuery Request, CancellationToken CancellationToken)
         {
-            Student? student = await _studentRepository.GetByEmailAsync(Request.studentEmail) ?? throw new EntityNotFoundException("Student not found"); ;
+            Student? student = await _studentRepository.GetByEmailAsync(Request.studentEmail) ?? throw new NotFoundException("Student not found"); ;
             return new GetQueryResponse<Student>(student, "Success", true);
         }
     }
