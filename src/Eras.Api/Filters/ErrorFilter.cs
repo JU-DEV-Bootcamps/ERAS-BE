@@ -14,6 +14,28 @@ public class ErrorFilter : IActionFilter
         _logger = Logger;
     }
 
+    private void LogMessage(Severity Severity, string Message)
+    {
+        switch (Severity)
+        {
+            case Severity.DEBUG:
+                _logger.LogDebug(Message);
+                break;
+            case Severity.INFORMATION:
+                _logger.LogInformation(Message);
+                break;
+            case Severity.WARNING:
+                _logger.LogWarning(Message);
+                break;
+            case Severity.ERROR:
+                _logger.LogError(Message);
+                break;
+            case Severity.FATAL:
+                _logger.LogCritical(Message);
+                break;
+        }
+    }
+
     public void OnActionExecuted(ActionExecutedContext Context)
     {
         if (Context.Exception == null)
@@ -23,16 +45,19 @@ public class ErrorFilter : IActionFilter
 
         IErasException? exception = (Context.Exception is IErasException)
             ? Context.Exception as IErasException
-            : new CriticalException<Exception>(_logger, Context.Exception);
+            : new CriticalException(Context.Exception);
 
-        exception?.LogException();
-
-        Context.Result = new ObjectResult(exception)
+        if (exception != null)
         {
-            Value = exception?.FriendlyMessage,
-            StatusCode = exception?.StatusCode,            
-        };
-
+            exception.OnLoggingException += LogMessage;
+            exception.LogException();
+            Context.Result = new ObjectResult(exception)
+            {
+                Value = exception.FriendlyMessage,
+                StatusCode = exception?.StatusCode,
+            };
+        }
+       
         Context.ExceptionHandled = true;
     }
 

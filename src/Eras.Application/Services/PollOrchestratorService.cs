@@ -1,6 +1,5 @@
 ﻿using Eras.Application.Dtos;
 using Eras.Application.DTOs;
-using Eras.Application.Exceptions;
 using Eras.Application.Features.Answers.Commands.CreateAnswerList;
 using Eras.Application.Features.Cohorts.Commands.CreateCohort;
 using Eras.Application.Features.Components.Commands.CreateCommand;
@@ -24,6 +23,7 @@ using Eras.Application.Models.Enums;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+using Eras.Error.Bussiness;
 
 using MediatR;
 
@@ -214,7 +214,7 @@ namespace Eras.Application.Services
                     GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
                     createdStudent = new CreateCommandResponse<Student>(getStudentResponse.Body, "Success", true);
                 }
-                catch (EntityNotFoundException)
+                catch (NotFoundException)
                 {
                     CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentToCreate };
                     createdStudent = await _mediator.Send(createStudentCommand);
