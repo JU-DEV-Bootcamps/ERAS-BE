@@ -34,6 +34,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Poll => Poll.LastVersionDate)
                 .HasColumnName("last_version_date")
                 .IsRequired();
+            Builder.Property(Poll => Poll.ParentId)
+                .HasColumnName("parent_id")
+                .HasMaxLength(100)
+                .IsRequired();
         }
 
         private static void ConfigureRelationShips(EntityTypeBuilder<PollEntity> Builder)
