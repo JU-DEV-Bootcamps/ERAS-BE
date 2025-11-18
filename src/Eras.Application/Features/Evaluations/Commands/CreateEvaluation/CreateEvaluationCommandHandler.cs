@@ -31,12 +31,12 @@ namespace Eras.Application.Features.Evaluations.Commands
                 Evaluation? evaluation=null;
                 Poll? poll = null;
                 evaluation = await _evaluationRepository.GetByNameAsync(Request.EvaluationDTO.Name);
+
                 if (evaluation != null) return new CreateCommandResponse<Evaluation>(null, 0,
                     $"Evaluation with Name {Request.EvaluationDTO.Name} already exists", false);
 
-
                 if (!Request.EvaluationDTO.PollName.Equals(string.Empty))
-                    poll = await _pollRepository.GetByNameAsync(Request.EvaluationDTO.PollName);
+                    poll = await _pollRepository.GetByParentIdAsync(Request.ParentId);
                 evaluation = Request.EvaluationDTO.ToDomain();
                 evaluation.Audit = new AuditInfo()
                 {

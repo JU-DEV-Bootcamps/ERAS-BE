@@ -8,5 +8,6 @@ namespace Eras.Application.Features.Evaluations.Commands
     public class CreateEvaluationCommand : IRequest<CreateCommandResponse<Evaluation>>
     {
         public EvaluationDTO EvaluationDTO = default!;
+        public string ParentId { get; set; } = string.Empty;
     }
 }

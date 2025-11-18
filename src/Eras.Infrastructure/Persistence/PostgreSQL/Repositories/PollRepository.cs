@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Xml.Linq;
 
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
@@ -19,6 +20,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var poll = await _context.Polls.FirstOrDefaultAsync(Poll => Poll.Name == Name);
 
+            return poll?.ToDomain();
+        }
+
+        public async Task<Poll?> GetByParentIdAsync(string ParentId)
+        {
+            var poll = await _context.Polls.FirstOrDefaultAsync(Poll => Poll.ParentId.Equals(ParentId));
             return poll?.ToDomain();
         }
 
