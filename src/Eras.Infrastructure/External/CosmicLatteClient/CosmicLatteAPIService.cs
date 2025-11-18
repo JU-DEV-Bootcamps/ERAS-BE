@@ -149,7 +149,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                             FinishedAt = responseToPollInstance.finishedAt,
                             LastVersion = 1,
                             LastVersionDate = DateTime.UtcNow,
-                            Components = SanitizeComponents(populatedComponents)
+                            Components = SanitizeComponents(populatedComponents),
+                            ParentId = responseToPollInstance.parent.Split(':')[1]
                         };
                         pollsDtos.Add(pollDto);
                     }
@@ -442,7 +443,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
-                List<PollDataItem> pollsData = [.. apiResponse.data.Select(Poll => new PollDataItem(Poll.parent, Poll.name, Poll.status))];
+                List<PollDataItem> pollsData = [.. apiResponse.data.Select(Poll => new PollDataItem(Poll.id, Poll.parent, Poll.name, Poll.status))];
                 return pollsData;
             }
             catch (Exception e)

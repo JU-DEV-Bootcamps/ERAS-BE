@@ -10,5 +10,6 @@ namespace Eras.Domain.Entities
         public int LastVersion { get; set; }
         public DateTime LastVersionDate { get; set; }
         public ICollection<Component> Components { get; set; } = [];
+        public string ParentId { get; set; } = string.Empty;
     }
 }
