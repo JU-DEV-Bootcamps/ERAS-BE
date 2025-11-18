@@ -108,13 +108,14 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
     }
 
     [Authorize]
-    [HttpPost]
-    public async Task<IActionResult> CreateEvaluationAsync([FromBody] EvaluationDTO EvaluationDTO)
+    [HttpPost("{ParentId}")]
+    public async Task<IActionResult> CreateEvaluationAsync(string ParentId, [FromBody] EvaluationDTO EvaluationDTO)
     {
         _logger.LogInformation("Creating evaluation with the name {Name}", EvaluationDTO.Name);
         var command = new CreateEvaluationCommand()
         {
             EvaluationDTO = EvaluationDTO,
+            ParentId = ParentId
         };
         CreateCommandResponse<Evaluation> response = await _mediator.Send(command);
         if (response.Success)
