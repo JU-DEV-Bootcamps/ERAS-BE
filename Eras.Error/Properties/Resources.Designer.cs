@@ -70,6 +70,15 @@ namespace Eras.Error.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Evaluation with Name {0} already exists.
+        /// </summary>
+        internal static string ExistingEvaluationName {
+            get {
+                return ResourceManager.GetString("ExistingEvaluationName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to An internal error has occurred. Please contact your administrator..
         /// </summary>
         internal static string GeneralMessage {
