@@ -120,6 +120,9 @@
   <data name="DatabaseExceptionMessage" xml:space="preserve">
     <value>Error on Repository</value>
   </data>
+  <data name="ExistingEvaluationName" xml:space="preserve">
+    <value>Evaluation with Name {0} already exists</value>
+  </data>
   <data name="GeneralMessage" xml:space="preserve">
     <value>An internal error has occurred. Please contact your administrator.</value>
   </data>
