@@ -36,6 +36,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async new Task<IEnumerable<Evaluation>> GetPagedAsync(int Page, int PageSize)
         {
             var persistenceEntity = await _context.Evaluations
+                .OrderBy(E => E.Name)
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize)
                 .Include(E => E.EvaluationPolls)
