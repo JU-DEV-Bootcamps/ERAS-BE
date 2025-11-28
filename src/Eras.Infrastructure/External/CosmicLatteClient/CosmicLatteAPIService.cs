@@ -94,7 +94,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             if (!string.IsNullOrEmpty(evaluationSetId))
             {
-                path += "?$filter=";
+                path += "?$top=1000&$filter=";
                 if (!string.IsNullOrEmpty(evaluationSetId))
                     path += $"contains(parent,'evaluationSets:{evaluationSetId}')";
             }
