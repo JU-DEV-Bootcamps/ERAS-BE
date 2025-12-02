@@ -1,7 +1,5 @@
-﻿using Eras.Domain.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
@@ -37,6 +35,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         protected override void OnModelCreating(ModelBuilder ModelBuilder)
         {
             ModelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+            base.OnModelCreating(ModelBuilder);             
         }
     }
 }
