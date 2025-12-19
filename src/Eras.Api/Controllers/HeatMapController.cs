@@ -47,9 +47,9 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetHeatMapSummaryByFiltersAsync(
-    [FromRoute] int Id,
-    [FromQuery] int Days
-)
+        [FromRoute] int Id,
+        [FromQuery] int Days
+    )
     {
         var getHeatMapSummaryByFiltersQuery = new GetHeatMapSummaryByFiltersQuery(Id, Days);
         GetQueryResponse<Application.Models.Response.HeatMap.HeatMapSummaryResponseVm> response =

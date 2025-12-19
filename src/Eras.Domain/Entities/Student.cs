@@ -11,6 +11,7 @@ namespace Eras.Domain.Entities
         public StudentDetail StudentDetail { get; set; } = default!;
         public AuditInfo Audit { get; set; } = default!;
         public int CohortId { get; set; }
+        public ICollection<int> RemissionIds = [];
         public Cohort? Cohort { get; set; }
     }
 }

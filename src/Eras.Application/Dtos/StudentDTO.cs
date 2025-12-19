@@ -6,11 +6,10 @@ namespace Eras.Application.DTOs;
 public class StudentDTO
 {
     [Required(ErrorMessage = "Student Id is required.")]
-    [Range(1, 2147483647, ErrorMessage = "Student Id must be greater than 0.")]
+    [Range(0, 2147483647, ErrorMessage = "Student Id must be zero or greater.")]
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "UUID is required.")]
-    [RegularExpression(@"^[a-fA-F0-9\-]{36}$", ErrorMessage = "UUID format is invalid.")]
+    [RegularExpression(@"^([a-fA-F0-9\-]{36}|)$", ErrorMessage = "UUID format is invalid.")] 
     public string Uuid { get; set; } = string.Empty;
     
     [Required(ErrorMessage = "Student name is required.")]
@@ -26,5 +25,6 @@ public class StudentDTO
     public bool IsImported { get; set; }
     public StudentDetailDTO? StudentDetail { get; set; }
     public CohortDTO? Cohort { get; set; } = default!;
+    public ICollection<int> RemissionIds { get; set; } = [];
     public AuditInfo? Audit { get; set; } = default!;
 }

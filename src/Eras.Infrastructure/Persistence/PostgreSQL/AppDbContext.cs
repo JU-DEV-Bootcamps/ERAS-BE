@@ -1,6 +1,5 @@
 ﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
@@ -23,6 +22,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<ConfigurationsEntity> Configurations { get; set; }
         public virtual DbSet<ServiceProvidersEntity> ServiceProviders { get; set; }
         public virtual DbSet<UserPollsEntity> UserPolls { get; set; }
+        public virtual DbSet<JURemissionEntity> Remissions { get; set; }
+        public virtual DbSet<JUInterventionEntity> Interventions { get; set; }
+        public virtual DbSet<JUProfessionalEntity> Professionals { get; set; }
+        public virtual DbSet<JUServiceEntity> JUServices { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> Options)
             : base(Options)
@@ -32,6 +35,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         protected override void OnModelCreating(ModelBuilder ModelBuilder)
         {
             ModelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+            base.OnModelCreating(ModelBuilder);             
         }
     }
 }

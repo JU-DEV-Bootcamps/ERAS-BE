@@ -23,116 +23,50 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<EvaluationsController> _logger = Logger;
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{Id}")]
     [Authorize]
     public async Task<IActionResult> DeleteEvaluationAsync(int Id)
     {
-        try
-        {
-            _logger.LogInformation("Deleting evaluation with ID {Id}", Id);
+        _logger.LogInformation("Deleting evaluation with ID {Id}", Id);
+        var command = new DeleteEvaluationCommand() { id = Id };
+        BaseResponse response = await _mediator.Send(command);
 
-            var command = new DeleteEvaluationCommand() { id = Id };
-
-            BaseResponse response = await _mediator.Send(command);
-            if (response.Success)
-            {
-                _logger.LogInformation("Successfully deleted Evaluation {id}", Id);
-                return Ok(new { status = "successful", message = "Deleted" });
-            }
-            else
-            {
-                _logger.LogError("Failed to delete Evaluation. Reason: {ResponseMessage}", response.Message);
-                return StatusCode(
-                    500,
-                    new { status = "error", message = "An error occurred during the evaluation update process" }
-                );
-            }
-
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                "Failed to get information. Reason: {ResponseMessage}",
-                ex.Message
-);
-            return StatusCode(
-                500,
-                new { status = "error", message = "An error occurred during deletion operation" }
-            );
-
-        }
+        _logger.LogInformation("Successfully deleted Evaluation {id}", Id);
+        return Ok(new { status = "successful", message = "Deleted" });
     }
+
     [Authorize]
-    [HttpPut("{id}")]
+    [HttpPut("{Id}")]
     public async Task<IActionResult> UpdateEvaluationAsync(int Id, [FromBody] EvaluationDTO EvaluationDTO)
     {
-        try
+        if (Id != EvaluationDTO.Id)
         {
-            if (Id != EvaluationDTO.Id)
-            {
-                _logger.LogWarning("ID mismatch: URL ID {UrlId} does not match body ID {BodyId}", Id, EvaluationDTO.Id);
-                return BadRequest(new { status = "error", message = "ID mismatch between URL and body" });
-            }
-            _logger.LogInformation("Editing evaluation with ID {Id}", Id);
-
-            var command = new UpdateEvaluationCommand() { EvaluationDTO = EvaluationDTO };
-
-            CreateCommandResponse<Evaluation> response = await _mediator.Send(command);
-            if (response.Success)
-            {
-                _logger.LogInformation("Successfully updated Evaluation {Name}", EvaluationDTO.Name);
-                return Ok(new { status = "successful", message = "Updated" });
-            }
-            else
-            {
-                _logger.LogError("Failed to update Evaluation. Reason: {ResponseMessage}", response.Message);
-                return StatusCode(
-                    400,
-                    new { status = "error", message = "An error occurred during the evaluation update process" }
-                );
-            }
-
+            _logger.LogWarning("ID mismatch: URL ID {UrlId} does not match body ID {BodyId}", Id, EvaluationDTO.Id);
+            return BadRequest(new { status = "error", message = "ID mismatch between URL and body" });
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                "Failed to get information. Reason: {ResponseMessage}",
-                ex.Message
-);
-            return StatusCode(
-                500,
-                new { status = "error", message = "An error occurred during the information access" }
-            );
 
-        }
+        _logger.LogInformation("Editing evaluation with ID {Id}", Id);
+        var command = new UpdateEvaluationCommand() { EvaluationDTO = EvaluationDTO };
+        CreateCommandResponse<Evaluation> response = await _mediator.Send(command);
+
+        _logger.LogInformation("Successfully updated Evaluation {Name}", EvaluationDTO.Name);
+        return Ok(new { status = "successful", message = "Updated" });
     }
 
     [Authorize]
-    [HttpPost]
-    public async Task<IActionResult> CreateEvaluationAsync([FromBody] EvaluationDTO EvaluationDTO)
+    [HttpPost("{ParentId}")]
+    public async Task<IActionResult> CreateEvaluationAsync(string ParentId, [FromBody] EvaluationDTO EvaluationDTO)
     {
         _logger.LogInformation("Creating evaluation with the name {Name}", EvaluationDTO.Name);
         var command = new CreateEvaluationCommand()
         {
             EvaluationDTO = EvaluationDTO,
+            ParentId = ParentId
         };
         CreateCommandResponse<Evaluation> response = await _mediator.Send(command);
-        if (response.Success)
-        {
-            _logger.LogInformation("Successfully created Evaluation {Name}", EvaluationDTO.Name);
-            return Ok(new { status = "successful", message = "Created" });
-        }
-        else
-        {
-            _logger.LogError(
-                "Failed to create Evaluation. Reason: {ResponseMessage}",
-                response.Message
-);
-            return StatusCode(
-                400,
-                new { status = "error", message = "An error occurred during the evaluation creation process" }
-            );
-        }
+
+        _logger.LogInformation("Successfully created Evaluation {Name}", EvaluationDTO.Name);
+        return Ok(new { status = "successful", message = "Created" });
     }
 
     [HttpGet("{Id}")]
@@ -147,26 +81,8 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
     [HttpGet]
     public async Task<IActionResult> GetAllEvaluationsAsync([FromQuery] Pagination Query)
     {
-        try
-        {
-            GetAllEvaluationsQuery command = new(Query);
-            PagedResult<Evaluation> response = await _mediator.Send(command);
-            return Ok(response);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(
-                "Failed to get information. Reason: {ResponseMessage}",
-                ex.Message
-            );
-            return StatusCode(
-                500,
-                new { status = "error", message = "An error occurred during the information access" }
-            );
-        }
+        GetAllEvaluationsQuery command = new() { Query = Query };
+        PagedResult<Evaluation> response = await _mediator.Send(command);
+        return Ok(response);
     }
-
-
-
-
 }

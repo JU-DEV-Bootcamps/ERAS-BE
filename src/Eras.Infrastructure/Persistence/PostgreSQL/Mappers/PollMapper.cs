@@ -15,6 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Audit = Entity.Audit,
                 LastVersion = Entity.LastVersion,
                 LastVersionDate = Entity.LastVersionDate,
+                ParentId = Entity.ParentId,
             };
         }
 
@@ -28,6 +29,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Audit = Model.Audit,
                 LastVersion = Model.LastVersion,
                 LastVersionDate = Model.LastVersionDate,
+                ParentId = Model.ParentId,
             };
         }
     }

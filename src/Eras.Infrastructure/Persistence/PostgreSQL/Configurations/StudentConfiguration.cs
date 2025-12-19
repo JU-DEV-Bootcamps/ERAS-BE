@@ -10,7 +10,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
         public void Configure(EntityTypeBuilder<StudentEntity> Builder)
         {
             Builder.ToTable("students");
-
             ConfigureColumns(Builder);
             ConfigureRelationShips(Builder);
             AuditConfiguration.Configure(Builder);
@@ -19,6 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
         private static void ConfigureColumns(EntityTypeBuilder<StudentEntity> Builder)
         {
             Builder.HasKey(Student => Student.Id);
+
             Builder.Property(Student => Student.Name)
                 .HasColumnName("name")
                 .HasMaxLength(254)
@@ -35,7 +35,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .HasColumnName("is_imported")
                 .IsRequired();
         }
-
         private static void ConfigureRelationShips(EntityTypeBuilder<StudentEntity> Builder)
         {
             Builder.HasOne(Student => Student.StudentDetail)
@@ -45,6 +44,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasMany(Student => Student.PollInstances)
                 .WithOne(PollInstance => PollInstance.Student)
                 .HasForeignKey(PollInstance => PollInstance.StudentId);
+
+            Builder.HasMany(S => S.Remissions)
+                .WithMany(R => R.Students)
+                .UsingEntity(J => J.ToTable("student_remissions"));
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Exceptions;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.HeatMap;
+using Eras.Error.Bussiness;
 
 using MediatR;
 

@@ -136,6 +136,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             {
                 ComponentName = A.ComponentName,
                 Question = A.Question,
+                Position = A.Position,
                 AnswerText = A.AnswerText,
                 VariableAverageRisk = A.VariableAverageRisk,
                 AnswerPercentage = A.AnswerPercentage,
@@ -154,6 +155,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             {
                 ComponentName = A.ComponentName,
                 Question = A.Question,
+                Position = A.Position,
                 AnswerText = A.AnswerText,
                 VariableAverageRisk = A.VariableAverageRisk,
                 AnswerPercentage = A.AnswerPercentage,
@@ -172,10 +174,11 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             AverageRisk = Math.Round(AnsPerComp.Average(X => X.AnswerRisk), 2),
             Questions = [.. AnsPerComp
                 .OrderBy(A => A.VariableAverageRisk)
-                .GroupBy(A => A.Question)
+                .GroupBy(A => new { A.Question, A.Position })
                 .Select(AnsPerVar => new AvgReportQuestions
                 {
-                    Question = AnsPerVar.Key,
+                    Question = AnsPerVar.Key.Question,
+                    Position = AnsPerVar.Key.Position,
                     AverageAnswer = AnsPerVar.GroupBy(A => A.AnswerText).OrderByDescending(A => A.Count()).First().Key,
                     AverageRisk = Math.Round(AnsPerVar.Average(X => X.AnswerRisk), 2),
                     AnswersDetails = [.. AnsPerVar
@@ -229,6 +232,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 AnswerText = A.AnswerText,
                 AnswerRisk = A.AnswerRisk,
                 Question = A.Question,
+                Position = A.Position,
                 StudentName = A.StudentName,
                 StudentEmail = A.StudentEmail,
                 CohortId = A.CohortId,
@@ -251,6 +255,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 AnswerText = A.AnswerText,
                 AnswerRisk = A.AnswerRisk,
                 Question = A.Question,
+                Position = A.Position,
                 StudentName = A.StudentName,
                 StudentEmail = A.StudentEmail,
                 CohortId = A.CohortId,
@@ -265,13 +270,14 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         .GroupBy(A => A.ComponentName)
         .Select(AnsPerComp => new CountReportComponent {
             Description = AnsPerComp.Key.ToUpper(),
-            AverageRisk = (double)Math.Round(AnsPerComp.Average(A=>A.AnswerRisk), 2),
+            AverageRisk = (double)Math.Round(AnsPerComp.Average(A => A.AnswerRisk), 2),
             Questions = [.. AnsPerComp
                 .OrderBy(Q => Q.AnswerRisk)
-                .GroupBy(Q => Q.Question)
+                .GroupBy(Q => new { Q.Position, Q.Question })
                 .Select(AnsPerQuestion => new CountReportQuestion {
                     AverageRisk = (double)Math.Round(AnsPerQuestion.Average(A => A.AnswerRisk),2),
-                    Question = AnsPerQuestion.Key,
+                    Position = AnsPerQuestion.Key.Position,
+                    Question = AnsPerQuestion.Key.Question,
                     Answers = [.. AnsPerQuestion
                         .GroupBy(A => A.AnswerRisk)
                         .Select(AnsPerAns => new CountReportAnswer

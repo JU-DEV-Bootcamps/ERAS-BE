@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.DTOs;
-using Eras.Application.Models.Response.HeatMap;
-using Eras.Domain.Entities;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 

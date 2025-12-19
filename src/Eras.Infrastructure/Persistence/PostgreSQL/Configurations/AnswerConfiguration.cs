@@ -13,7 +13,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
 
             ConfigureColumns(Builder);
             ConfigureRelationShips(Builder);
-            ConfigureConstraints(Builder);
             VersionConfiguration.Configure(Builder);
             AuditConfiguration.Configure(Builder);
         }
@@ -49,10 +48,5 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .OnDelete(DeleteBehavior.Cascade);
         }
 
-        private void ConfigureConstraints(EntityTypeBuilder<AnswerEntity> Builder)
-        {
-            Builder.HasAlternateKey(Answer => new { Answer.PollInstanceId, Answer.PollVariableId, Answer.AnswerText })
-                .HasName("Unique_PollInstanceId_PollVariableId_AnswerText");
-        }
     }
 }

@@ -10,12 +10,16 @@ namespace Eras.Application.DTOs.CosmicLatte
     }
     public class PollDataItem
     {
-        public PollDataItem(string Parent, string Name, string Status)
+        public PollDataItem(string Id, string Parent, string Name, string Status)
         {
-            this.parent = Parent;
-            this.name = Name;
-            this.status = Status;
+            id = Id;
+            parent = Parent;
+            name = Name;
+            status = Status;
         }
+
+        [JsonPropertyName("_id")]
+        public string id { get; set; }
 
         [JsonPropertyName("parent")]
         public string parent { get; set; }

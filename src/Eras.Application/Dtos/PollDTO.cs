@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Eras.Application.Attributes;
 using Eras.Application.DTOs;
 using Eras.Domain.Common;
 
@@ -6,8 +7,7 @@ namespace Eras.Application.Dtos;
 
 public class PollDTO
 {
-    [Required(ErrorMessage = "Id is required.")]
-    [Range(1, 2147483647, ErrorMessage = "Id must be greater than 0.")]
+    [Range(0, 2147483647, ErrorMessage = "Id must be zero or greater.")]
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Cosmic Latte Id is required.")]
@@ -21,7 +21,7 @@ public class PollDTO
 
     [Required(ErrorMessage = "Name is required.")]
     [StringLength(100, MinimumLength = 3, ErrorMessage = "Name must be between 3 and 100 characters.")]
-    [RegularExpression(@"^[a-zA-ZÀ-ÿ0-9\s\-_.]+$", ErrorMessage = "Name can only contain letters, numbers, spaces, and characters like -, _, .")]
+    [NoSqlInjection]
     public string Name { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Finished date is required.")]
@@ -39,5 +39,10 @@ public class PollDTO
     public ICollection<ComponentDTO> Components { get; set; } = [];
 
     public AuditInfo? Audit { get; set; } = default!;
+
+    [Required(ErrorMessage = "Parent Id is required.")]
+    [StringLength(100, MinimumLength = 3, ErrorMessage = "Parent Id Id must be between 3 and 100 characters.")]
+    [RegularExpression(@"^[a-zA-Z0-9_\-]+$", ErrorMessage = "Parent Id can only contain letters, numbers, dashes and underscores.")]
+    public string ParentId { get; set; } = string.Empty;
 }
 

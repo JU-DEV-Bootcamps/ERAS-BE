@@ -18,6 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Email = Entity.Email,
                 IsImported = Entity.IsImported,
                 Uuid = Entity.Uuid,
+                RemissionIds = Entity.RemissionIds,
                 Audit = Entity.Audit
             };
         }
@@ -33,7 +34,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Email = Model.Email,
                 IsImported = Model.IsImported,
                 Uuid = Model.Uuid,
-                Audit = Model.Audit
+                RemissionIds = Model.RemissionIds,
+                Audit = Model.Audit,
             };
         }
     }

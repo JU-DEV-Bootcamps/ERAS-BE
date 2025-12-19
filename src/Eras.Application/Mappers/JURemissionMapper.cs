@@ -1,0 +1,43 @@
+using Eras.Application.DTOs;
+using Eras.Domain.Entities;
+
+namespace Eras.Application.Mappers
+{
+    public static class JURemissionMapper
+    {
+        public static JURemission ToDomain(this JURemissionDTO Dto)
+        {
+            ArgumentNullException.ThrowIfNull(Dto);
+
+            return new JURemission()
+            {
+                Id = Dto.Id,
+                SubmitterUuid = Dto.SubmitterUuid,
+                JUServiceId = Dto.JUServiceId,
+                AssignedProfessionalId = Dto.AssignedProfessionalId,
+                Comment = Dto.Comment,
+                Date = Dto.Date,
+                Status = Dto.Status,
+                StudentIds = Dto.StudentIds,
+                Audit = Dto.Audit,
+            };
+        }
+        public static JURemissionDTO ToDTO(this JURemission Entity)
+        {
+            ArgumentNullException.ThrowIfNull(Entity);
+            return new JURemissionDTO()
+            {
+                Id = Entity.Id,
+                SubmitterUuid = Entity.SubmitterUuid,
+                JUServiceId = Entity.JUServiceId,
+                AssignedProfessionalId = Entity.AssignedProfessionalId,
+                Comment = Entity.Comment,
+                Date = Entity.Date,
+                Status = Entity.Status,
+                StudentIds = Entity.StudentIds,
+                Audit = Entity.Audit,
+            };
+
+        }
+    }
+}

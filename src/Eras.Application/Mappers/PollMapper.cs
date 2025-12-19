@@ -21,6 +21,7 @@ namespace Eras.Application.Mappers
                 },
                 LastVersion = Dto.LastVersion,
                 LastVersionDate = Dto.LastVersionDate,
+                ParentId = Dto.ParentId,
             };
         }
         public static PollDTO ToDto(this Poll Domain)
@@ -35,6 +36,7 @@ namespace Eras.Application.Mappers
                 Audit = Domain.Audit,
                 LastVersion = Domain.LastVersion,
                 LastVersionDate = Domain.LastVersionDate,
+                ParentId = Domain.ParentId,
             };
         }
     }

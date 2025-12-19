@@ -1,5 +1,4 @@
-﻿
-using Eras.Domain.Common;
+﻿using Eras.Domain.Common;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
@@ -13,5 +12,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public int LastVersion { get; set; }
         public DateTime LastVersionDate { get; set; }
         public AuditInfo Audit { get; set; } = default!;
+        public string ParentId { get; set; } = string.Empty;
     }
 }

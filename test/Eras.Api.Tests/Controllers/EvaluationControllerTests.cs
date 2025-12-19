@@ -31,10 +31,11 @@ namespace Eras.Api.Tests.Controllers
         public async Task CreateEvaluationController_Should_Return_SuccessAsync()
         {
             var evaluationDTO = new EvaluationDTO() { Name = "newEvaluation", StartDate = DateTime.UtcNow, EndDate = DateTime.Now };
+            var parentId = "";
             var commandResponse = new CreateCommandResponse<Evaluation>(evaluationDTO.ToDomain(), "Success", true);
             _mockMediator.Setup(M => M.Send(It.IsAny<CreateEvaluationCommand>(), default))
                 .ReturnsAsync(commandResponse);
-            var result = await _controller.CreateEvaluationAsync(evaluationDTO) as OkObjectResult;
+            var result = await _controller.CreateEvaluationAsync(parentId, evaluationDTO) as OkObjectResult;
 
             Assert.NotNull(result);
             Assert.Equal(200, result.StatusCode);

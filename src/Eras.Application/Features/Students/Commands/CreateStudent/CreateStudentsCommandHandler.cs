@@ -9,8 +9,8 @@ using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Features.Students.Queries.GetByEmail;
 using Eras.Application.Features.Students.Commands.UpdateStudent;
-using Eras.Application.Exceptions;
 using Eras.Application.Utils;
+using Eras.Error.Bussiness;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
@@ -58,7 +58,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                             UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = getStudentResponse.Body.ToDto() };
                             studentCreatedOrChanged = await _mediator.Send(updateStudentCommand);
                         }
-                        catch (EntityNotFoundException)
+                        catch (NotFoundException)
                         {
                             CreateStudentCommand createStudentCommand = new CreateStudentCommand() { StudentDTO = studentDTO };
                             studentCreatedOrChanged = await _mediator.Send(createStudentCommand);

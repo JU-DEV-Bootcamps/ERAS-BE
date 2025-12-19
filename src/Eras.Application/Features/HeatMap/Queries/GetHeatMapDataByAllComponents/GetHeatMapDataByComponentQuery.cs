@@ -1,5 +1,4 @@
-﻿using Eras.Application.Exceptions;
-using Eras.Application.Models.Response.Common;
+﻿using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.HeatMap;
 using MediatR;
 

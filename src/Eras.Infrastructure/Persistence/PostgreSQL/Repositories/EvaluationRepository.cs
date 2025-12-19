@@ -36,6 +36,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async new Task<IEnumerable<Evaluation>> GetPagedAsync(int Page, int PageSize)
         {
             var persistenceEntity = await _context.Evaluations
+                .OrderBy(E => E.Name)
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize)
                 .Include(E => E.EvaluationPolls)
@@ -91,6 +92,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             evaluation.PollInstances = pollIntances;
             evaluation.Status = ev.CurrentStatus;
             return Task.FromResult<Evaluation?>(evaluation);
+        }
+
+        public async Task<Evaluation?> GetByNameForUpdateAsync(int Id, string Name)
+        {
+            var evaluation = await _context.Evaluations
+                .FirstOrDefaultAsync(Poll => !Poll.Id.Equals(Id) && Poll.Name.Equals(Name));
+
+            return evaluation?.ToDomain();
         }
     }
 }

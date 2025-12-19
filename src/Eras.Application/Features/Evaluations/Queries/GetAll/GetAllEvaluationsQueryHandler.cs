@@ -18,29 +18,18 @@ namespace Eras.Application.Features.Evaluations.Queries.GetAll
         }
         public async Task<PagedResult<Evaluation>> Handle(GetAllEvaluationsQuery Request, CancellationToken CancellationToken)
         {
-            try
-            {
-                var evaluations = await _evaluationRepository.GetPagedAsync(
-                    Request.Query.Page,
-                    Request.Query.PageSize
-                );
-                var totalCount = await _evaluationRepository.CountAsync();
+            var evaluations = await _evaluationRepository.GetPagedAsync(
+                Request.Query.Page,
+                Request.Query.PageSize
+            );
+            var totalCount = await _evaluationRepository.CountAsync();
 
-                PagedResult<Evaluation> pagedResult = new PagedResult<Evaluation>(
-                    totalCount,
-                    evaluations.ToList()
-                );
+            PagedResult<Evaluation> pagedResult = new PagedResult<Evaluation>(
+                totalCount,
+                evaluations.ToList()
+            );
 
-                return pagedResult;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Failed to get information. Reason: {ResponseMessage}", ex.Message);
-                return new PagedResult<Evaluation>(
-                    0,
-                    new List<Evaluation>()
-                );
-            }
+            return pagedResult;
         }
     }
 }

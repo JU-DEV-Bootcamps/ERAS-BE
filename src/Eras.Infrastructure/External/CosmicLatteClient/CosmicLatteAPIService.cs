@@ -94,7 +94,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             if (!string.IsNullOrEmpty(evaluationSetId))
             {
-                path += "?$filter=";
+                path += "?$top=1000&$filter=";
                 if (!string.IsNullOrEmpty(evaluationSetId))
                     path += $"contains(parent,'evaluationSets:{evaluationSetId}')";
             }
@@ -143,9 +143,14 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     {
                         var pollDto = new PollDTO
                         {
-                            Name = responseToPollInstance.name,
-                            Components = populatedComponents,
-                            FinishedAt = responseToPollInstance.finishedAt
+                            IdCosmicLatte = responseToPollInstance.Id ?? string.Empty,
+                            Uuid = Guid.NewGuid().ToString(),
+                            Name = SqlInjectionValidator.Sanitize(responseToPollInstance.name),
+                            FinishedAt = responseToPollInstance.finishedAt,
+                            LastVersion = 1,
+                            LastVersionDate = DateTime.UtcNow,
+                            Components = SanitizeComponents(populatedComponents),
+                            ParentId = responseToPollInstance.parent.Split(':')[1]
                         };
                         pollsDtos.Add(pollDto);
                     }
@@ -201,14 +206,14 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     clonedListComponents = CloneComponentsList(Components);
                 }else if (!string.IsNullOrEmpty(StartDate) && 
                     !string.IsNullOrEmpty(EndDate) && 
-                    CohortsHelper.CohortInDateRange(CohortsHelper.NormalizeCohort(studentCohort) ,DateTime.Parse(StartDate), DateTime.Parse(EndDate))
+                    CohortsHelper.CohortInDateRange(studentCohort ,DateTime.Parse(StartDate), DateTime.Parse(EndDate))
                     )
                 {
                     clonedListComponents = CloneComponentsList(Components);
                 }
                 else if(!string.IsNullOrEmpty(StartDate) &&
                     string.IsNullOrEmpty(EndDate) &&
-                    CohortsHelper.GetCohort(DateTime.Parse(StartDate)) == CohortsHelper.NormalizeCohort(studentCohort)
+                    CohortsHelper.GetCohort(DateTime.Parse(StartDate)) == studentCohort
                     )
                 {
                     clonedListComponents = CloneComponentsList(Components);
@@ -299,11 +304,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                                   ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
 
                 var results = new List<ComponentDTO>();
+                var answersList = apiResponse.Data.Answers;
+                var processedPositions = new HashSet<int>();
 
                 foreach (var item in VariablesPositionByComponents)
                 {
                     var createdVariables = new List<VariableDTO>();
-                    var answersList = apiResponse.Data.Answers;
 
                     foreach (var itemVariable in answersList)
                     {
@@ -318,6 +324,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                                 Version = new VersionInfo()
                             };
                             createdVariables.Add(newVariable);
+                            processedPositions.Add(itemVariable.Value.Position);
                         }
                     }
 
@@ -329,6 +336,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                     results.Add(component);
                 }
+
+                ProcessOpenEndedQuestions(results, answersList, processedPositions, VariablesPositionByComponents);
+                SortVariablesByPosition(results);
 
                 return results;
             }
@@ -356,7 +366,17 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     Array.IndexOf(AnswersKVPair.Value.AnswersList, answers) != (AnswersKVPair.Value.AnswersList.Length - 1))
                     answerSB.Append("; ");
             }
-            decimal score = GetScoreByPositionAndAnswer(AnswersKVPair.Value.Position, ScoreItem);
+
+            decimal score;
+            if (IsOpenEndedQuestion(AnswersKVPair.Value.Type))
+            {
+                score = 0m;
+            }
+            else
+            {
+                score = GetScoreByPositionAndAnswer(AnswersKVPair.Value.Position, ScoreItem);
+            }
+
             score = AnswersKVPair.Value.AnswersList.Length > 0 ? score / AnswersKVPair.Value.AnswersList.Length : score;
             return new AnswerDTO
             {
@@ -372,6 +392,32 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             if (byPositionItem != null) return byPositionItem.score;
             return 0;
         }
+
+        private static bool IsOpenEndedQuestion(string QuestionType)
+        {
+            return QuestionType == "openTextSingleline" || QuestionType == "openTextMultiline";
+        }
+
+        private static string DetermineComponentForOpenEndedQuestion(int Position, Dictionary<string, List<int>> ComponentsMap)
+        {
+            foreach (var component in ComponentsMap)
+            {
+                var positions = component.Value;
+                if (positions.Count > 0)
+                {
+                    int minPos = positions.Min();
+                    int maxPos = positions.Max();
+                    
+                    if (Position >= minPos && Position <= maxPos)
+                    {
+                        return component.Key;
+                    }
+                }
+            }
+            
+            return "personalData";
+        }
+
         private static string ConvertStringToIsoExtendedDate(string Date)
         {
             string[] parts = Date.Split('-');
@@ -397,7 +443,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string responseBody = await response.Content.ReadAsStringAsync();
                 CLResponseForAllPollsDTO apiResponse = JsonSerializer.Deserialize<CLResponseForAllPollsDTO>(responseBody) ?? throw new Exception("Unable to deserialize response from cosmic latte");
 
-                List<PollDataItem> pollsData = [.. apiResponse.data.Select(Poll => new PollDataItem(Poll.parent, Poll.name, Poll.status))];
+                List<PollDataItem> pollsData = [.. apiResponse.data.Select(Poll => new PollDataItem(Poll.id, Poll.parent, Poll.name, Poll.status))];
                 return pollsData;
             }
             catch (Exception e)
@@ -437,5 +483,138 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             }
         }
 
+        private static List<ComponentDTO> SanitizeComponents(List<ComponentDTO> components)
+        {
+            foreach (var component in components)
+            {
+                component.Name = SqlInjectionValidator.Sanitize(component.Name);
+                
+                foreach (var variable in component.Variables)
+                {
+                    variable.Name = SqlInjectionValidator.Sanitize(variable.Name);
+                    
+                    if (!string.IsNullOrEmpty(variable.Type))
+                    {
+                        variable.Type = SqlInjectionValidator.Sanitize(variable.Type);
+                    }
+                    
+                    if (variable.Answer != null && !string.IsNullOrEmpty(variable.Answer.Answer))
+                    {
+                        variable.Answer.Answer = SqlInjectionValidator.Sanitize(variable.Answer.Answer);
+                    }
+                }
+            }
+            return components;
+        }
+
+        private void ProcessOpenEndedQuestions(
+            List<ComponentDTO> Results, 
+            Dictionary<int, Answers> AnswersList, 
+            HashSet<int> ProcessedPositions, 
+            Dictionary<string, List<int>> VariablesPositionByComponents)
+        {
+            var openEndedByComponent = CollectOpenEndedQuestionsByComponent(AnswersList, ProcessedPositions, VariablesPositionByComponents);
+            IntegrateOpenEndedQuestionsIntoComponents(Results, openEndedByComponent);
+        }
+
+        private Dictionary<string, List<VariableDTO>> CollectOpenEndedQuestionsByComponent(
+            Dictionary<int, Answers> AnswersList, 
+            HashSet<int> ProcessedPositions, 
+            Dictionary<string, List<int>> VariablesPositionByComponents)
+        {
+            var openEndedByComponent = new Dictionary<string, List<VariableDTO>>();
+
+            foreach (var itemVariable in AnswersList)
+            {
+                if (ShouldProcessOpenEndedQuestion(itemVariable, ProcessedPositions))
+                {
+                    var newVariable = CreateVariableFromAnswer(itemVariable);
+                    var targetComponent = DetermineComponentForOpenEndedQuestion(itemVariable.Value.Position, VariablesPositionByComponents);
+                    
+                    AddVariableToComponentGroup(openEndedByComponent, targetComponent, newVariable);
+                }
+            }
+
+            return openEndedByComponent;
+        }
+
+        private void IntegrateOpenEndedQuestionsIntoComponents(List<ComponentDTO> Results, Dictionary<string, List<VariableDTO>> OpenEndedByComponent)
+        {
+            foreach (var openEndedGroup in OpenEndedByComponent)
+            {
+                string componentName = openEndedGroup.Key;
+                var openEndedVariables = openEndedGroup.Value;
+                
+                if (componentName == "personalData")
+                {
+                    continue;
+                }
+                
+                var existingComponent = Results.FirstOrDefault(c => c.Name == componentName);
+                if (existingComponent != null)
+                {
+                    AddVariablesToExistingComponent(existingComponent, openEndedVariables);
+                }
+                else
+                {
+                    CreateAndAddNewComponent(Results, componentName, openEndedVariables);
+                }
+            }
+        }
+
+        private static bool ShouldProcessOpenEndedQuestion(KeyValuePair<int, Answers> ItemVariable, HashSet<int> ProcessedPositions)
+        {
+            return !ProcessedPositions.Contains(ItemVariable.Value.Position) && 
+                   IsOpenEndedQuestion(ItemVariable.Value.Type);
+        }
+
+        private static VariableDTO CreateVariableFromAnswer(KeyValuePair<int, Answers> ItemVariable)
+        {
+            return new VariableDTO
+            {
+                Name = ItemVariable.Value.Question.Body["es"],
+                Position = ItemVariable.Value.Position,
+                Type = ItemVariable.Value.Type,
+                Answer = null,
+                Version = new VersionInfo()
+            };
+        }
+
+        private static void AddVariableToComponentGroup(Dictionary<string, List<VariableDTO>> OpenEndedByComponent, string TargetComponent, VariableDTO Variable)
+        {
+            if (!OpenEndedByComponent.ContainsKey(TargetComponent))
+            {
+                OpenEndedByComponent[TargetComponent] = new List<VariableDTO>();
+            }
+            
+            OpenEndedByComponent[TargetComponent].Add(Variable);
+        }
+
+
+        private static void AddVariablesToExistingComponent(ComponentDTO ExistingComponent, List<VariableDTO> OpenEndedVariables)
+        {
+            foreach (var variable in OpenEndedVariables)
+            {
+                ExistingComponent.Variables.Add(variable);
+            }
+        }
+
+        private static void CreateAndAddNewComponent(List<ComponentDTO> Results, string ComponentName, List<VariableDTO> OpenEndedVariables)
+        {
+            var newComponent = new ComponentDTO
+            {
+                Name = ComponentName,
+                Variables = OpenEndedVariables
+            };
+            Results.Add(newComponent);
+        }
+
+        private static void SortVariablesByPosition(List<ComponentDTO> Results)
+        {
+            foreach (var component in Results)
+            {
+                component.Variables = component.Variables.OrderBy(v => v.Position).ToList();
+            }
+        }
     }
 }
