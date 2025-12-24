@@ -38,8 +38,8 @@ public class CosmicLatteController(IMediator Mediator, ICosmicLatteAPIService Co
     }
 
     [Authorize]
-    [HttpPost("polls")]
-    public async Task<IActionResult> SavePreviewPollsAsync([FromBody] List<PollDTO> PollsInstances) => Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances));
+    [HttpPost("polls/{EvaluationId}")]
+    public async Task<IActionResult> SavePreviewPollsAsync([FromBody] List<PollDTO> PollsInstances, int EvaluationId) => Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances, EvaluationId));
 
     [HttpGet("polls/names")]
     public async Task<IActionResult> GetPollsNameListAsync([FromQuery] int ConfigurationId)

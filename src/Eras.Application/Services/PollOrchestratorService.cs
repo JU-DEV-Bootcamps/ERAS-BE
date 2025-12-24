@@ -1,9 +1,12 @@
-﻿using Eras.Application.Dtos;
+﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Dtos;
 using Eras.Application.DTOs;
+using Eras.Application.DTOs.CL;
 using Eras.Application.Features.Answers.Commands.CreateAnswerList;
 using Eras.Application.Features.Cohorts.Commands.CreateCohort;
 using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Features.Components.Queries.GetByNameAndPoll;
+using Eras.Application.Features.Evaluations.Commands;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
 using Eras.Application.Features.PollInstances.Commands.UpdatePollInstance;
 using Eras.Application.Features.PollInstances.Queries.GetByUuidAndStudentId;
@@ -42,14 +45,19 @@ namespace Eras.Application.Services
         private int VersionNumber;
         private bool IsNewVersion = false;
         private DateTime InitDate;
+        private readonly IEvaluationRepository _evaluationRepository;
 
-        public PollOrchestratorService(IMediator Mediator, ILogger<PollOrchestratorService> Logger)
+        public PollOrchestratorService(
+            IMediator Mediator, 
+            ILogger<PollOrchestratorService> Logger,
+            IEvaluationRepository EvaluationRepository)
         {
             _logger = Logger;
             _mediator = Mediator;
+            _evaluationRepository = EvaluationRepository;
         }
 
-        public async Task<CreateCommandResponse<CreatedPollDTO>> ImportPollInstancesAsync(List<PollDTO> PollsToCreate)
+        public async Task<CreateCommandResponse<CreatedPollDTO>> ImportPollInstancesAsync(List<PollDTO> PollsToCreate, int EvaluationId)
         {
             try
             {
@@ -63,6 +71,25 @@ namespace Eras.Application.Services
                 if (createdPollResponse.Success && createdPollResponse.Entity != null)
                 {
                     var pollToUse = createdPollResponse.Entity.ToDto();
+
+                    var evaluation = await _evaluationRepository.GetStatusById(EvaluationId);
+                    if (evaluation != null && evaluation.Status.Equals(EvaluationConstants.EvaluationStatus.Pending.ToString()))
+                    {
+                        if (evaluation != null)
+                        {
+                            evaluation.Status = EvaluationConstants.EvaluationStatus.Ready.ToString();
+                            await _evaluationRepository.UpdateAsync(evaluation);
+
+                            var evaluationDto = evaluation.ToDto();
+                            evaluationDto.PollId = pollToUse.Id;
+                            CreateEvaluationPollCommand evaluationPollCommand = new()
+                            {
+                                EvaluationDTO = evaluationDto
+                            };
+                            await _mediator.Send(evaluationPollCommand);
+                        }
+                    }
+
                     // Create components, variables and poll_variables (intermediate table)
                     List<Component> createdComponents = await CreateComponentsAndVariablesAsync(PollsToCreate[0].Components,
                         createdPollResponse.Entity.Id);
