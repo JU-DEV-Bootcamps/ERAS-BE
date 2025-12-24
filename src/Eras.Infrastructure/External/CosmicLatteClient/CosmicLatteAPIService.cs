@@ -7,8 +7,8 @@ using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
 using Eras.Application.DTOs.CosmicLatte;
 using Eras.Application.Models.Response.Common;
-using Eras.Application.Utils;
 using Eras.Application.Services;
+using Eras.Application.Utils;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
@@ -59,13 +59,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             }
         }
 
-
-
-        public async Task<CreatedPollDTO> SavePreviewPolls(List<PollDTO> PollsDtos)
+        public async Task<CreatedPollDTO> SavePreviewPolls(List<PollDTO> PollsDtos, int EvaluationId)
         {
             try
             {
-                CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos);
+                CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos, EvaluationId);
 
                 if (createdPoll.Entity == null)
                 {
