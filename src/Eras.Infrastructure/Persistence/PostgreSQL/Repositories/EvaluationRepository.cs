@@ -1,6 +1,4 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.DTOs.CL;
-using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
@@ -100,6 +98,27 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .FirstOrDefaultAsync(Poll => !Poll.Id.Equals(Id) && Poll.Name.Equals(Name));
 
             return evaluation?.ToDomain();
+        }
+
+        public async Task<Evaluation?> GetStatusById(int Id)
+        {
+            var evaluation = await _context.Evaluations
+               .AsNoTracking()
+               .FirstOrDefaultAsync(E => E.Id == Id);
+
+            return evaluation is not null 
+                ? new Evaluation
+                {
+                    Id = evaluation.Id,
+                    Name = evaluation.Name,
+                    Status = evaluation.Status,
+                    PollName = evaluation.PollName,
+                    Country = evaluation.Country,
+                    StartDate = evaluation.StartDate,
+                    EndDate = evaluation.EndDate,
+                    ConfigurationId = evaluation.ConfigurationId,
+                    Audit = evaluation.Audit,
+                } : null;
         }
     }
 }
