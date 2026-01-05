@@ -56,6 +56,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     AnswerCount = Result.AnswerCount,
                     AnswerPercentage = Result.AnswerPercentage,
                     StudentId = Result.StudentId,
+                    CohortId = Result.CohortId,
                 });
 
             var Count = topRiskQuery.Distinct().Count();
