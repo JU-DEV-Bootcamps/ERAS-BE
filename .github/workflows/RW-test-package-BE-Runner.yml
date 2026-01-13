@@ -158,7 +158,7 @@ jobs:
           eras-dev-api)
             echo "target_secret=KEYCLOAK_CLIENT_SECRET" >> "$GITHUB_OUTPUT"
             ;;
-          eras-stage-api)
+          eras-dev)
             echo "target_secret=KEYCLOAK_CLIENT_SECRET_STAGE" >> "$GITHUB_OUTPUT"
             ;;
           eras-prod-api)
