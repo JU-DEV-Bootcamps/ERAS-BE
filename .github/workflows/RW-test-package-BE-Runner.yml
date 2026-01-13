@@ -144,19 +144,55 @@ jobs:
           echo "REPO_NAME=${REPO_NAME}" >> $GITHUB_ENV
           echo "SHORT_SHA=${SHORT_SHA}" >> $GITHUB_ENV
           echo "LAST_TAG=${LAST_TAG}" >> $GITHUB_ENV
-      - name: Replace environment variables in appsettings.Production.json
+      - name: Select the right secret
+        id: select_secret
+        shell: bash
         run: |
+          set -euo pipefail
+
+          # Normaliza el client_id a minúsculas para comparar sin errores
+          client_id="${{ inputs.keycloak_client_id }}"
+          client_id="$(echo "$client_id" | tr '[:upper:]' '[:lower:]')"
+
+          case "$client_id" in
+          eras-dev-api)
+            echo "target_secret=KEYCLOAK_CLIENT_SECRET" >> "$GITHUB_OUTPUT"
+            ;;
+          eras-stage-api)
+            echo "target_secret=KEYCLOAK_CLIENT_SECRET_STAGE" >> "$GITHUB_OUTPUT"
+            ;;
+          eras-prod-api)
+            echo "target_secret=KEYCLOAK_CLIENT_SECRET_PROD" >> "$GITHUB_OUTPUT"
+            ;;
+          *)
+            echo "Invalid keycloak_client_id: ${client_id}" >&2
+            exit 1
+            ;;
+          esac
+
+      - name: Replace environment variables in appsettings.Production.json
+        shell: bash
+        run: |
+          set -euo pipefail
+    
           sed -i "s|__COSMIC_API_URL__|${{ inputs.cosmic_api_url }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__COSMIC_LATTE_API_KEY__|${{ secrets.COSMIC_LATTE_API_KEY }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__DB_HOST__|${{ inputs.db_host }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__KEYCLOAK_URL__|${{ inputs.keycloak_url }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__KEYCLOAK_REALM__|${{ inputs.keycloak_realm }}|g" src/Eras.Api/appsettings.Production.json
-          sed -i "s|__KEYCLOAK_CLIENT_SECRET__|${{ secrets.KEYCLOAK_CLIENT_SECRET }}|g" src/Eras.Api/appsettings.Production.json
-          sed -i "s|__KEYCLOAK_CLIENT_AUDIENCE__|"account"|g" src/Eras.Api/appsettings.Production.json
+
+          # Dynamic secret
+          sed -i "s|__KEYCLOAK_CLIENT_SECRET__|${{ secrets[steps.select_secret.outputs.target_secret] }}|g" src/Eras.Api/appsettings.Production.json
+
+    
+          sed -i 's|__KEYCLOAK_CLIENT_AUDIENCE__|"account"|g' src/Eras.Api/appsettings.Production.json
+
           sed -i "s|__CLIENT_ID__|${{ inputs.keycloak_client_id }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__ENCRYPTION_KEY__|${{ secrets.ENCRYPTION_KEY }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__ENCRYPTION_IV__|${{ secrets.ENCRYPTION_IV }}|g" src/Eras.Api/appsettings.Production.json
+
           cat src/Eras.Api/appsettings.Production.json
+
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
