@@ -35,6 +35,7 @@
     <Folder Include="Features\Consolidator\Queries\GetByRuleset\" />
     <Folder Include="Features\Consolidator\Queries\GetAvgRiskAnswer\" />
     <Folder Include="Features\Consolidator\Queries\GetHigherRiskStudent\" />
+    <Folder Include="Features\EvaluationDetails\Command\" />
     <Folder Include="Features\Polls\Commands\DeletePoll\" />
     <Folder Include="Features\Students\Commands\DeleteStudent\" />
     <Folder Include="Features\Students\Queries\GetStudentsList\" />

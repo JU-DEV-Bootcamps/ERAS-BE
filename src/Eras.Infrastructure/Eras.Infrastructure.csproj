@@ -29,11 +29,17 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<None Update="Persistence/PostgreSQL/Views/vErasCalculationByPoll.sql">
+		<None Update="Persistence\PostgreSQL\Views\Ups\vErasCalculationByPoll.sql">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
-		<None Update="Persistence\PostgreSQL\Views\vErasCalculationByPollDrop.sql">
+		<None Update="Persistence\PostgreSQL\Views\Ups\vErasEvaluationDetails.sql">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Persistence\PostgreSQL\Views\Drops\vErasCalculationByPollDrop.sql">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Persistence\PostgreSQL\Views\Drops\vErasEvaluationDetailsDrop.sql">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 

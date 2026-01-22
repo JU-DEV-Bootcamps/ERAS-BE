@@ -47,57 +47,53 @@ app.UseSerilogRequestLogging();
 // Apply database migrations
 using (var scope = app.Services.CreateScope())
 {
-    var dbContextDrop = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    // Read the view definition
-    var sqlFilePathDrop = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                                   "Persistence/PostgreSQL/Views/vErasCalculationByPollDrop.sql");
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var dropsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Persistence/PostgreSQL/Views/Drops");
 
-    if (!File.Exists(sqlFilePathDrop))
+    if (Directory.Exists(dropsPath))
     {
-        throw new FileNotFoundException($"SQL File not found: {sqlFilePathDrop}");
-    }
-
-    var sqlScriptDrop = File.ReadAllText(sqlFilePathDrop);
-    // Execute the SQL query
-    using (var connection = dbContextDrop.Database.GetDbConnection())
-    {
-        connection.Open();
-        using (var command = connection.CreateCommand())
-        {
-            command.CommandText = sqlScriptDrop;
-            command.ExecuteNonQuery();
-        }
-    }
-}
-using (var scope = app.Services.CreateScope())
-{
-    using (var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>())
-    {
-        dbContext.Database.Migrate();
-
-
-        // Read the view definition
-        var sqlFilePathUp = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                                       "Persistence/PostgreSQL/Views/vErasCalculationByPoll.sql");
-
-        if (!File.Exists(sqlFilePathUp))
-        {
-            throw new FileNotFoundException($"SQL File not found: {sqlFilePathUp}");
-        }
-
-        var sqlScript = File.ReadAllText(sqlFilePathUp);
-        // Execute the SQL query
+        var files = Directory.GetFiles(dropsPath, "*.sql").OrderBy(f => f);
         using (var connection = dbContext.Database.GetDbConnection())
         {
             connection.Open();
-            using (var command = connection.CreateCommand())
+            foreach (var file in files)
             {
-                command.CommandText = sqlScript;
-                command.ExecuteNonQuery();
+                var sql = File.ReadAllText(file);
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    command.ExecuteNonQuery();
+                }
             }
         }
     }
+}
 
+// Start migrations and views Creation
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    dbContext.Database.Migrate();
+
+    var upsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Persistence/PostgreSQL/Views/Ups");
+
+    if (Directory.Exists(upsPath))
+    {
+        var files = Directory.GetFiles(upsPath, "*.sql").OrderBy(f => f);
+        using (var connection = dbContext.Database.GetDbConnection())
+        {
+            connection.Open();
+            foreach (var file in files)
+            {
+                var sql = File.ReadAllText(file);
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+    }
 }
 
 // Enable CORS

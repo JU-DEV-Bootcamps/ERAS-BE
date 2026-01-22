@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Domain.Common;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
@@ -119,6 +120,30 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     ConfigurationId = evaluation.ConfigurationId,
                     Audit = evaluation.Audit,
                 } : null;
+        }
+
+        public async Task<List<Evaluation>> GetByDateRange(DateTime StartDate, DateTime EndDate)
+        {
+            var query = _context.Evaluations
+                .AsNoTracking()
+                .Where(e => e.StartDate >= StartDate && e.StartDate <= EndDate);
+
+            var results = await query.Select(e => new Evaluation
+            {
+                Id = e.Id,
+                Name = e.Name,
+                Status = e.CurrentStatus,
+                StartDate = e.StartDate,
+                EndDate = e.EndDate,
+                Audit = e.Audit,
+                Polls = e.EvaluationPolls.Select(ep => PollMapper.ToDomain(ep.Poll)).ToList(),
+                PollInstances = _context.PollInstances
+                    .Where(pi => e.EvaluationPolls.Any(ep => ep.Poll.Uuid == pi.Uuid))
+                    .Select(pi => PollInstanceMapper.ToDomain(pi))
+                    .ToList()
+            }).ToListAsync();
+
+            return results;
         }
     }
 }
