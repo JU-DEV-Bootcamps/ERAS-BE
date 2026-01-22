@@ -103,15 +103,18 @@ using (var scope = app.Services.CreateScope())
 // Enable CORS
 app.UseCors("CORSPolicy");
 
-// Configure the HTTP request pipeline.
-app.UseSwagger();
-app.UseSwaggerUI(_ =>
-        {
-            _.EnableDeepLinking();
-            _.OAuthClientId("api-client");
-            _.OAuthAppName("Swagger new ");
-        }
-        );
+// Enable Swagger just for development environments.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(_ =>
+            {
+                _.EnableDeepLinking();
+                _.OAuthClientId("api-client");
+                _.OAuthAppName("Swagger new ");
+            }
+            );
+}
 
 app.UseHsts();
 app.UseHttpsRedirection();
