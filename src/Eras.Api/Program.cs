@@ -104,7 +104,8 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("CORSPolicy");
 
 // Enable Swagger just for development environments.
-if (app.Environment.IsDevelopment())
+bool isSwaggerEnabled = builder.Configuration["EnableSwagger"] == "true";
+if (isSwaggerEnabled)
 {
     app.UseSwagger();
     app.UseSwaggerUI(_ =>
