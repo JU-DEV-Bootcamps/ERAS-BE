@@ -65,6 +65,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 EndDate = Entity.EndDate,
                 Audit = Entity.Audit,
                 Polls = [.. evaluationPolls.Where(Ep => Ep.EvaluationId == Entity.Id).Select(Ep => PollMapper.ToDomain(Ep.Poll))],
+                PollName = Entity.PollName,
+                ConfigurationId = Entity.ConfigurationId,
                 PollInstances = [.. pollInstances.Where(Pi => evaluationPolls.Any(Ep => Ep.Poll.Uuid == Pi.Uuid && Ep.EvaluationId == Entity.Id)).Select(Pi => PollInstanceMapper.ToDomain(Pi))]
             })];
         }
@@ -107,7 +109,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                .AsNoTracking()
                .FirstOrDefaultAsync(E => E.Id == Id);
 
-            return evaluation is not null 
+            return evaluation is not null
                 ? new Evaluation
                 {
                     Id = evaluation.Id,
