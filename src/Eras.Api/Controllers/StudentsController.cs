@@ -110,7 +110,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         [FromQuery] string CohortIds,
         [FromQuery] string PollUuid,
         [FromQuery] Pagination Query,
-        [FromQuery] bool LastVersion
+        [FromQuery] bool LastVersion = true
     )
     {
         List<int> Ids = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);

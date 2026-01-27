@@ -129,7 +129,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     public async Task<IActionResult> GetPollResultsCountAsync([FromRoute] string Uuid,
         [FromQuery] string CohortIds,
         [FromQuery] string VariableIds,
-        [FromQuery] bool LastVersion)
+        [FromQuery] bool LastVersion = true)
     {
         try
         {
