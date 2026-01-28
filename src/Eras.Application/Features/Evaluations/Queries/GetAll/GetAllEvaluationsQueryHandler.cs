@@ -18,10 +18,12 @@ namespace Eras.Application.Features.Evaluations.Queries.GetAll
         }
         public async Task<PagedResult<Evaluation>> Handle(GetAllEvaluationsQuery Request, CancellationToken CancellationToken)
         {
-            var evaluations = await _evaluationRepository.GetPagedAsync(
+            var evaluations = Request.Query != null
+                ? await _evaluationRepository.GetPagedAsync(
                 Request.Query.Page,
                 Request.Query.PageSize
-            );
+            )
+                : await _evaluationRepository.GetAllAsync();
             var totalCount = await _evaluationRepository.CountAsync();
 
             PagedResult<Evaluation> pagedResult = new PagedResult<Evaluation>(
