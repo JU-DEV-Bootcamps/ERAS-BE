@@ -48,21 +48,23 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         return entities.Select(e => e.ToDomain()).ToList();
     }
 
-    public async Task<List<StudentsByFiltersResponse>> GetStudentsByFilters(int? PollId, List<int>? ComponentIds, List<int>? CohortIds, List<int>? VariableIds)
+    public async Task<List<StudentsByFiltersResponse>> GetStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<int>? RiskLevels)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
 
-        if (PollId.HasValue)
-            query = query.Where(v => v.PollId == PollId.Value);
+        query = query.Where(v => v.PollUuid == PollUuid);
+        query = query.Where(v => v.CohortId.HasValue && CohortIds.Contains(v.CohortId.Value));
+        query = query.Where(v => ComponentNames.Contains(v.ComponentName));
 
-        if (CohortIds?.Any() == true)
-            query = query.Where(v => v.CohortId.HasValue && CohortIds.Contains(v.CohortId.Value));
-
-        if (ComponentIds?.Any() == true)
-            query = query.Where(v => v.ComponentId.HasValue && ComponentIds.Contains(v.ComponentId.Value));
-
-        if (VariableIds?.Any() == true)
+        if (VariableIds != null && VariableIds.Any())
+        {
             query = query.Where(v => v.VariableId.HasValue && VariableIds.Contains(v.VariableId.Value));
+        }
+
+        if (RiskLevels != null && RiskLevels.Any())
+        {
+            query = query.Where(v => v.RiskLevel.HasValue && RiskLevels.Contains((int)v.RiskLevel.Value));
+        }
 
         return await query
             .Select(v => new StudentsByFiltersResponse
@@ -74,6 +76,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
                 AnswerText = v.AnswerText ?? string.Empty,
                 RiskLevel = v.RiskLevel ?? 0
             })
+            .Distinct()
             .ToListAsync();
     }
 }
