@@ -6,9 +6,10 @@ namespace Eras.Application.Features.EvaluationDetails.Queries.GetStudentsByFilte
 
 public class GetStudentsByFiltersQuery : IRequest<List<StudentsByFiltersResponse>>
 {
-    public int? PollId { get; set; }
-    public List<int>? ComponentIds { get; set; }
-    public List<int>? CohortIds { get; set; }
+    public required string PollUuid { get; set; }
+    public required List<string> ComponentNames { get; set; }
+    public required List<int> CohortIds { get; set; }
     public List<int>? VariableIds { get; set; }
+    public List<int>? RiskLevels { get; set; }
 
 }

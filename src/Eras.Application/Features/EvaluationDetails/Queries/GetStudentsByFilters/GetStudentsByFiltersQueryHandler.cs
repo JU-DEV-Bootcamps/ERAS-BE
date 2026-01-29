@@ -29,10 +29,11 @@ public class GetStudentsByFiltersQueryHandler : IRequestHandler<GetStudentsByFil
     public async Task<List<StudentsByFiltersResponse>> Handle(GetStudentsByFiltersQuery Request, CancellationToken CancellationToken)
     {
         var studentsList = await _repository.GetStudentsByFilters(
-            Request.PollId,
-            Request.ComponentIds,
+            Request.PollUuid,
+            Request.ComponentNames,
             Request.CohortIds,
-            Request.VariableIds
+            Request.VariableIds,
+            Request.RiskLevels
         );
 
         return studentsList;
