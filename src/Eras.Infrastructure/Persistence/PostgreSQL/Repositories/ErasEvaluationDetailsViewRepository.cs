@@ -48,6 +48,38 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         return entities.Select(e => e.ToDomain()).ToList();
     }
 
+    public async Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<int>? RiskLevels)
+    {
+        var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
+
+        query = query.Where(v => v.EvaluationId == EvaluationId);
+        query = query.Where(v => v.CohortId.HasValue && CohortIds.Contains(v.CohortId.Value));
+        query = query.Where(v => ComponentNames.Contains(v.ComponentName));
+
+        if (VariableIds != null && VariableIds.Any())
+        {
+            query = query.Where(v => v.VariableId.HasValue && VariableIds.Contains(v.VariableId.Value));
+        }
+
+        if (RiskLevels != null && RiskLevels.Any())
+        {
+            query = query.Where(v => v.RiskLevel.HasValue && RiskLevels.Contains((int)v.RiskLevel.Value));
+        }
+
+        return await query
+            .Select(v => new StudentsByFiltersResponse
+            {
+                Id = v.StudentId ?? 0,
+                Name = v.StudentName ?? string.Empty,
+                Email = v.StudentEmail ?? string.Empty,
+                AnswerId = v.AnswerId ?? 0,
+                AnswerText = v.AnswerText ?? string.Empty,
+                RiskLevel = v.RiskLevel ?? 0
+            })
+            .Distinct()
+            .ToListAsync();
+    }
+
     public async Task<List<StudentsByFiltersResponse>> GetStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<int>? RiskLevels)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
