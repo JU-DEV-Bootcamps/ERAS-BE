@@ -30,17 +30,17 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
 
         if (CohortIds != null && CohortIds.Any())
         {
-            query = query.Where(v => v.CohortId.HasValue && CohortIds.Contains(v.CohortId.Value));
+            query = query.Where(v => CohortIds.Contains(v.CohortId));
         }
 
         if (ComponentIds != null && ComponentIds.Any())
         {
-            query = query.Where(v => v.ComponentId.HasValue && ComponentIds.Contains(v.ComponentId.Value));
+            query = query.Where(v => ComponentIds.Contains(v.ComponentId));
         }
 
         if (VariableIds != null && VariableIds.Any())
         {
-            query = query.Where(v => v.VariableId.HasValue && VariableIds.Contains(v.VariableId.Value));
+            query = query.Where(v => VariableIds.Contains(v.VariableId));
         }
 
         var entities = await query.ToListAsync();
@@ -53,28 +53,28 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
 
         query = query.Where(v => v.EvaluationId == EvaluationId);
-        query = query.Where(v => v.CohortId.HasValue && CohortIds.Contains(v.CohortId.Value));
+        query = query.Where(v => CohortIds.Contains(v.CohortId));
         query = query.Where(v => ComponentNames.Contains(v.ComponentName));
 
         if (VariableIds != null && VariableIds.Any())
         {
-            query = query.Where(v => v.VariableId.HasValue && VariableIds.Contains(v.VariableId.Value));
+            query = query.Where(v => VariableIds.Contains(v.VariableId));
         }
 
         if (RiskLevels != null && RiskLevels.Any())
         {
-            query = query.Where(v => v.RiskLevel.HasValue && RiskLevels.Contains((int)v.RiskLevel.Value));
+            query = query.Where(v => RiskLevels.Contains((int)v.RiskLevel));
         }
 
         return await query
             .Select(v => new StudentsByFiltersResponse
             {
-                Id = v.StudentId ?? 0,
-                Name = v.StudentName ?? string.Empty,
-                Email = v.StudentEmail ?? string.Empty,
-                AnswerId = v.AnswerId ?? 0,
-                AnswerText = v.AnswerText ?? string.Empty,
-                RiskLevel = v.RiskLevel ?? 0
+                Id = v.StudentId,
+                Name = v.StudentName,
+                Email = v.StudentEmail,
+                AnswerId = v.AnswerId,
+                AnswerText = v.AnswerText,
+                RiskLevel = v.RiskLevel
             })
             .Distinct()
             .ToListAsync();
@@ -85,28 +85,28 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
 
         query = query.Where(v => v.PollUuid == PollUuid);
-        query = query.Where(v => v.CohortId.HasValue && CohortIds.Contains(v.CohortId.Value));
+        query = query.Where(v => CohortIds.Contains(v.CohortId));
         query = query.Where(v => ComponentNames.Contains(v.ComponentName));
 
         if (VariableIds != null && VariableIds.Any())
         {
-            query = query.Where(v => v.VariableId.HasValue && VariableIds.Contains(v.VariableId.Value));
+            query = query.Where(v => VariableIds.Contains(v.VariableId));
         }
 
         if (RiskLevels != null && RiskLevels.Any())
         {
-            query = query.Where(v => v.RiskLevel.HasValue && RiskLevels.Contains((int)v.RiskLevel.Value));
+            query = query.Where(v => RiskLevels.Contains((int)v.RiskLevel));
         }
 
         return await query
             .Select(v => new StudentsByFiltersResponse
             {
-                Id = v.StudentId ?? 0,
-                Name = v.StudentName ?? string.Empty,
-                Email = v.StudentEmail ?? string.Empty,
-                AnswerId = v.AnswerId ?? 0,
-                AnswerText = v.AnswerText ?? string.Empty,
-                RiskLevel = v.RiskLevel ?? 0
+                Id = v.StudentId,
+                Name = v.StudentName,
+                Email = v.StudentEmail,
+                AnswerId = v.AnswerId,
+                AnswerText = v.AnswerText,
+                RiskLevel = v.RiskLevel
             })
             .Distinct()
             .ToListAsync();

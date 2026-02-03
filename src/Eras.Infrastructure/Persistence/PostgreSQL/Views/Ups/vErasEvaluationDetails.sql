@@ -1,5 +1,5 @@
 ﻿CREATE VIEW vErasEvaluationDetails AS
-SELECT 
+SELECT DISTINCT
     e."Id" AS EvaluationId,
     e.name AS EvaluationName,
     e.start_date AS StartDate,
@@ -14,7 +14,7 @@ SELECT
     s.name AS StudentName,
     s.email AS StudentEmail,
     sc.cohort_id AS CohortId,
-    ans."Id" AS AnswerId,
+    max(ans."Id") AS AnswerId,
     ans.answer_text AS AnswerText,
     ans.risk_level AS RiskLevel,
     v."Id" AS VariableId,
@@ -31,4 +31,9 @@ LEFT JOIN student_cohort sc ON s."Id" = sc.student_id
 LEFT JOIN answers ans ON pi."Id" = ans.poll_instance_id
 LEFT JOIN poll_variable pv ON ans.poll_variable_id = pv."Id"
 LEFT JOIN variables v ON pv.variable_id = v."Id"
-LEFT JOIN components comp ON v.component_id = comp."Id";
+LEFT JOIN components comp ON v.component_id = comp."Id"
+GROUP BY 
+    e."Id", e.name, e.start_date, e.end_date, e.status,
+    p."Id", p.name, p.uuid, pi."Id", pi."FinishedAt",
+    s."Id", s.name, s.email, ans.answer_text, ans.risk_level,
+    v."Id", v.name, comp."Id", comp.name, pv.version_number, CohortId;
