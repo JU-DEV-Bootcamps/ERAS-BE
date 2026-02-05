@@ -48,7 +48,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         return entities.Select(e => e.ToDomain()).ToList();
     }
 
-    public async Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<int>? RiskLevels)
+    public async Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
 
@@ -63,7 +63,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
 
         if (RiskLevels != null && RiskLevels.Any())
         {
-            query = query.Where(v => RiskLevels.Contains((int)v.RiskLevel));
+            query = query.Where(v => RiskLevels.Contains(v.RiskLevel));
         }
 
         return await query
@@ -80,7 +80,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .ToListAsync();
     }
 
-    public async Task<List<StudentsByFiltersResponse>> GetStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<int>? RiskLevels)
+    public async Task<List<StudentsByFiltersResponse>> GetStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
 
@@ -95,7 +95,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
 
         if (RiskLevels != null && RiskLevels.Any())
         {
-            query = query.Where(v => RiskLevels.Contains((int)v.RiskLevel));
+            query = query.Where(v => RiskLevels.Contains(v.RiskLevel));
         }
 
         return await query
