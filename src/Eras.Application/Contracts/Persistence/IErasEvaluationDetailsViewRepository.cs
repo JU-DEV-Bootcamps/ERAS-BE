@@ -12,6 +12,6 @@ namespace Eras.Application.Contracts.Persistence;
 public interface IErasEvaluationDetailsViewRepository : IBaseRepository<ErasEvaluationDetailsView>
 {
     Task<List<ErasEvaluationDetailsView>> GetByFiltersAsync(int? PollId, List<int>? ComponentIds, List<int>? CohortIds, List<int>? VariableIds);
-    Task<List<StudentsByFiltersResponse>> GetStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<int>? RiskLevel);
-    Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<int>? RiskLevel);
+    Task<List<StudentsByFiltersResponse>> GetStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevel);
+    Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevel);
 }
