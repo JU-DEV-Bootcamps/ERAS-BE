@@ -14,6 +14,7 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
         private readonly Mock<IEvaluationRepository> _mockEvaluationRepository;
         private readonly Mock<IPollRepository> _mockPollRepository;
         private readonly Mock<IMediator> _mockMediator;
+        private readonly Mock<ILogger<CreateEvaluationCommandHandler>> _mockLogger;
         private readonly CreateEvaluationCommandHandler _handler;
 
         public CreateEvaluationCommandHandlerTest()
@@ -21,7 +22,13 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
             _mockEvaluationRepository = new Mock<IEvaluationRepository>();
             _mockPollRepository = new Mock<IPollRepository>();
             _mockMediator = new Mock<IMediator>();
-            _handler = new CreateEvaluationCommandHandler(_mockEvaluationRepository.Object, _mockPollRepository.Object, _mockMediator.Object);
+            _mockLogger = new Mock<ILogger<CreateEvaluationCommandHandler>>();
+            _handler = new CreateEvaluationCommandHandler(
+                _mockEvaluationRepository.Object,
+                _mockPollRepository.Object,
+                _mockLogger.Object,
+                _mockMediator.Object
+            );
         }
 
         [Fact]
