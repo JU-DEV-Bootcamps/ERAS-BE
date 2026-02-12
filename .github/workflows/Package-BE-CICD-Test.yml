@@ -1,4 +1,4 @@
-name: RW - Test - Package - Runner
+name: Package BE CICD Test
 
 on:
   workflow_call:
