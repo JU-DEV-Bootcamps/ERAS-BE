@@ -97,7 +97,7 @@ jobs:
       - name: snapshot_before_build
         run: |
           mkdir -p /home/ubuntu/audit/before_build
-          find . -name "Eras*.dll" -not -path "*/obj/*" exec cp --parents {} "$AUDIT_PATH" \;
+          find . -name "Eras*.dll" -not -path "*/obj/*" -exec cp --parents {} "$AUDIT_PATH" \;
           echo "Audit completed $AUDIT_PATH"
           pdw
       - name: Clean previous builds
@@ -184,7 +184,7 @@ jobs:
       - name: snapshot_after_build
         run: |
           mkdir -p /home/ubuntu/audit/after_build
-          find . -name "Eras*.dll" -not -path "*/obj/*" exec cp --parents {} "$AUDIT_PATH" \;
+          find . -name "Eras*.dll" -not -path "*/obj/*" -exec cp --parents {} "$AUDIT_PATH" \;
           echo "Audit completed $AUDIT_PATH"
           - name: Save BE tag as JSON
       
