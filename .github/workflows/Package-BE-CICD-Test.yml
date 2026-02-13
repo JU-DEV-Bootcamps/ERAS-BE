@@ -99,7 +99,7 @@ jobs:
           mkdir -p /home/ubuntu/audit/before_build
           find . -name "Eras*.dll" -not -path "*/obj/*" -exec cp --parents {} "$AUDIT_PATH" \;
           echo "Audit completed $AUDIT_PATH"
-          pdw
+          pwd
       - name: Clean previous builds
         run: |
           dotnet clean src/Eras.Api/Eras.Api.csproj
@@ -186,9 +186,9 @@ jobs:
           mkdir -p /home/ubuntu/audit/after_build
           find . -name "Eras*.dll" -not -path "*/obj/*" -exec cp --parents {} "$AUDIT_PATH" \;
           echo "Audit completed $AUDIT_PATH"
-          - name: Save BE tag as JSON
       
-      - run: |
+      - name: Save BE tag as JSON
+        run: |
           TAG="${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
           echo "{\"ERAS-BE\": \"$TAG\"}" > be_tag.json
 
