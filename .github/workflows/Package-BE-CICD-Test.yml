@@ -132,9 +132,21 @@ jobs:
     needs: coverage
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          clean: false
+      - name: snapshot_before_build
+        run: |
+          mkdir -p /home/ubuntu/audit/before_build
+          find . -name "Eras*.dll" -not -path "*/obj/*" exec cp - --parents {} "$AUDIT_PATH" \;
+          echo "Audit completed $AUDIT_PATH"
+          pdw
+      - name: Clean previous builds
+        run: |
+          dotnet clean src/Eras.Api/Eras.Api.csproj
+          # rm -rf src/Eras.Api/bin src/Eras.Api/obj
+          docker system prune -f
       - name: Set variables
         id: set-vars
         run: |
@@ -211,8 +223,14 @@ jobs:
           no-cache: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/${{ env.REPO_NAME }}:${{ env.LAST_TAG }}-${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}
          
-      - name: Save BE tag as JSON
+      - name: snapshot_after_build
         run: |
+          mkdir -p /home/ubuntu/audit/after_build
+          find . -name "Eras*.dll" -not -path "*/obj/*" exec cp - --parents {} "$AUDIT_PATH" \;
+          echo "Audit completed $AUDIT_PATH"
+          - name: Save BE tag as JSON
+      
+      - run: |
           TAG="${{ env.SHORT_SHA }}-${{ inputs.environment_tag }}"
           echo "{\"ERAS-BE\": \"$TAG\"}" > be_tag.json
 
