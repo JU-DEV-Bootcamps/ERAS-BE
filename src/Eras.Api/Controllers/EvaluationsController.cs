@@ -83,7 +83,7 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
     public async Task<IActionResult> GetAllEvaluationsAsync([FromQuery] Pagination Query)
     {
         // get all evaluations with take and skip paginations
-        GetAllEvaluationsQuery command = Query != null ? new() : new() { Query = Query };
+        GetAllEvaluationsQuery command = Query == null ? new() : new() { Query = Query };
         PagedResult<Evaluation> response = await _mediator.Send(command);
 
         return Ok(response);
