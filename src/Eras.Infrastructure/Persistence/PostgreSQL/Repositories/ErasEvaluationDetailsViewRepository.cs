@@ -90,8 +90,30 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         return resultEval.ToList();
     }
 
-    public async Task<(IEnumerable<ErasEvaluationDetailsView> Items, int Total)> GetStudentsByFilters(
+    public async Task<IEnumerable<ErasEvaluationDetailsView>> GetStudentsByFilters(
         string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels, int Page, int PageSize)
+    {
+        var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, RiskLevels);
+
+        var entities = await query
+            .OrderBy(v => v.StudentName)
+            .Distinct()
+            .Skip((Page - 1) * PageSize)
+            .Take(PageSize)
+            .ToListAsync();
+
+        return entities.Select(ErasEvaluationDetailsViewMapper.ToDomain);
+    }
+
+    public async Task<int> CountStudentsByFilters(
+        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
+    {
+        var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, RiskLevels);
+        return await query.Select(v => v.StudentId).Distinct().CountAsync();
+    }
+
+    private IQueryable<ErasEvaluationDetailsViewEntity> BuildStudentsByFiltersQuery(
+        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>()
             .AsNoTracking()
@@ -100,27 +122,11 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .Where(v => ComponentNames.Contains(v.ComponentName));
 
         if (VariableIds != null && VariableIds.Any())
-        {
             query = query.Where(v => VariableIds.Contains(v.VariableId));
-        }
 
         if (RiskLevels != null && RiskLevels.Any())
-        {
-            result = result.Where(v => RiskLevels.Contains(Math.Floor(v.RiskLevel)));
-        }
-        
-        var entities = await query.ToListAsync();
+            query = query.Where(v => RiskLevels.Contains((Math.Floor(v.RiskLevel))));
 
-        int total = await query.Select(v => v.StudentId).CountAsync();
-
-        var persistenceEntities = await query
-            .OrderBy(Eval => Eval.StudentName)
-            .Skip((Page - 1) * PageSize)
-            .Take(PageSize)
-            .Distinct()
-            .ToListAsync(); 
-        var items = persistenceEntities.Select(Eval => ErasEvaluationDetailsViewMapper.ToDomain(Eval)); 
-        
-        return (items, total);
+        return query;
     }
 }
