@@ -136,16 +136,18 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("polls/{Uuid}/top")]
-    public async Task<IActionResult> GetPollTopStudentsAsync([FromRoute] string Uuid, [FromQuery] int CohortId, [FromQuery] bool LastVersion)
+    public async Task<IActionResult> GetPollTopStudentsAsync(
+        [FromRoute] string Uuid, [FromQuery] int CohortId, [FromQuery] bool LastVersion, [FromQuery] Pagination Query)
     {
         var getCohortTopRiskStudentsQuery = new GetCohortTopRiskStudentsQuery()
         {
             PollUuid = Uuid,
             //Todo: Cohort Filter should be optional
             CohortId = CohortId,
-            LastVersion = LastVersion
+            LastVersion = LastVersion,
+            PageValues = Query
         };
-        GetQueryResponse<List<GetCohortTopRiskStudentsByComponentResponse>> queryResponse = await _mediator.Send(getCohortTopRiskStudentsQuery);
+        GetQueryResponse<PagedResult<GetCohortTopRiskStudentsByComponentResponse>> queryResponse = await _mediator.Send(getCohortTopRiskStudentsQuery);
 
         return Ok(queryResponse.Body);
     }
