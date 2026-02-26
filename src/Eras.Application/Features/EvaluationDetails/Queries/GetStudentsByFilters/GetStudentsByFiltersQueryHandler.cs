@@ -27,21 +27,26 @@ public class GetStudentsByFiltersQueryHandler :
         _repository = Repository;
         _logger = Logger;
     }
-
     public async Task<PagedResult<StudentsByFiltersResponse>> Handle(GetStudentsByFiltersQuery Request, CancellationToken CancellationToken)
     {
         try
         {
-            var (items, total) = await _repository.GetStudentsByFilters(
+            var studentsList = await _repository.GetStudentsByFilters(
                 Request.PollUuid,
-                Request.ComponentNames,
+                Request.ComponentNames, 
                 Request.CohortIds,
                 Request.VariableIds,
                 Request.RiskLevels,
-                Request.PageValues.Page,
+                Request.PageValues.Page, 
                 Request.PageValues.PageSize
             );
-            var studentsResponses = items.Select(Student => new StudentsByFiltersResponse
+
+            var totalCount = await _repository.CountStudentsByFilters(
+                Request.PollUuid, Request.ComponentNames, Request.CohortIds,
+                Request.VariableIds, Request.RiskLevels
+            );
+
+            var studentsResponses = studentsList.Select(Student => new StudentsByFiltersResponse
             {
                 Id = Student.StudentId,
                 Name = Student.StudentName,
@@ -51,16 +56,11 @@ public class GetStudentsByFiltersQueryHandler :
                 RiskLevel = Student.RiskLevel
             }).ToList();
 
-            PagedResult<StudentsByFiltersResponse> pagedResult = new PagedResult<StudentsByFiltersResponse>(
-                total,
-                studentsResponses
-            );
-
-            return pagedResult;
+            return new PagedResult<StudentsByFiltersResponse>(totalCount, studentsResponses);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occured while filter students: " + ex.Message);
+            _logger.LogError(ex, "An error occurred while filtering students: " + ex.Message);
             return new PagedResult<StudentsByFiltersResponse>(0, []);
         }
     }
