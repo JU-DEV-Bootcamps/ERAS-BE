@@ -56,17 +56,9 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         query = query.Where(v => CohortIds.Contains(v.CohortId));
         query = query.Where(v => ComponentNames.Contains(v.ComponentName));
 
-        if (VariableIds != null && VariableIds.Any())
-        {
-            query = query.Where(v => VariableIds.Contains(v.VariableId));
-        }
+        var entitiesEval = await query.ToListAsync();
 
-        if (RiskLevels != null && RiskLevels.Any())
-        {
-            query = query.Where(v => RiskLevels.Contains(v.RiskLevel));
-        }
-
-        return await query
+        var resultEval = entitiesEval
             .Select(v => new StudentsByFiltersResponse
             {
                 Id = v.StudentId,
@@ -76,8 +68,14 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
                 AnswerText = v.AnswerText,
                 RiskLevel = v.RiskLevel
             })
-            .Distinct()
-            .ToListAsync();
+            .Distinct();
+
+        if (RiskLevels != null && RiskLevels.Any())
+        {
+            resultEval = resultEval.Where(v => RiskLevels.Contains(Math.Floor(v.RiskLevel)));
+        }
+
+        return resultEval.ToList();
     }
 
     public async Task<List<StudentsByFiltersResponse>> GetStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
@@ -93,12 +91,9 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             query = query.Where(v => VariableIds.Contains(v.VariableId));
         }
 
-        if (RiskLevels != null && RiskLevels.Any())
-        {
-            query = query.Where(v => RiskLevels.Contains(v.RiskLevel));
-        }
+        var entities = await query.ToListAsync();
 
-        return await query
+        var result = entities
             .Select(v => new StudentsByFiltersResponse
             {
                 Id = v.StudentId,
@@ -108,7 +103,13 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
                 AnswerText = v.AnswerText,
                 RiskLevel = v.RiskLevel
             })
-            .Distinct()
-            .ToListAsync();
+            .Distinct();
+
+        if (RiskLevels != null && RiskLevels.Any())
+        {
+            result = result.Where(v => RiskLevels.Contains(Math.Floor(v.RiskLevel)));
+        }
+
+        return result.ToList();
     }
 }
