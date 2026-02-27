@@ -8,9 +8,9 @@ public interface ICohortRepository : IBaseRepository<Cohort>
     Task<Cohort?> GetByNameAsync(string Name);
     Task<Cohort?> GetByCourseCodeAsync(string Name);
     Task<List<Cohort>> GetCohortsAsync();
-    Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponentAsync(string PollUuid, string ComponentName, int CohortId, bool LastVersion);
+    Task<IEnumerable<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponentAsync(string PollUuid, string ComponentName, int CohortId, bool LastVersion, int Page, int PageSize);
     Task<IEnumerable<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsAsync(string PollUuid, int CohortId, bool LastVersion, int Page, int PageSize);
     Task<List<Cohort>> GetCohortsByPollUuidAsync(string PollUuid, bool LastVersion);
     Task<List<Cohort>> GetCohortsByPollIdAsync(int PollId);
-    Task<int> CountStudentsAsync(string PollUuid, int CohortId, bool LastVersion);
+    Task<int> CountStudentsAsync(string PollUuid, int CohortId, bool LastVersion, string? ComponentName = null);
 }
