@@ -33,57 +33,33 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
             .ToListAsync();
         return [.. cohorts.Select(P => P.ToDomain())];
     }
-
-    public async Task<List<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponentAsync(string PollUuid, string ComponentName, int CohortId, bool LastVersion)
+   
+    public async Task<IEnumerable<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponentAsync(
+    string PollUuid, string ComponentName, int CohortId, bool LastVersion, int Page, int PageSize)
     {
-
-        int pollVersion = _context.Polls
-            .Where(A => A.Uuid == PollUuid)
-            .Select(A => A.LastVersion)
-            .FirstOrDefault();
-
-        if (LastVersion)
-        {
-            List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
-                        .Where(View => View.PollUuid == PollUuid && View.ComponentName == ComponentName && View.CohortId == CohortId && View.PollVersion == pollVersion)
-                        .GroupBy(V => new { V.PollInstanceId, V.StudentName, V.StudentId })
-                        .Select(Group => new GetCohortTopRiskStudentsByComponentResponse
-                        {
-                            StudentId = Group.Key.StudentId,
-                            StudentName = Group.Key.StudentName,
-                            AnswerAverage = Math.Round((decimal)Group.Average(V => V.AnswerRisk), 2),
-                            RiskSum = Group.Sum(V => V.AnswerRisk)
-                        })
-                        .OrderByDescending(G => G.RiskSum)
-                        .ToListAsync();
-            return result;
-        }
-        else
-        {
-            List<GetCohortTopRiskStudentsByComponentResponse> result = await _context.ErasCalculationsByPoll
-                        .Where(View => View.PollUuid == PollUuid && View.ComponentName == ComponentName && View.CohortId == CohortId && View.PollVersion != pollVersion)
-                        .GroupBy(V => new { V.PollInstanceId, V.StudentName, V.StudentId })
-                        .Select(Group => new GetCohortTopRiskStudentsByComponentResponse
-                        {
-                            StudentId = Group.Key.StudentId,
-                            StudentName = Group.Key.StudentName,
-                            AnswerAverage = Math.Round((decimal)Group.Average(V => V.AnswerRisk), 2),
-                            RiskSum = Group.Sum(V => V.AnswerRisk)
-                        })
-                        .OrderByDescending(G => G.RiskSum)
-                        .ToListAsync();
-            return result;
-        }
-
-
-
+        var query = BuildCohort(PollUuid, CohortId, LastVersion, ComponentName);
+        return await ProjectAndPaginate(query, Page, PageSize).ToListAsync();
     }
 
-    public async Task<IEnumerable<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsAsync(string PollUuid, int CohortId, bool LastVersion, int Page, int PageSize)
+    public async Task<IEnumerable<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsAsync(
+        string PollUuid, int CohortId, bool LastVersion, int Page, int PageSize)
     {
         var query = BuildCohort(PollUuid, CohortId, LastVersion);
+        return await ProjectAndPaginate(query, Page, PageSize).ToListAsync();
+    }
 
+    public async Task<int> CountStudentsAsync(string PollUuid, int CohortId, bool LastVersion, string? ComponentName = null)
+    {
+        var query = BuildCohort(PollUuid, CohortId, LastVersion, ComponentName);
         return await query
+            .GroupBy(V => new { V.PollInstanceId, V.StudentName, V.StudentId })
+            .CountAsync();
+    }
+
+    private IQueryable<GetCohortTopRiskStudentsByComponentResponse> ProjectAndPaginate(
+        IQueryable<ErasCalculationsByPollEntity> Query, int Page, int PageSize)
+    {
+        return Query
             .GroupBy(V => new { V.PollInstanceId, V.StudentName, V.StudentId })
             .Select(G => new GetCohortTopRiskStudentsByComponentResponse
             {
@@ -94,20 +70,11 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
             })
             .OrderByDescending(G => G.RiskSum)
             .Skip((Page - 1) * PageSize)
-            .Take(PageSize)
-            .ToListAsync();
+            .Take(PageSize);
     }
 
-    public async Task<int> CountStudentsAsync(string PollUuid, int CohortId, bool LastVersion)
-    {
-        var query = BuildCohort(PollUuid, CohortId, LastVersion);
-
-        return await query
-            .GroupBy(V => new { V.PollInstanceId, V.StudentName, V.StudentId })
-            .CountAsync();
-    }
-
-    private IQueryable<ErasCalculationsByPollEntity> BuildCohort(string PollUuid, int CohortId, bool LastVersion)
+    private IQueryable<ErasCalculationsByPollEntity> BuildCohort(
+        string PollUuid, int CohortId, bool LastVersion, string? ComponentName = null)
     {
         int pollVersion = _context.Polls
             .Where(A => A.Uuid == PollUuid)
@@ -116,11 +83,14 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
 
         var query = _context.ErasCalculationsByPoll
             .Where(V => V.PollUuid == PollUuid && V.CohortId == CohortId);
-        
+
         query = LastVersion
             ? query.Where(v => v.PollVersion == pollVersion)
             : query.Where(v => v.PollVersion != pollVersion);
-        
+
+        if (!string.IsNullOrEmpty(ComponentName))
+            query = query.Where(v => v.ComponentName == ComponentName);
+
         return query;
     }
 
