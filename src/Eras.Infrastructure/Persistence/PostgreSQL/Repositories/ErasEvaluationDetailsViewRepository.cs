@@ -75,7 +75,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
 
         if (RiskLevels != null && RiskLevels.Any())
         {
-            resultEval = resultEval.Where(v => RiskLevels.Contains(Math.Floor(v.RiskLevel)));
+            resultEval = resultEval.Where(v => RiskLevels.Contains((decimal)GetRiskGroup((double)v.RiskLevel)));
         }
 
         return resultEval.ToList();
@@ -89,11 +89,16 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         var entities = await query
             .OrderBy(v => v.StudentName)
             .Distinct()
-            .Skip((Page - 1) * PageSize)
-            .Take(PageSize)
             .ToListAsync();
 
-        return entities.Select(ErasEvaluationDetailsViewMapper.ToDomain);
+        var filtered = (RiskLevels != null && RiskLevels.Any())
+            ? entities.Where(v => RiskLevels.Contains((decimal)GetRiskGroup((double)v.RiskLevel)))
+            : entities;
+
+        return filtered
+            .Skip((Page - 1) * PageSize)
+            .Take(PageSize)
+            .Select(ErasEvaluationDetailsViewMapper.ToDomain);
     }
 
     public async Task<int> CountStudentsByFilters(
@@ -115,9 +120,16 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         if (VariableIds != null && VariableIds.Any())
             query = query.Where(v => VariableIds.Contains(v.VariableId));
 
-        if (RiskLevels != null && RiskLevels.Any())
-            query = query.Where(v => RiskLevels.Contains((Math.Floor(v.RiskLevel))));
-
         return query;
+    }
+
+    private static int GetRiskGroup(double risk)
+    {
+        if (risk < 1) return 0;
+        if (risk < 1.5) return 1;
+        if (risk < 2.5) return 2;
+        if (risk < 3.5) return 3;
+        if (risk < 4.5) return 4;
+        return 5;
     }
 }
