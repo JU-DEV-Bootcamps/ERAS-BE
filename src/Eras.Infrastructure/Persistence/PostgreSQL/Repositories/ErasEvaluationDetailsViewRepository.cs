@@ -85,17 +85,9 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels, int Page, int PageSize)
     {
         var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, RiskLevels);
+        var entities = await query.OrderBy(v => v.StudentName).Distinct().ToListAsync();
 
-        var entities = await query
-            .OrderBy(v => v.StudentName)
-            .Distinct()
-            .ToListAsync();
-
-        var filtered = (RiskLevels != null && RiskLevels.Any())
-            ? entities.Where(v => RiskLevels.Contains((decimal)GetRiskGroup((double)v.RiskLevel)))
-            : entities;
-
-        return filtered
+        return ApplyRiskFilter(entities, RiskLevels)
             .Skip((Page - 1) * PageSize)
             .Take(PageSize)
             .Select(ErasEvaluationDetailsViewMapper.ToDomain);
@@ -105,7 +97,11 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
     {
         var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, RiskLevels);
-        return await query.Select(v => v.StudentId).Distinct().CountAsync();
+        var entities = await query.ToListAsync();
+        return ApplyRiskFilter(entities, RiskLevels)
+            .Select(v => v.StudentId)
+            .Distinct()
+            .Count();
     }
 
     private IQueryable<ErasEvaluationDetailsViewEntity> BuildStudentsByFiltersQuery(
@@ -131,5 +127,12 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         if (risk < 3.5) return 3;
         if (risk < 4.5) return 4;
         return 5;
+    }
+
+    private IEnumerable<ErasEvaluationDetailsViewEntity> ApplyRiskFilter(
+    IEnumerable<ErasEvaluationDetailsViewEntity> entities, List<decimal>? RiskLevels)
+    {
+        if (RiskLevels == null || !RiskLevels.Any()) return entities;
+        return entities.Where(v => RiskLevels.Contains((decimal)GetRiskGroup((double)v.RiskLevel)));
     }
 }
