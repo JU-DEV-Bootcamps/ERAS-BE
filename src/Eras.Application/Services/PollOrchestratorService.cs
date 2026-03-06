@@ -113,7 +113,14 @@ namespace Eras.Application.Services
                             // Create asnswers
                             if (createdPollInstance.Success)
                             {
-                                await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
+                                bool isNewPollInstance = createdPollInstance.SuccessfullImports == 1;
+                                bool isExistingWithNewVersion = createdPollInstance.SuccessfullImports == 0 && IsNewVersion;
+
+                                if (isNewPollInstance || isExistingWithNewVersion)
+                                {
+                                    await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
+                                }
+                                createdPollsInstances++;
                             }
                             createdPollsInstances++;
                         }
@@ -147,7 +154,8 @@ namespace Eras.Application.Services
                         return responseUpdate;
                     }
                     else
-                        return new CreateCommandResponse<PollInstance>(responseQuery.Body, responseQuery.Message, responseQuery.Success);
+                        return new CreateCommandResponse<PollInstance>(responseQuery.Body, 0, "Already exists", true);
+
                 }
                 else
                 {

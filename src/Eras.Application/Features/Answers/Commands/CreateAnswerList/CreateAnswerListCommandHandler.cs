@@ -32,6 +32,17 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
             {
                 try
                 {
+                    var existing = await _answerRepository.GetByPollInstanceAnswerAndPollVariableAsync(
+                        answer.PollVariableId,
+                        answer.PollInstanceId,
+                        answer.AnswerText);
+
+                    if (existing.Any())
+                    {
+                        _logger.LogInformation("Answer already exists, skipping duplicate");
+                        continue;
+                    }
+
                     await _answerRepository.AddAsync(answer);
                 }
                 catch (Exception ex)

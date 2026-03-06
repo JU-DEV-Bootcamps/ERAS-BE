@@ -44,5 +44,7 @@ public class PollDTO
     [StringLength(100, MinimumLength = 3, ErrorMessage = "Parent Id Id must be between 3 and 100 characters.")]
     [RegularExpression(@"^[a-zA-Z0-9_\-]+$", ErrorMessage = "Parent Id can only contain letters, numbers, dashes and underscores.")]
     public string ParentId { get; set; } = string.Empty;
+
+    public bool IsAlreadyImported { get; set; } = false;
 }
 
