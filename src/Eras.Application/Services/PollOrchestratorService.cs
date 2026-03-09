@@ -114,8 +114,8 @@ namespace Eras.Application.Services
                             if (createdPollInstance.Success)
                             {
                                 await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
+                                createdPollsInstances++;
                             }
-                            createdPollsInstances++;
                         }
                     }
                 }
@@ -147,7 +147,8 @@ namespace Eras.Application.Services
                         return responseUpdate;
                     }
                     else
-                        return new CreateCommandResponse<PollInstance>(responseQuery.Body, responseQuery.Message, responseQuery.Success);
+                        return new CreateCommandResponse<PollInstance>(responseQuery.Body, 0, "Already exists", true);
+
                 }
                 else
                 {
