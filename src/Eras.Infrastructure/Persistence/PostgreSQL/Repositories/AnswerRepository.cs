@@ -69,4 +69,21 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
             Answ.AnswerText.Equals(AnswerText) && Answ.PollVariableId == PollVariableId).ToListAsync();
         return answers.Select(Answ => Answ.ToDomain()).ToList();
     }
+
+    public async Task<Answer?> GetByPollInstanceAndVariableAsync(int PollVariableId, int PollInstanceId)
+    {
+        AnswerEntity? answer = await _context.Answers
+            .FirstOrDefaultAsync(a => a.PollVariableId == PollVariableId && 
+                                    a.PollInstanceId == PollInstanceId);
+        return answer?.ToDomain();
+    }
+
+    public async Task UpdateAnswerTextAsync(int Id, string AnswerText, decimal RiskLevel)
+    {
+        await _context.Answers
+            .Where(a => a.Id == Id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(a => a.AnswerText, AnswerText)
+                .SetProperty(a => a.RiskLevel, RiskLevel));
+    }
 }

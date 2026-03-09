@@ -113,16 +113,9 @@ namespace Eras.Application.Services
                             // Create asnswers
                             if (createdPollInstance.Success)
                             {
-                                bool isNewPollInstance = createdPollInstance.SuccessfullImports == 1;
-                                bool isExistingWithNewVersion = createdPollInstance.SuccessfullImports == 0 && IsNewVersion;
-
-                                if (isNewPollInstance || isExistingWithNewVersion)
-                                {
-                                    await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
-                                }
+                                await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
                                 createdPollsInstances++;
                             }
-                            createdPollsInstances++;
                         }
                     }
                 }

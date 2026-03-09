@@ -32,26 +32,25 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
             {
                 try
                 {
-                    var existing = await _answerRepository.GetByPollInstanceAnswerAndPollVariableAsync(
-                        answer.PollVariableId,
-                        answer.PollInstanceId,
-                        answer.AnswerText);
+                    var existing = await _answerRepository
+                        .GetByPollInstanceAndVariableAsync(answer.PollVariableId, answer.PollInstanceId);
 
-                    if (existing.Any())
+                    if (existing != null)
                     {
-                        _logger.LogInformation("Answer already exists, skipping duplicate");
-                        continue;
+                        await _answerRepository.UpdateAnswerTextAsync(existing.Id, answer.AnswerText, answer.RiskLevel);
                     }
 
-                    await _answerRepository.AddAsync(answer);
+                    else
+                    {
+                        await _answerRepository.AddAsync(answer);
+                    }
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "An error occurred creating answers ");
+                    _logger.LogError(ex, "An error occurred creating or updating answers");
                 }
             }
             return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);
-
         }
     }
 }
