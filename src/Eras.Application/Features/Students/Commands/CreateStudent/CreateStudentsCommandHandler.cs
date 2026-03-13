@@ -73,8 +73,15 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                             if (studentCreatedOrChanged.SuccessfullImports == 0)
                                 updatedStudents.Add(studentCreatedOrChanged.Entity!);
 
-                            CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(studentCreatedOrChanged.Entity!, dto);
-                            studentCreatedOrChanged.Entity!.StudentDetail = createdStudentDetail.Entity!;
+                            bool studentAlreadyHasDetail = studentCreatedOrChanged.Entity!.StudentDetail?.Id != 0;
+                            
+                            if (!HasDefaultDetailData(dto) && !studentAlreadyHasDetail)
+                            {
+                                CreateCommandResponse<StudentDetail> createdStudentDetail =
+                                    await CreateStudentDetailAsync(studentCreatedOrChanged.Entity!, dto);
+                                studentCreatedOrChanged.Entity!.StudentDetail = createdStudentDetail.Entity!;
+                            }
+
                             createdStudents.Add(studentCreatedOrChanged.Entity);
                         }
                     } else
@@ -117,6 +124,12 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             };
             CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
             return await _mediator.Send(createStudentDetailCommand);
+        }
+
+        private bool HasDefaultDetailData(StudentImportDto Dto)
+        {
+            return Dto.EnrolledCourses == 0 && Dto.TimelySubmissions == 0 && Dto.AverageScore == 0 && Dto.CoursesBelowAverage == 0 
+                && Dto.RawScoreDifference == 0 && Dto.StandardScoreDifference == 0 && Dto.DaysSinceLastAccess == 0;
         }
     }
 }
