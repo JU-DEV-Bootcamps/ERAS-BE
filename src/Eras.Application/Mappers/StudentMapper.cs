@@ -71,12 +71,12 @@ public static class StudentMapper
             Uuid = StudentImportDto.SISId,
             Name = StudentImportDto.Name,
             Email = StudentImportDto.Email,
-            StudentDetail = ExctractStudentDetailDto(StudentImportDto),
+            StudentDetail = ExtractStudentDetailDto(StudentImportDto),
             Cohort = new CohortDTO()
         };
     }
 
-    public static StudentDetailDTO ExctractStudentDetailDto(StudentImportDto Dto)
+    public static StudentDetailDTO ExtractStudentDetailDto(StudentImportDto Dto)
     {
         return new StudentDetailDTO()
         {
