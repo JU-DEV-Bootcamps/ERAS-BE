@@ -210,24 +210,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
                 string studentCohort = apiResponse.Data.Answers.ElementAt(2).Value.AnswersList[0];
+                DateTime evaluationFinishedAtDate = apiResponse.Data.Evaluation.FinishedAt;
                 StudentDTO studentDto = CreateStudent(studentName, studentEmail, studentCohort);
                 List<ComponentDTO> clonedListComponents = new List<ComponentDTO>();
+                bool isEvaluationWithinRange = ValidateEvaluationWithinDateRange(StartDate, EndDate, evaluationFinishedAtDate);
 
-                if(string.IsNullOrEmpty(StartDate) &&
-                    string.IsNullOrEmpty(EndDate))
-                {
-                    clonedListComponents = CloneComponentsList(Components);
-                }else if (!string.IsNullOrEmpty(StartDate) && 
-                    !string.IsNullOrEmpty(EndDate) && 
-                    CohortsHelper.CohortInDateRange(studentCohort ,DateTime.Parse(StartDate), DateTime.Parse(EndDate))
-                    )
-                {
-                    clonedListComponents = CloneComponentsList(Components);
-                }
-                else if(!string.IsNullOrEmpty(StartDate) &&
-                    string.IsNullOrEmpty(EndDate) &&
-                    CohortsHelper.GetCohort(DateTime.Parse(StartDate)) == studentCohort
-                    )
+                if (isEvaluationWithinRange)
                 {
                     clonedListComponents = CloneComponentsList(Components);
                 }
@@ -628,6 +616,34 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             {
                 component.Variables = component.Variables.OrderBy(v => v.Position).ToList();
             }
+        }
+
+        private bool ValidateEvaluationWithinDateRange(string StartDate, string EndDate, DateTime EvaluationFinishedAtDate)
+        {
+            if(string.IsNullOrEmpty(StartDate) &&
+               string.IsNullOrEmpty(EndDate)
+              )
+            {
+                return true;
+            }
+            
+            if(!string.IsNullOrEmpty(StartDate) && 
+               !string.IsNullOrEmpty(EndDate) && 
+               EvaluationFinishedAtDate >= DateTime.Parse(StartDate) &&
+               EvaluationFinishedAtDate <= DateTime.Parse(EndDate)
+              )
+            {
+                return true;
+            }
+            if(!string.IsNullOrEmpty(StartDate) &&
+               string.IsNullOrEmpty(EndDate) &&
+               EvaluationFinishedAtDate >= DateTime.Parse(StartDate)
+              )
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
