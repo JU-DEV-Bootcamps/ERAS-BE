@@ -620,23 +620,25 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
         private bool ValidateEvaluationWithinDateRange(string StartDate, string EndDate, DateTime EvaluationFinishedAtDate)
         {
-            if(string.IsNullOrEmpty(StartDate) &&
-               string.IsNullOrEmpty(EndDate)
-              )
+            bool wasStartDateProvided = !string.IsNullOrEmpty(StartDate);
+            bool wasEndDateProvided = !string.IsNullOrEmpty(EndDate);
+
+            if(!wasStartDateProvided && !wasEndDateProvided)
             {
                 return true;
             }
             
-            if(!string.IsNullOrEmpty(StartDate) && 
-               !string.IsNullOrEmpty(EndDate) && 
+            // Add 1 day to EndDate to account for evaluations finished
+            // on the EndDate.
+            if(wasStartDateProvided && wasEndDateProvided && 
                EvaluationFinishedAtDate >= DateTime.Parse(StartDate) &&
-               EvaluationFinishedAtDate <= DateTime.Parse(EndDate)
+               EvaluationFinishedAtDate <= DateTime.Parse(EndDate).AddDays(1)
               )
             {
                 return true;
             }
-            if(!string.IsNullOrEmpty(StartDate) &&
-               string.IsNullOrEmpty(EndDate) &&
+
+            if(wasStartDateProvided && !wasEndDateProvided &&
                EvaluationFinishedAtDate >= DateTime.Parse(StartDate)
               )
             {
