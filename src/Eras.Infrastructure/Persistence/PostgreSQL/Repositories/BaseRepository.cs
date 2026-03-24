@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Data;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 
 using Eras.Application.Contracts.Persistence;
 using Eras.Error.Critical;
@@ -91,6 +93,74 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             {
                 throw new DatabaseCustomException(e);
             }
+        }
+
+
+        public async Task<int> CountAsync(Expression<Func<TDomain, bool>> predicate)
+        {
+            var oldParam = predicate.Parameters[0];
+
+            var newParam = Expression.Parameter(typeof(TPersist), oldParam.Name);
+
+            var visitor = new ParameterReplacer(oldParam, newParam);
+            var body = visitor.Visit(predicate.Body);
+
+            var finalExpression = Expression.Lambda<Func<TPersist, bool>>(body, newParam);
+
+            return await _context.Set<TPersist>().CountAsync(finalExpression);
+        }
+
+        internal class ParameterReplacer(ParameterExpression oldParam, ParameterExpression newParam) : ExpressionVisitor
+        {
+            protected override Expression VisitParameter(ParameterExpression node)
+                => node == oldParam ? newParam : base.VisitParameter(node);
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                if (node.Member.Name == "Audit")
+                {
+                    return base.Visit(node.Expression);
+                }
+
+                var memberName = node.Member.Name;
+                var targetType = newParam.Type;
+                var property = targetType.GetProperty(memberName);
+
+                if (property != null)
+                {
+                    return Expression.Property(Visit(node.Expression), property);
+                }
+
+                return base.VisitMember(node);
+            }
+        }
+
+
+        public async Task<int> CountByDateRangeAsync(DateTime start, DateTime end)
+        {
+            var entityType = _context.Model.FindEntityType(typeof(TPersist));
+            var tableName = entityType.GetTableName();
+
+            var sql = $"SELECT COUNT(*) FROM {tableName} WHERE created_at >= @p0 AND created_at <= @p1";
+
+            using var command = _context.Database.GetDbConnection().CreateCommand();
+            command.CommandText = sql;
+
+            var p0 = command.CreateParameter();
+            p0.ParameterName = "@p0";
+            p0.Value = start;
+            command.Parameters.Add(p0);
+
+            var p1 = command.CreateParameter();
+            p1.ParameterName = "@p1";
+            p1.Value = end;
+            command.Parameters.Add(p1);
+
+            if (command.Connection.State != ConnectionState.Open)
+                await command.Connection.OpenAsync();
+
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result);
         }
     }
 }
