@@ -2,10 +2,13 @@
 
 using Eras.Application.Features.EvaluationDetails.Queries.GetStudentsByEvaluationId;
 using Eras.Application.Features.EvaluationDetails.Queries.GetStudentsByFilters;
+using Eras.Application.Features.EvaluationDetails.Queries.GetStudentsRecentAlerts;
+using Eras.Application.Models.Response.Controllers.EvaluationDetailsController;
 using Eras.Application.Utils;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
@@ -53,5 +56,16 @@ public class EvaluationDetailsController(IMediator Mediator, ILogger<Evaluations
 
         _logger.LogInformation("Successfully retrieved Students List {response}", response);
         return response == null ? NotFound(response) : Ok(response);
+    }
+
+
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [HttpGet("alerts")]
+    public async Task<IActionResult> GetRecentAlertsOfStudentsAsync([FromQuery] Pagination Query)
+    {
+        PagedResult<GetStudentsRecentAlertsResponse> result = await _mediator.Send(new GetStudentsRecentAlertsQuery(Query));
+        return Ok(result);
     }
 }
