@@ -1,26 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Controllers.EvaluationDetailsController;
-using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 using Microsoft.EntityFrameworkCore;
 
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entities.ErasEvaluationDetailsView, ErasEvaluationDetailsViewEntity>, IErasEvaluationDetailsViewRepository
 {
     public ErasEvaluationDetailsViewRepository(AppDbContext Context)
-            : base(Context, ErasEvaluationDetailsViewMapper.ToDomain, ErasEvaluationDetailsViewMapper.ToPersistence) { }
+            : base(Context, Mappers.ErasEvaluationDetailsViewMapper.ToDomain, Mappers.ErasEvaluationDetailsViewMapper.ToPersistence) { }
 
     public async Task<List<ErasEvaluationDetailsView>> GetByFiltersAsync(int? PollId, List<int>? ComponentIds, List<int>? CohortIds, List<int>? VariableIds)
     {
@@ -90,7 +83,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         return ApplyRiskFilter(entities, RiskLevels)
             .Skip((Page - 1) * PageSize)
             .Take(PageSize)
-            .Select(ErasEvaluationDetailsViewMapper.ToDomain);
+            .Select(Mappers.ErasEvaluationDetailsViewMapper.ToDomain);
     }
 
     public async Task<int> CountStudentsByFilters(
@@ -102,6 +95,40 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .Select(v => v.StudentId)
             .Distinct()
             .Count();
+    }
+
+    public async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsStudentAsync(int Page, int PageSize)
+    {
+        var query = _context.ErasEvaluationDetailsView
+            .Where(e => e.RiskLevel != null)
+            .OrderByDescending(e => e.FinishedAt);
+
+        var totalCount = await query.CountAsync();
+
+        var prevItems = await query
+            .Skip((Page - 1) * PageSize)
+            .Take(PageSize)
+            .Select(e => new
+            {
+                e.StudentId,
+                e.StudentName,
+                e.RiskLevel,
+                e.VariableName,
+                e.FinishedAt,
+                e.Status
+            }).ToListAsync();
+
+        return prevItems
+            .Select(e => new GetStudentsRecentAlertsResponse
+            {
+                StudentId = e.StudentId.ToString(),
+                StudentName = e.StudentName,
+                RiskLevel = RiskLevelMapper.ToRiskLevel(e.RiskLevel),
+                Category = e.VariableName,
+                Date = e.FinishedAt,
+                Status = e.Status
+            })
+            .ToList();
     }
 
     private IQueryable<ErasEvaluationDetailsViewEntity> BuildStudentsByFiltersQuery(
