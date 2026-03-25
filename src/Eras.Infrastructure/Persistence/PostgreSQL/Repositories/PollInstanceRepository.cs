@@ -26,6 +26,14 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return results?.ToDomain();
     }
 
+    public async Task<bool> ExistsByPollNameAndStudentEmailAsync(string PollName, string StudentEmail)
+    {
+        return await _context.PollInstances
+            .Include(p => p.Student)
+            .AnyAsync(p => _context.Polls
+                .Any(poll => poll.Uuid == p.Uuid && poll.Name == PollName) &&
+                p.Student.Email == StudentEmail);
+    }
 
     public async Task<IEnumerable<PollInstance>> GetByLastDays(int Days, bool LastVersion, string PollUuid)
     {

@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
@@ -28,18 +29,21 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private readonly ILogger<CosmicLatteAPIService> _logger;
         private readonly PollOrchestratorService _pollOrchestratorService;
         private readonly IApiKeyEncryptor _encryptor;
+        private readonly IPollInstanceRepository _pollInstanceRepository;
 
         public CosmicLatteAPIService(
             IConfiguration Configuration,
             IHttpClientFactory HttpClientFactory,
             ILogger<CosmicLatteAPIService> Logger,
             PollOrchestratorService PollOrchestratorService,
-            IApiKeyEncryptor Encryptor)
+            IApiKeyEncryptor Encryptor,
+            IPollInstanceRepository PollInstanceRepository)
         {
             _httpClient = HttpClientFactory.CreateClient();
             _logger = Logger;
             _pollOrchestratorService = PollOrchestratorService;
             _encryptor = Encryptor;
+            _pollInstanceRepository = PollInstanceRepository;
         }
 
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy(string ApiKey, string ApiUrl)
@@ -150,6 +154,17 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                             Components = SanitizeComponents(populatedComponents),
                             ParentId = responseToPollInstance.parent.Split(':')[1]
                         };
+                        
+                        var studentEmail = pollDto.Components?
+                            .FirstOrDefault()?.Variables?
+                            .FirstOrDefault()?.Answer?.Student?.Email;
+
+
+                        if (!string.IsNullOrEmpty(studentEmail))
+                        {
+                            pollDto.IsAlreadyImported = await _pollInstanceRepository
+                                .ExistsByPollNameAndStudentEmailAsync(pollDto.Name, studentEmail);
+                        }
                         pollsDtos.Add(pollDto);
                     }
                 }
