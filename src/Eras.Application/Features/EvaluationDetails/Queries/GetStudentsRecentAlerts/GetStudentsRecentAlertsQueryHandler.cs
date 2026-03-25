@@ -34,7 +34,7 @@ public class GetStudentsRecentAlertsQueryHandler
                 Request.Query.Page,
                 Request.Query.PageSize
             );
-            var totalCount = await _viewRepository.CountAsync();
+            var totalCount = await _viewRepository.CountRecentAlerts();
 
             PagedResult<GetStudentsRecentAlertsResponse> pagedResult = new PagedResult<GetStudentsRecentAlertsResponse>(
                 totalCount,

@@ -1,7 +1,6 @@
-﻿using Eras.Application.DTOs.CL;
-using Eras.Application.Models.Enums;
+﻿using Eras.Application.Models.Enums;
 
-namespace Eras.Application.Mappers;
+namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 public static class RiskLevelMapper
 {
@@ -13,3 +12,4 @@ public static class RiskLevelMapper
         _ => throw new ArgumentOutOfRangeException(nameof(risk))
     };
 }
+

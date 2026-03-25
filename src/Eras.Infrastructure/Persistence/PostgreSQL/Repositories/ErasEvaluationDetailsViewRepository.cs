@@ -1,5 +1,4 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Controllers.EvaluationDetailsController;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
@@ -13,7 +12,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entities.ErasEvaluationDetailsView, ErasEvaluationDetailsViewEntity>, IErasEvaluationDetailsViewRepository
 {
     public ErasEvaluationDetailsViewRepository(AppDbContext Context)
-            : base(Context, Mappers.ErasEvaluationDetailsViewMapper.ToDomain, Mappers.ErasEvaluationDetailsViewMapper.ToPersistence) { }
+            : base(Context, ErasEvaluationDetailsViewMapper.ToDomain, ErasEvaluationDetailsViewMapper.ToPersistence) { }
 
     public async Task<List<ErasEvaluationDetailsView>> GetByFiltersAsync(int? PollId, List<int>? ComponentIds, List<int>? CohortIds, List<int>? VariableIds)
     {
@@ -97,7 +96,24 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .Count();
     }
 
+    public async Task<int> CountRecentAlerts()
+    {
+        var itemsRiskStudents = await GetRecentAlertsWithoutPagination();
+
+        return itemsRiskStudents.Count();
+    }
+
     public async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsStudentAsync(int Page, int PageSize)
+    {
+        var averageRiskStudents = await GetRecentAlertsWithoutPagination();
+
+        return averageRiskStudents
+            .Skip((Page - 1) * PageSize)
+            .Take(PageSize)
+            .ToList();
+    }
+
+    private async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsWithoutPagination()
     {
         var prevItems = await _context.ErasEvaluationDetailsView
             .Select(e => new
@@ -110,7 +126,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
                 e.Status
             }).ToListAsync();
 
-        var averageRiskStudents = prevItems
+        return prevItems
             .GroupBy(e => new { e.StudentId, e.ComponentName })
             .Select(e =>
             {
@@ -129,13 +145,6 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .OrderByDescending(e => e.RiskLevel)
             .ThenByDescending(e => e.Date)
             .ToList();
-
-        var items = averageRiskStudents
-            .Skip((Page - 1) * PageSize)
-            .Take(PageSize)
-            .ToList();
-
-        return items;
     }
 
     private IQueryable<ErasEvaluationDetailsViewEntity> BuildStudentsByFiltersQuery(

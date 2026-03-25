@@ -16,5 +16,5 @@ public interface IErasEvaluationDetailsViewRepository : IBaseRepository<ErasEval
     Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevel);
     Task<int> CountStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevel);
     Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsStudentAsync(int Page, int PageSize);
-
+    Task<int> CountRecentAlerts();
 }
