@@ -99,36 +99,43 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
 
     public async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsStudentAsync(int Page, int PageSize)
     {
-        var query = _context.ErasEvaluationDetailsView
-            .Where(e => e.RiskLevel != null)
-            .OrderByDescending(e => e.FinishedAt);
-
-        var totalCount = await query.CountAsync();
-
-        var prevItems = await query
-            .Skip((Page - 1) * PageSize)
-            .Take(PageSize)
+        var prevItems = await _context.ErasEvaluationDetailsView
             .Select(e => new
             {
                 e.StudentId,
                 e.StudentName,
                 e.RiskLevel,
-                e.VariableName,
+                e.ComponentName,
                 e.FinishedAt,
                 e.Status
             }).ToListAsync();
 
-        return prevItems
-            .Select(e => new GetStudentsRecentAlertsResponse
+        var averageRiskStudents = prevItems
+            .GroupBy(e => new { e.StudentId, e.ComponentName })
+            .Select(e =>
             {
-                StudentId = e.StudentId.ToString(),
-                StudentName = e.StudentName,
-                RiskLevel = RiskLevelMapper.ToRiskLevel(e.RiskLevel),
-                Category = e.VariableName,
-                Date = e.FinishedAt,
-                Status = e.Status
+                var averageScore = e.Average(e => (double)e.RiskLevel);
+                var first = e.First();
+                return new GetStudentsRecentAlertsResponse
+                {
+                    StudentId = first.StudentId.ToString(),
+                    StudentName = first.StudentName,
+                    RiskLevel = RiskLevelMapper.ToRiskLevel(averageScore),
+                    Category = first.ComponentName,
+                    Date = first.FinishedAt,
+                    Status = first.Status
+                };
             })
+            .OrderByDescending(e => e.RiskLevel)
+            .ThenByDescending(e => e.Date)
             .ToList();
+
+        var items = averageRiskStudents
+            .Skip((Page - 1) * PageSize)
+            .Take(PageSize)
+            .ToList();
+
+        return items;
     }
 
     private IQueryable<ErasEvaluationDetailsViewEntity> BuildStudentsByFiltersQuery(
