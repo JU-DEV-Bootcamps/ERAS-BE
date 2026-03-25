@@ -135,25 +135,24 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             }
         }
 
-
         public async Task<int> CountByDateRangeAsync(DateTime start, DateTime end)
         {
             var entityType = _context.Model.FindEntityType(typeof(TPersist));
             var tableName = entityType.GetTableName();
 
-            var sql = $"SELECT COUNT(*) FROM {tableName} WHERE created_at >= @p0 AND created_at <= @p1";
+            var sql = $"SELECT COUNT(*) FROM \"{tableName}\" WHERE created_at >= @p0 AND created_at <= @p1";
 
             using var command = _context.Database.GetDbConnection().CreateCommand();
             command.CommandText = sql;
 
             var p0 = command.CreateParameter();
             p0.ParameterName = "@p0";
-            p0.Value = start;
+            p0.Value = DateTime.SpecifyKind(start, DateTimeKind.Utc);
             command.Parameters.Add(p0);
 
             var p1 = command.CreateParameter();
             p1.ParameterName = "@p1";
-            p1.Value = end;
+            p1.Value = DateTime.SpecifyKind(end, DateTimeKind.Utc);
             command.Parameters.Add(p1);
 
             if (command.Connection.State != ConnectionState.Open)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using Eras.Application.Utils;
 
 using MediatR;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Dashboard.Queries.GetDashboardKpis;
@@ -64,7 +66,8 @@ class GetDashboardKpisQueryHandler(
 
     private static double CalculateChange(int current, int previous)
     {
-        if (previous == 0) return current > 0 ? 100 : 0;
-        return Math.Round(((double)(current - previous) / previous) * 100, 2);
+        if (previous == 0) return current > 0 ? 100.0 : 0.0;
+        double diff = current - previous;
+        return Math.Round((diff / previous) * 100, 2);
     }
 }
