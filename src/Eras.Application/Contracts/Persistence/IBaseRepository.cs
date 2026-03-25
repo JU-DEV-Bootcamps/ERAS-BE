@@ -1,4 +1,6 @@
-﻿namespace Eras.Application.Contracts.Persistence;
+﻿using System.Linq.Expressions;
+
+namespace Eras.Application.Contracts.Persistence;
 public interface IBaseRepository<T>
 {
     Task<T> AddAsync(T Entity);
@@ -8,5 +10,6 @@ public interface IBaseRepository<T>
     Task DeleteAsync(T Entity);
     Task<T> UpdateAsync(T Entity);
     Task<int> CountAsync();
-
+    Task<int> CountAsync(Expression<Func<T, bool>> predicate);
+    Task<int> CountByDateRangeAsync(DateTime start, DateTime end);
 }
