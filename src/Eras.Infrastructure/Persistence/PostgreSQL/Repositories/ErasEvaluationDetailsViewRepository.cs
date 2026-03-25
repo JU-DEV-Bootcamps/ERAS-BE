@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.Response.Controllers.EvaluationDetailsController;
-using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 using Microsoft.EntityFrameworkCore;
 
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
@@ -90,7 +82,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         return ApplyRiskFilter(entities, RiskLevels)
             .Skip((Page - 1) * PageSize)
             .Take(PageSize)
-            .Select(ErasEvaluationDetailsViewMapper.ToDomain);
+            .Select(Mappers.ErasEvaluationDetailsViewMapper.ToDomain);
     }
 
     public async Task<int> CountStudentsByFilters(
@@ -102,6 +94,57 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .Select(v => v.StudentId)
             .Distinct()
             .Count();
+    }
+
+    public async Task<int> CountRecentAlerts()
+    {
+        var itemsRiskStudents = await GetRecentAlertsWithoutPagination();
+
+        return itemsRiskStudents.Count();
+    }
+
+    public async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsStudentAsync(int Page, int PageSize)
+    {
+        var averageRiskStudents = await GetRecentAlertsWithoutPagination();
+
+        return averageRiskStudents
+            .Skip((Page - 1) * PageSize)
+            .Take(PageSize)
+            .ToList();
+    }
+
+    private async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsWithoutPagination()
+    {
+        var prevItems = await _context.ErasEvaluationDetailsView
+            .Select(e => new
+            {
+                e.StudentId,
+                e.StudentName,
+                e.RiskLevel,
+                e.ComponentName,
+                e.FinishedAt,
+                e.Status
+            }).ToListAsync();
+
+        return prevItems
+            .GroupBy(e => new { e.StudentId, e.ComponentName })
+            .Select(e =>
+            {
+                var averageScore = e.Average(e => (double)e.RiskLevel);
+                var first = e.First();
+                return new GetStudentsRecentAlertsResponse
+                {
+                    StudentId = first.StudentId.ToString(),
+                    StudentName = first.StudentName,
+                    RiskLevel = RiskLevelMapper.ToRiskLevel(averageScore),
+                    Category = first.ComponentName,
+                    Date = first.FinishedAt,
+                    Status = first.Status
+                };
+            })
+            .OrderByDescending(e => e.RiskLevel)
+            .ThenByDescending(e => e.Date)
+            .ToList();
     }
 
     private IQueryable<ErasEvaluationDetailsViewEntity> BuildStudentsByFiltersQuery(
