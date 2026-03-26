@@ -24,7 +24,7 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
         {
             try
             {
-                var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(Request.Pagination.Page, Request.Pagination.PageSize, Request.CohortId, Request.Days, Request.LastVersion, Request.PollUuid);
+                var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(Request.Pagination.Page, Request.Pagination.PageSize, Request.CohortId, Request.Days, Request.LastVersion, Request.PollUuid, null, null);
                 var pollInstanceDTOs =
                     pollInstances.Items
                     .Select(PollInstance => PollInstanceMapper.ToDTO(PollInstance)).ToList();

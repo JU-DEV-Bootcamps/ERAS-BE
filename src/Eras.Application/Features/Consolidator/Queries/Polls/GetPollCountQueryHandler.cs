@@ -11,18 +11,23 @@ namespace Eras.Application.Features.Consolidator.Queries.Polls;
 
 public class PollCountQueryHandler(
     ILogger<PollCountQueryHandler> Logger,
-    IPollInstanceRepository PollInstanceRepository
+    IPollInstanceRepository PollInstanceRepository,
+    IEvaluationRepository EvaluationRepository 
     ) : IRequestHandler<PollCountQuery, GetQueryResponse<CountReportResponseVm>>
 {
     private readonly IPollInstanceRepository _pollInstanceRepository = PollInstanceRepository;
+    private readonly IEvaluationRepository _evaluationRepository = EvaluationRepository;
     private readonly ILogger<PollCountQueryHandler> _logger = Logger;
 
     public async Task<GetQueryResponse<CountReportResponseVm>> Handle(PollCountQuery Req, CancellationToken CancToken)
     {
         try
         {
+            var evaluation = await _evaluationRepository.GetByIdAsync(Req.EvaluationId);
+            var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
+            var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc);
 
-            var answersByFilters = await _pollInstanceRepository.GetCountReportByVariablesAsync(Req.PollUuid, Req.CohortIds, Req.VariableIds, Req.LastVersion)
+            var answersByFilters = await _pollInstanceRepository.GetCountReportByVariablesAsync(Req.PollUuid, Req.CohortIds, Req.VariableIds, Req.LastVersion, startDate, endDate)
                 ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortIds}");
 
             if (answersByFilters == null) // Returns empty response

@@ -12,8 +12,8 @@ namespace Eras.Application.Contracts.Persistence;
 public interface IErasEvaluationDetailsViewRepository : IBaseRepository<ErasEvaluationDetailsView>
 {
     Task<List<ErasEvaluationDetailsView>> GetByFiltersAsync(int? PollId, List<int>? ComponentIds, List<int>? CohortIds, List<int>? VariableIds);
-    Task<IEnumerable<ErasEvaluationDetailsView>> GetStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevel, int Page, int PageSize);
+    Task<IEnumerable<ErasEvaluationDetailsView>> GetStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevel, int Page, int PageSize, DateTime startDate, DateTime endDate);
     Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevel);
-    Task<int> CountStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevel);
+    Task<int> CountStudentsByFilters(string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevel, DateTime startDate, DateTime endDate);
 
 }

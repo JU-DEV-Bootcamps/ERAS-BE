@@ -19,12 +19,13 @@ public class EvaluationDetailsController(IMediator Mediator, ILogger<Evaluations
 
     [HttpGet("StudentsByFilters")]
     public async Task<IActionResult> StudentsByFilterAsync(
-        [FromQuery, Required] string PollUuid, [FromQuery, Required, MinLength(1)] List<string> ComponentNames, [FromQuery, Required, MinLength(1)] List<int> CohortIds, [FromQuery, Required, MinLength(1)] List<int>? VariableIds, [FromQuery] List<decimal>? RiskLevels, [FromQuery] Pagination Query)
+        [FromQuery, Required] string PollUuid, [FromQuery, Required] int evaluationId, [FromQuery, Required, MinLength(1)] List<string> ComponentNames, [FromQuery, Required, MinLength(1)] List<int> CohortIds, [FromQuery, Required, MinLength(1)] List<int>? VariableIds, [FromQuery] List<decimal>? RiskLevels, [FromQuery] Pagination Query)
     {
         _logger.LogInformation("Retrieving students with filters {PollId}, Components ({ComponentIds}), Cohorts ({CohortIds}), Variables ({VariableIds})", PollUuid, ComponentNames, CohortIds, VariableIds);
         var query = new GetStudentsByFiltersQuery()
         {
             PollUuid = PollUuid,
+            EvaluationId = evaluationId,
             ComponentNames = ComponentNames,
             CohortIds = CohortIds,
             VariableIds = VariableIds,
