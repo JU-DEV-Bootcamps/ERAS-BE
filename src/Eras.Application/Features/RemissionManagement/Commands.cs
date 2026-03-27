@@ -1,5 +1,5 @@
-﻿using Eras.Application.DTOs.RemissionManagement;
-using Eras.Domain.Entities.RemissionsManagement;
+﻿using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
 
@@ -15,15 +15,15 @@ public sealed record GetStudentProfileByStudentCodeQuery(string StudentCode) : I
 
 public sealed record GetAllStudentProfilesQuery() : IRequest<IReadOnlyCollection<StudentProfileDto>>;
 
-public sealed record CreateRemissionCommand(RemissionDto Remission) : IRequest<RemissionDto>;
+public sealed record CreateRemissionCommand(AssessmentDto Remission) : IRequest<AssessmentDto>;
 
-public sealed record UpdateRemissionCommand(RemissionDto Remission) : IRequest<RemissionDto>;
+public sealed record UpdateRemissionCommand(AssessmentDto Remission) : IRequest<AssessmentDto>;
 
-public sealed record GetRemissionByIdQuery(Guid Id) : IRequest<RemissionDto?>;
+public sealed record GetRemissionByIdQuery(Guid Id) : IRequest<AssessmentDto?>;
 
-public sealed record GetRemissionsByStudentIdQuery(Guid StudentId) : IRequest<IReadOnlyCollection<RemissionDto>>;
+public sealed record GetRemissionsByStudentIdQuery(Guid StudentId) : IRequest<IReadOnlyCollection<AssessmentDto>>;
 
-public sealed record GetRemissionsByStatusQuery(RemissionStatus Status)
-    : IRequest<IReadOnlyCollection<RemissionDto>>;
+public sealed record GetRemissionsByStatusQuery(AssessmentStatus Status)
+    : IRequest<IReadOnlyCollection<AssessmentDto>>;
 
-public sealed record GetAllRemissionsQuery() : IRequest<IReadOnlyCollection<RemissionDto>>;
+public sealed record GetAllRemissionsQuery() : IRequest<IReadOnlyCollection<AssessmentDto>>;

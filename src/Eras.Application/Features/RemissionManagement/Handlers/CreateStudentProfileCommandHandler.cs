@@ -1,10 +1,10 @@
 ﻿
 
-using Eras.Application.Contracts.Persistence.RemissionManagement;
-using Eras.Application.DTOs.RemissionManagement;
-using Eras.Application.Mappers.RemissionManagement;
+using Eras.Application.Contracts.Persistence.AssessmentManagement;
+using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Application.Validation;
-using Eras.Domain.Entities.RemissionsManagement;
+using Eras.Domain.Entities.AssessmentManagement;
 
 using FluentValidation;
 

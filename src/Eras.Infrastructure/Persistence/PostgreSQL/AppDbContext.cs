@@ -1,4 +1,4 @@
-﻿using Eras.Domain.Entities.RemissionsManagement;
+﻿using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
@@ -28,7 +28,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<JUProfessionalEntity> Professionals { get; set; }
         public virtual DbSet<JUServiceEntity> JUServices { get; set; }
         public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
-        public DbSet<Remission> Remissions => Set<Remission>();
+        public DbSet<Assessment> Assessments => Set<Assessment>();
         public DbSet<Intervention> Interventions => Set<Intervention>();
 
         // Views

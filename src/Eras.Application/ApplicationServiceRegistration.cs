@@ -1,12 +1,12 @@
 ﻿using System.Reflection;
 
 using Eras.Application.Contracts.Infrastructure;
-using Eras.Application.DTOs.RemissionManagement;
+using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Mappers;
-using Eras.Application.Mappers.RemissionManagement;
+using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Application.Models.Response.HeatMap;
-using Eras.Domain.Entities.RemissionsManagement;
-using Eras.Domain.Entities.RemissionsManagement.Validators;
+using Eras.Domain.Entities.AssessmentManagement;
+using Eras.Domain.Entities.AssessmentManagement.Validators;
 
 using FluentValidation;
 
@@ -45,12 +45,12 @@ namespace Eras.Application.Services
             services.AddScoped<IMapper<GroupInterventionDto, GroupIntervention>, GroupInterventionMapper>();
             services.AddScoped<IMapper<GroupIntervention, GroupInterventionDto>, GroupInterventionToDtoMapper>();
 
-            services.AddScoped<IMapper<RemissionDto, Remission>, RemissionMapper>();
-            services.AddScoped<IMapper<Remission, RemissionDto>, RemissionToDtoMapper>();
+            services.AddScoped<IMapper<AssessmentDto, Assessment>, AssessmentMapper>();
+            services.AddScoped<IMapper<Assessment, AssessmentDto>, AssessmentToDtoMapper>();
 
             services.AddScoped<IValidator<StudentProfile>, StudentProfileValidator>();
             services.AddScoped<IValidator<InterventionPlan>, InterventionPlanValidator>();
-            services.AddScoped<IValidator<Remission>, RemissionValidator>();
+            services.AddScoped<IValidator<Assessment>, AssessementValidator>();
 
             return services;
         }

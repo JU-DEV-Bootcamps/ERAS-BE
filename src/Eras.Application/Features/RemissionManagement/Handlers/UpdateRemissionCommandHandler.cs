@@ -1,10 +1,10 @@
 ﻿
 
-using Eras.Application.Contracts.Persistence.RemissionManagement;
-using Eras.Application.DTOs.RemissionManagement;
-using Eras.Application.Mappers.RemissionManagement;
+using Eras.Application.Contracts.Persistence.AssessmentManagement;
+using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Application.Validation;
-using Eras.Domain.Entities.RemissionsManagement;
+using Eras.Domain.Entities.AssessmentManagement;
 
 using FluentValidation;
 
@@ -13,18 +13,18 @@ using MediatR;
 namespace Eras.Application.Features.RemissionManagement.Handlers;
 
 public sealed class UpdateRemissionCommandHandler
-    : IRequestHandler<UpdateRemissionCommand, RemissionDto>
+    : IRequestHandler<UpdateRemissionCommand, AssessmentDto>
 {
-    private readonly IMapper<RemissionDto, Remission> _toDomainMapper;
-    private readonly IMapper<Remission, RemissionDto> _toDtoMapper;
-    private readonly IValidator<Remission> _validator;
-    private readonly IRemissionRepository _repository;
+    private readonly IMapper<AssessmentDto, Assessment> _toDomainMapper;
+    private readonly IMapper<Assessment, AssessmentDto> _toDtoMapper;
+    private readonly IValidator<Assessment> _validator;
+    private readonly IAssessmentRepository _repository;
 
     public UpdateRemissionCommandHandler(
-        IMapper<RemissionDto, Remission> toDomainMapper,
-        IMapper<Remission, RemissionDto> toDtoMapper,
-        IValidator<Remission> validator,
-        IRemissionRepository repository)
+        IMapper<AssessmentDto, Assessment> toDomainMapper,
+        IMapper<Assessment, AssessmentDto> toDtoMapper,
+        IValidator<Assessment> validator,
+        IAssessmentRepository repository)
     {
         _toDomainMapper = toDomainMapper;
         _toDtoMapper = toDtoMapper;
@@ -32,15 +32,15 @@ public sealed class UpdateRemissionCommandHandler
         _repository = repository;
     }
 
-    public async Task<RemissionDto> Handle(
+    public async Task<AssessmentDto> Handle(
         UpdateRemissionCommand request,
         CancellationToken cancellationToken)
     {
-        Remission entity = _toDomainMapper.Map(request.Remission);
+        Assessment entity = _toDomainMapper.Map(request.Remission);
 
         await ValidationHelper.ValidateAndThrowAsync(_validator, entity, cancellationToken);
 
-        Remission persisted = await _repository.UpdateAsync(entity);
+        Assessment persisted = await _repository.UpdateAsync(entity);
 
         return _toDtoMapper.Map(persisted);
     }

@@ -1,33 +1,33 @@
 ﻿
 
-using Eras.Application.Contracts.Persistence.RemissionManagement;
-using Eras.Application.DTOs.RemissionManagement;
-using Eras.Application.Mappers.RemissionManagement;
-using Eras.Domain.Entities.RemissionsManagement;
+using Eras.Application.Contracts.Persistence.AssessmentManagement;
+using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Application.Mappers.AssessmentManagement;
+using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
 
 namespace Eras.Application.Features.RemissionManagement.Handlers;
 
 public sealed class GetRemissionsByStatusQueryHandler
-    : IRequestHandler<GetRemissionsByStatusQuery, IReadOnlyCollection<RemissionDto>>
+    : IRequestHandler<GetRemissionsByStatusQuery, IReadOnlyCollection<AssessmentDto>>
 {
-    private readonly IRemissionRepository _repository;
-    private readonly IMapper<Remission, RemissionDto> _mapper;
+    private readonly IAssessmentRepository _repository;
+    private readonly IMapper<Assessment, AssessmentDto> _mapper;
 
     public GetRemissionsByStatusQueryHandler(
-        IRemissionRepository repository,
-        IMapper<Remission, RemissionDto> mapper)
+        IAssessmentRepository repository,
+        IMapper<Assessment, AssessmentDto> mapper)
     {
         _repository = repository;
         _mapper = mapper;
     }
 
-    public async Task<IReadOnlyCollection<RemissionDto>> Handle(
+    public async Task<IReadOnlyCollection<AssessmentDto>> Handle(
         GetRemissionsByStatusQuery request,
         CancellationToken cancellationToken)
     {
-        IEnumerable<Remission> entities = await _repository.GetByStatusAsync(request.Status);
+        IEnumerable<Assessment> entities = await _repository.GetByStatusAsync(request.Status);
 
         return entities.Select(_mapper.Map).ToArray();
     }
