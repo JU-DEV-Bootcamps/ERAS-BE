@@ -86,4 +86,3 @@ public class StudentProfilesController(IMediator Mediator, ILogger<StudentProfil
         return Ok(response);
     }
 }
-
