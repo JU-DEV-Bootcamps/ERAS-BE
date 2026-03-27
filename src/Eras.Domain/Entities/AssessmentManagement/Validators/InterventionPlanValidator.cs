@@ -8,9 +8,6 @@ public sealed class InterventionPlanValidator : AbstractValidator<InterventionPl
 {
     public InterventionPlanValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty();
-
         RuleFor(x => x.SessionsPerWeek)
             .GreaterThan(0)
             .When(x => x.SessionsPerWeek.HasValue);

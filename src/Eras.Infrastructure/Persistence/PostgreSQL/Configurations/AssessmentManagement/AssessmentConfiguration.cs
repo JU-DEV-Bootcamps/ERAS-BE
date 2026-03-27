@@ -67,10 +67,6 @@ public sealed class AssessmentConfiguration : IEntityTypeConfiguration<Assessmen
 
         builder.OwnsOne(entity => entity.Plan, owned =>
         {
-            owned.Property(plan => plan.Id)
-                .HasColumnName("plan_id")
-                .IsRequired(false);
-
             owned.Property(plan => plan.SessionsPerWeek)
                 .HasColumnName("plan_sessions_per_week")
                 .IsRequired(false);

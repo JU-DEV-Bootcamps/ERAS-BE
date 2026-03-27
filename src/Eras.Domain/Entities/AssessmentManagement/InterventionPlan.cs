@@ -1,14 +1,7 @@
 ﻿namespace Eras.Domain.Entities.AssessmentManagement;
 
-public sealed class InterventionPlan : BaseEntity
+public sealed record InterventionPlan
 {
-    /// <summary>
-    /// Example: 3 interventions per week.
-    /// </summary>
     public int? SessionsPerWeek { get; init; }
-
-    /// <summary>
-    /// Free-form scheduling notes until the scheduling rules are clearer.
-    /// </summary>
     public string? ScheduleNotes { get; init; }
 }

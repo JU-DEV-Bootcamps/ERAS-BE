@@ -9,7 +9,6 @@ public sealed class InterventionPlanToDtoMapper : IMapper<InterventionPlan, Inte
     {
         return new InterventionPlanDto
         {
-            Id = source.Id,
             SessionsPerWeek = source.SessionsPerWeek,
             ScheduleNotes = source.ScheduleNotes
         };
