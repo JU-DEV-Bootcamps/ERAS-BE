@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations.AssessmentManagement;
 
-public sealed class RemissionConfiguration : IEntityTypeConfiguration<Assessment>
+public sealed class AssessmentConfiguration : IEntityTypeConfiguration<Assessment>
 {
     public void Configure(EntityTypeBuilder<Assessment> builder)
     {
