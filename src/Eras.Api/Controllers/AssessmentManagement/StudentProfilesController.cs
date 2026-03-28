@@ -17,7 +17,6 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 public class StudentProfilesController(IMediator Mediator, ILogger<StudentProfilesController> Logger) : ControllerBase
 {
 
-    // this is a test.
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(StudentProfileDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
