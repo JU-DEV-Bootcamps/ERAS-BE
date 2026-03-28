@@ -44,7 +44,7 @@ public class StudentProfilesController(IMediator Mediator, ILogger<StudentProfil
         string studentCode,
         CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(new GetStudentProfileByStudentCodeQuery(studentCode), cancellationToken);
+        StudentProfileDto? response = await Mediator.Send(new GetStudentProfileByStudentCodeQuery(studentCode), cancellationToken);
 
         return response is null
             ? NotFound()
