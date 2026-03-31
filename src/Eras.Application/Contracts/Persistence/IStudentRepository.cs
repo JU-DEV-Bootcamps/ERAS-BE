@@ -33,7 +33,8 @@ namespace Eras.Application.Contracts.Persistence
             Pagination Pagination,
             List<int> CohortIds,
             string PollUuid,
-            bool LastVersion
+            bool LastVersion,
+            int? evaluationId
         );
 
         Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize);

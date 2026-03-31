@@ -10,14 +10,16 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
     public class GetPollInstanceQueryHandlerTests
     {
         private readonly Mock<IPollInstanceRepository> _mockPollInstanceRepository;
+        private readonly Mock<IEvaluationRepository> _mockEvaluationRepository; 
         private readonly Mock<ILogger<GetPollInstanceByCohortAndDaysQueryHandler>> _mockLogger;
         private readonly GetPollInstanceByCohortAndDaysQueryHandler _handler;
 
         public GetPollInstanceQueryHandlerTests()
         {
             _mockPollInstanceRepository = new Mock<IPollInstanceRepository>();
+            _mockEvaluationRepository = new Mock<IEvaluationRepository>();
             _mockLogger = new Mock<ILogger<GetPollInstanceByCohortAndDaysQueryHandler>>();
-            _handler = new GetPollInstanceByCohortAndDaysQueryHandler(_mockPollInstanceRepository.Object, _mockLogger.Object);
+            _handler = new GetPollInstanceByCohortAndDaysQueryHandler(_mockPollInstanceRepository.Object, _mockEvaluationRepository.Object, _mockLogger.Object);
         }
 
         [Fact]
@@ -38,7 +40,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
             var pagedResult = new PagedResult<PollInstance>(pollInstances.Count(), pollInstances);
 
             _mockPollInstanceRepository
-                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>(), It.IsAny<bool>(),It.IsAny<string>()))
+                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>(), It.IsAny<bool>(),It.IsAny<string>(),It.IsAny<DateTime?>(),It.IsAny<DateTime?>()))
                 .ReturnsAsync(pagedResult);
 
             // Act
@@ -62,7 +64,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
             var query = new GetPollInstanceByCohortAndDaysQuery(pagination, cohortId, days, true, "poll-Uuid");
 
             _mockPollInstanceRepository
-                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>(), It.IsAny<bool>(), It.IsAny<string>()))
+                .Setup(Repo => Repo.GetByCohortIdAndLastDays(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int[]>(), It.IsAny<int?>(), It.IsAny<bool>(), It.IsAny<string>(),It.IsAny<DateTime?>(),It.IsAny<DateTime?>()))
                 .ThrowsAsync(new Exception("Database error"));
 
             // Act
