@@ -12,7 +12,8 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
             int[] CohortId,
             int Days,
             bool LastVersion,
-            string PollUuid
+            string PollUuid,
+            int? EvaluationId = null  
         ) : IRequest<GetQueryResponse<PagedResult<PollInstanceDTO>>>
     {
         public int[] CohortId { get; set; } = CohortId;
@@ -21,5 +22,6 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
         public Pagination Pagination { get; set; } = Pagination;
         public bool LastVersion { get; set; } = LastVersion;
         public string PollUuid { get; set; } = PollUuid;
+        public int? EvaluationId { get; set; } = EvaluationId; 
     }
 }

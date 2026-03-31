@@ -35,8 +35,8 @@ public class GetStudentsByFiltersQueryHandler :
                 Request.CohortIds,
                 Request.VariableIds,
                 Request.RiskLevels,
-                Request.PageValues.Page, 
-                Request.PageValues.PageSize,
+                1,
+                int.MaxValue,
                 startDate,
                 endDate
             );
@@ -46,7 +46,10 @@ public class GetStudentsByFiltersQueryHandler :
                 Request.VariableIds, Request.RiskLevels, startDate, endDate
             );
 
-            var studentsResponses = studentsList.Select(Student => new StudentsByFiltersResponse
+            var studentsResponses = studentsList
+            .GroupBy(Student => new { Student.StudentId, Student.AnswerId })
+            .Select(g => g.First())
+            .Select(Student => new StudentsByFiltersResponse
             {
                 Id = Student.StudentId,
                 Name = Student.StudentName,

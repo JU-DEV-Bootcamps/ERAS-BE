@@ -24,6 +24,12 @@ public class PollAvgHandler(
         try
         {
             var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId);
+
+            if (evaluation == null)
+            {
+                return new GetQueryResponse<AvgReportResponseVm>(new AvgReportResponseVm(), $"Failed: Evaluation with ID {Request.EvaluationId} not found.", false);
+            }
+
             var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
             var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc);
 

@@ -24,13 +24,19 @@ public class PollCountQueryHandler(
         try
         {
             var evaluation = await _evaluationRepository.GetByIdAsync(Req.EvaluationId);
+
+            if (evaluation == null)
+            {
+                return new GetQueryResponse<CountReportResponseVm>(new CountReportResponseVm(), "Failed: Evaluation not found", false);
+            }
+
             var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
             var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc);
 
             var answersByFilters = await _pollInstanceRepository.GetCountReportByVariablesAsync(Req.PollUuid, Req.CohortIds, Req.VariableIds, Req.LastVersion, startDate, endDate)
                 ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortIds}");
 
-            if (answersByFilters == null) // Returns empty response
+            if (answersByFilters == null) 
                 return new GetQueryResponse<CountReportResponseVm>(new CountReportResponseVm(), "Success: No answered polls with that Uuid", true);
             return new GetQueryResponse<CountReportResponseVm>(answersByFilters, "Success", true);
         }

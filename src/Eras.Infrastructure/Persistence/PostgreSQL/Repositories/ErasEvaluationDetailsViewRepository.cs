@@ -81,7 +81,9 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
     }
 
     public async Task<IEnumerable<ErasEvaluationDetailsView>> GetStudentsByFilters(
-        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels, int Page, int PageSize, DateTime startDate, DateTime endDate)
+    string PollUuid, List<string> ComponentNames, List<int> CohortIds,
+    List<int>? VariableIds, List<decimal>? RiskLevels,
+    int Page, int PageSize, DateTime startDate, DateTime endDate)
     {
         var query = BuildStudentsByFiltersQuery(
         PollUuid, ComponentNames, CohortIds, VariableIds, startDate, endDate);
@@ -91,10 +93,14 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .Distinct()
             .ToListAsync();
 
-        return ApplyRiskFilter(entities, RiskLevels)
+        var filtered = ApplyRiskFilter(entities, RiskLevels).ToList();
+
+        var paged = filtered
             .Skip((Page - 1) * PageSize)
             .Take(PageSize)
-            .Select(ErasEvaluationDetailsViewMapper.ToDomain);
+            .ToList();
+
+        return paged.Select(ErasEvaluationDetailsViewMapper.ToDomain);
     }
 
     public async Task<int> CountStudentsByFilters(
