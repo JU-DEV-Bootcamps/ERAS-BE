@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 using Eras.Api;
 using Eras.Api.Filters;
 using Eras.Api.Middleware;
@@ -15,7 +17,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers(
-    options => options.Filters.Add<ErrorFilter>());
+    options => options.Filters.Add<ErrorFilter>())
+    .AddJsonOptions(options => 
+    {
+        options.JsonSerializerOptions.Converters
+        .Add(new JsonStringEnumConverter());
+    });
 
 LogEventLevel minimumLevel = builder.Environment.IsDevelopment()
     ? LogEventLevel.Debug
