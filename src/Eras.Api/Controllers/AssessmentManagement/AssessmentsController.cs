@@ -44,7 +44,11 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         CancellationToken cancellationToken)
     {
         var response = await Mediator.Send(new GetRemissionsByStudentIdQuery(studentId), cancellationToken);
-        return Ok(response);
+        if (response.Any())
+        {
+            return Ok(response);
+        }
+        return NotFound();
     }
 
     [HttpGet("by-status/{status}")]
