@@ -50,14 +50,13 @@ public class ServiceProvidersConfiguration : IEntityTypeConfiguration<ServicePro
                 )
                 .IsRequired(false);
 
-            Audit.HasData(new 
+            Audit.HasData(new
             {
                 ServiceProvidersEntityId = 1,
                 CreatedBy = "System",
                 ModifiedBy = "System",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = new DateTime(2026, 3, 31, 1, 6, 56, DateTimeKind.Utc),
                 ModifiedAt = (DateTime?)null
-
             });
         });
 

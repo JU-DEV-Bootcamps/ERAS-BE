@@ -77,8 +77,7 @@ public sealed class AssessmentConfiguration : IEntityTypeConfiguration<Assessmen
                 .IsRequired(false);
         });
 
-        builder.Navigation(entity => entity.Plan)
-            .IsRequired(false);
+        builder.Navigation(entity => entity.Plan).IsRequired();
 
         builder.HasMany(entity => entity.Interventions)
             .WithOne()

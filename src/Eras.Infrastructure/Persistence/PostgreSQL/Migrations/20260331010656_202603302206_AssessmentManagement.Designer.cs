@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260331010656_202603302206_AssessmentManagement")]
+    partial class _202603302206_AssessmentManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1671,7 +1674,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 new
                                 {
                                     ServiceProvidersEntityId = 1,
-                                    CreatedAt = new DateTime(2026, 3, 31, 1, 6, 56, 0, DateTimeKind.Utc),
+                                    CreatedAt = new DateTime(2026, 3, 31, 1, 6, 56, 98, DateTimeKind.Utc).AddTicks(7626),
                                     CreatedBy = "System",
                                     ModifiedBy = "System"
                                 });
