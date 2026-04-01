@@ -39,9 +39,9 @@ public sealed class AssessmentConfiguration : IEntityTypeConfiguration<Assessmen
             .HasMaxLength(200)
             .IsRequired(false);
 
-        JsonCollectionConfiguration.ConfigureGuidCollection(
-            builder.Property(entity => entity.StudentIds)
-                .HasColumnName("student_ids"))
+        builder.Property(entity => entity.StudentIds)
+            .HasColumnName("student_ids")
+            .HasColumnType("uuid[]")
             .IsRequired();
 
         builder.Property(entity => entity.Diagnosis)

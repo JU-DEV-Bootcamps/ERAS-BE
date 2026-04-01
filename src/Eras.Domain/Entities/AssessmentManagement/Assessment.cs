@@ -12,7 +12,7 @@ public sealed class Assessment : BaseEntity
     /// <summary>
     /// Supports one or more students, since Marcel mentioned possible group cases.
     /// </summary>
-    public required IReadOnlyCollection<Guid> StudentIds { get; init; }
+    public required Guid[] StudentIds { get; init; }
 
     public string? Diagnosis { get; init; }
     public string? Objective { get; init; }

@@ -27,7 +27,7 @@ public sealed class AssessementValidator : AbstractValidator<Assessment>
 
         RuleFor(x => x.StudentIds)
             .NotNull()
-            .Must(x => x.Count > 0)
+            .Must(x => x.Length > 0)
             .WithMessage("At least one student must be assigned to the assessment.");
 
         RuleForEach(x => x.StudentIds)

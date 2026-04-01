@@ -14,9 +14,9 @@ public sealed class GroupInterventionConfiguration : IEntityTypeConfiguration<Gr
             .HasMaxLength(200)
             .IsRequired(false);
 
-        JsonCollectionConfiguration.ConfigureGuidCollection(
-            builder.Property(entity => entity.ParticipantIds)
-                .HasColumnName("participant_ids"))
+        builder.Property(entity => entity.ParticipantIds)
+            .HasColumnName("participant_ids")
+            .HasColumnType("uuid[]")
             .IsRequired();
     }
 }
