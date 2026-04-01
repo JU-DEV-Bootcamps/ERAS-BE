@@ -18,11 +18,13 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
             int[] CohortId,
             int? Days,
             bool LastVersion,
-            string PollUuid
+            string PollUuid,
+            DateTime? StartDate,
+            DateTime? EndDate
     );
 
-    Task<AvgReportResponseVm> GetReportByPollCohortAsync(string PollUuid, List<int> CohortIds, bool LastVersion);
+    Task<AvgReportResponseVm> GetReportByPollCohortAsync(string PollUuid, List<int> CohortIds, bool LastVersion, DateTime StartDate, DateTime EndDate);
 
     new Task<PollInstance> UpdateAsync(PollInstance Entity);
-    Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, List<int> CohortIds, List<int> VariableIds, bool LastVersion);
+    Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, List<int> CohortIds, List<int> VariableIds, bool LastVersion, DateTime startDate, DateTime endDate);
 }

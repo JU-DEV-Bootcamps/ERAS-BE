@@ -26,10 +26,11 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
             [FromQuery] int Days,
             [FromQuery] Pagination Query,
             [FromQuery] bool LastVersion = true,
-            [FromRoute] string PollUuid = ""
+            [FromRoute] string PollUuid = "",
+            [FromQuery] int? EvaluationId = null 
     )
     {
-        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(Query, CohortId, Days, LastVersion, PollUuid)));
+        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(Query, CohortId, Days, LastVersion, PollUuid, EvaluationId)));
     }
 
     [HttpGet("{Uuid}/cohorts/avg")]

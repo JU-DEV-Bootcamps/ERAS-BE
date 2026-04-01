@@ -43,13 +43,14 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         return entities.Select(e => e.ToDomain()).ToList();
     }
 
-    public async Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
+    public async Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels, DateTime startDate, DateTime endDate)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
 
         query = query.Where(v => v.EvaluationId == EvaluationId);
         query = query.Where(v => CohortIds.Contains(v.CohortId));
         query = query.Where(v => ComponentNames.Contains(v.ComponentName));
+        query = query.Where(v => v.FinishedAt >= startDate && v.FinishedAt <= endDate);
 
         var entitiesEval = await query.ToListAsync();
 
@@ -66,29 +67,38 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .Distinct();
 
         if (RiskLevels != null && RiskLevels.Any())
-        {
             resultEval = resultEval.Where(v => RiskLevels.Contains((decimal)GetRiskGroup((double)v.RiskLevel)));
-        }
 
         return resultEval.ToList();
     }
 
     public async Task<IEnumerable<ErasEvaluationDetailsView>> GetStudentsByFilters(
-        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels, int Page, int PageSize)
+    string PollUuid, List<string> ComponentNames, List<int> CohortIds,
+    List<int>? VariableIds, List<decimal>? RiskLevels,
+    int Page, int PageSize, DateTime startDate, DateTime endDate)
     {
-        var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, RiskLevels);
-        var entities = await query.OrderBy(v => v.StudentName).Distinct().ToListAsync();
+        var query = BuildStudentsByFiltersQuery(
+        PollUuid, ComponentNames, CohortIds, VariableIds, startDate, endDate);
 
-        return ApplyRiskFilter(entities, RiskLevels)
+        var entities = await query
+            .OrderBy(v => v.StudentName)
+            .Distinct()
+            .ToListAsync();
+
+        var filtered = ApplyRiskFilter(entities, RiskLevels).ToList();
+
+        var paged = filtered
             .Skip((Page - 1) * PageSize)
             .Take(PageSize)
-            .Select(Mappers.ErasEvaluationDetailsViewMapper.ToDomain);
+            .ToList();
+
+        return paged.Select(ErasEvaluationDetailsViewMapper.ToDomain);
     }
 
     public async Task<int> CountStudentsByFilters(
-        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
+        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels, DateTime startDate, DateTime endDate)
     {
-        var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, RiskLevels);
+        var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, startDate, endDate);
         var entities = await query.ToListAsync();
         return ApplyRiskFilter(entities, RiskLevels)
             .Select(v => v.StudentId)
@@ -148,13 +158,14 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
     }
 
     private IQueryable<ErasEvaluationDetailsViewEntity> BuildStudentsByFiltersQuery(
-        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
+        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, DateTime startDate, DateTime endDate)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>()
             .AsNoTracking()
             .Where(v => v.PollUuid == PollUuid)
             .Where(v => CohortIds.Contains(v.CohortId))
-            .Where(v => ComponentNames.Contains(v.ComponentName));
+            .Where(v => ComponentNames.Contains(v.ComponentName))
+            .Where(v => v.FinishedAt >= startDate && v.FinishedAt <= endDate); 
 
         if (VariableIds != null && VariableIds.Any())
             query = query.Where(v => VariableIds.Contains(v.VariableId));

@@ -33,7 +33,8 @@ namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAnd
                 Request.Pagination,
                 Request.cohortIds,
                 Request.PollUuid,
-                Request.LastVersion
+                Request.LastVersion,
+                Request.EvaluationId 
             );
         }
     }

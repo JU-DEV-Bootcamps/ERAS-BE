@@ -11,14 +11,16 @@ namespace Eras.Application.Tests.Features.Reports.Polls;
 public class GetPollAvgQueryTest
 {
     private readonly Mock<IPollInstanceRepository> _mockPollInstanceRepo;
+    private readonly Mock<IEvaluationRepository> _mockEvaluationRepo;
     private readonly Mock<ILogger<PollAvgHandler>> _mockLogger;
     private readonly PollAvgHandler _handler;
 
     public GetPollAvgQueryTest()
     {
         _mockPollInstanceRepo = new Mock<IPollInstanceRepository>();
+        _mockEvaluationRepo = new Mock<IEvaluationRepository>();
         _mockLogger = new Mock<ILogger<PollAvgHandler>>();
-        _handler = new PollAvgHandler(_mockLogger.Object, _mockPollInstanceRepo.Object);
+        _handler = new PollAvgHandler(_mockLogger.Object, _mockPollInstanceRepo.Object, _mockEvaluationRepo.Object);
     }
     [Fact]
     public async Task Handle_Should_Return_Empty_Response_When_No_PollInstancesAsync()
@@ -28,12 +30,13 @@ public class GetPollAvgQueryTest
         {
             PollUuid = Guid.NewGuid(),
             CohortIds = [1, 2],
-            LastVersion = true
+            LastVersion = true,
+            EvaluationId = 1
         };
 
         // Mock the repository to return an empty list of Answers and map to AvgReportResponseVm
         _mockPollInstanceRepo
-            .Setup(Repo => Repo.GetReportByPollCohortAsync(query.PollUuid.ToString(), query.CohortIds, query.LastVersion))
+            .Setup(Repo => Repo.GetReportByPollCohortAsync(query.PollUuid.ToString(), query.CohortIds, query.LastVersion, It.IsAny<DateTime>(), It.IsAny<DateTime>()))
             .Returns(Task.FromResult(new AvgReportResponseVm())); // Simulate no data
 
         // Act
