@@ -35,8 +35,8 @@ public class GetStudentsByFiltersQueryHandler :
                 Request.CohortIds,
                 Request.VariableIds,
                 Request.RiskLevels,
-                1,
-                int.MaxValue,
+                Request.PageValues.Page,
+                Request.PageValues.PageSize,
                 startDate,
                 endDate
             );
