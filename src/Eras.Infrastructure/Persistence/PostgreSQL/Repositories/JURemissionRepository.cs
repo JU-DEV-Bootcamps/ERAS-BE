@@ -17,7 +17,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<JURemission?> GetBySubmitterUuidAsync(string SubmitterUuid)
         {
-            var remission = await _context.Remissions
+            var remission = await _context.JURemissions
                 .FirstOrDefaultAsync(Remission => Remission.SubmitterUuid == SubmitterUuid);
 
             return remission?.ToDomain();
@@ -25,7 +25,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async new Task<IEnumerable<JURemission>> GetPagedAsync(int Page, int PageSize)
         {
-            var remissions = await _context.Remissions
+            var remissions = await _context.JURemissions
                 .Include(R => R.JUService)
                 .Include(R => R.AssignedProfessional)
                 .Include(R => R.Students)
@@ -38,7 +38,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public new async Task<JURemission?> GetByIdAsync(int Id)
         {
-            var remission = await _context.Remissions
+            var remission = await _context.JURemissions
                 .Include(r => r.JUService)
                 .Include(r => r.AssignedProfessional)
                 .Include(r => r.Students)

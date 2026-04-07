@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260331010656_202603302206_AssessmentManagement")]
+    partial class _202603302206_AssessmentManagement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,9 +88,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("status");
 
-                    b.PrimitiveCollection<Guid[]>("StudentIds")
+                    b.Property<string>("StudentIds")
                         .IsRequired()
-                        .HasColumnType("uuid[]")
+                        .HasColumnType("jsonb")
                         .HasColumnName("student_ids");
 
                     b.HasKey("Id");
@@ -1058,9 +1061,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("area");
 
-                    b.PrimitiveCollection<Guid[]>("ParticipantIds")
+                    b.Property<string>("ParticipantIds")
                         .IsRequired()
-                        .HasColumnType("uuid[]")
+                        .HasColumnType("jsonb")
                         .HasColumnName("participant_ids");
 
                     b.HasDiscriminator().HasValue("GroupIntervention");
@@ -1671,7 +1674,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                                 new
                                 {
                                     ServiceProvidersEntityId = 1,
-                                    CreatedAt = new DateTime(2026, 3, 31, 1, 6, 56, 0, DateTimeKind.Utc),
+                                    CreatedAt = new DateTime(2026, 3, 31, 1, 6, 56, 98, DateTimeKind.Utc).AddTicks(7626),
                                     CreatedBy = "System",
                                     ModifiedBy = "System"
                                 });

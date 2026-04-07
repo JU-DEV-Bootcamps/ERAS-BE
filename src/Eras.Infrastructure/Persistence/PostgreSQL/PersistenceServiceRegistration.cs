@@ -1,7 +1,10 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManagement;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -54,12 +57,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             Services.AddScoped<IStudentAnswersRepository, StudentAnswersRepository>();
             Services.AddScoped<IConfigurationsRepository, ConfigurationsRepository>();
             Services.AddScoped<IServiceProvidersRepository, ServiceProvidersRepository>();
-            Services.AddScoped<IRemissionRepository, RemissionRepository>();
+            Services.AddScoped<Application.Contracts.Persistence.IRemissionRepository, Repositories.RemissionRepository>();
             Services.AddScoped<IProfessionalRepository, ProfessionalRepository>();
             Services.AddScoped<IInterventionRepository, InterventionRepository>();
             Services.AddScoped<IJUServiceRepository, JUServiceRepository>();
             Services.AddScoped<IErasEvaluationDetailsViewRepository, ErasEvaluationDetailsViewRepository>();
-
+            Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
+            Services.AddScoped<Application.Contracts.Persistence.AssessmentManagement.IAssessmentRepository, Repositories.AssessmentManagement.AssessmentRepository>();
             return Services;
         }
     }

@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260331011337_202603302213_FixMissconfiguredServiceProvider")]
+    partial class _202603302213_FixMissconfiguredServiceProvider
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -85,9 +88,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("status");
 
-                    b.PrimitiveCollection<Guid[]>("StudentIds")
+                    b.Property<string>("StudentIds")
                         .IsRequired()
-                        .HasColumnType("uuid[]")
+                        .HasColumnType("jsonb")
                         .HasColumnName("student_ids");
 
                     b.HasKey("Id");
@@ -1058,9 +1061,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("area");
 
-                    b.PrimitiveCollection<Guid[]>("ParticipantIds")
+                    b.Property<string>("ParticipantIds")
                         .IsRequired()
-                        .HasColumnType("uuid[]")
+                        .HasColumnType("jsonb")
                         .HasColumnName("participant_ids");
 
                     b.HasDiscriminator().HasValue("GroupIntervention");

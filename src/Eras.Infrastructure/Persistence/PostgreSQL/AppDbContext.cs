@@ -1,5 +1,7 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+﻿using Eras.Domain.Entities.AssessmentManagement;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
@@ -21,10 +23,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<ConfigurationsEntity> Configurations { get; set; }
         public virtual DbSet<ServiceProvidersEntity> ServiceProviders { get; set; }
         public virtual DbSet<UserPollsEntity> UserPolls { get; set; }
-        public virtual DbSet<JURemissionEntity> Remissions { get; set; }
-        public virtual DbSet<JUInterventionEntity> Interventions { get; set; }
+        public virtual DbSet<JURemissionEntity> JURemissions { get; set; }
+        public virtual DbSet<JUInterventionEntity> JUInterventions { get; set; }
         public virtual DbSet<JUProfessionalEntity> Professionals { get; set; }
         public virtual DbSet<JUServiceEntity> JUServices { get; set; }
+        public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
+        public DbSet<Assessment> Assessments => Set<Assessment>();
+        public DbSet<Intervention> Interventions => Set<Intervention>();
 
         // Views
         public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
