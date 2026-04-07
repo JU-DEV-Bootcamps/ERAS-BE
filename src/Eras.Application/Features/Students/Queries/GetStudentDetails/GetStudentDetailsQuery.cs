@@ -6,6 +6,7 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
 {
     public class GetStudentDetailsQuery : IRequest<CreateCommandResponse<Student>>
     {
-        public int? StudentDetailId;
+        //public int? StudentDetailId;
+        public int StudentId { get; set; } 
     }
 }

@@ -23,34 +23,33 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
             _studentDetailRepository = StudentDetailRepository;
         }
 
-
         public async Task<CreateCommandResponse<Student>> Handle(GetStudentDetailsQuery Request, CancellationToken CancellationToken)
         {
-
             try
             {
-                if (Request.StudentDetailId == null)
+                // 1. Buscar al estudiante
+                Student? response = await _studentRepository.GetByIdAsync(Request.StudentId);
+
+                // 2. Si no existe, devolvemos Success = false para que el Controller sepa qué hacer
+                if (response == null)
                 {
-                    _logger.LogError($"An error occurred creating student detail Request.StudentDetailId is null");
-                    return new CreateCommandResponse<Student>(null, 0, "Error", false);
+                    return new CreateCommandResponse<Student>(null, "Student Not Found", false);
                 }
 
-                Student? response = await _studentRepository.GetByIdAsync(Request.StudentDetailId.Value);
-
-                if (response == null)
-                    return new CreateCommandResponse<Student>(new Student(), "Student Not Found", true,
-                        Models.Enums.CommandEnums.CommandResultStatus.NotFound);
-
+                // 3. Buscar el detalle académico
                 StudentDetail? studentDetail = await _studentDetailRepository.GetByStudentId(response.Id);
 
                 if (studentDetail != null)
+                {
                     response.StudentDetail = studentDetail;
+                }
+
                 return new CreateCommandResponse<Student>(response, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred creating student detail {Request.StudentDetailId}: {ex.Message}");
-                return new CreateCommandResponse<Student>(null, 0, "Error", false);
+                _logger.LogError($"An error occurred fetching student detail for ID {Request.StudentId}: {ex.Message}");
+                return new CreateCommandResponse<Student>(null, "Error", false);
             }
         }
     }

@@ -77,9 +77,16 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     {
         var getStudentDetailsQuery = new GetStudentDetailsQuery()
         {
-            StudentDetailId = Id
+            StudentId = Id
         };
-        CreateCommandResponse<Student> result = await _mediator.Send(getStudentDetailsQuery);
+
+        var result = await _mediator.Send(getStudentDetailsQuery);
+
+        if (!result.Success || result.Entity == null)
+        {
+            return NotFound(new { status = "error", message = result.Message ?? "Student not found" });
+        }
+
         return Ok(result);
     }
 
