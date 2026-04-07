@@ -27,16 +27,13 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
         {
             try
             {
-                // 1. Buscar al estudiante
                 Student? response = await _studentRepository.GetByIdAsync(Request.StudentId);
 
-                // 2. Si no existe, devolvemos Success = false para que el Controller sepa qué hacer
                 if (response == null)
                 {
                     return new CreateCommandResponse<Student>(null, "Student Not Found", false);
                 }
 
-                // 3. Buscar el detalle académico
                 StudentDetail? studentDetail = await _studentDetailRepository.GetByStudentId(response.Id);
 
                 if (studentDetail != null)
