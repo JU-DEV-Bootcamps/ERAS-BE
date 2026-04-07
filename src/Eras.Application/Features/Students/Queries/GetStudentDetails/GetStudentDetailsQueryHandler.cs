@@ -23,34 +23,30 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
             _studentDetailRepository = StudentDetailRepository;
         }
 
-
         public async Task<CreateCommandResponse<Student>> Handle(GetStudentDetailsQuery Request, CancellationToken CancellationToken)
         {
-
             try
             {
-                if (Request.StudentDetailId == null)
-                {
-                    _logger.LogError($"An error occurred creating student detail Request.StudentDetailId is null");
-                    return new CreateCommandResponse<Student>(null, 0, "Error", false);
-                }
-
-                Student? response = await _studentRepository.GetByIdAsync(Request.StudentDetailId.Value);
+                Student? response = await _studentRepository.GetByIdAsync(Request.StudentId);
 
                 if (response == null)
-                    return new CreateCommandResponse<Student>(new Student(), "Student Not Found", true,
-                        Models.Enums.CommandEnums.CommandResultStatus.NotFound);
+                {
+                    return new CreateCommandResponse<Student>(null, "Student Not Found", false);
+                }
 
                 StudentDetail? studentDetail = await _studentDetailRepository.GetByStudentId(response.Id);
 
                 if (studentDetail != null)
+                {
                     response.StudentDetail = studentDetail;
+                }
+
                 return new CreateCommandResponse<Student>(response, "Success", true);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"An error occurred creating student detail {Request.StudentDetailId}: {ex.Message}");
-                return new CreateCommandResponse<Student>(null, 0, "Error", false);
+                _logger.LogError($"An error occurred fetching student detail for ID {Request.StudentId}: {ex.Message}");
+                return new CreateCommandResponse<Student>(null, "Error", false);
             }
         }
     }
