@@ -31,7 +31,10 @@ public class PollCountQueryHandler(
             }
 
             var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
-            var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc);
+            var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                                .Date
+                                .AddDays(1)
+                                .AddTicks(-1); 
 
             var answersByFilters = await _pollInstanceRepository.GetCountReportByVariablesAsync(Req.PollUuid, Req.CohortIds, Req.VariableIds, Req.LastVersion, startDate, endDate)
                 ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortIds}");

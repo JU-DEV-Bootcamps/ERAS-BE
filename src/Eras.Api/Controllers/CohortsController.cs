@@ -40,20 +40,20 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
     }
 
     [HttpGet("summary")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetCohortsSummaryAsync(
-        [FromQuery] Pagination Pagination
+        [FromQuery] Pagination Pagination,
+        [FromQuery] int? EvaluationId
     )
     {
         GetCohortsSummaryQuery getCohortsSummaryQuery = new()
         {
-            Pagination = Pagination
+            Pagination = Pagination,
+            EvaluationId = EvaluationId
         };
         CohortSummaryResponse res = await _mediator.Send(getCohortsSummaryQuery);
-
         return Ok(res);
     }
+
     [HttpGet("details")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -27,7 +27,10 @@ public class GetStudentsByFiltersQueryHandler :
         {
             var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId); 
             var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
-            var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc);
+            var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                                .Date
+                                .AddDays(1)
+                                .AddTicks(-1); 
 
             var studentsList = await _repository.GetStudentsByFilters(
                 Request.PollUuid,

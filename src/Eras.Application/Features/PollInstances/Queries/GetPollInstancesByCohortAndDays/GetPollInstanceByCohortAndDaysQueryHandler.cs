@@ -33,7 +33,10 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
             {
                 var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId.Value);
                 startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
-                endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc);
+                endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                  .Date
+                  .AddDays(1)
+                  .AddTicks(-1);
             }
 
                 var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(Request.Pagination.Page, Request.Pagination.PageSize, Request.CohortId, Request.Days, Request.LastVersion, Request.PollUuid, startDate, endDate);
