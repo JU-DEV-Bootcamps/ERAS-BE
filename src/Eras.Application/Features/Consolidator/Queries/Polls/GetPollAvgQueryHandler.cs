@@ -31,7 +31,10 @@ public class PollAvgHandler(
             }
 
             var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
-            var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc);
+            var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                                .Date
+                                .AddDays(1)
+                                .AddTicks(-1); 
 
             var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Request.PollUuid.ToString(), Request.CohortIds, Request.LastVersion, startDate, endDate)
                 ?? throw new NotFoundException($"Error in query for filters: {Request.PollUuid}; {Request.CohortIds}");

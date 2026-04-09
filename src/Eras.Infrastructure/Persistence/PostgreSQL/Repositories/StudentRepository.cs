@@ -175,7 +175,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 if (evaluation != null)
                 {
                     var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
-                    var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc);
+                    var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                          .Date.AddDays(1).AddTicks(-1);
 
                     var query = from A in _context.ErasCalculationsByPoll
                                 join PI in _context.PollInstances on A.PollInstanceId equals PI.Id

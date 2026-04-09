@@ -8,6 +8,6 @@ namespace Eras.Application.Contracts.Persistence
     {
         Task<Student?> GetByCohortIdAndStudentIdAsync(int CohortId, int StudentId);
         Task<IEnumerable<Student>?> GetAllStudentsByCohortIdAsync(int CohortId);
-        Task<CohortSummaryResponse> GetCohortsSummaryAsync(Pagination Pagination);
+        Task<CohortSummaryResponse> GetCohortsSummaryAsync(Pagination Pagination, DateTime? startDate = null, DateTime? endDate = null);
     }
 }
