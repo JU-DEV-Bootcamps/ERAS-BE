@@ -42,6 +42,7 @@ namespace Eras.Application.Features.Students.Queries.GetAll
                     Email = Student.Email,
                     Uuid = Student.Uuid,
                     IsImported = Student.IsImported,
+                    StudentDetail = Student.StudentDetail
                 }).ToList();
 
                 PagedResult<GetAllStudentsQueryResponse> pagedResult = new PagedResult<GetAllStudentsQueryResponse>(
