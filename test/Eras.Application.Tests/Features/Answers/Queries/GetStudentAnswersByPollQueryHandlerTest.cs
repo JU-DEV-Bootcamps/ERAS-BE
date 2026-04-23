@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Eras.Application.Contracts.Persistence;
@@ -10,26 +11,38 @@ using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Xunit; 
 
 namespace Eras.Application.Tests.Features.Answers.Queries;
+
 public class GetStudentAnswersByPollQueryHandlerTest
 {
     private readonly Mock<IStudentAnswersRepository> _mockAnswerRepository;
+    private readonly Mock<IStudentRepository> _mockStudentRepository;
     private readonly Mock<ILogger<GetStudentAnswersByPollQueryHandler>> _mockLogger;
     private readonly GetStudentAnswersByPollQueryHandler _handler;
 
     public GetStudentAnswersByPollQueryHandlerTest()
     {
         _mockAnswerRepository = new Mock<IStudentAnswersRepository>();
+        _mockStudentRepository = new Mock<IStudentRepository>(); 
         _mockLogger = new Mock<ILogger<GetStudentAnswersByPollQueryHandler>>();
-        _handler = new GetStudentAnswersByPollQueryHandler(_mockAnswerRepository.Object, _mockLogger.Object);
+        
+        _handler = new GetStudentAnswersByPollQueryHandler(
+            _mockAnswerRepository.Object, 
+            _mockStudentRepository.Object, 
+            _mockLogger.Object);
     }
 
     [Fact]
     public async Task Handle_Should_Return_Success_ResponseAsync()
     {
-        // Arrange
         var query = new GetStudentAnswersByPollQuery() { PollId = 1, StudentId = 1 };
+
+        _mockStudentRepository
+            .Setup(r => r.GetByIdAsync(It.Is<int>(id => id == 1)))
+            .ReturnsAsync(new Student { Id = 1 }); 
+
         var studentAnswers = new List<StudentAnswer>() {
             new StudentAnswer
             {
@@ -59,10 +72,8 @@ public class GetStudentAnswersByPollQueryHandlerTest
                 10))
             .ReturnsAsync(pagedResult);
 
-        // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
     }
