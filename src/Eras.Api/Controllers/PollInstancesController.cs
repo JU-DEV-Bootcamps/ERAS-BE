@@ -61,6 +61,9 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
             StudentId = StudentId,
             PollId = Id
         };
-        return Ok(await _mediator.Send(getComponentsRiskAvgByStudent));
+        var result = await _mediator.Send(getComponentsRiskAvgByStudent);
+        if (result == null || !result.Any())
+            return NotFound(new { status = "error", message = "Student not found" });
+        return Ok(result);
     }
 }
