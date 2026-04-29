@@ -50,8 +50,6 @@ public class GetStudentsByFiltersQueryHandler :
             );
 
             var studentsResponses = studentsList
-            .GroupBy(Student => new { Student.StudentId, Student.AnswerId })
-            .Select(g => g.First())
             .Select(Student => new StudentsByFiltersResponse
             {
                 Id = Student.StudentId,
