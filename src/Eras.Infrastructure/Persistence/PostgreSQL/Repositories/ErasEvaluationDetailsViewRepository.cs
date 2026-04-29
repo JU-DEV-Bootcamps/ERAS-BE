@@ -85,7 +85,10 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .Distinct()
             .ToListAsync();
 
-        var filtered = ApplyRiskFilter(entities, RiskLevels).ToList();
+        var filtered = ApplyRiskFilter(entities, RiskLevels)
+            .GroupBy(v => new { v.StudentId, v.AnswerId })
+            .Select(g => g.First())
+            .ToList();
 
         var paged = filtered
             .Skip((Page - 1) * PageSize)
