@@ -293,4 +293,12 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         })];
         return new CountReportResponseVm { Components = report };
     }
+
+    public new async Task<int> CountByDateRangeAsync(DateTime startDate, DateTime endDate)
+    {
+        return await _context.PollInstances
+            .Where(pi => pi.FinishedAt >= DateTime.SpecifyKind(startDate, DateTimeKind.Utc)
+                    && pi.FinishedAt <= DateTime.SpecifyKind(endDate, DateTimeKind.Utc))
+            .CountAsync();
+    }
 }
