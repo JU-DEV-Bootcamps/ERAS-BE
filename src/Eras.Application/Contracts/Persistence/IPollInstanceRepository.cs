@@ -27,4 +27,5 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
 
     new Task<PollInstance> UpdateAsync(PollInstance Entity);
     Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, List<int> CohortIds, List<int> VariableIds, bool LastVersion, DateTime startDate, DateTime endDate);
+    new Task<int> CountByDateRangeAsync(DateTime startDate, DateTime endDate);
 }

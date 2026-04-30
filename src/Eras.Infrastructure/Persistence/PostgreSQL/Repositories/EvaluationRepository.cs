@@ -147,5 +147,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return results;
         }
+
+        public new async Task<int> CountByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _context.Evaluations
+                .Where(e => e.StartDate >= DateTime.SpecifyKind(startDate, DateTimeKind.Utc)
+                        && e.StartDate <= DateTime.SpecifyKind(endDate, DateTimeKind.Utc))
+                .CountAsync();
+        }
     }
 }

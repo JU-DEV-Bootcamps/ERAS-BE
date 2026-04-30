@@ -77,15 +77,19 @@ public class CohortsHelper
     {
         var now = DateTime.UtcNow;
         return now.Month <= 6
-            ? (new DateTime(now.Year, 1, 1), new DateTime(now.Year, 6, 30, 23, 59, 59, DateTimeKind.Utc))
-            : (new DateTime(now.Year, 7, 1), new DateTime(now.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc));
+            ? (new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(now.Year, 6, 30, 23, 59, 59, DateTimeKind.Utc))
+            : (new DateTime(now.Year, 7, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(now.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc));
     }
 
     public static (DateTime Start, DateTime End) GetPreviousCohortRange()
     {
         var now = DateTime.UtcNow;
         return now.Month <= 6
-            ? (new DateTime(now.Year - 1, 7, 1), new DateTime(now.Year - 1, 12, 31, 23, 59, 59, DateTimeKind.Utc))
-            : (new DateTime(now.Year, 1, 1), new DateTime(now.Year, 6, 30, 23, 59, 59, DateTimeKind.Utc));
+            ? (new DateTime(now.Year - 1, 7, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(now.Year - 1, 12, 31, 23, 59, 59, DateTimeKind.Utc))
+            : (new DateTime(now.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(now.Year, 6, 30, 23, 59, 59, DateTimeKind.Utc));
     }
 }
