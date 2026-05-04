@@ -1,4 +1,6 @@
-﻿namespace Eras.Domain.Entities.AssessmentManagement;
+﻿using Eras.Domain.Common;
+
+namespace Eras.Domain.Entities.AssessmentManagement;
 
 public abstract class Intervention : BaseEntity
 {

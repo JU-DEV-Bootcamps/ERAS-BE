@@ -23,7 +23,7 @@ public sealed class AssessmentMapper : IMapper<AssessmentDto, Assessment>
     {
         return new Assessment
         {
-            Id = source.Id ?? Guid.NewGuid(),
+            Id = source.Id ?? default,
 
             CreatedAtUtc = source.CreatedAtUtc,
             CreatedBy = source.CreatedBy,
