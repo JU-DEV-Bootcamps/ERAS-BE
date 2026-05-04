@@ -13,7 +13,7 @@ public sealed record AssessmentDto
 
     public string? AssignedProfessional { get; init; }
 
-    public required Guid[] StudentIds { get; init; }
+    public required int[] StudentIds { get; init; }
 
     public string? Diagnosis { get; init; }
     public string? Objective { get; init; }

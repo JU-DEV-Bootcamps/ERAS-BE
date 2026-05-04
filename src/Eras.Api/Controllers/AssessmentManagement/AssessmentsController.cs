@@ -40,7 +40,7 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
     [HttpGet("by-student/{studentId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByStudentId(
-        Guid studentId,
+        int studentId,
         CancellationToken cancellationToken)
     {
         var response = await Mediator.Send(new GetRemissionsByStudentIdQuery(studentId), cancellationToken);
