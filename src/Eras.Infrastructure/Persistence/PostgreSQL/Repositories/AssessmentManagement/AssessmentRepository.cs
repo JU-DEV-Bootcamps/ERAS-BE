@@ -11,7 +11,7 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         : BaseRepository<Assessment>(context),
       IAssessmentRepository
 {
-    public async Task<IEnumerable<Assessment>> GetByStudentIdAsync(Guid studentId)
+    public async Task<IEnumerable<Assessment>> GetByStudentIdAsync(int studentId)
     {
         return await _context.Set<Assessment>().Where(o => o != null && o.StudentIds != null && o.StudentIds.Contains(studentId)).ToListAsync();
     }

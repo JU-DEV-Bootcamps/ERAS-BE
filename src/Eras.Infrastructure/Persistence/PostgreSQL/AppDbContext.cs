@@ -27,7 +27,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<JUInterventionEntity> JUInterventions { get; set; }
         public virtual DbSet<JUProfessionalEntity> Professionals { get; set; }
         public virtual DbSet<JUServiceEntity> JUServices { get; set; }
-        public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
         public DbSet<Assessment> Assessments => Set<Assessment>();
         public DbSet<Intervention> Interventions => Set<Intervention>();
 

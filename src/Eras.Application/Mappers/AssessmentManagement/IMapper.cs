@@ -1,4 +1,5 @@
 ﻿using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
 
 namespace Eras.Application.Mappers.AssessmentManagement;
@@ -8,18 +9,14 @@ public interface IMapper<in TSource, out TDestination>
     TDestination Map(TSource source);
 }
 
-public sealed class StudentProfileMapper : IMapper<StudentProfileDto, StudentProfile>
+public sealed class StudentProfileMapper : IMapper<StudentProfileDto, Student>
 {
-    public StudentProfile Map(StudentProfileDto source)
+    public Student Map(StudentProfileDto source)
     {
-        return new StudentProfile
+        return new Student
         {
-            Id = source.Id ?? Guid.NewGuid(),
-            StudentCode = source.StudentCode,
-            FirstName = source.FirstName,
-            LastName = source.LastName,
-            SupportAndReferralHistory = source.SupportAndReferralHistory,
-            CharacterizationOrCurrentContext = source.CharacterizationOrCurrentContext
+            Id = source.Id,
+            Name = source.Name
         };
     }
 }
