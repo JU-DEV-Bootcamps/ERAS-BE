@@ -9,7 +9,7 @@ public sealed class GroupInterventionMapper : IMapper<GroupInterventionDto, Grou
     {
         return new GroupIntervention
         {
-            Id = source.Id ?? Guid.NewGuid(),
+            Id = source.Id ?? default,
             DateUtc = source.DateUtc,
             ActivityType = source.ActivityType,
             Professional = source.Professional,

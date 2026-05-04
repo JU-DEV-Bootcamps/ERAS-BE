@@ -10,5 +10,5 @@ public sealed class GroupIntervention : Intervention
     /// Participants of the group intervention.
     /// Keeping it as student ids for now.
     /// </summary>
-    public IReadOnlyCollection<Guid> ParticipantIds { get; init; } = Array.Empty<Guid>();
+    public IReadOnlyCollection<int> ParticipantIds { get; init; } = Array.Empty<int>();
 }

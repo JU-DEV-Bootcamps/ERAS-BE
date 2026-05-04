@@ -17,7 +17,7 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger) : ControllerBase
 {
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AssessmentDto>> GetById(Guid id, CancellationToken cancellationToken)
@@ -82,15 +82,15 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
             response);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AssessmentDto>> Update(
-        Guid id,
+        int id,
         [FromBody] AssessmentDto dto,
         CancellationToken cancellationToken)
     {
-        if (dto.Id.HasValue && dto.Id.Value != id)
+        if (dto.Id == default)
         {
             return BadRequest("Route id must match payload id.");
         }

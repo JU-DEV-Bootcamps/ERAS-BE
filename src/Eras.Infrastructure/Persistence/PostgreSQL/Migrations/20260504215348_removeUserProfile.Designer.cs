@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260504215348_removeUserProfile")]
+    partial class removeUserProfile
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,8 +42,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
             modelBuilder.Entity("Eras.Domain.Entities.AssessmentManagement.Assessment", b =>
                 {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
                         .HasColumnName("id");
 
                     b.Property<string>("AssignedProfessional")
@@ -97,11 +100,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
             modelBuilder.Entity("Eras.Domain.Entities.AssessmentManagement.Intervention", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("ActivityType")
                         .HasColumnType("text");
@@ -124,8 +125,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Property<string>("Professional")
                         .HasColumnType("text");
 
-                    b.Property<int?>("remission_id")
-                        .HasColumnType("integer");
+                    b.Property<Guid?>("remission_id")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
@@ -709,9 +710,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("EvaluationId")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime>("FinishedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1021,7 +1019,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("area");
 
-                    b.PrimitiveCollection<int[]>("ParticipantIds")
+                    b.PrimitiveCollection<Guid[]>("ParticipantIds")
                         .IsRequired()
                         .HasColumnType("uuid[]")
                         .HasColumnName("participant_ids");
@@ -1055,8 +1053,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 {
                     b.OwnsOne("Eras.Domain.Entities.AssessmentManagement.InterventionPlan", "Plan", b1 =>
                         {
-                            b1.Property<int>("AssessmentId")
-                                .HasColumnType("integer");
+                            b1.Property<Guid>("AssessmentId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("ScheduleNotes")
                                 .HasMaxLength(2000)

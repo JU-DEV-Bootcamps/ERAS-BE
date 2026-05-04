@@ -7,7 +7,7 @@ namespace Eras.Application.DTOs.AssessmentManagement;
 [JsonDerivedType(typeof(GroupInterventionDto), "Group")]
 public abstract record InterventionDto
 {
-    public Guid? Id { get; init; }
+    public int? Id { get; init; }
 
     public required DateTime DateUtc { get; init; }
     public string? ActivityType { get; init; }
@@ -15,3 +15,4 @@ public abstract record InterventionDto
     public string? Comments { get; init; }
     public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
 }
+
