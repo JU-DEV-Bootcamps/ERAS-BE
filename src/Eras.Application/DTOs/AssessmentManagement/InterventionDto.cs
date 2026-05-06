@@ -1,5 +1,10 @@
-﻿namespace Eras.Application.DTOs.AssessmentManagement;
+﻿using System.Text.Json.Serialization;
 
+namespace Eras.Application.DTOs.AssessmentManagement;
+
+[JsonPolymorphic(TypeDiscriminatorPropertyName = "kind")]
+[JsonDerivedType(typeof(IndividualInterventionDto), "Individual")]
+[JsonDerivedType(typeof(GroupInterventionDto), "Group")]
 public abstract record InterventionDto
 {
     public Guid? Id { get; init; }
