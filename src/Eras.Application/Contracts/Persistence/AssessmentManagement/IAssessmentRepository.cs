@@ -14,4 +14,6 @@ public interface IAssessmentRepository : IBaseRepository<Assessment>
     Task<Intervention> AddInterventionAsync(Guid assessmentId, Intervention intervention); 
 
     Task<IReadOnlyCollection<Intervention>> ReplaceInterventionsAsync(Guid assessmentId, IReadOnlyCollection<Intervention> interventions);
+
+    Task DeleteInterventionAsync(Guid assessmentId, Guid interventionId);
 }

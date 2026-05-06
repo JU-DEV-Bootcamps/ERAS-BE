@@ -146,4 +146,16 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
 
         return Ok(response);
     }    
+
+    [HttpDelete("{id:guid}/interventions/{interventionId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteIntervention(
+        Guid id,
+        Guid interventionId,
+        CancellationToken cancellationToken)
+    {
+        await Mediator.Send(new DeleteInterventionCommand(id, interventionId), cancellationToken);
+        return NoContent();
+    }
 }

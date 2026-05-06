@@ -36,3 +36,6 @@ public sealed record GetInterventionsByAssessmentQuery(Guid AssessmentId)
 
 public sealed record AddInterventionCommand(Guid AssessmentId, InterventionDto Intervention)
     : IRequest<InterventionDto>;
+
+public sealed record DeleteInterventionCommand(Guid AssessmentId, Guid InterventionId)
+    : IRequest;

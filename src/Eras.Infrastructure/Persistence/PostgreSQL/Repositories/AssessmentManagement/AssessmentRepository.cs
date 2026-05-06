@@ -58,4 +58,19 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         await _context.SaveChangesAsync();
         return interventions;
     }
+
+    public async Task DeleteInterventionAsync(Guid assessmentId, Guid interventionId)
+    {
+        Intervention? intervention = await _context.Set<Intervention>()
+            .FirstOrDefaultAsync(i =>
+                i.Id == interventionId &&
+                EF.Property<Guid?>(i, "remission_id") == assessmentId);
+
+        if (intervention is null)
+            throw new KeyNotFoundException(
+                $"Intervention '{interventionId}' not found for assessment '{assessmentId}'.");
+
+        _context.Set<Intervention>().Remove(intervention);
+        await _context.SaveChangesAsync();
+    }
 }
