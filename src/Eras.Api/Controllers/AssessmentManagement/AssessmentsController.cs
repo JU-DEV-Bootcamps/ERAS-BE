@@ -101,4 +101,61 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
 
         return Ok(response);
     }
+
+    [HttpGet("{id:guid}/interventions")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyCollection<InterventionDto>>> GetInterventions(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var response = await Mediator.Send(
+            new GetInterventionsByAssessmentQuery(id),
+            cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpPost("interventions")]
+    [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<InterventionDto>> AddIntervention(
+        [FromBody] AddInterventionDto dto,
+        CancellationToken cancellationToken)
+    {
+        var response = await Mediator.Send(
+            new AddInterventionCommand(dto.AssessmentId, dto.Intervention),
+            cancellationToken);
+
+        return Created(string.Empty, response);
+    }
+
+    [HttpPut("{id:guid}/interventions")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyCollection<InterventionDto>>> UpsertInterventions(
+        Guid id,
+        [FromBody] IReadOnlyCollection<InterventionDto> interventions,
+        CancellationToken cancellationToken)
+    {
+        var response = await Mediator.Send(
+            new UpsertInterventionsCommand(id, interventions),
+            cancellationToken);
+
+        return Ok(response);
+    }    
+
+    [HttpDelete("{id:guid}/interventions/{interventionId:guid}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteIntervention(
+        Guid id,
+        Guid interventionId,
+        CancellationToken cancellationToken)
+    {
+        await Mediator.Send(new DeleteInterventionCommand(id, interventionId), cancellationToken);
+        return NoContent();
+    }
 }

@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.OpenApi.Models;
+using Eras.Api.Filters; 
 
 namespace Eras.Api
 {
@@ -15,6 +16,7 @@ namespace Eras.Api
             Services.AddEndpointsApiExplorer();
             Services.AddSwaggerGen(Options =>
             {
+                Options.SchemaFilter<PolymorphicInterventionSchemaFilter>();
                 Options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     In = ParameterLocation.Header,

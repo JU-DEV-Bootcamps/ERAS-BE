@@ -22,5 +22,5 @@ public sealed class Assessment : BaseEntity
 
     public required AssessmentStatus Status { get; init; }
 
-    public IReadOnlyCollection<Intervention> Interventions { get; init; } = Array.Empty<Intervention>();
+    public IReadOnlyCollection<Intervention> Interventions { get; init; } = new List<Intervention>();
 }

@@ -27,3 +27,15 @@ public sealed record GetRemissionsByStatusQuery(AssessmentStatus Status)
     : IRequest<IReadOnlyCollection<AssessmentDto>>;
 
 public sealed record GetAllRemissionsQuery() : IRequest<IReadOnlyCollection<AssessmentDto>>;
+
+public sealed record UpsertInterventionsCommand(Guid AssessmentId, IReadOnlyCollection<InterventionDto> Interventions)
+    : IRequest<IReadOnlyCollection<InterventionDto>>;
+
+public sealed record GetInterventionsByAssessmentQuery(Guid AssessmentId)
+    : IRequest<IReadOnlyCollection<InterventionDto>>;
+
+public sealed record AddInterventionCommand(Guid AssessmentId, InterventionDto Intervention)
+    : IRequest<InterventionDto>;
+
+public sealed record DeleteInterventionCommand(Guid AssessmentId, Guid InterventionId)
+    : IRequest;
