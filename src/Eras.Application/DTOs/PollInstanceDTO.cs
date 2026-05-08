@@ -12,4 +12,5 @@ public class PollInstanceDTO
     public DateTime FinishedAt { get; set; }
     public int LastVersion { get; set; }
     public DateTime LastVersionDate { get; set; }
+    public int? EvaluationId { get; set; }
 }

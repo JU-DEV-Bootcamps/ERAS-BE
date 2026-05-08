@@ -12,5 +12,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public DateTime LastVersionDate { get; set; }
         public AuditInfo Audit { get; set; } = default!;
         public DateTime FinishedAt { get; set; }
+        public int? EvaluationId { get; set; }
     }
 }
