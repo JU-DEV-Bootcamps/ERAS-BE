@@ -9,11 +9,11 @@ public interface IAssessmentRepository : IBaseRepository<Assessment>
 
     Task<IEnumerable<Assessment>> GetByStatusAsync(AssessmentStatus status);
 
-    Task<Assessment?> GetByIdWithInterventionsAsync(Guid id);
+    Task<Assessment?> GetByIdWithInterventionsAsync(int id);
 
-    Task<Intervention> AddInterventionAsync(Guid assessmentId, Intervention intervention); 
+    Task<Intervention> AddInterventionAsync(int assessmentId, Intervention intervention); 
 
-    Task<IReadOnlyCollection<Intervention>> ReplaceInterventionsAsync(Guid assessmentId, IReadOnlyCollection<Intervention> interventions);
+    Task<IReadOnlyCollection<Intervention>> ReplaceInterventionsAsync(int assessmentId, IReadOnlyCollection<Intervention> interventions);
 
-    Task DeleteInterventionAsync(Guid assessmentId, Guid interventionId);
+    Task DeleteInterventionAsync(int assessmentId, int interventionId);
 }

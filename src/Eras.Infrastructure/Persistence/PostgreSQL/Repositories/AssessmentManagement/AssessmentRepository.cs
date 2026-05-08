@@ -23,7 +23,7 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
             .ToListAsync();
     }
 
-    public async Task<Assessment?> GetByIdWithInterventionsAsync(Guid id)
+    public async Task<Assessment?> GetByIdWithInterventionsAsync(int id)
     {
         return await _context.Set<Assessment>()
             .AsNoTracking()
@@ -31,7 +31,7 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
             .FirstOrDefaultAsync(a => a.Id == id);
     }
 
-    public async Task<Intervention> AddInterventionAsync(Guid assessmentId, Intervention intervention)
+    public async Task<Intervention> AddInterventionAsync(int assessmentId, Intervention intervention)
     {
         _context.Set<Intervention>().Add(intervention);
         _context.Entry(intervention).Property("remission_id").CurrentValue = assessmentId;
@@ -40,11 +40,11 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
     }
 
     public async Task<IReadOnlyCollection<Intervention>> ReplaceInterventionsAsync(
-        Guid assessmentId,
+        int assessmentId,
         IReadOnlyCollection<Intervention> interventions)
     {
         var existing = await _context.Set<Intervention>()
-            .Where(i => EF.Property<Guid?>(i, "remission_id") == assessmentId)
+            .Where(i => EF.Property<int>(i, "remission_id") == assessmentId)
             .ToListAsync();
 
         _context.Set<Intervention>().RemoveRange(existing);
@@ -59,12 +59,12 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         return interventions;
     }
 
-    public async Task DeleteInterventionAsync(Guid assessmentId, Guid interventionId)
+    public async Task DeleteInterventionAsync(int assessmentId, int interventionId)
     {
         Intervention? intervention = await _context.Set<Intervention>()
             .FirstOrDefaultAsync(i =>
                 i.Id == interventionId &&
-                EF.Property<Guid?>(i, "remission_id") == assessmentId);
+                EF.Property<int?>(i, "remission_id") == assessmentId);
 
         if (intervention is null)
             throw new KeyNotFoundException(
