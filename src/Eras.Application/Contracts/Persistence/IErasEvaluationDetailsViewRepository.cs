@@ -18,4 +18,6 @@ public interface IErasEvaluationDetailsViewRepository : IBaseRepository<ErasEval
     Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsStudentAsync(int Page, int PageSize);
     Task<int> CountRecentAlerts();
 
+    Task<bool> ExistsPollInstanceForEvaluationAsync(int StudentId, string PollUuid, int EvaluationId);
+    Task<bool> ExistsPollInstanceForEvaluationByRangeAsync(int StudentId, string PollUuid, DateTime Startdate, DateTime Enddate);
 }

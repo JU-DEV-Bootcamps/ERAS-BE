@@ -126,6 +126,26 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .ToList();
     }
 
+    public async Task<bool> ExistsPollInstanceForEvaluationAsync(int StudentId, string PollUuid, int EvaluationId)
+    {
+        return await _context.Set<ErasEvaluationDetailsViewEntity>()
+            .AsNoTracking()
+            .AnyAsync(v => v.StudentId == StudentId
+                        && v.PollUuid == PollUuid
+                        && v.EvaluationId == EvaluationId);
+    }
+
+    //questioon
+    public async Task<bool> ExistsPollInstanceForEvaluationByRangeAsync(int StudentId, string PollUuid, DateTime Startdate, DateTime Enddate)
+    {
+        return await _context.Set<ErasEvaluationDetailsViewEntity>()
+            .AsNoTracking()
+            .AnyAsync(v => v.StudentId == StudentId
+                        && v.PollUuid == PollUuid
+                        && v.StartDate == Startdate
+                        && v.EndDate == Enddate);
+    }
+
     private async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsWithoutPagination()
     {
         var prevItems = await _context.ErasEvaluationDetailsView

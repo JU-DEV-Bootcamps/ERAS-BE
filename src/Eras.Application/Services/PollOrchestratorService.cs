@@ -46,15 +46,18 @@ namespace Eras.Application.Services
         private bool IsNewVersion = false;
         private DateTime InitDate;
         private readonly IEvaluationRepository _evaluationRepository;
+        private readonly IPollInstanceRepository _pollInstanceRepository;
 
         public PollOrchestratorService(
             IMediator Mediator, 
             ILogger<PollOrchestratorService> Logger,
-            IEvaluationRepository EvaluationRepository)
+            IEvaluationRepository EvaluationRepository,
+            IPollInstanceRepository PollInstanceRepository)
         {
             _logger = Logger;
             _mediator = Mediator;
             _evaluationRepository = EvaluationRepository;
+            _pollInstanceRepository = PollInstanceRepository;
         }
 
         public async Task<CreateCommandResponse<CreatedPollDTO>> ImportPollInstancesAsync(List<PollDTO> PollsToCreate, int EvaluationId)
@@ -109,7 +112,7 @@ namespace Eras.Application.Services
                             createdPoll.studentDTOs.Add(createdStudent.Entity.ToDto());
                             // Create poll instances
                             CreateCommandResponse<PollInstance> createdPollInstance = await CreatePollInstanceAsync(createdStudent.Entity,
-                                createdPollResponse.Entity.Uuid, pollToCreate.FinishedAt);
+                                createdPollResponse.Entity.Uuid, pollToCreate.FinishedAt, EvaluationId);
                             // Create asnswers
                             if (createdPollInstance.Success)
                             {
@@ -126,45 +129,47 @@ namespace Eras.Application.Services
                 return new CreateCommandResponse<CreatedPollDTO>(null, 0, $"Error during import process {ex.Message}", false);
             }
         }
-        public async Task<CreateCommandResponse<PollInstance>> CreatePollInstanceAsync(Student Student, string PollUuid, DateTime FinishedAt)
+        public async Task<CreateCommandResponse<PollInstance>> CreatePollInstanceAsync(Student Student, string PollUuid, DateTime FinishedAt, int EvaluationId)
         {
             try
             {
-                var queryPollInstance = new GetPollInstanceByUuidAndStudentIdQuery()
-                {
-                    PollUuid = PollUuid,
-                    StudentId = Student.Id,
-                };
-                var responseQuery = await _mediator.Send(queryPollInstance);
-                if (responseQuery.Status == QueryEnums.QueryResultStatus.Success)
-                {
-                    if (IsNewVersion)
-                    {
-                        responseQuery.Body.LastVersion = VersionNumber;
-                        responseQuery.Body.LastVersionDate = InitDate;
-                        var updateCommand = new UpdatePollInstanceByIdCommand() { PollInstanceDTO = responseQuery.Body.ToDTO() };
-                        var responseUpdate = await _mediator.Send(updateCommand);
-                        return responseUpdate;
-                    }
-                    else
-                        return new CreateCommandResponse<PollInstance>(responseQuery.Body, 0, "Already exists", true);
+                bool alreadyExists = await _pollInstanceRepository.ExistsForStudentAndEvaluationAsync(Student.Id, PollUuid, EvaluationId);
 
-                }
-                else
+                if (alreadyExists)
                 {
-                    PollInstance pollInstance = new PollInstance() { Uuid = PollUuid, Student = Student, FinishedAt = FinishedAt };
-
-                    pollInstance.Audit = new AuditInfo()
+                    // True duplicate within same import run — fetch and return existing
+                    var queryPollInstance = new GetPollInstanceByUuidAndStudentIdQuery()
                     {
-                        CreatedBy = "Cosmic latte import",
-                        CreatedAt = DateTime.UtcNow,
-                        ModifiedAt = DateTime.UtcNow,
+                        PollUuid = PollUuid,
+                        StudentId = Student.Id,
+                        EvaluationId = EvaluationId
                     };
-                    pollInstance.LastVersion = VersionNumber;
-                    pollInstance.LastVersionDate = InitDate;
-                    CreatePollInstanceCommand createPollInstanceCommand = new CreatePollInstanceCommand() { PollInstance = pollInstance.ToDTO() };
-                    return await _mediator.Send(createPollInstanceCommand);
+                    var responseQuery = await _mediator.Send(queryPollInstance);
+                    return new CreateCommandResponse<PollInstance>(
+                        responseQuery.Body, 0, "Already exists for this evaluation", true);
                 }
+                PollInstance pollInstance = new PollInstance()
+                {
+                    Uuid = PollUuid,
+                    Student = Student,
+                    FinishedAt = FinishedAt,
+                    EvaluationId = EvaluationId
+                };
+
+                pollInstance.Audit = new AuditInfo()
+                {
+                    CreatedBy = "Cosmic latte import",
+                    CreatedAt = DateTime.UtcNow,
+                    ModifiedAt = DateTime.UtcNow,
+                };
+                pollInstance.LastVersion = VersionNumber;
+                pollInstance.LastVersionDate = InitDate;
+
+                CreatePollInstanceCommand createPollInstanceCommand = new CreatePollInstanceCommand()
+                {
+                    PollInstance = pollInstance.ToDTO()
+                };
+                return await _mediator.Send(createPollInstanceCommand);
             }
             catch (Exception ex)
             {
