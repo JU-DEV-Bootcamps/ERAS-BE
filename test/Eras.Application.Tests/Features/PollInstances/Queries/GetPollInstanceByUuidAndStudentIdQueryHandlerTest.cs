@@ -29,7 +29,7 @@ public class GetPollInstanceByUuidAndStudentIdQueryHandlerTest
     public async Task Handle_Should_Return_Success_ResponseAsync()
     {
         // Arrange
-        var query = new GetPollInstanceByUuidAndStudentIdQuery() { PollUuid = "uuid1", StudentId = 1 };
+        var query = new GetPollInstanceByUuidAndStudentIdQuery() { PollUuid = "uuid1", StudentId = 1, EvaluationId = 1 };
         var pollInstance = new PollInstance { Id=1,Uuid = "uuid1", FinishedAt = DateTime.UtcNow,
             LastVersionDate = DateTime.Now, LastVersion = 1 , Answers = new List<Answer>()};
         _mockPollRepository
