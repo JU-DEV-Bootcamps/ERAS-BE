@@ -14,7 +14,7 @@ public class StudentDTO
     
     [Required(ErrorMessage = "Student name is required.")]
     [StringLength(254, MinimumLength = 2, ErrorMessage = "Name must be between 2 and 254 characters.")]
-    [RegularExpression(@"^[a-zA-ZÀ-ÿ\s]+$", ErrorMessage = "Name can only contain letters and spaces.")]
+    [RegularExpression(@"^[a-zA-ZÀ-ÿ'\s]+$", ErrorMessage = "Name can only contain letters and spaces.")]
     public string Name { get; set; } = string.Empty;
     
     [Required(ErrorMessage = "Email is required.")]

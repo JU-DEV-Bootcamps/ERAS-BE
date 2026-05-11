@@ -22,7 +22,13 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
 
     public async Task<PollInstance?> GetByUuidAndStudentIdAsync(string Uuid, int StudentId)
     {
-        PollInstanceEntity? results = await _context.PollInstances.FirstOrDefaultAsync(Poll => Poll.Uuid.Equals(Uuid) && Poll.StudentId.Equals(StudentId));
+        PollInstanceEntity? results = await _context.PollInstances.FirstOrDefaultAsync(Poll => Poll.Uuid.Equals(Uuid) && Poll.StudentId == StudentId);
+        return results?.ToDomain();
+    }
+
+    public async Task<PollInstance?> GetByUuidAndStudentIdAsync(string Uuid, int StudentId, int EvaluationId)
+    {
+        PollInstanceEntity? results = await _context.PollInstances.FirstOrDefaultAsync(Poll => Poll.Uuid.Equals(Uuid) && Poll.StudentId == StudentId && Poll.EvaluationId == EvaluationId);
         return results?.ToDomain();
     }
 
@@ -233,7 +239,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return Entity;
     }
 
-    public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, List<int> CohortIds, List<int> VariableIds, bool LastVersion, DateTime startDate, DateTime endDate)
+    public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, List<int> CohortIds, List<int> VariableIds, bool LastVersion, DateTime startDate, DateTime endDate, int? EvaluationId)
     {
 
         int pollVersion = _context.Polls
@@ -246,7 +252,9 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             where A.PollUuid == PollUuid
             where CohortIds.Contains(A.CohortId)
             where VariableIds.Contains(A.PollVariableId)
-            where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate 
+            //where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate -- OLD conditional
+            where PI.Audit.CreatedAt >= startDate && PI.FinishedAt <= endDate
+            where PI.EvaluationId == EvaluationId
             select new ErasCalculationsByPollDTO
             {
                 ComponentName = A.ComponentName,
@@ -300,5 +308,14 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             .Where(pi => pi.FinishedAt >= DateTime.SpecifyKind(startDate, DateTimeKind.Utc)
                     && pi.FinishedAt <= DateTime.SpecifyKind(endDate, DateTimeKind.Utc))
             .CountAsync();
+    }
+
+    public async Task<bool> ExistsForStudentAndEvaluationAsync(int StudentId, string PollUuid, int EvaluationId)
+    {
+        return await _context.PollInstances
+            .AsNoTracking()
+            .AnyAsync(p => p.StudentId == StudentId
+                        && p.Uuid == PollUuid
+                        && p.EvaluationId == EvaluationId);
     }
 }

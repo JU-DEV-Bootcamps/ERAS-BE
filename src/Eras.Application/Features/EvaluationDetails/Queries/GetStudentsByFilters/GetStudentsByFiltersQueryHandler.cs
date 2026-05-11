@@ -41,12 +41,13 @@ public class GetStudentsByFiltersQueryHandler :
                 Request.PageValues.Page,
                 Request.PageValues.PageSize,
                 startDate,
-                endDate
+                endDate,
+                Request.EvaluationId
             );
 
             var totalCount = await _repository.CountStudentsByFilters(
                 Request.PollUuid, Request.ComponentNames, Request.CohortIds,
-                Request.VariableIds, Request.RiskLevels, startDate, endDate
+                Request.VariableIds, Request.RiskLevels, startDate, endDate, Request.EvaluationId
             );
 
             var studentsResponses = studentsList

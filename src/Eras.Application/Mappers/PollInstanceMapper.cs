@@ -19,6 +19,7 @@ namespace Eras.Application.Mappers
                 FinishedAt = Dto.FinishedAt,
                 LastVersion = Dto.LastVersion,
                 LastVersionDate = Dto.LastVersionDate,
+                EvaluationId = Dto.EvaluationId,
             };
         }
         public static PollInstanceDTO ToDTO(this PollInstance Entity)
@@ -35,6 +36,7 @@ namespace Eras.Application.Mappers
                 FinishedAt = Entity.FinishedAt,
                 LastVersion = Entity.LastVersion,
                 LastVersionDate = Entity.LastVersionDate,
+                EvaluationId = Entity.EvaluationId,
             };
 
         }
