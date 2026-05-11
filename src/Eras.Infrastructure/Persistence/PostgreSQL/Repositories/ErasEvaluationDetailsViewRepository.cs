@@ -75,10 +75,10 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
     public async Task<IEnumerable<ErasEvaluationDetailsView>> GetStudentsByFilters(
     string PollUuid, List<string> ComponentNames, List<int> CohortIds,
     List<int>? VariableIds, List<decimal>? RiskLevels,
-    int Page, int PageSize, DateTime startDate, DateTime endDate)
+    int Page, int PageSize, DateTime startDate, DateTime endDate, int? EvaluationId = null)
     {
         var query = BuildStudentsByFiltersQuery(
-        PollUuid, ComponentNames, CohortIds, VariableIds, startDate, endDate);
+        PollUuid, ComponentNames, CohortIds, VariableIds, startDate, endDate, EvaluationId);
 
         var entities = await query
             .OrderBy(v => v.StudentName)
@@ -99,9 +99,10 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
     }
 
     public async Task<int> CountStudentsByFilters(
-        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels, DateTime startDate, DateTime endDate)
+        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels,
+        DateTime startDate, DateTime endDate, int? EvaluationId = null)
     {
-        var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, startDate, endDate);
+        var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, startDate, endDate, EvaluationId);
         var entities = await query.ToListAsync();
         return ApplyRiskFilter(entities, RiskLevels)
             .Select(v => v.StudentId)
@@ -181,7 +182,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
     }
 
     private IQueryable<ErasEvaluationDetailsViewEntity> BuildStudentsByFiltersQuery(
-        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, DateTime startDate, DateTime endDate)
+        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, DateTime startDate, DateTime endDate, int? EvaluationId = null)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>()
             .AsNoTracking()
@@ -192,6 +193,9 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
 
         if (VariableIds != null && VariableIds.Any())
             query = query.Where(v => VariableIds.Contains(v.VariableId));
+
+        if (EvaluationId.HasValue)
+            query = query.Where(v => v.EvaluationId == EvaluationId.Value);
 
         return query;
     }

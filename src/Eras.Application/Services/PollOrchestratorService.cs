@@ -65,7 +65,6 @@ namespace Eras.Application.Services
             try
             {
                 InitDate = DateTime.UtcNow;
-                // Create poll
                 PollDTO pollDTO = PollsToCreate[0];
                 CreateCommandResponse<Poll> createdPollResponse = await CreatePollAsync(pollDTO);
                 int createdPollsInstances = 0;
@@ -137,7 +136,6 @@ namespace Eras.Application.Services
 
                 if (alreadyExists)
                 {
-                    // True duplicate within same import run — fetch and return existing
                     var queryPollInstance = new GetPollInstanceByUuidAndStudentIdQuery()
                     {
                         PollUuid = PollUuid,

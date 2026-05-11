@@ -252,8 +252,9 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             where A.PollUuid == PollUuid
             where CohortIds.Contains(A.CohortId)
             where VariableIds.Contains(A.PollVariableId)
-            where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate
-            where EvaluationId == null || PI.EvaluationId == EvaluationId
+            //where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate -- OLD conditional
+            where PI.Audit.CreatedAt >= startDate && PI.FinishedAt <= endDate
+            where PI.EvaluationId == EvaluationId
             select new ErasCalculationsByPollDTO
             {
                 ComponentName = A.ComponentName,
