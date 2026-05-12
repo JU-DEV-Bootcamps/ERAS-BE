@@ -86,7 +86,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .ToListAsync();
 
         var filtered = ApplyRiskFilter(entities, RiskLevels)
-            .GroupBy(v => new { v.StudentId, v.AnswerId })
+            .GroupBy(v => v.StudentId)
             .Select(g => g.First())
             .ToList();
 
