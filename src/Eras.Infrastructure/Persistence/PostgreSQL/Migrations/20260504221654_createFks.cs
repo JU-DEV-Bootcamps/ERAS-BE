@@ -16,6 +16,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropIndex(
+                name: "IX_Interventions_remission_id",
+                table: "Interventions"
+            );
         }
     }
 }

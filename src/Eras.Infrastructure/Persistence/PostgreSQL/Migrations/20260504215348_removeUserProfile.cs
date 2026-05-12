@@ -12,7 +12,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.Sql(@"DROP TABLE IF EXISTS ""student_remissions"";");
-            migrationBuilder.Sql(@"DELETE FROM ""remissions"";");
         }
 
         /// <inheritdoc />
