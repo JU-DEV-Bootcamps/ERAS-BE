@@ -5,6 +5,7 @@ using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Mappers;
 using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Application.Models.Response.HeatMap;
+using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Domain.Entities.AssessmentManagement.Validators;
 
@@ -33,8 +34,8 @@ namespace Eras.Application.Services
         public static IServiceCollection ConfigureMappers(this IServiceCollection services)
         {
 
-            services.AddScoped<IMapper<StudentProfileDto, StudentProfile>, StudentProfileMapper>();
-            services.AddScoped<IMapper<StudentProfile, StudentProfileDto>, StudentProfileToDtoMapper>();
+            services.AddScoped<IMapper<StudentProfileDto, Student>, StudentProfileMapper>();
+            services.AddScoped<IMapper<Student, StudentProfileDto>, StudentProfileToDtoMapper>();
 
             services.AddScoped<IMapper<InterventionPlanDto, InterventionPlan>, InterventionPlanMapper>();
             services.AddScoped<IMapper<InterventionPlan, InterventionPlanDto>, InterventionPlanToDtoMapper>();
@@ -48,7 +49,6 @@ namespace Eras.Application.Services
             services.AddScoped<IMapper<AssessmentDto, Assessment>, AssessmentMapper>();
             services.AddScoped<IMapper<Assessment, AssessmentDto>, AssessmentToDtoMapper>();
 
-            services.AddScoped<IValidator<StudentProfile>, StudentProfileValidator>();
             services.AddScoped<IValidator<InterventionPlan>, InterventionPlanValidator>();
             services.AddScoped<IValidator<Assessment>, AssessementValidator>();
 

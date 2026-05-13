@@ -17,7 +17,7 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger) : ControllerBase
 {
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AssessmentDto>> GetById(Guid id, CancellationToken cancellationToken)
@@ -40,7 +40,7 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
     [HttpGet("by-student/{studentId:guid}")]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByStudentId(
-        Guid studentId,
+        int studentId,
         CancellationToken cancellationToken)
     {
         var response = await Mediator.Send(new GetRemissionsByStudentIdQuery(studentId), cancellationToken);
@@ -82,15 +82,15 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
             response);
     }
 
-    [HttpPut("{id:guid}")]
+    [HttpPut("{id:int}")]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AssessmentDto>> Update(
-        Guid id,
+        int id,
         [FromBody] AssessmentDto dto,
         CancellationToken cancellationToken)
     {
-        if (dto.Id.HasValue && dto.Id.Value != id)
+        if (dto.Id == default)
         {
             return BadRequest("Route id must match payload id.");
         }
@@ -102,11 +102,11 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         return Ok(response);
     }
 
-    [HttpGet("{id:guid}/interventions")]
+    [HttpGet("{id:int}/interventions")]
     [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IReadOnlyCollection<InterventionDto>>> GetInterventions(
-        Guid id,
+        int id,
         CancellationToken cancellationToken)
     {
         var response = await Mediator.Send(
@@ -131,12 +131,12 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         return Created(string.Empty, response);
     }
 
-    [HttpPut("{id:guid}/interventions")]
+    [HttpPut("{id:int}/interventions")]
     [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyCollection<InterventionDto>>> UpsertInterventions(
-        Guid id,
+        int id,
         [FromBody] IReadOnlyCollection<InterventionDto> interventions,
         CancellationToken cancellationToken)
     {
@@ -147,12 +147,12 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         return Ok(response);
     }    
 
-    [HttpDelete("{id:guid}/interventions/{interventionId:guid}")]
+    [HttpDelete("{id:int}/interventions/{interventionId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteIntervention(
-        Guid id,
-        Guid interventionId,
+        int id,
+        int interventionId,
         CancellationToken cancellationToken)
     {
         await Mediator.Send(new DeleteInterventionCommand(id, interventionId), cancellationToken);

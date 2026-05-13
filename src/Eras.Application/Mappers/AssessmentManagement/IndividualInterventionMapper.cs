@@ -9,7 +9,7 @@ public sealed class IndividualInterventionMapper : IMapper<IndividualInterventio
     {
         return new IndividualIntervention
         {
-            Id = source.Id ?? Guid.NewGuid(),
+            Id = source.Id ?? default,
             DateUtc = source.DateUtc,
             ActivityType = source.ActivityType,
             Professional = source.Professional,

@@ -4,16 +4,16 @@ namespace Eras.Application.DTOs.AssessmentManagement;
 
 public sealed record AssessmentDto
 {
-    public Guid? Id { get; init; }
+    public int? Id { get; init; }
 
-    public required DateTime CreatedAtUtc { get; init; }
+    public DateTime CreatedAtUtc { get; init; } = DateTime.UtcNow;
 
     public required string CreatedBy { get; init; }
     public required string Service { get; init; }
 
     public string? AssignedProfessional { get; init; }
 
-    public required Guid[] StudentIds { get; init; }
+    public required int[] StudentIds { get; init; }
 
     public string? Diagnosis { get; init; }
     public string? Objective { get; init; }

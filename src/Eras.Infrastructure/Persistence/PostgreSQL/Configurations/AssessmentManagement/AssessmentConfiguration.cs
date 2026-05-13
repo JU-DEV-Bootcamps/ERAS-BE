@@ -13,9 +13,10 @@ public sealed class AssessmentConfiguration : IEntityTypeConfiguration<Assessmen
 
         builder.HasKey(entity => entity.Id);
 
-        builder.Property(entity => entity.Id)
+        builder.Property(x => x.Id)
             .HasColumnName("id")
-            .ValueGeneratedNever();
+            .ValueGeneratedOnAdd()
+            .UseIdentityByDefaultColumn();
 
         builder.Property(entity => entity.CreatedAtUtc)
             .HasColumnName("created_at_utc")
@@ -41,7 +42,7 @@ public sealed class AssessmentConfiguration : IEntityTypeConfiguration<Assessmen
 
         builder.Property(entity => entity.StudentIds)
             .HasColumnName("student_ids")
-            .HasColumnType("uuid[]")
+            .HasColumnType("integer[]")
             .IsRequired();
 
         builder.Property(entity => entity.Diagnosis)

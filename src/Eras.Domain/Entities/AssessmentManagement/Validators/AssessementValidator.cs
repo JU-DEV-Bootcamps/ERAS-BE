@@ -8,9 +8,6 @@ public sealed class AssessementValidator : AbstractValidator<Assessment>
 {
     public AssessementValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty();
-
         RuleFor(x => x.CreatedAtUtc)
             .NotEmpty();
 

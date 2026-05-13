@@ -16,7 +16,7 @@ public sealed class GroupInterventionConfiguration : IEntityTypeConfiguration<Gr
 
         builder.Property(entity => entity.ParticipantIds)
             .HasColumnName("participant_ids")
-            .HasColumnType("uuid[]")
+            .HasColumnType("integer[]")
             .IsRequired();
     }
 }

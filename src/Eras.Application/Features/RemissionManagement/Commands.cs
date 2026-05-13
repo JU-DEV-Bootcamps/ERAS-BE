@@ -21,21 +21,21 @@ public sealed record UpdateRemissionCommand(AssessmentDto Remission) : IRequest<
 
 public sealed record GetRemissionByIdQuery(Guid Id) : IRequest<AssessmentDto?>;
 
-public sealed record GetRemissionsByStudentIdQuery(Guid StudentId) : IRequest<IReadOnlyCollection<AssessmentDto>>;
+public sealed record GetRemissionsByStudentIdQuery(int StudentId) : IRequest<IReadOnlyCollection<AssessmentDto>>;
 
 public sealed record GetRemissionsByStatusQuery(AssessmentStatus Status)
     : IRequest<IReadOnlyCollection<AssessmentDto>>;
 
 public sealed record GetAllRemissionsQuery() : IRequest<IReadOnlyCollection<AssessmentDto>>;
 
-public sealed record UpsertInterventionsCommand(Guid AssessmentId, IReadOnlyCollection<InterventionDto> Interventions)
+public sealed record UpsertInterventionsCommand(int AssessmentId, IReadOnlyCollection<InterventionDto> Interventions)
     : IRequest<IReadOnlyCollection<InterventionDto>>;
 
-public sealed record GetInterventionsByAssessmentQuery(Guid AssessmentId)
+public sealed record GetInterventionsByAssessmentQuery(int AssessmentId)
     : IRequest<IReadOnlyCollection<InterventionDto>>;
 
-public sealed record AddInterventionCommand(Guid AssessmentId, InterventionDto Intervention)
+public sealed record AddInterventionCommand(int AssessmentId, InterventionDto Intervention)
     : IRequest<InterventionDto>;
 
-public sealed record DeleteInterventionCommand(Guid AssessmentId, Guid InterventionId)
+public sealed record DeleteInterventionCommand(int AssessmentId, int InterventionId)
     : IRequest;
