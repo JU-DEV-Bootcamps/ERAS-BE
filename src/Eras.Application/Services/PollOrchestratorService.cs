@@ -116,7 +116,26 @@ namespace Eras.Application.Services
                             // Create asnswers
                             if (createdPollInstance.Success)
                             {
-                                await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
+                                //---------- await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
+                                PollInstance? sourceInstance = await _pollInstanceRepository
+                                    .FindMatchingSourceInstanceAsync(
+                                        studentId: createdStudent.Entity.Id,
+                                        currentPollInstanceId: createdPollInstance.Entity.Id,
+                                        incomingPoll: pollToCreate); // los answers vienen del DTO
+
+                                if (sourceInstance != null)
+                                {
+                                    // Solo marcar el source, no insertar answers
+                                    await _pollInstanceRepository.SetSourceInstanceAsync(
+                                        createdPollInstance.Entity.Id,
+                                        sourceInstance.Id);
+                                }
+                                else
+                                {
+                                    // Flujo normal, insertar answers
+                                    await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
+                                }
+
                                 createdPollsInstances++;
                             }
                         }
@@ -152,7 +171,7 @@ namespace Eras.Application.Services
                     Uuid = PollUuid,
                     Student = Student,
                     FinishedAt = FinishedAt,
-                    EvaluationId = EvaluationId
+                    EvaluationId = EvaluationId,
                 };
 
                 pollInstance.Audit = new AuditInfo()
