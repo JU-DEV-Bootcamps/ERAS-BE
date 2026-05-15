@@ -261,6 +261,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             where PI.EvaluationId == EvaluationId
             select new ErasCalculationsByPollDTO
             {
+                ComponentId = A.ComponentId,
                 ComponentName = A.ComponentName,
                 ComponentAverageRisk = A.ComponentAverageRisk,
                 AnswerText = A.AnswerText,
@@ -277,6 +278,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 
         List<CountReportComponent> report = [.. results
+        .OrderBy(A => A.ComponentId)
         .GroupBy(A => A.ComponentName)
         .Select(AnsPerComp => new CountReportComponent {
             Description = AnsPerComp.Key.ToUpper(),
@@ -355,26 +357,25 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             .OrderByDescending(pi => pi.FinishedAt)
             .ToListAsync();
 
-        return PollInstanceMapper.ToDomain(candidates.FirstOrDefault(pi =>
-            ComputeHashFromAnswers(pi.Answers) == incomingHash));
+        var foundHash = candidates.FirstOrDefault(pi =>
+            ComputeHashFromAnswers(pi.Answers) == incomingHash);
+        return foundHash != null ? PollInstanceMapper.ToDomain(foundHash) : null;
     }
 
-    // Hash desde el DTO (entrante)
     private string ComputeHashFromDTO(PollDTO pollDTO)
     {
         var entries = pollDTO.Components
             .SelectMany(c => c.Variables)
-            .Select(v => $"{v.Answer.PollVariableId}:{v.Answer}:{v.Answer.Score}")
+            .Select(v => $"{v.Answer.Answer}")
             .OrderBy(x => x);
 
         return Hash(string.Join("|", entries));
     }
 
-    // Hash desde las answers ya guardadas en DB
     private string ComputeHashFromAnswers(ICollection<AnswerEntity> answers)
     {
         var entries = answers
-            .Select(a => $"{a.PollVariableId}:{a.AnswerText}:{a.RiskLevel}")
+            .Select(a => $"{a.AnswerText}")
             .OrderBy(x => x);
 
         return Hash(string.Join("|", entries));
