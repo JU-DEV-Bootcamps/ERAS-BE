@@ -20,6 +20,7 @@ public sealed class IndividualInterventionMapper : IMapper<IndividualInterventio
             Attendance = source.Attendance,
             Mode = source.Mode,
             Status = source.Status,
+            Remarks = source.Remarks,
             Comments = source.Comments,
             Attachments = source.Attachments
         };

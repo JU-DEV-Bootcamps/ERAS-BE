@@ -24,6 +24,11 @@ public sealed class InterventionValidator : AbstractValidator<Intervention>
 
         RuleFor(x => x.Comments)
             .MaximumLength(4000);
+            
+        RuleFor(x => x.StudentIds)
+            .NotNull();
+
+        RuleFor(x => x.Remarks)
             .MaximumLength(1000);
 
         RuleForEach(x => x.Attachments)

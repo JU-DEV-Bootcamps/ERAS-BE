@@ -18,8 +18,7 @@ public abstract record InterventionDto
     public int? NumberOfParticipants { get; init; }
     public string? Professional { get; init; }
     public string? Comments { get; init; }
-    public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
-}
+    public required IReadOnlyCollection<int> StudentIds { get; init; } = Array.Empty<int>();
 
     /// <summary>
     /// Maps StudentId → attended (true/false).

@@ -28,12 +28,14 @@ public class PolymorphicInterventionSchemaFilter : ISchemaFilter
             {
                 ["kind"] = new OpenApiString("Individual or Group"),
                 ["dateUtc"] = new OpenApiString("2026-05-06T10:00:00Z"),
-                ["activityType"] = new OpenApiString("string"),
-                ["professional"] = new OpenApiString("string"),
                 ["comments"] = new OpenApiString("string"),
-                ["attachments"] = new OpenApiArray(),
-                ["area"] = new OpenApiString("(Group only) string"),
-                ["participantIds"] = new OpenApiArray
+                ["activity"] = new OpenApiString("Tutoría académica"),
+                ["area"] = new OpenApiString("Matemáticas"),
+                ["numberOfGuests"] = new OpenApiInteger(0),
+                ["numberOfParticipants"] = new OpenApiInteger(1),
+                ["professional"] = new OpenApiString("Dominic Harrison"),
+                ["studentIds"] = new OpenApiArray { new OpenApiInteger(1) },
+                ["attendance"] = new OpenApiObject
                 {
                     ["1"] = new OpenApiBoolean(true)
                 },
@@ -53,12 +55,14 @@ public class PolymorphicInterventionSchemaFilter : ISchemaFilter
                 {
                     ["kind"] = new OpenApiString("Individual or Group"),
                     ["dateUtc"] = new OpenApiString("2026-05-06T10:00:00Z"),
-                    ["activityType"] = new OpenApiString("string"),
-                    ["professional"] = new OpenApiString("string"),
                     ["comments"] = new OpenApiString("string"),
-                    ["attachments"] = new OpenApiArray(),
-                    ["area"] = new OpenApiString("(Group only) string"),
-                    ["participantIds"] = new OpenApiArray
+                    ["activity"] = new OpenApiString("Tutoría académica"),
+                    ["area"] = new OpenApiString("Matemáticas"),
+                    ["numberOfGuests"] = new OpenApiInteger(0),
+                    ["numberOfParticipants"] = new OpenApiInteger(1),
+                    ["professional"] = new OpenApiString("Dominic Harrison"),
+                    ["studentIds"] = new OpenApiArray { new OpenApiInteger(1) },
+                    ["attendance"] = new OpenApiObject
                     {
                         ["1"] = new OpenApiBoolean(true)
                     },

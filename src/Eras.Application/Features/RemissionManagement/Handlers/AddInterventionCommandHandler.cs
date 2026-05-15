@@ -49,6 +49,11 @@ public sealed class AddInterventionCommandHandler
                 NumberOfParticipants = persisted.NumberOfParticipants,
                 Professional = persisted.Professional,
                 Comments = persisted.Comments,
+                StudentIds = persisted.StudentIds,
+                Attendance = persisted.Attendance,
+                Mode = persisted.Mode,
+                Status = persisted.Status,
+                Remarks = persisted.Remarks,
                 Attachments = persisted.Attachments
             },
             GroupInterventionDto => new GroupInterventionDto
@@ -61,9 +66,12 @@ public sealed class AddInterventionCommandHandler
                 NumberOfParticipants = persisted.NumberOfParticipants,
                 Professional = persisted.Professional,
                 Comments = persisted.Comments,
-                Attachments = persisted.Attachments,
-                Area = ((GroupIntervention)persisted).Area,
-                ParticipantIds = ((GroupIntervention)persisted).ParticipantIds
+                StudentIds = persisted.StudentIds,
+                Attendance = persisted.Attendance,
+                Mode = persisted.Mode,
+                Status = persisted.Status,
+                Remarks = persisted.Remarks,
+                Attachments = persisted.Attachments
             },
             _ => throw new NotSupportedException(
                 $"Intervention DTO type '{request.Intervention.GetType().Name}' is not supported.")
