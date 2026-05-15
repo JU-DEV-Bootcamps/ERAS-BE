@@ -19,7 +19,7 @@ public sealed record CreateRemissionCommand(AssessmentDto Remission) : IRequest<
 
 public sealed record UpdateRemissionCommand(AssessmentDto Remission) : IRequest<AssessmentDto>;
 
-public sealed record GetRemissionByIdQuery(Guid Id) : IRequest<AssessmentDto?>;
+public sealed record GetRemissionByIdQuery(int Id) : IRequest<AssessmentDto?>;
 
 public sealed record GetRemissionsByStudentIdQuery(int StudentId) : IRequest<IReadOnlyCollection<AssessmentDto>>;
 

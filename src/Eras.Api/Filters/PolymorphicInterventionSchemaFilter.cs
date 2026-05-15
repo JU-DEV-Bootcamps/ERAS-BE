@@ -1,4 +1,5 @@
 using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Domain.Entities.AssessmentManagement;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -23,13 +24,6 @@ public class PolymorphicInterventionSchemaFilter : ISchemaFilter
                 }
             };
 
-            schema.Properties["area"] = new OpenApiSchema { Type = "string", Nullable = true };
-            schema.Properties["participantIds"] = new OpenApiSchema
-            {
-                Type = "array",
-                Items = new OpenApiSchema { Type = "string", Format = "uuid" }
-            };
-
             schema.Example = new OpenApiObject
             {
                 ["kind"] = new OpenApiString("Individual or Group"),
@@ -41,8 +35,12 @@ public class PolymorphicInterventionSchemaFilter : ISchemaFilter
                 ["area"] = new OpenApiString("(Group only) string"),
                 ["participantIds"] = new OpenApiArray
                 {
-                    new OpenApiString("(Group only) 7f317802-fb3e-4d95-8c87-3b39ff7cc604")
-                }
+                    ["1"] = new OpenApiBoolean(true)
+                },
+                ["mode"] = new OpenApiString("InPlace"),
+                ["status"] = new OpenApiString("Created"),
+                ["remarks"] = new OpenApiString("El estudiante mostró avance."),
+                ["attachments"] = new OpenApiArray()
             };
         }
 
@@ -50,7 +48,7 @@ public class PolymorphicInterventionSchemaFilter : ISchemaFilter
         {
             schema.Example = new OpenApiObject
             {
-                ["assessmentId"] = new OpenApiString("5fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                ["assessmentId"] = new OpenApiInteger(1),
                 ["intervention"] = new OpenApiObject
                 {
                     ["kind"] = new OpenApiString("Individual or Group"),
@@ -62,8 +60,11 @@ public class PolymorphicInterventionSchemaFilter : ISchemaFilter
                     ["area"] = new OpenApiString("(Group only) string"),
                     ["participantIds"] = new OpenApiArray
                     {
-                        new OpenApiString("(Group only) 7f317802-fb3e-4d95-8c87-3b39ff7cc604")
-                    }
+                        ["1"] = new OpenApiBoolean(true)
+                    },
+                    ["mode"] = new OpenApiString("InPlace"),
+                    ["remarks"] = new OpenApiString("El estudiante mostró avance."),
+                    ["attachments"] = new OpenApiArray()
                 }
             };
         }

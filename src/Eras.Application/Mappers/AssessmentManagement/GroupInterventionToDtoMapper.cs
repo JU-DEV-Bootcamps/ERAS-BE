@@ -11,12 +11,18 @@ public sealed class GroupInterventionToDtoMapper : IMapper<GroupIntervention, Gr
         {
             Id = source.Id,
             DateUtc = source.DateUtc,
-            ActivityType = source.ActivityType,
-            Professional = source.Professional,
             Comments = source.Comments,
-            Attachments = source.Attachments,
+            Activity = source.Activity,
             Area = source.Area,
-            ParticipantIds = source.ParticipantIds
+            NumberOfGuests = source.NumberOfGuests,
+            NumberOfParticipants = source.NumberOfParticipants,
+            Professional = source.Professional,
+            StudentIds = source.StudentIds,
+            Attendance = source.Attendance,
+            Mode = source.Mode,
+            Status = source.Status,
+            Remarks = source.Remarks,
+            Attachments = source.Attachments
         };
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Eras.Domain.Entities.AssessmentManagement;
-
 using FluentValidation;
 
 namespace Eras.Domain.Entities.AssessmentManagement.Validators;
@@ -14,7 +13,10 @@ public sealed class InterventionValidator : AbstractValidator<Intervention>
         RuleFor(x => x.DateUtc)
             .NotEmpty();
 
-        RuleFor(x => x.ActivityType)
+        RuleFor(x => x.Activity)
+            .MaximumLength(200);
+
+        RuleFor(x => x.Area)
             .MaximumLength(200);
 
         RuleFor(x => x.Professional)
@@ -22,6 +24,7 @@ public sealed class InterventionValidator : AbstractValidator<Intervention>
 
         RuleFor(x => x.Comments)
             .MaximumLength(4000);
+            .MaximumLength(1000);
 
         RuleForEach(x => x.Attachments)
             .NotEmpty()
