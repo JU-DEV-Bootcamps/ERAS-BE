@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence.AssessmentManagement;
+using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
 
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,25 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
             .AsNoTracking()
             .Include(a => a.Interventions)
             .FirstOrDefaultAsync(a => a.Id == id);
+    }
+
+    public async Task DeleteAssessmentAsync(int assessmentId)
+    {
+        var interventions = await _context.Interventions
+            .Where(i => EF.Property<int?>(i, "remission_id") == assessmentId)
+            .ToListAsync();
+
+        _context.Interventions.RemoveRange(interventions);
+
+        Assessment? assessment = await _context.Set<Assessment>()
+            .FirstOrDefaultAsync(i => i.Id == assessmentId);
+
+        if (assessment is null)
+            throw new KeyNotFoundException(
+                $"Assessment '{assessmentId}' not found.");
+
+        _context.Set<Assessment>().Remove(assessment);
+        await _context.SaveChangesAsync();
     }
 
     public async Task<Intervention> AddInterventionAsync(int assessmentId, Intervention intervention)

@@ -102,6 +102,23 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         return Ok(response);
     }
 
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        try {
+            await Mediator.Send(new DeleteAssessmentCommand(id), cancellationToken);
+            return NoContent();
+        } catch(KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+
     [HttpGet("{id:int}/interventions")]
     [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
