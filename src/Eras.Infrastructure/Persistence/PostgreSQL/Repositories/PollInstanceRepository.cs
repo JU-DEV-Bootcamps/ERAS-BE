@@ -1,7 +1,11 @@
-﻿using Eras.Application.Contracts.Persistence;
+﻿using System.Security.Cryptography;
+using System.Text;
+
+using Eras.Application.Contracts.Persistence;
+using Eras.Application.Dtos;
 using Eras.Application.DTOs.Views;
-using Eras.Application.Utils;
 using Eras.Application.Models.Consolidator;
+using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -246,7 +250,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             .Where(A => A.Uuid == PollUuid)
             .Select(A => A.LastVersion)
             .FirstOrDefault();
-        IQueryable<ErasCalculationsByPollDTO> reportQuery=
+        IQueryable<ErasCalculationsByPollDTO> reportQuery =
             from A in _context.ErasCalculationsByPoll
             join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
             where A.PollUuid == PollUuid
@@ -257,6 +261,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             where PI.EvaluationId == EvaluationId
             select new ErasCalculationsByPollDTO
             {
+                ComponentId = A.ComponentId,
                 ComponentName = A.ComponentName,
                 ComponentAverageRisk = A.ComponentAverageRisk,
                 AnswerText = A.AnswerText,
@@ -273,6 +278,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 
         List<CountReportComponent> report = [.. results
+        .OrderBy(A => A.ComponentId)
         .GroupBy(A => A.ComponentName)
         .Select(AnsPerComp => new CountReportComponent {
             Description = AnsPerComp.Key.ToUpper(),
@@ -318,4 +324,63 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                         && p.Uuid == PollUuid
                         && p.EvaluationId == EvaluationId);
     }
+
+    public async Task SetSourceInstanceAsync(int pollInstanceId, int sourceInstanceId)
+    {
+        var pi = await _context.PollInstances.FindAsync(pollInstanceId);
+        if (pi != null)
+        {
+            pi.SourcePollInstanceId = sourceInstanceId;
+            await _context.SaveChangesAsync();
+        }
+    }
+
+    private string ComputeAnswerHash(PollDTO pollDTO)
+    {
+        var answers = pollDTO.Components
+            .SelectMany(c => c.Variables)
+            .Select(v => $"{v.Answer.PollVariableId}:{v.Answer}:{v.Answer.Score}");
+
+        var content = string.Join("|", answers.OrderBy(x => x));
+
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content)));
+    }
+    public async Task<PollInstance?> FindMatchingSourceInstanceAsync(int studentId, int currentPollInstanceId, PollDTO incomingPoll)
+    {
+        var incomingHash = ComputeHashFromDTO(incomingPoll);
+
+        var candidates = await _context.PollInstances
+            .Where(pi => pi.StudentId == studentId
+                      && pi.SourcePollInstanceId == null
+                      && pi.Id != currentPollInstanceId)
+            .Include(pi => pi.Answers)
+            .OrderByDescending(pi => pi.FinishedAt)
+            .ToListAsync();
+
+        var foundHash = candidates.FirstOrDefault(pi =>
+            ComputeHashFromAnswers(pi.Answers) == incomingHash);
+        return foundHash != null ? PollInstanceMapper.ToDomain(foundHash) : null;
+    }
+
+    private string ComputeHashFromDTO(PollDTO pollDTO)
+    {
+        var entries = pollDTO.Components
+            .SelectMany(c => c.Variables)
+            .Select(v => $"{v.Answer.Answer}")
+            .OrderBy(x => x);
+
+        return Hash(string.Join("|", entries));
+    }
+
+    private string ComputeHashFromAnswers(ICollection<AnswerEntity> answers)
+    {
+        var entries = answers
+            .Select(a => $"{a.AnswerText}")
+            .OrderBy(x => x);
+
+        return Hash(string.Join("|", entries));
+    }
+
+    private string Hash(string content) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content)));
 }

@@ -1,5 +1,40 @@
 CREATE VIEW vErasCalculationByPoll AS
-WITH PercentageCalc AS (
+WITH ResolvedAnswers AS (
+    SELECT 
+        a."Id",
+        a.poll_instance_id,
+        a.poll_variable_id,
+        a.answer_text,
+        a.risk_level,
+        a.version_date,
+        a.version_number,
+        a.created_at,
+        a.created_by,
+        a.modified_by,
+        a.updated_at
+    FROM answers a
+    JOIN poll_instances pi ON pi."Id" = a.poll_instance_id
+    WHERE pi."SourcePollInstanceId" IS NULL
+
+    UNION ALL
+
+    SELECT
+        a."Id",
+        pi."Id" AS poll_instance_id,
+        a.poll_variable_id,
+        a.answer_text,
+        a.risk_level,
+        a.version_date,
+        a.version_number,
+        a.created_at,
+        a.created_by,
+        a.modified_by,
+        a.updated_at
+    FROM poll_instances pi
+    JOIN answers a ON a.poll_instance_id = pi."SourcePollInstanceId"
+    WHERE pi."SourcePollInstanceId" IS NOT NULL
+),
+PercentageCalc AS (
     SELECT
         a.poll_variable_id,
         answer_text,
@@ -10,7 +45,7 @@ WITH PercentageCalc AS (
         ) AS answer_percentage,
         COUNT(answer_text) AS answer_count
     FROM
-        answers a
+        ResolvedAnswers a
     GROUP BY
         a.poll_variable_id, answer_text
 ),
@@ -20,7 +55,7 @@ RiskAverageByComponent AS (
         c."name" AS component_name,
         ROUND(AVG(a.risk_level),2) AS average_risk
     FROM
-        answers a
+        ResolvedAnswers a
     JOIN poll_variable pv ON a.poll_variable_id = pv."Id"
     JOIN variables v ON pv.variable_id = v."Id"
     JOIN components c ON v.component_id = c."Id"
@@ -33,7 +68,7 @@ RiskAverageByVariable AS (
         v."name" AS variable_name,
         ROUND(AVG(a.risk_level),2) AS average_risk
     FROM
-        answers a
+        ResolvedAnswers a
     JOIN poll_variable pv ON a.poll_variable_id = pv."Id"
     JOIN variables v ON pv.variable_id = v."Id"
     GROUP BY
@@ -47,7 +82,7 @@ RiskCountByPollInstance AS (
         SUM(a.risk_level) AS poll_instance_risk_sum,
         COUNT(a.risk_level) AS poll_instance_answers_count
     FROM
-        answers a
+        ResolvedAnswers a
     JOIN poll_instances pi2 ON pi2."Id" = a.poll_instance_id
     JOIN students s ON s."Id" = pi2."StudentId"
     GROUP BY
@@ -59,7 +94,7 @@ RiskAvgByCohortComponent AS (
         c."Id" AS component_id,
         ROUND(AVG(a.risk_level),2) AS average_risk_by_cohort_component
     FROM
-        answers a
+        ResolvedAnswers a
     JOIN poll_variable pv ON pv."Id" = a.poll_variable_id
     JOIN variables v ON v."Id" = pv.variable_id
     JOIN components c ON c."Id" = v.component_id
@@ -93,7 +128,7 @@ select
     racbc.average_risk_by_cohort_component,
     a.version_number as poll_version
 FROM
-    answers a
+    ResolvedAnswers a
 JOIN poll_variable pv ON a.poll_variable_id = pv."Id"
 JOIN variables v ON pv.variable_id = v."Id"
 JOIN components c ON v.component_id = c."Id"
