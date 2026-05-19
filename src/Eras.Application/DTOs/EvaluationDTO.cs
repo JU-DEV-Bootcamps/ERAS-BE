@@ -19,7 +19,7 @@ public class EvaluationDTO
     [DataType(DataType.DateTime)]
     public required DateTime EndDate { get; set; }
 
-    [MaxLength(50)]
+    [MaxLength(100)]
     public string PollName { get; set; } = string.Empty;
 
     [MaxLength(50)]
