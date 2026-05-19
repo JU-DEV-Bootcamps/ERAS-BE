@@ -41,11 +41,11 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         _context.Interventions.RemoveRange(interventions);
 
         Assessment? assessment = await _context.Set<Assessment>()
-            .FirstOrDefaultAsync(i => i.Id == assessmentId);
+            .FirstOrDefaultAsync(i => i.Id == assessmentId && i.Status != AssessmentStatus.Referred);
 
         if (assessment is null)
             throw new KeyNotFoundException(
-                $"Assessment '{assessmentId}' not found.");
+                $"Assessment '{assessmentId}' not found or not permitted.");
 
         _context.Set<Assessment>().Remove(assessment);
         await _context.SaveChangesAsync();
