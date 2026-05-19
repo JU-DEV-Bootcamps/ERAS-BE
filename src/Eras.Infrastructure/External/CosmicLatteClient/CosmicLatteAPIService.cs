@@ -631,15 +631,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             // Add 1 day to EndDate to account for evaluations finished
             // on the EndDate.
             if(wasStartDateProvided && wasEndDateProvided && 
-               EvaluationFinishedAtDate >= DateTime.Parse(StartDate) &&
-               EvaluationFinishedAtDate <= DateTime.Parse(EndDate).AddDays(1)
+               EvaluationFinishedAtDate >= DateTime.Parse(StartDate).ToUniversalTime() &&
+               EvaluationFinishedAtDate <= DateTime.Parse(EndDate).ToUniversalTime().AddDays(1)
               )
             {
                 return true;
             }
 
             if(wasStartDateProvided && !wasEndDateProvided &&
-               EvaluationFinishedAtDate >= DateTime.Parse(StartDate)
+               EvaluationFinishedAtDate >= DateTime.Parse(StartDate).ToUniversalTime()
               )
             {
                 return true;
