@@ -34,18 +34,18 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
 
     public async Task DeleteAssessmentAsync(int assessmentId)
     {
-        var interventions = await _context.Interventions
-            .Where(i => EF.Property<int?>(i, "remission_id") == assessmentId)
-            .ToListAsync();
-
-        _context.Interventions.RemoveRange(interventions);
-
         Assessment? assessment = await _context.Set<Assessment>()
             .FirstOrDefaultAsync(i => i.Id == assessmentId && i.Status != AssessmentStatus.Remitted);
 
         if (assessment is null)
             throw new KeyNotFoundException(
                 $"Assessment '{assessmentId}' not found or not permitted.");
+
+        var interventions = await _context.Interventions
+            .Where(i => EF.Property<int?>(i, "remission_id") == assessmentId)
+            .ToListAsync();
+
+        _context.Interventions.RemoveRange(interventions);
 
         _context.Set<Assessment>().Remove(assessment);
         await _context.SaveChangesAsync();
