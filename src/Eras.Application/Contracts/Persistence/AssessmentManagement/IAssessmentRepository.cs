@@ -10,6 +10,8 @@ public interface IAssessmentRepository : IBaseRepository<Assessment>
     Task<IEnumerable<Assessment>> GetByStatusAsync(AssessmentStatus status);
 
     Task<Assessment?> GetByIdWithInterventionsAsync(int id);
+    Task DeleteAssessmentAsync(int assessmentId);
+
 
     Task<Intervention> AddInterventionAsync(int assessmentId, Intervention intervention); 
 
