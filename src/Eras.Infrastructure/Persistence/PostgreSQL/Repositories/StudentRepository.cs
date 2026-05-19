@@ -27,6 +27,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return student?.ToDomain();
         }
 
+        public async Task<IEnumerable<Student>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+        {
+            var entities = await _context.Students
+                .Where(s => ids.Contains(s.Id))
+                .ToListAsync(cancellationToken);
+
+            return entities.Select(s => s.ToDomain());
+        }
+
         public async Task<Student?> GetByUuidAsync(string Uuid)
         {
             var student = await _context.Students.FirstOrDefaultAsync(Student =>

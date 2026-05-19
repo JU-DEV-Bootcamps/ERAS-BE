@@ -3,8 +3,9 @@
 public enum AssessmentStatus
 {
     Created = 0,
-    Referred = 1,
-    WaitingForProfessional = 2,
+    Remitted = 1,
+    OnHold = 2,
     InProgress = 3,
-    Concluded = 4
+    Resolved = 4,
+    Rejected = 5
 }
