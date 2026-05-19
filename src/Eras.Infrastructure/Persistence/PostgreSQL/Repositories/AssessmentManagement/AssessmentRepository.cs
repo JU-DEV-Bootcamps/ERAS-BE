@@ -41,7 +41,7 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         _context.Interventions.RemoveRange(interventions);
 
         Assessment? assessment = await _context.Set<Assessment>()
-            .FirstOrDefaultAsync(i => i.Id == assessmentId && i.Status != AssessmentStatus.Referred);
+            .FirstOrDefaultAsync(i => i.Id == assessmentId && i.Status != AssessmentStatus.Remitted);
 
         if (assessment is null)
             throw new KeyNotFoundException(
