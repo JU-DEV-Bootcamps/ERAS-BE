@@ -7,7 +7,6 @@ public abstract class Intervention : BaseEntity
     public required DateTime DateUtc { get; init; }
     public string? Activity { get; init; }
     public string? Area { get; init; }
-    public int? NumberOfGuests { get; init; }
     public int? NumberOfParticipants { get; init; }
     public string? Professional { get; init; }
     public string? Comments { get; init; }

@@ -7,9 +7,6 @@ public sealed class InterventionValidator : AbstractValidator<Intervention>
 {
     public InterventionValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty();
-
         RuleFor(x => x.DateUtc)
             .NotEmpty();
 

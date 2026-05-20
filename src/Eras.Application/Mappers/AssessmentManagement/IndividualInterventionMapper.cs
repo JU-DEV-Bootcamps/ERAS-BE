@@ -13,7 +13,6 @@ public sealed class IndividualInterventionMapper : IMapper<IndividualInterventio
             DateUtc = source.DateUtc,
             Activity = source.Activity,
             Area = source.Area,
-            NumberOfGuests = source.NumberOfGuests,
             NumberOfParticipants = source.NumberOfParticipants,
             Professional = source.Professional,
             StudentIds = source.StudentIds,

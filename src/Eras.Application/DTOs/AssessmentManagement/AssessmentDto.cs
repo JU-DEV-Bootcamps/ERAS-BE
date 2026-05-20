@@ -14,6 +14,7 @@ public sealed record AssessmentDto
     public string? AssignedProfessional { get; init; }
 
     public required int[] StudentIds { get; init; }
+    public string[] StudentNames { get; init; } = Array.Empty<string>(); 
 
     public string? Diagnosis { get; init; }
     public string? Objective { get; init; }

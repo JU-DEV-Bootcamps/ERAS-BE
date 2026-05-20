@@ -9,6 +9,7 @@ public sealed class InterventionConfiguration : IEntityTypeConfiguration<Interve
 {
     public void Configure(EntityTypeBuilder<Intervention> builder)
     {
+        
         builder.Property(e => e.Activity)
             .HasColumnName("activity")
             .HasMaxLength(200);
@@ -16,9 +17,6 @@ public sealed class InterventionConfiguration : IEntityTypeConfiguration<Interve
         builder.Property(e => e.Area)
             .HasColumnName("area")
             .HasMaxLength(200);
-
-        builder.Property(e => e.NumberOfGuests)
-            .HasColumnName("number_of_guests");
 
         builder.Property(e => e.NumberOfParticipants)
             .HasColumnName("number_of_participants");
@@ -56,5 +54,9 @@ public sealed class InterventionConfiguration : IEntityTypeConfiguration<Interve
         builder.Property(e => e.Attachments)
             .HasColumnName("attachments")
             .HasColumnType("text[]");
+
+        builder.Property(x => x.Comments)
+            .HasColumnName("comments")
+            .HasMaxLength(4000);
     }
 }

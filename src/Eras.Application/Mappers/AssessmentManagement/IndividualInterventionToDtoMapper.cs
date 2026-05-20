@@ -13,7 +13,6 @@ public sealed class IndividualInterventionToDtoMapper : IMapper<IndividualInterv
             DateUtc = source.DateUtc,
             Activity = source.Activity,
             Area = source.Area,
-            NumberOfGuests = source.NumberOfGuests,
             NumberOfParticipants = source.NumberOfParticipants,
             Professional = source.Professional,
             Comments = source.Comments,
