@@ -63,15 +63,22 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         {
             try
             {
-                CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos, EvaluationId);
+                var invalidPoll = PollsDtos.FirstOrDefault(p => p.Name?.Length > 100);
+                if (invalidPoll != null)
+                    throw new ArgumentException($"There was an error during the import: Poll Name exceeds the maximum length of 100 characters.");
 
+                CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos, EvaluationId);
+                
                 if (createdPoll.Entity == null)
                 {
                     _logger.LogError("Error saving data: createdPoll is null");
                     throw new Exception($"Error saving data: createdPoll is null");
-
                 }
                 return createdPoll.Entity;
+            }
+            catch (ArgumentException)
+            {
+                throw;
             }
             catch (Exception e)
             {
@@ -459,15 +466,20 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 var evaluationSet = evaluationSets.data.Find(e => e.name == EvaluationName);
                 if (evaluationSet == null)
-                    throw new Exception($"Evaluation not found: {EvaluationName}");
+                    throw new ArgumentException($"Evaluation not found: {EvaluationName}");
 
                 return evaluationSet._id;
+            }
+            catch (ArgumentException)
+            {
+                throw; 
             }
             catch (Exception e)
             {
                 throw new Exception($"There was an error with the request: {e.Message}");
             }
         }
+
 
         private static List<ComponentDTO> SanitizeComponents(List<ComponentDTO> components)
         {

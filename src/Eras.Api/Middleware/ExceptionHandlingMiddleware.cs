@@ -54,6 +54,7 @@ namespace Eras.Api.Middleware
             {
                 KeyNotFoundException => (int)HttpStatusCode.NotFound,
                 UnauthorizedAccessException => (int)HttpStatusCode.Unauthorized,
+                ArgumentException => (int)HttpStatusCode.BadRequest,
                 _ => (int)HttpStatusCode.InternalServerError
             };
 
