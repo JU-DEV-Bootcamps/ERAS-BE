@@ -12,4 +12,13 @@ public class BaseRepository<T>(AppDbContext context) : BaseRepository<T, T>(cont
         }
         return null;
     }
+    public async Task<T?> GetByIdAsync(int id)
+    {
+        T? persistenceEntity = await _context.Set<T>().FindAsync(id);
+        if (persistenceEntity is T found)
+        {
+            return found;
+        }
+        return null;
+    }
 }
