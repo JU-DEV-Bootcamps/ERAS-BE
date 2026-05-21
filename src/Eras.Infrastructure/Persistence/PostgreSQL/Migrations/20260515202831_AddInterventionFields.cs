@@ -63,7 +63,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 name: "attendance",
                 table: "Interventions",
                 type: "jsonb",
-                nullable: false);
+                nullable: false,
+                defaultValue: new Dictionary<int, bool>());
 
             migrationBuilder.AddColumn<string>(
                 name: "mode",
