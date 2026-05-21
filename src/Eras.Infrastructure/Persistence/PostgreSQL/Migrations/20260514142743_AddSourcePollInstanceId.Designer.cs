@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260514142743_AddSourcePollInstanceId")]
+    partial class AddSourcePollInstanceId
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,30 +109,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Activity")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("activity");
-
-                    b.Property<string>("Area")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("area");
+                    b.Property<string>("ActivityType")
+                        .HasColumnType("text");
 
                     b.PrimitiveCollection<string[]>("Attachments")
                         .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("attachments");
-
-                    b.Property<string>("Attendance")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("attendance");
+                        .HasColumnType("text[]");
 
                     b.Property<string>("Comments")
-                        .HasMaxLength(4000)
-                        .HasColumnType("character varying(4000)")
-                        .HasColumnName("comments");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("DateUtc")
                         .HasColumnType("timestamp with time zone");
@@ -139,36 +127,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasMaxLength(34)
                         .HasColumnType("character varying(34)");
 
-                    b.Property<string>("Mode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("mode");
-
-                    b.Property<int?>("NumberOfParticipants")
-                        .HasColumnType("integer")
-                        .HasColumnName("number_of_participants");
-
                     b.Property<string>("Professional")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("professional");
-
-                    b.Property<string>("Remarks")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("remarks");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Created")
-                        .HasColumnName("status");
-
-                    b.PrimitiveCollection<int[]>("StudentIds")
-                        .IsRequired()
-                        .HasColumnType("integer[]")
-                        .HasColumnName("student_ids");
+                        .HasColumnType("text");
 
                     b.Property<int?>("remission_id")
                         .HasColumnType("integer");
@@ -1064,6 +1024,16 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             modelBuilder.Entity("Eras.Domain.Entities.AssessmentManagement.GroupIntervention", b =>
                 {
                     b.HasBaseType("Eras.Domain.Entities.AssessmentManagement.Intervention");
+
+                    b.Property<string>("Area")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("area");
+
+                    b.PrimitiveCollection<int[]>("ParticipantIds")
+                        .IsRequired()
+                        .HasColumnType("integer[]")
+                        .HasColumnName("participant_ids");
 
                     b.HasDiscriminator().HasValue("GroupIntervention");
                 });

@@ -1,4 +1,5 @@
-﻿using Eras.Application.Models.Consolidator;
+﻿using Eras.Application.Dtos;
+using Eras.Application.Models.Consolidator;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
 
@@ -30,4 +31,6 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
     Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, List<int> CohortIds, List<int> VariableIds, bool LastVersion, DateTime startDate, DateTime endDate, int? EvaluationId);
     new Task<int> CountByDateRangeAsync(DateTime startDate, DateTime endDate);
     Task<bool> ExistsForStudentAndEvaluationAsync(int StudentId, string PollUuid, int EvaluationId);
+    Task<PollInstance?> FindMatchingSourceInstanceAsync(int studentId, int currentPollInstanceId, PollDTO incomingPoll);
+    Task SetSourceInstanceAsync(int pollInstanceId, int sourceInstanceId);
 }
