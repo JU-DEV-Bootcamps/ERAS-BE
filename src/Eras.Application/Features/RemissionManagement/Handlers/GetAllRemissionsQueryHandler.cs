@@ -4,6 +4,7 @@ using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities.AssessmentManagement;
 using MediatR;
+using Eras.Domain.Entities;
 
 namespace Eras.Application.Features.RemissionManagement.Handlers;
 
@@ -35,22 +36,39 @@ public sealed class GetAllRemissionsQueryHandler
             .Distinct()
             .ToList();
 
-        if (!uniqueIds.Any())
-            return entities
-                .Select(e => _mapper.Map(e) with { StudentNames = Array.Empty<string>() })
-                .ToArray();
+        var students = uniqueIds.Any()
+            ? await _studentRepository.GetByIdsAsync(uniqueIds, cancellationToken)
+            : Array.Empty<Student>();
 
-        var students = await _studentRepository.GetByIdsAsync(uniqueIds, cancellationToken);
-        var nameDict = students.ToDictionary(s => s.Id, s => s.Name);
+        var studentDict = students.ToDictionary(s => s.Id);
 
         return entities.Select(entity =>
         {
             var dto = _mapper.Map(entity);
+            var studentDtos = entity.StudentIds
+                .Select(id =>
+                {
+                    if (studentDict.TryGetValue(id, out var student))
+                    {
+                        return new StudentProfileDto
+                        {
+                            Id = student.Id,
+                            Name = student.Name,
+                            Email = student.Email,
+                        };
+                    }
+
+                    return new StudentProfileDto
+                    {
+                        Id = id,
+                        Name = $"ID {id}",
+                        Email = string.Empty,
+                    };
+                })
+                .ToArray();
             return dto with
             {
-                StudentNames = entity.StudentIds
-                    .Select(id => nameDict.TryGetValue(id, out var name) ? name : $"ID {id}")
-                    .ToArray()
+                Students = studentDtos,
             };
         }).ToArray();
     }

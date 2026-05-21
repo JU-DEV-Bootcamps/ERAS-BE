@@ -11,7 +11,8 @@ public sealed class StudentProfileToDtoMapper : IMapper<Student, StudentProfileD
         return new StudentProfileDto
         {
             Id = source.Id,
-            Name = source.Name
+            Name = source.Name,
+            Email = source.Email,
         };
     }
 }
