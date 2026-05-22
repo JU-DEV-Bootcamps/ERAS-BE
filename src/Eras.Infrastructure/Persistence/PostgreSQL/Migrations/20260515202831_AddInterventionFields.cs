@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -21,6 +20,26 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
             migrationBuilder.Sql(
                 "UPDATE \"Interventions\" SET student_ids = participant_ids WHERE participant_ids IS NOT NULL");
+
+            migrationBuilder.AddColumn<string>(
+                name: "activity",
+                table: "Interventions",
+                type: "character varying(200)",
+                maxLength: 200,
+                nullable: true);
+
+            migrationBuilder.Sql(
+                "UPDATE \"Interventions\" SET activity = \"ActivityType\"");
+
+            migrationBuilder.AddColumn<string>(
+                name: "remarks",
+                table: "Interventions",
+                type: "character varying(1000)",
+                maxLength: 1000,
+                nullable: true);
+
+            migrationBuilder.Sql(
+                "UPDATE \"Interventions\" SET remarks = LEFT(\"Comments\", 1000)");
 
             migrationBuilder.DropColumn(
                 name: "ActivityType",
@@ -44,7 +63,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 table: "Interventions",
                 newName: "attachments");
 
-
             migrationBuilder.AlterColumn<string>(
                 name: "professional",
                 table: "Interventions",
@@ -54,13 +72,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 oldClrType: typeof(string),
                 oldType: "text",
                 oldNullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "activity",
-                table: "Interventions",
-                type: "character varying(200)",
-                maxLength: 200,
-                nullable: true);
 
             migrationBuilder.AddColumn<string>(
                 name: "attendance",
@@ -89,13 +100,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
-                name: "remarks",
-                table: "Interventions",
-                type: "character varying(1000)",
-                maxLength: 1000,
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
                 name: "status",
                 table: "Interventions",
                 type: "text",
@@ -105,6 +109,24 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<string>(
+                name: "ActivityType",
+                table: "Interventions",
+                type: "text",
+                nullable: true);
+
+            migrationBuilder.Sql(
+                "UPDATE \"Interventions\" SET \"ActivityType\" = activity");
+
+            migrationBuilder.AddColumn<string>(
+                name: "Comments",
+                table: "Interventions",
+                type: "text",
+                nullable: true);
+
+            migrationBuilder.Sql(
+                "UPDATE \"Interventions\" SET \"Comments\" = remarks");
+
             migrationBuilder.AddColumn<int[]>(
                 name: "participant_ids",
                 table: "Interventions",
@@ -165,18 +187,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 oldType: "character varying(200)",
                 oldMaxLength: 200,
                 oldNullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "ActivityType",
-                table: "Interventions",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Comments",
-                table: "Interventions",
-                type: "text",
-                nullable: true);
         }
     }
 }
