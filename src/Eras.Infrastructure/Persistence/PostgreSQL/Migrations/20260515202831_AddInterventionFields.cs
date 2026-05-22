@@ -12,6 +12,16 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<int[]>(
+                name: "student_ids",
+                table: "Interventions",
+                type: "integer[]",
+                nullable: false,
+                defaultValue: new int[0]);
+
+            migrationBuilder.Sql(
+                "UPDATE \"Interventions\" SET student_ids = participant_ids WHERE participant_ids IS NOT NULL");
+
             migrationBuilder.DropColumn(
                 name: "ActivityType",
                 table: "Interventions");
@@ -34,13 +44,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 table: "Interventions",
                 newName: "attachments");
 
-            migrationBuilder.AlterColumn<int[]>(
-                name: "student_ids",
-                table: "remissions",
-                type: "integer[]",
-                nullable: false,
-                oldClrType: typeof(int[]),
-                oldType: "uuid[]");
 
             migrationBuilder.AlterColumn<string>(
                 name: "professional",
@@ -59,12 +62,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 maxLength: 200,
                 nullable: true);
 
-            migrationBuilder.AddColumn<IReadOnlyDictionary<int, bool>>(
+            migrationBuilder.AddColumn<string>(
                 name: "attendance",
                 table: "Interventions",
                 type: "jsonb",
                 nullable: false,
-                defaultValue: new Dictionary<int, bool>());
+                defaultValue: "{}");
 
             migrationBuilder.AddColumn<string>(
                 name: "mode",
@@ -98,18 +101,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 type: "text",
                 nullable: false,
                 defaultValue: "Created");
-
-            migrationBuilder.AddColumn<int[]>(
-                name: "student_ids",
-                table: "Interventions",
-                type: "integer[]",
-                nullable: false,
-                defaultValue: new int[0]);
         }
 
-        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<int[]>(
+                name: "participant_ids",
+                table: "Interventions",
+                type: "integer[]",
+                nullable: true);
+
+            migrationBuilder.Sql(
+                "UPDATE \"Interventions\" SET participant_ids = student_ids");
+
             migrationBuilder.DropColumn(
                 name: "activity",
                 table: "Interventions");
@@ -152,23 +156,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 table: "Interventions",
                 newName: "Attachments");
 
-            migrationBuilder.AlterColumn<int[]>(
-                name: "student_ids",
-                table: "remissions",
-                type: "uuid[]",
-                nullable: false,
-                oldClrType: typeof(int[]),
-                oldType: "integer[]");
-
-            migrationBuilder.AlterColumn<int>(
-                name: "id",
-                table: "remissions",
-                type: "integer",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "integer")
-                .OldAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
             migrationBuilder.AlterColumn<string>(
                 name: "Professional",
                 table: "Interventions",
@@ -189,12 +176,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 name: "Comments",
                 table: "Interventions",
                 type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<int[]>(
-                name: "participant_ids",
-                table: "Interventions",
-                type: "uuid[]",
                 nullable: true);
         }
     }

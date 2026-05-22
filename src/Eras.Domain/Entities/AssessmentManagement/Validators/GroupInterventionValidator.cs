@@ -8,7 +8,12 @@ public sealed class GroupInterventionValidator : AbstractValidator<GroupInterven
     {
         Include(new InterventionValidator());
 
+        RuleFor(x => x.StudentIds)
+            .Must(ids => ids != null && ids.Any())
+            .WithMessage("A group intervention must have at least one student.");
+
         RuleForEach(x => x.StudentIds)
-            .NotEmpty();
+            .GreaterThan(0)
+            .WithMessage("Each student ID must be a valid positive integer.");
     }
 }
