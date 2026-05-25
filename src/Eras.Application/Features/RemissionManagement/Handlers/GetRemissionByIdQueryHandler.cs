@@ -29,6 +29,8 @@ public sealed class GetRemissionByIdQueryHandler
     {
         _repository = repository;
         _mapper = mapper;
+        _studentRepository = studentRepository;
+        _studentRepository = studentRepository;
     }
 
     public async Task<AssessmentDto?> Handle(
@@ -36,14 +38,10 @@ public sealed class GetRemissionByIdQueryHandler
         CancellationToken cancellationToken)
     {
         Assessment? assessment = await _repository.GetByIdWithInterventionsAsync(request.Id);
-
-        IEnumerable<Assessment> entities = await _repository.GetAllAsync();
         if (assessment is null) return null;
-        var uniqueIds = entities
-            .SelectMany(e => e.StudentIds ?? Array.Empty<int>())
-            .Distinct()
-            .ToList();
 
+        var uniqueIds = assessment.StudentIds ?? Array.Empty<int>();
+        
         var students = uniqueIds.Any()
             ? await _studentRepository.GetByIdsAsync(uniqueIds, cancellationToken)
             : Array.Empty<Student>();
