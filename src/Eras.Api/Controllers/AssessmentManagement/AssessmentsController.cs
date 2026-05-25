@@ -16,11 +16,10 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 [ExcludeFromCodeCoverage]
 public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger) : ControllerBase
 {
-
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<AssessmentDto>> GetById(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<AssessmentDto>> GetById(int id, CancellationToken cancellationToken)
     {
         var response = await Mediator.Send(new GetRemissionByIdQuery(id), cancellationToken);
 
@@ -37,18 +36,18 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         return Ok(response);
     }
 
-    [HttpGet("by-student/{studentId:guid}")]
+    [HttpGet("by-student/{studentId:int}")]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByStudentId(
         int studentId,
         CancellationToken cancellationToken)
     {
         var response = await Mediator.Send(new GetRemissionsByStudentIdQuery(studentId), cancellationToken);
-        if (response.Any())
-        {
-            return Ok(response);
-        }
-        return NotFound();
+
+        return response.Any()
+            ? Ok(response)
+            : NotFound();
     }
 
     [HttpGet("by-status/{status}")]
@@ -59,9 +58,7 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<AssessmentStatus>(status, true, out var parsedStatus))
-        {
             return BadRequest($"Invalid remission status '{status}'.");
-        }
 
         var response = await Mediator.Send(new GetRemissionsByStatusQuery(parsedStatus), cancellationToken);
         return Ok(response);
@@ -76,10 +73,7 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
     {
         var response = await Mediator.Send(new CreateRemissionCommand(dto), cancellationToken);
 
-        return CreatedAtAction(
-            nameof(GetById),
-            new { id = response.Id },
-            response);
+        return CreatedAtAction(nameof(GetById), new { id = response.Id }, response);
     }
 
     [HttpPut("{id:int}")]
@@ -91,14 +85,9 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         CancellationToken cancellationToken)
     {
         if (dto.Id == default)
-        {
             return BadRequest("Route id must match payload id.");
-        }
 
-        var request = dto with { Id = id };
-
-        var response = await Mediator.Send(new UpdateRemissionCommand(request), cancellationToken);
-
+        var response = await Mediator.Send(new UpdateRemissionCommand(dto with { Id = id }), cancellationToken);
         return Ok(response);
     }
 
@@ -126,10 +115,7 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         int id,
         CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(
-            new GetInterventionsByAssessmentQuery(id),
-            cancellationToken);
-
+        var response = await Mediator.Send(new GetInterventionsByAssessmentQuery(id), cancellationToken);
         return Ok(response);
     }
 
@@ -141,10 +127,7 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         [FromBody] AddInterventionDto dto,
         CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(
-            new AddInterventionCommand(dto.AssessmentId, dto.Intervention),
-            cancellationToken);
-
+        var response = await Mediator.Send(new AddInterventionCommand(dto.AssessmentId, dto.Intervention), cancellationToken);
         return Created(string.Empty, response);
     }
 
@@ -157,12 +140,9 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         [FromBody] IReadOnlyCollection<InterventionDto> interventions,
         CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(
-            new UpsertInterventionsCommand(id, interventions),
-            cancellationToken);
-
+        var response = await Mediator.Send(new UpsertInterventionsCommand(id, interventions), cancellationToken);
         return Ok(response);
-    }    
+    }
 
     [HttpDelete("{id:int}/interventions/{interventionId:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

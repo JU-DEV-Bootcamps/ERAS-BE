@@ -13,18 +13,15 @@ public sealed class AddInterventionCommandHandler
     private readonly IAssessmentRepository _repository;
     private readonly IMapper<IndividualInterventionDto, IndividualIntervention> _individualMapper;
     private readonly IMapper<GroupInterventionDto, GroupIntervention> _groupMapper;
-    private readonly IMapper<Assessment, AssessmentDto> _toDtoMapper;
 
     public AddInterventionCommandHandler(
         IAssessmentRepository repository,
         IMapper<IndividualInterventionDto, IndividualIntervention> individualMapper,
-        IMapper<GroupInterventionDto, GroupIntervention> groupMapper,
-        IMapper<Assessment, AssessmentDto> toDtoMapper)
+        IMapper<GroupInterventionDto, GroupIntervention> groupMapper)
     {
         _repository = repository;
         _individualMapper = individualMapper;
         _groupMapper = groupMapper;
-        _toDtoMapper = toDtoMapper;
     }
 
     public async Task<InterventionDto> Handle(
@@ -46,23 +43,36 @@ public sealed class AddInterventionCommandHandler
             {
                 Id = persisted.Id,
                 DateUtc = persisted.DateUtc,
-                ActivityType = persisted.ActivityType,
+                Activity = persisted.Activity,
+                Area = persisted.Area,
+                NumberOfParticipants = persisted.NumberOfParticipants,
                 Professional = persisted.Professional,
                 Comments = persisted.Comments,
+                StudentIds = persisted.StudentIds,
+                Attendance = persisted.Attendance,
+                Mode = persisted.Mode,
+                Status = persisted.Status,
+                Remarks = persisted.Remarks,
                 Attachments = persisted.Attachments
             },
             GroupInterventionDto => new GroupInterventionDto
             {
                 Id = persisted.Id,
                 DateUtc = persisted.DateUtc,
-                ActivityType = persisted.ActivityType,
+                Activity = persisted.Activity,
+                Area = persisted.Area,
+                NumberOfParticipants = persisted.NumberOfParticipants,
                 Professional = persisted.Professional,
                 Comments = persisted.Comments,
-                Attachments = persisted.Attachments,
-                Area = ((GroupIntervention)persisted).Area,
-                ParticipantIds = ((GroupIntervention)persisted).ParticipantIds
+                StudentIds = persisted.StudentIds,
+                Attendance = persisted.Attendance,
+                Mode = persisted.Mode,
+                Status = persisted.Status,
+                Remarks = persisted.Remarks,
+                Attachments = persisted.Attachments
             },
-            _ => throw new NotSupportedException($"Intervention DTO type '{request.Intervention.GetType().Name}' is not supported.")
+            _ => throw new NotSupportedException(
+                $"Intervention DTO type '{request.Intervention.GetType().Name}' is not supported.")
         };
     }
 

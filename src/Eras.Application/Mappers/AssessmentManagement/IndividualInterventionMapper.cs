@@ -11,8 +11,15 @@ public sealed class IndividualInterventionMapper : IMapper<IndividualInterventio
         {
             Id = source.Id ?? default,
             DateUtc = source.DateUtc,
-            ActivityType = source.ActivityType,
+            Activity = source.Activity,
+            Area = source.Area,
+            NumberOfParticipants = source.NumberOfParticipants,
             Professional = source.Professional,
+            StudentIds = source.StudentIds,
+            Attendance = source.Attendance,
+            Mode = source.Mode,
+            Status = source.Status,
+            Remarks = source.Remarks,
             Comments = source.Comments,
             Attachments = source.Attachments
         };

@@ -1,5 +1,4 @@
 ﻿using Eras.Domain.Entities.AssessmentManagement;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,14 +8,5 @@ public sealed class GroupInterventionConfiguration : IEntityTypeConfiguration<Gr
 {
     public void Configure(EntityTypeBuilder<GroupIntervention> builder)
     {
-        builder.Property(entity => entity.Area)
-            .HasColumnName("area")
-            .HasMaxLength(200)
-            .IsRequired(false);
-
-        builder.Property(entity => entity.ParticipantIds)
-            .HasColumnName("participant_ids")
-            .HasColumnType("integer[]")
-            .IsRequired();
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace Eras.Domain.Entities.AssessmentManagement.Validators;
 
@@ -9,10 +8,12 @@ public sealed class GroupInterventionValidator : AbstractValidator<GroupInterven
     {
         Include(new InterventionValidator());
 
-        RuleFor(x => x.Area)
-            .MaximumLength(200);
+        RuleFor(x => x.StudentIds)
+            .Must(ids => ids != null && ids.Any())
+            .WithMessage("A group intervention must have at least one student.");
 
-        RuleForEach(x => x.ParticipantIds)
-            .NotEmpty();
+        RuleForEach(x => x.StudentIds)
+            .GreaterThan(0)
+            .WithMessage("Each student ID must be a valid positive integer.");
     }
 }
