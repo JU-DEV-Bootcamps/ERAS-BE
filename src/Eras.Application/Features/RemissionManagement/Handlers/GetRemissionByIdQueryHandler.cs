@@ -30,7 +30,6 @@ public sealed class GetRemissionByIdQueryHandler
         _repository = repository;
         _mapper = mapper;
         _studentRepository = studentRepository;
-        _studentRepository = studentRepository;
     }
 
     public async Task<AssessmentDto?> Handle(
