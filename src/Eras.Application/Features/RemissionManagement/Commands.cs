@@ -41,3 +41,8 @@ public sealed record AddInterventionCommand(int AssessmentId, InterventionDto In
 
 public sealed record DeleteInterventionCommand(int AssessmentId, int InterventionId)
     : IRequest;
+
+public sealed record UploadInterventionAttachmentsCommand(
+    int InterventionId,
+    IReadOnlyCollection<(Stream Stream, string FileName)> Files
+) : IRequest<IReadOnlyCollection<string>>;

@@ -4,9 +4,10 @@ using Eras.Application.Features.RemissionManagement;
 using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Eras.Application.Models;
+using Microsoft.Extensions.Options;
 
 namespace Eras.Api.Controllers.AssessmentManagement;
 
@@ -14,8 +15,10 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 [Route("api/v1/assessments")]
 [Authorize]
 [ExcludeFromCodeCoverage]
-public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger) : ControllerBase
+public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger, IOptions<FileStorageSettings> FileStorageOptions) : ControllerBase
 {
+    private readonly FileStorageSettings _fileStorageSettings = FileStorageOptions.Value;
+
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -155,4 +158,56 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         await Mediator.Send(new DeleteInterventionCommand(id, interventionId), cancellationToken);
         return NoContent();
     }
+
+    [HttpPost("interventions/{interventionId}/attachments")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<string>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyCollection<string>>> UploadAttachments(
+        int interventionId,
+        [FromForm] IFormFileCollection files,
+        CancellationToken cancellationToken)
+    {
+        if (files.Count == 0)
+            return BadRequest("No files provided.");
+
+        var fileStreams = files
+            .Select(f => (f.OpenReadStream(), f.FileName))
+            .ToList();
+
+        var result = await Mediator.Send(
+            new UploadInterventionAttachmentsCommand(interventionId, fileStreams),
+            cancellationToken);
+
+        return Ok(result);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("interventions/{interventionId}/attachments/{fileName}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult DownloadAttachment(int interventionId, string fileName)
+    {
+        string relativePath = Path.Combine("interventions", interventionId.ToString(), fileName);
+        string fullPath = Path.Combine(_fileStorageSettings.BasePath, relativePath);
+
+        if (!System.IO.File.Exists(fullPath))
+            return NotFound();
+
+        string contentType = GetContentType(fileName);
+        Stream stream = System.IO.File.OpenRead(fullPath);
+
+        return File(stream, contentType, enableRangeProcessing: true);
+    }
+
+    private static string GetContentType(string fileName) =>
+        Path.GetExtension(fileName).ToLowerInvariant() switch
+        {
+            ".pdf" => "application/pdf",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".png" => "image/png",
+            ".txt" => "text/plain",
+            _ => "application/octet-stream"
+        };
 }
