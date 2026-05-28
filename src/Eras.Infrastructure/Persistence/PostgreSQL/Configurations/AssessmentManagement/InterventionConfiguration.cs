@@ -55,6 +55,10 @@ public sealed class InterventionConfiguration : IEntityTypeConfiguration<Interve
             .HasColumnName("attachments")
             .HasColumnType("text[]");
 
+        builder.Property(e => e.AttachmentHashes)
+            .HasColumnName("attachment_hashes")
+            .HasColumnType("text[]");
+
         builder.Property(x => x.Comments)
             .HasColumnName("comments")
             .HasMaxLength(4000);

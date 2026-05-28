@@ -21,5 +21,6 @@ public interface IAssessmentRepository : IBaseRepository<Assessment>
 
     Task DeleteInterventionAsync(int assessmentId, int interventionId);
 
-    Task AddAttachmentsAsync(int interventionId, IReadOnlyCollection<string> paths);
+    Task AddAttachmentsAsync(int interventionId, IReadOnlyCollection<string> paths, IReadOnlyCollection<string> hashes);
+    Task<IReadOnlyCollection<string>> GetAttachmentHashesAsync(int interventionId, CancellationToken cancellationToken);
 }
