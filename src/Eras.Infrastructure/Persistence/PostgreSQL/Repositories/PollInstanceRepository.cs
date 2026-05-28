@@ -221,7 +221,8 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                         {
                             AnswerText = AnsPerVar.Key,
                             AnswerPercentage = AnsPerVar.First().AnswerPercentage,
-                            StudentsEmails = [.. AnsPerVar.Select(A => A.StudentEmail)]
+                            StudentsEmails = [.. AnsPerVar.Select(A => A.StudentEmail)],
+                            RiskLevel = (int)AnsPerVar.First().AnswerRisk
                         })]
                 })]
         })];

@@ -29,4 +29,5 @@ public class AnswerDetails
     public required string AnswerText { get; set; }
     public decimal AnswerPercentage { get; set; }
     public IEnumerable<string> StudentsEmails { get; set; } = [];
+    public int? RiskLevel { get; set; } 
 }
