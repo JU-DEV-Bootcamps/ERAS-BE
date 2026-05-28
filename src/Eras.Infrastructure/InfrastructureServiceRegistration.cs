@@ -29,12 +29,17 @@ namespace Eras.Infrastructure
             Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));
 
             string basePath = Configuration["FileStorage:BasePath"] ?? "/app/uploads";
+            
+            Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));
+
+            Services.AddSingleton<IFileEncryptionService, AesFileEncryptionService>();
+
             Services.AddSingleton<IFileStorageService>(sp =>
                 new LocalFileStorageService(
-                    basePath,
+                    Configuration["FileStorage:BasePath"] ?? "/app/uploads",
+                    sp.GetRequiredService<IFileEncryptionService>(),
                     sp.GetRequiredService<ILogger<LocalFileStorageService>>()
                 ));
-
             AddAuthentication(Services, Configuration);
 
             return Services;

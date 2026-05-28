@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Eras.Application.Models;
 using Microsoft.Extensions.Options;
+using Eras.Application.Contracts.Infrastructure;
 
 namespace Eras.Api.Controllers.AssessmentManagement;
 
@@ -15,9 +16,10 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 [Route("api/v1/assessments")]
 [Authorize]
 [ExcludeFromCodeCoverage]
-public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger, IOptions<FileStorageSettings> FileStorageOptions) : ControllerBase
+public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger, IOptions<FileStorageSettings> FileStorageOptions, IFileStorageService FileStorage) : ControllerBase 
 {
     private readonly FileStorageSettings _fileStorageSettings = FileStorageOptions.Value;
+    private readonly IFileStorageService _fileStorage = FileStorage; 
 
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]
@@ -183,22 +185,28 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         return Ok(result);
     }
 
-    [AllowAnonymous]
     [HttpGet("interventions/{interventionId}/attachments/{fileName}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public IActionResult DownloadAttachment(int interventionId, string fileName)
+    public async Task<IActionResult> DownloadAttachment(
+        int interventionId,
+        string fileName,
+        CancellationToken cancellationToken)
     {
-        string relativePath = Path.Combine("interventions", interventionId.ToString(), fileName);
-        string fullPath = Path.Combine(_fileStorageSettings.BasePath, relativePath);
+        try
+        {
+            string relativePath = Path.Combine("interventions", interventionId.ToString(), fileName)
+                .Replace('\\', '/');
 
-        if (!System.IO.File.Exists(fullPath))
+            Stream stream = await _fileStorage.ReadAsync(relativePath);
+            string contentType = GetContentType(fileName);
+
+            return File(stream, contentType, enableRangeProcessing: false);
+        }
+        catch (FileNotFoundException)
+        {
             return NotFound();
-
-        string contentType = GetContentType(fileName);
-        Stream stream = System.IO.File.OpenRead(fullPath);
-
-        return File(stream, contentType, enableRangeProcessing: true);
+        }
     }
 
     private static string GetContentType(string fileName) =>
