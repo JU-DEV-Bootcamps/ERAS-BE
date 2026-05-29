@@ -137,18 +137,32 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             if (componentsAndVariables.Count > 0)
             {
-                foreach (var responseToPollInstance in apiResponse.data)
+                var pollMap = new Dictionary<int, DataItem>();
+                var pollIndex = 0;
+                var populatedComponentsTasks = new List<Task<List<ComponentDTO>>>();
+
+                foreach (DataItem responseToPollInstance in apiResponse.data)
                 {
-                    var populatedComponents = await PopulateListOfComponentsByIdPollInstanceAsync(
+                    pollMap.Add(pollIndex, responseToPollInstance);
+                    populatedComponentsTasks.Add(PopulateListOfComponentsByIdPollInstanceAsync(
                         componentsAndVariables,
                         responseToPollInstance.Id,
                         responseToPollInstance.score,
                         decryptedApiKey,
                         ApiUrl,
                         StartDate,
-                        EndDate);
+                        EndDate
+                    ));
+                    pollIndex++;
+                }
 
-                    if (populatedComponents.Count > 0)
+                List<ComponentDTO>[] populatedComponentsList = await Task.WhenAll<List<ComponentDTO>>(populatedComponentsTasks);
+                var populatedComponentIndex = 0;
+
+                foreach (List<ComponentDTO> populatedComponent in populatedComponentsList)
+                {
+                    DataItem responseToPollInstance = pollMap[populatedComponentIndex];
+                    if (populatedComponent.Count > 0)
                     {
                         var pollDto = new PollDTO
                         {
@@ -158,7 +172,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                             FinishedAt = responseToPollInstance.finishedAt,
                             LastVersion = 1,
                             LastVersionDate = DateTime.UtcNow,
-                            Components = SanitizeComponents(populatedComponents),
+                            Components = SanitizeComponents(populatedComponent),
                             ParentId = responseToPollInstance.parent.Split(':')[1]
                         };
                         
@@ -174,6 +188,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                         }
                         pollsDtos.Add(pollDto);
                     }
+
+                    populatedComponentIndex++;
                 }
             }
 
