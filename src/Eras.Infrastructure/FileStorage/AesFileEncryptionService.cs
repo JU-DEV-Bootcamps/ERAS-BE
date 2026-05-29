@@ -19,6 +19,8 @@ public sealed class AesFileEncryptionService : IFileEncryptionService
             throw new InvalidOperationException("Encryption:Key is not configured.");
 
         _key = Convert.FromBase64String(keyBase64);
+        _key = Convert.FromHexString(keyBase64);
+
     }
 
     public async Task<Stream> EncryptAsync(Stream plainStream, CancellationToken cancellationToken = default)
