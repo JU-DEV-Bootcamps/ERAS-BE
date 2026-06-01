@@ -10,8 +10,7 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
     Task<PollInstance?> GetByUuidAsync(string Uuid);
     Task<PollInstance?> GetByUuidAndStudentIdAsync(string Uuid, int StudentId);
     Task<PollInstance?> GetByUuidAndStudentIdAsync(string Uuid, int StudentId, int EvaluationId);
-    Task<bool> ExistsByPollNameAndStudentEmailAsync(string PollName, string StudentEmail);
-
+    Task<List<string>> GetImportedStudentsEmailsByPollName(string PollName);
     Task<IEnumerable<PollInstance>> GetByLastDays(int Days, bool LastVersion, string PollUuid);
 
     Task<PagedResult<PollInstance>> GetByCohortIdAndLastDays(

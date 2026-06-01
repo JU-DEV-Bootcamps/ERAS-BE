@@ -36,13 +36,14 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return results?.ToDomain();
     }
 
-    public async Task<bool> ExistsByPollNameAndStudentEmailAsync(string PollName, string StudentEmail)
+    public async Task<List<string>> GetImportedStudentsEmailsByPollName(string PollName)
     {
         return await _context.PollInstances
+            .Where(p => _context.Polls.Any(poll => poll.Uuid == p.Uuid && poll.Name == PollName))
             .Include(p => p.Student)
-            .AnyAsync(p => _context.Polls
-                .Any(poll => poll.Uuid == p.Uuid && poll.Name == PollName) &&
-                p.Student.Email == StudentEmail);
+            .Select(p => p.Student.Email)
+            .Distinct()
+            .ToListAsync();
     }
 
     public async Task<IEnumerable<PollInstance>> GetByLastDays(int Days, bool LastVersion, string PollUuid)

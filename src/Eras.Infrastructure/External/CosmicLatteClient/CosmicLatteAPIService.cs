@@ -159,6 +159,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 List<ComponentDTO>[] populatedComponentsList = await Task.WhenAll<List<ComponentDTO>>(populatedComponentsTasks);
                 var populatedComponentIndex = 0;
 
+                var alreadyImportedStudentsEmails = await _pollInstanceRepository.GetImportedStudentsEmailsByPollName(EvaluationSetName);
+
                 foreach (List<ComponentDTO> populatedComponent in populatedComponentsList)
                 {
                     DataItem responseToPollInstance = pollMap[populatedComponentIndex];
@@ -183,8 +185,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                         if (!string.IsNullOrEmpty(studentEmail))
                         {
-                            pollDto.IsAlreadyImported = await _pollInstanceRepository
-                                .ExistsByPollNameAndStudentEmailAsync(pollDto.Name, studentEmail);
+                            pollDto.IsAlreadyImported = alreadyImportedStudentsEmails.Any(e => e == studentEmail);
                         }
                         pollsDtos.Add(pollDto);
                     }
