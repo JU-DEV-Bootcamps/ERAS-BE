@@ -1,6 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿using Eras.Application.Features.EvaluationDetails.Queries.GetEvaluationDetailsByFilters;
 using Eras.Application.Features.EvaluationDetails.Queries.GetStudentsByFilters;
+using Eras.Application.Features.Evaluations.Commands.DeleteEvaluation;
+using Eras.Application.Features.Evaluations.Queries.GetByDateRange;
+using Eras.Application.Models.Response;
+using Eras.Domain.Entities;
 
 using MediatR;
 
@@ -15,7 +18,6 @@ public class EvaluationDetailsController(IMediator Mediator, ILogger<Evaluations
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<EvaluationsController> _logger = Logger;
 
-<<<<<<< HEAD
     [HttpGet("StudentsByFilters")]
     public async Task<IActionResult> StudentsByFilterAsync([FromQuery, Required] string PollUuid, [FromQuery, Required, MinLength(1)] List<string> ComponentNames, [FromQuery, Required, MinLength(1)] List<int> CohortIds, [FromQuery, Required, MinLength(1)] List<int>? VariableIds, [FromQuery] List<int>? RiskLevels)
     {
@@ -34,16 +36,14 @@ public class EvaluationDetailsController(IMediator Mediator, ILogger<Evaluations
         return response == null ? NotFound(response) : Ok(response);
     }
 
-=======
->>>>>>> be4ac56 (BE-321. Updated BE service to only have one call and required filters in the call)
     [HttpGet("StudentsByFilters")]
-    public async Task<IActionResult> StudentsByFilterAsync([FromQuery, Required] string PollUuid, [FromQuery, Required, MinLength(1)] List<string> ComponentNames, [FromQuery, Required, MinLength(1)] List<int> CohortIds, [FromQuery, Required, MinLength(1)] List<int>? VariableIds, [FromQuery] List<int>? RiskLevels)
+    public async Task<IActionResult> StudentsByFilterAsync([FromQuery] int? PollId, [FromQuery] List<int>? ComponentIds, [FromQuery] List<int>? CohortIds, [FromQuery] List<int>? VariableIds)
     {
-        _logger.LogInformation("Retrieving students with filters {PollId}, Components ({ComponentIds}), Cohorts ({CohortIds}), Variables ({VariableIds})", PollUuid, ComponentNames, CohortIds, VariableIds);
+        _logger.LogInformation("Retrieving students with filters {PollId}, Components ({ComponentIds}), Cohorts ({CohortIds}), Variables ({VariableIds})", PollId, ComponentIds, CohortIds, VariableIds);
         var query = new GetStudentsByFiltersQuery()
         {
-            PollUuid = PollUuid,
-            ComponentNames = ComponentNames,
+            PollId = PollId,
+            ComponentIds = ComponentIds,
             CohortIds = CohortIds,
             VariableIds = VariableIds,
             RiskLevels = RiskLevels
