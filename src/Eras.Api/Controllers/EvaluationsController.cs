@@ -13,6 +13,7 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Eras.Application.Features.Evaluations.Queries.GetByDateRange;
 
 namespace Eras.Api.Controllers;
 
@@ -83,6 +84,18 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
     {
         GetAllEvaluationsQuery command = new() { Query = Query };
         PagedResult<Evaluation> response = await _mediator.Send(command);
+        return Ok(response);
+    }
+
+    [HttpGet("ByDateRange")]
+    public async Task<IActionResult> GetAllEvaluationsByDateRangeAsync([FromQuery] DateTime StartDate, [FromQuery] DateTime EndDate)
+    {
+        GetEvaluationsByDateRangeQuery query = new GetEvaluationsByDateRangeQuery
+        {
+            StartDate = StartDate,
+            EndDate = EndDate
+        };
+        List<Evaluation> response = await _mediator.Send(query);
         return Ok(response);
     }
 }
