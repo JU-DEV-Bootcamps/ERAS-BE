@@ -10,6 +10,6 @@ public class GetStudentsByEvaluationIdQuery : IRequest<List<StudentsByFiltersRes
     public required List<string> ComponentNames { get; set; }
     public required List<int> CohortIds { get; set; }
     public List<int>? VariableIds { get; set; }
-    public List<int>? RiskLevels { get; set; }
+    public List<decimal>? RiskLevels { get; set; }
 
 }
