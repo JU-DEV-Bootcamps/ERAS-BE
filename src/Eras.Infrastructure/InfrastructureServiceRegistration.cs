@@ -10,6 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
+using Eras.Application.Models;
+using Eras.Infrastructure.FileStorage;
+using Microsoft.Extensions.Logging;
+
 namespace Eras.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -22,6 +26,20 @@ namespace Eras.Infrastructure
             Services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
             Services.AddScoped<IApiKeyEncryptor, AesApiKeyEncryptor>();
 
+            Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));
+
+            string basePath = Configuration["FileStorage:BasePath"] ?? "/app/uploads";
+            
+            Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));
+
+            Services.AddSingleton<IFileEncryptionService, AesFileEncryptionService>();
+
+            Services.AddSingleton<IFileStorageService>(sp =>
+                new LocalFileStorageService(
+                    Configuration["FileStorage:BasePath"] ?? "/app/uploads",
+                    sp.GetRequiredService<IFileEncryptionService>(),
+                    sp.GetRequiredService<ILogger<LocalFileStorageService>>()
+                ));
             AddAuthentication(Services, Configuration);
 
             return Services;

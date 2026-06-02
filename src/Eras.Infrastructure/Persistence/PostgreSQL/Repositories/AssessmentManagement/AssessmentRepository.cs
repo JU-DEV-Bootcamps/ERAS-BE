@@ -100,4 +100,36 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         _context.Set<Intervention>().Remove(intervention);
         await _context.SaveChangesAsync();
     }
+
+    public async Task AddAttachmentsAsync( int interventionId, IReadOnlyCollection<string> paths, IReadOnlyCollection<string> hashes)
+    {
+        Intervention? intervention = await _context.Set<Intervention>()
+            .FirstOrDefaultAsync(i => i.Id == interventionId);
+
+        if (intervention is null)
+            throw new KeyNotFoundException($"Intervention '{interventionId}' not found.");
+
+        List<string> updatedPaths = [.. intervention.Attachments, .. paths];
+        List<string> updatedHashes = [.. intervention.AttachmentHashes, .. hashes];
+
+        _context.Entry(intervention)
+            .Property(i => i.Attachments)
+            .CurrentValue = updatedPaths.AsReadOnly();
+
+        _context.Entry(intervention)
+            .Property(i => i.AttachmentHashes)
+            .CurrentValue = updatedHashes.AsReadOnly();
+
+        await _context.SaveChangesAsync();
+    }
+
+    public async Task<IReadOnlyCollection<string>> GetAttachmentHashesAsync(
+        int interventionId,
+        CancellationToken cancellationToken)
+    {
+        Intervention? intervention = await _context.Set<Intervention>()
+            .FirstOrDefaultAsync(i => i.Id == interventionId, cancellationToken);
+
+        return intervention?.AttachmentHashes ?? Array.Empty<string>();
+    }
 }

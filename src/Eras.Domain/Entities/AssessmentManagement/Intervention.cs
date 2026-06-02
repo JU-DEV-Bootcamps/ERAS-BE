@@ -12,17 +12,15 @@ public abstract class Intervention : BaseEntity
     public string? Comments { get; init; }
     public required IReadOnlyCollection<int> StudentIds { get; init; } = Array.Empty<int>();
 
-    /// <summary>
-    /// Maps StudentId → attended. Pre-set for Individual, manual for Group.
-    /// Stored as jsonb in PostgreSQL.
-    /// </summary>
     public IReadOnlyDictionary<int, bool> Attendance { get; init; } = new Dictionary<int, bool>();
 
     public InterventionMode Mode { get; init; }
     public InterventionStatus Status { get; init; } = InterventionStatus.Created;
     public string? Remarks { get; init; }
 
+    public abstract InterventionKind Kind { get; }
+
     public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
 
-    public abstract InterventionKind Kind { get; }
+    public IReadOnlyCollection<string> AttachmentHashes { get; init; } = Array.Empty<string>();
 }
