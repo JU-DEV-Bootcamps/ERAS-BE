@@ -38,7 +38,7 @@ public class EvaluationDetailsController(IMediator Mediator, ILogger<Evaluations
     }
 
     [HttpGet("StudentsByEvaluationId")]
-    public async Task<IActionResult> StudentsByEvaluationIdAsync([FromQuery, Required] int EvaluationId, [FromQuery, Required, MinLength(1)] List<string> ComponentNames, [FromQuery, Required, MinLength(1)] List<int> CohortIds, [FromQuery, Required, MinLength(1)] List<int>? VariableIds, [FromQuery] List<int>? RiskLevels)
+    public async Task<IActionResult> StudentsByEvaluationIdAsync([FromQuery, Required] int EvaluationId, [FromQuery, Required, MinLength(1)] List<string> ComponentNames, [FromQuery, Required, MinLength(1)] List<int> CohortIds, [FromQuery, Required, MinLength(1)] List<int>? VariableIds, [FromQuery] List<decimal>? RiskLevels)
     {
         _logger.LogInformation("Retrieving students with filters {EvaluationId}, Components ({ComponentIds}), Cohorts ({CohortIds}), Variables ({VariableIds})", EvaluationId, ComponentNames, CohortIds, VariableIds);
         var query = new GetStudentsByEvaluationIdQuery()

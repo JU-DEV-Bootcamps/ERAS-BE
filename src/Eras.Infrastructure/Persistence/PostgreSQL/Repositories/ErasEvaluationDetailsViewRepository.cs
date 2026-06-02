@@ -25,7 +25,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
     public async Task<List<ErasEvaluationDetailsView>> GetByFiltersAsync(int? PollId, List<int>? ComponentIds, List<int>? CohortIds, List<int>? VariableIds)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
-        
+
         if (PollId.HasValue)
         {
             query = query.Where(v => v.PollId == PollId.Value);
@@ -51,7 +51,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         return entities.Select(e => e.ToDomain()).ToList();
     }
 
-    public async Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<int>? RiskLevels)
+    public async Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
 
@@ -59,17 +59,9 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         query = query.Where(v => CohortIds.Contains(v.CohortId));
         query = query.Where(v => ComponentNames.Contains(v.ComponentName));
 
-        if (VariableIds != null && VariableIds.Any())
-        {
-            query = query.Where(v => VariableIds.Contains(v.VariableId));
-        }
+        var entitiesEval = await query.ToListAsync();
 
-        if (RiskLevels != null && RiskLevels.Any())
-        {
-            query = query.Where(v => RiskLevels.Contains((int)v.RiskLevel));
-        }
-
-        return await query
+        var resultEval = entitiesEval
             .Select(v => new StudentsByFiltersResponse
             {
                 Id = v.StudentId,
