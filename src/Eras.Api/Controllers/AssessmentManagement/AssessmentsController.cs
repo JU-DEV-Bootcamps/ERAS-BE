@@ -218,4 +218,26 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
             ".txt" => "text/plain",
             _ => "application/octet-stream"
         };
+
+
+    [HttpDelete("interventions/{interventionId:int}/attachments/{fileName}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteAttachment(
+        int interventionId,
+        string fileName,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await Mediator.Send(
+                new DeleteInterventionAttachmentCommand(interventionId, fileName),
+                cancellationToken);
+            return NoContent();
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
 }

@@ -46,3 +46,8 @@ public sealed record UploadInterventionAttachmentsCommand(
     int InterventionId,
     IReadOnlyCollection<(Stream Stream, string FileName)> Files
 ) : IRequest<IReadOnlyCollection<string>>;
+
+public sealed record DeleteInterventionAttachmentCommand(
+    int InterventionId,
+    string FileName
+) : IRequest;

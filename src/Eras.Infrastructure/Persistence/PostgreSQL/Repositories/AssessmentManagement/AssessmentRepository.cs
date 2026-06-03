@@ -101,7 +101,13 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         await _context.SaveChangesAsync();
     }
 
-    public async Task AddAttachmentsAsync( int interventionId, IReadOnlyCollection<string> paths, IReadOnlyCollection<string> hashes)
+    public async Task<Intervention?> GetInterventionByIdAsync(int interventionId)
+    {
+        return await _context.Set<Intervention>()
+            .FirstOrDefaultAsync(i => i.Id == interventionId);
+    }
+
+    public async Task AddAttachmentsAsync(int interventionId, IReadOnlyCollection<string> paths, IReadOnlyCollection<string> hashes)
     {
         Intervention? intervention = await _context.Set<Intervention>()
             .FirstOrDefaultAsync(i => i.Id == interventionId);
@@ -123,13 +129,31 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         await _context.SaveChangesAsync();
     }
 
-    public async Task<IReadOnlyCollection<string>> GetAttachmentHashesAsync(
-        int interventionId,
-        CancellationToken cancellationToken)
+    public async Task<IReadOnlyCollection<string>> GetAttachmentHashesAsync(int interventionId, CancellationToken cancellationToken)
     {
         Intervention? intervention = await _context.Set<Intervention>()
             .FirstOrDefaultAsync(i => i.Id == interventionId, cancellationToken);
 
         return intervention?.AttachmentHashes ?? Array.Empty<string>();
+    }
+
+
+    public async Task RemoveAttachmentAsync(int interventionId, string relativePath)
+    {
+        Intervention? intervention = await _context.Set<Intervention>()
+            .FirstOrDefaultAsync(i => i.Id == interventionId);
+
+        if (intervention is null)
+            throw new KeyNotFoundException($"Intervention '{interventionId}' not found.");
+
+        List<string> updated = intervention.Attachments
+            .Where(a => !a.EndsWith(relativePath, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        _context.Entry(intervention)
+            .Property(i => i.Attachments)
+            .CurrentValue = updated.AsReadOnly();
+
+        await _context.SaveChangesAsync();
     }
 }
