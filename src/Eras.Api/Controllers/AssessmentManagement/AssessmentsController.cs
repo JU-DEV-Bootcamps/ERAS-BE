@@ -166,6 +166,7 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
     [ProducesResponseType(typeof(IReadOnlyCollection<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
     public async Task<ActionResult<IReadOnlyCollection<string>>> UploadAttachments(
         int interventionId,
         [FromForm] IFormFileCollection files,
@@ -178,11 +179,18 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
             .Select(f => (f.OpenReadStream(), f.FileName))
             .ToList();
 
-        var result = await Mediator.Send(
-            new UploadInterventionAttachmentsCommand(interventionId, fileStreams),
-            cancellationToken);
+        try
+        {
+            var result = await Mediator.Send(
+                new UploadInterventionAttachmentsCommand(interventionId, fileStreams),
+                cancellationToken);
 
-        return Ok(result);
+            return Ok(result);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { title = ex.Message });
+        }
     }
 
     [HttpGet("interventions/{interventionId}/attachments/{fileName}")]

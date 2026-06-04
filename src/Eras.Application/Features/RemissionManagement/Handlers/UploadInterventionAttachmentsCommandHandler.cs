@@ -30,8 +30,8 @@ public sealed class UploadInterventionAttachmentsCommandHandler
     }
 
     public async Task<IReadOnlyCollection<string>> Handle(
-    UploadInterventionAttachmentsCommand request,
-    CancellationToken cancellationToken)
+        UploadInterventionAttachmentsCommand request,
+        CancellationToken cancellationToken)
     {
         foreach ((_, string fileName) in request.Files)
         {
@@ -63,6 +63,9 @@ public sealed class UploadInterventionAttachmentsCommandHandler
             savedPaths.Add(path);
             savedHashes.Add(hash);
         }
+
+        if (savedPaths.Count == 0 && request.Files.Count > 0)
+            throw new InvalidOperationException("All files have already been uploaded to this intervention.");
 
         if (savedPaths.Count > 0)
             await _repository.AddAttachmentsAsync(request.InterventionId, savedPaths, savedHashes);

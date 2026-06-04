@@ -146,8 +146,10 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         if (intervention is null)
             throw new KeyNotFoundException($"Intervention '{interventionId}' not found.");
 
+        string fileNameToRemove = Path.GetFileName(relativePath);
+
         List<string> updated = intervention.Attachments
-            .Where(a => !a.EndsWith(relativePath, StringComparison.OrdinalIgnoreCase))
+            .Where(a => !Path.GetFileName(a).Equals(fileNameToRemove, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         _context.Entry(intervention)
