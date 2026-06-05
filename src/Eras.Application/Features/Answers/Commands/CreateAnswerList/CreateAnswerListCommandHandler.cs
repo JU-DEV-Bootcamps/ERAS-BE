@@ -28,28 +28,49 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
             CancellationToken CancellationToken)
         {
             List<Answer> answers = Request.Answers.Select(Ans => Ans.ToDomain()).ToList();
-            foreach (Answer answer in answers)
+            Dictionary<int, List<Answer>> answersDictionary = new Dictionary<int, List<Answer>>();
+            List<Answer> newAnswers = [];
+            List<Task> updateAnswersTasks = [];
+            try
             {
-                try
+                foreach (Answer answer in answers)
                 {
-                    var existing = await _answerRepository
-                        .GetByPollInstanceAndVariableAsync(answer.PollVariableId, answer.PollInstanceId);
+                    Answer? existingAnswer;
+                    answersDictionary.TryGetValue(answer.PollInstanceId, out var answersList);
 
-                    if (existing != null)
+                    if (answersList != null)
                     {
-                        await _answerRepository.UpdateAnswerTextAsync(existing.Id, answer.AnswerText, answer.RiskLevel);
-                    }
+                        existingAnswer = answersList.Find(
+                            Ans => Ans.PollInstanceId == answer.PollInstanceId
+                                && Ans.PollVariableId == answer.PollVariableId
+                        );
 
+                        if (existingAnswer != null)
+                        {
+                            updateAnswersTasks.Add(_answerRepository.UpdateAnswerTextAsync(existingAnswer.Id, answer.AnswerText, answer.RiskLevel));
+                        }
+                        else
+                        {
+                            newAnswers.Add(answer);
+                        }
+                    }
                     else
                     {
-                        await _answerRepository.AddAsync(answer);
+                        List<Answer> persistedAnswersList = await _answerRepository.GetByPollInstanceIdAsync(answer.PollInstanceId);
+                        answersDictionary.Add(answer.PollInstanceId, persistedAnswersList);
+                        newAnswers.Add(answer);
                     }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "An error occurred creating or updating answers");
-                }
+
+                
+                await _answerRepository.AddBatchAsync(newAnswers);
+                await Task.WhenAll(updateAnswersTasks);
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred creating or updating answers");
+            }
+
             return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);
         }
     }
