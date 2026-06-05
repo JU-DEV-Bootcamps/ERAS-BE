@@ -44,6 +44,24 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 throw new DatabaseCustomException(ex);
             }
         }
+
+        public async Task AddBatchAsync(IEnumerable<TDomain> Entities)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                IEnumerable<TPersist> entitiesToPersist = Entities.Select(e => _toPersistence(e));
+                _context.Set<TPersist>().AddRange(entitiesToPersist);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                _context.ChangeTracker.Clear();
+                await transaction.RollbackAsync();
+                throw new DatabaseCustomException(ex);
+            }
+        }
         public async Task DeleteAsync(TDomain Entity)
         {
             _context.Set<TPersist>().Remove(_toPersistence(Entity));
