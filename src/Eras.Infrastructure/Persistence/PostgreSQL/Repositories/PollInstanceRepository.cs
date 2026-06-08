@@ -201,11 +201,17 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 
         List<AvgReportComponent> report = [.. results
+        .Where(A => A.AnswerText != "-" && 
+            A.AnswerText != "" && 
+            !string.IsNullOrEmpty(A.AnswerText) &&
+            A.AnswerText != "None" && A.AnswerText != "none" &&
+            A.AnswerText != "Ninguno" && A.AnswerText != "ninguno" &&
+            A.AnswerText != "Ninguna" && A.AnswerText != "ninguna")
         .GroupBy(A => A.ComponentName)
         .Select(AnsPerComp => new AvgReportComponent
         {
             Description = AnsPerComp.Key.ToUpper(),
-            AverageRisk = Math.Round(AnsPerComp.Average(X => X.AnswerRisk), 2),
+            AverageRisk = Math.Round(AnsPerComp.Average(A => A.AnswerRisk), 2),
             Questions = [.. AnsPerComp
                 .OrderBy(A => A.VariableAverageRisk)
                 .GroupBy(A => new { A.Question, A.Position })
@@ -214,7 +220,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                     Question = AnsPerVar.Key.Question,
                     Position = AnsPerVar.Key.Position,
                     AverageAnswer = AnsPerVar.GroupBy(A => A.AnswerText).OrderByDescending(A => A.Count()).First().Key,
-                    AverageRisk = Math.Round(AnsPerVar.Average(X => X.AnswerRisk), 2),
+                    AverageRisk = Math.Round(AnsPerComp.Average(A => A.AnswerRisk), 2),
                     AnswersDetails = [.. AnsPerVar
                         .GroupBy(A => A.AnswerText)
                         .Select(AnsPerVar => new AnswerDetails
@@ -280,6 +286,12 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
 
         List<CountReportComponent> report = [.. results
         .OrderBy(A => A.ComponentId)
+        .Where(A => A.AnswerText != "-" && 
+            A.AnswerText != "" && 
+            !string.IsNullOrEmpty(A.AnswerText) &&
+            A.AnswerText != "None" && A.AnswerText != "none" &&
+            A.AnswerText != "Ninguno" && A.AnswerText != "ninguno" &&
+            A.AnswerText != "Ninguna" && A.AnswerText != "ninguna")
         .GroupBy(A => A.ComponentName)
         .Select(AnsPerComp => new CountReportComponent {
             Description = AnsPerComp.Key.ToUpper(),

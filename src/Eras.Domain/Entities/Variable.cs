@@ -12,5 +12,6 @@ namespace Eras.Domain.Entities
         public int IdComponent { get; set; }
         public int PollVariableId { get; set; }
         public int IdPoll { get; set; }
+        public string Type { get; set; } = string.Empty;
     }
 }
