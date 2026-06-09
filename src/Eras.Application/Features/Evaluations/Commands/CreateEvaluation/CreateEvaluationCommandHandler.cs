@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Events;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Common;
@@ -53,7 +54,7 @@ namespace Eras.Application.Features.Evaluations.Commands
             }
             evaluation.Status = status;
             Evaluation response = await _evaluationRepository.AddAsync(evaluation);
-            if (poll != null && status.Equals(EvaluationConstants.EvaluationStatus.Ready.ToString()))
+            if (poll != null)
             {
                 Request.EvaluationDTO.PollId = poll.Id;
                 Request.EvaluationDTO.Id = response.Id;
@@ -62,6 +63,7 @@ namespace Eras.Application.Features.Evaluations.Commands
                     EvaluationDTO = Request.EvaluationDTO
                 };
                 await _mediator.Send(evaluationPollCommand);
+                await _mediator.Publish(new EvaluationCreatedEvent(response.Id));
             }
             return new CreateCommandResponse<Evaluation>(response, 1, "Success", true);
         }

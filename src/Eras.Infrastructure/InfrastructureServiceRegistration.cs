@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Eras.Application.Models;
 using Eras.Infrastructure.FileStorage;
 using Microsoft.Extensions.Logging;
+using Eras.Infrastructure.Persistence.PostgreSQL.Jobs;
 
 namespace Eras.Infrastructure
 {
@@ -25,6 +26,7 @@ namespace Eras.Infrastructure
             Services.AddScoped<IKeycloakAuthService<TokenResponse>, KeycloakAuthService>();
             Services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
             Services.AddScoped<IApiKeyEncryptor, AesApiKeyEncryptor>();
+            Services.AddHostedService<EvaluationStatusSyncJob>();
 
             Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));
 

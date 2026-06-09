@@ -13,6 +13,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public AuditInfo Audit { get; set; } = default!;
         public DateTime FinishedAt { get; set; }
         public int? EvaluationId { get; set; }
+        public EvaluationEntity? Evaluation { get; set; }
         public int? SourcePollInstanceId { get; set; }
     }
 }
