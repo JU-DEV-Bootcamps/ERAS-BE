@@ -1,5 +1,6 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
+using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -24,10 +25,23 @@ public sealed class DeleteInterventionAttachmentCommandHandler : IRequestHandler
 
     public async Task Handle(DeleteInterventionAttachmentCommand request, CancellationToken cancellationToken)
     {
+        Intervention? intervention = await _repository.GetInterventionByIdAsync(request.InterventionId);
+
+        if (intervention is null)
+            throw new KeyNotFoundException($"Intervention '{request.InterventionId}' not found.");
+
+        string fileNameToRemove = Path.GetFileName(request.FileName);
+
+        bool attachmentExists = intervention.Attachments
+            .Any(a => Path.GetFileName(a).Equals(fileNameToRemove, StringComparison.OrdinalIgnoreCase));
+
+        if (!attachmentExists)
+            throw new KeyNotFoundException($"Attachment '{request.FileName}' not found in intervention '{request.InterventionId}'.");
+
         string relativePath = Path.Combine(
             "interventions",
             request.InterventionId.ToString(),
-            request.FileName);
+            request.FileName).Replace('\\', '/');
 
         await _fileStorage.DeleteAsync(relativePath);
 
