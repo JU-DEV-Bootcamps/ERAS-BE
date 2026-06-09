@@ -111,10 +111,10 @@ SELECT
     p."uuid" AS poll_uuid,
     v.component_id,
     c."name" AS component_name,
-    pc.poll_variable_id,
+    a.poll_variable_id,
     v."name" AS question,
     v.position AS position,
-    pc.answer_text,
+    a.answer_text,
     a.poll_instance_id,
     sc.student_id,
     rcbi.student_name,
@@ -138,16 +138,16 @@ JOIN polls p ON pv.poll_id = p."Id"
 JOIN poll_instances pi ON a.poll_instance_id = pi."Id"
 JOIN student_cohort sc ON sc.student_id = pi."StudentId"
 JOIN cohorts coh ON coh."Id" = sc.cohort_id
-JOIN PercentageCalc pc ON a.poll_variable_id = pc.poll_variable_id AND a.answer_text = pc.answer_text
+LEFT JOIN PercentageCalc pc ON a.poll_variable_id = pc.poll_variable_id AND a.answer_text = pc.answer_text
 LEFT JOIN RiskAverageByComponent rac ON c."name" = rac.component_name AND p."Id" = rac.poll_id
 LEFT JOIN RiskAverageByVariable rav ON v."Id" = rav.variable_id
 LEFT JOIN RiskCountByPollInstance rcbi ON a.poll_instance_id = rcbi.poll_instance_id
 LEFT JOIN RiskAvgByCohortComponent racbc ON racbc.cohort_id = sc.cohort_id AND racbc.component_id = c."Id"
 GROUP BY
-    p."Id", poll_uuid, v.component_id, component_name, pc.poll_variable_id,
-    question, v.position, pc.answer_text, a.poll_instance_id, sc.student_id,
+    p."Id", poll_uuid, v.component_id, component_name, a.poll_variable_id,
+    question, v.position, a.answer_text, a.poll_instance_id, sc.student_id,
     rcbi.student_name, rcbi.student_email, pc.answer_count, pc.answer_percentage,
     rcbi.poll_instance_risk_sum, rcbi.poll_instance_answers_count,
     rac.average_risk, rav.average_risk, sc.cohort_id, coh."name",
     racbc.average_risk_by_cohort_component, c."name", a.risk_level, poll_version
-ORDER BY pc.poll_variable_id, pc.answer_percentage DESC;
+ORDER BY a.poll_variable_id, pc.answer_percentage DESC;
