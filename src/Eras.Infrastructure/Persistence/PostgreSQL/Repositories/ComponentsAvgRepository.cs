@@ -7,6 +7,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
     public class ComponentsAvgRepository : IComponentsAvgRepository
     {
+        private static readonly HashSet<string> _excludedAnswers = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "-",
+            "None",
+            "Ninguno",
+            "Ninguna"
+        };
+
         private readonly AppDbContext _context;
 
         public ComponentsAvgRepository(AppDbContext Context)
@@ -37,12 +45,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     Name = G.Key.ComponentName,
                     ComponentAvg = (float) Math.Round(
                         G.Where(V => 
-                            V.AnswerText != "-" &&
-                            V.AnswerText != "" &&
                             !string.IsNullOrEmpty(V.AnswerText) &&
-                            V.AnswerText != "None" && V.AnswerText != "none" &&
-                            V.AnswerText != "Ninguno" && V.AnswerText != "ninguno" &&
-                            V.AnswerText != "Ninguna" && V.AnswerText != "ninguna")
+                            !_excludedAnswers.Contains(V.AnswerText))
                         .Average(V => (double)V.AnswerRisk), 2)
                 })
                 .ToList();
