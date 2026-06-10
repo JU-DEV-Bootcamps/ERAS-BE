@@ -11,5 +11,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public ComponentEntity Component { get; set; } = default!;
         public ICollection<PollVariableJoin> PollVariables { get; set; } = [];
         public AuditInfo Audit { get; set; } = default!;
+        public string QuestionType { get; set; } = string.Empty;
     }
 }

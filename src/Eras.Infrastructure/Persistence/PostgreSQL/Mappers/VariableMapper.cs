@@ -11,6 +11,7 @@ public static class VariableMapper
         Name = Entity.Name,
         Position = Entity.Position,
         Audit = Entity.Audit,
+        Type = Entity.QuestionType,
     };
     public static VariableEntity ToPersistence(this Variable Model) => new()
     {
@@ -18,6 +19,7 @@ public static class VariableMapper
         Name = Model.Name,
         Position = Model.Position,
         Audit = Model.Audit,
-        ComponentId = Model.IdComponent
+        ComponentId = Model.IdComponent,
+        QuestionType = Model.Type,
     };
 }

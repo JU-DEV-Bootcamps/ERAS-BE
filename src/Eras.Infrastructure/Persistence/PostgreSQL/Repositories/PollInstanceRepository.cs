@@ -168,6 +168,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             select new ErasCalculationsByPollDTO
             {
                 ComponentName = A.ComponentName,
+                ComponentAverageRisk = A.ComponentAverageRisk,
                 Question = A.Question,
                 Position = A.Position,
                 AnswerText = A.AnswerText,
@@ -188,6 +189,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             select new ErasCalculationsByPollDTO
             {
                 ComponentName = A.ComponentName,
+                ComponentAverageRisk = A.ComponentAverageRisk,
                 Question = A.Question,
                 Position = A.Position,
                 AnswerText = A.AnswerText,
@@ -200,32 +202,55 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
 
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 
+        var avgByComponent = results
+            .GroupBy(A => A.ComponentName)
+            .ToDictionary(
+                g => g.Key,
+                g => g.First().ComponentAverageRisk
+            );
+
+        var avgByQuestion = results
+            .GroupBy(A => new { A.ComponentName, A.Position, A.Question })
+            .ToDictionary(
+                g => g.Key,
+                g => g.First().VariableAverageRisk
+            );
+
         List<AvgReportComponent> report = [.. results
-        .GroupBy(A => A.ComponentName)
-        .Select(AnsPerComp => new AvgReportComponent
-        {
-            Description = AnsPerComp.Key.ToUpper(),
-            AverageRisk = Math.Round(AnsPerComp.Average(X => X.AnswerRisk), 2),
-            Questions = [.. AnsPerComp
-                .OrderBy(A => A.VariableAverageRisk)
-                .GroupBy(A => new { A.Question, A.Position })
-                .Select(AnsPerVar => new AvgReportQuestions
-                {
-                    Question = AnsPerVar.Key.Question,
-                    Position = AnsPerVar.Key.Position,
-                    AverageAnswer = AnsPerVar.GroupBy(A => A.AnswerText).OrderByDescending(A => A.Count()).First().Key,
-                    AverageRisk = Math.Round(AnsPerVar.Average(X => X.AnswerRisk), 2),
-                    AnswersDetails = [.. AnsPerVar
-                        .GroupBy(A => A.AnswerText)
-                        .Select(AnsPerVar => new AnswerDetails
-                        {
-                            AnswerText = AnsPerVar.Key,
-                            AnswerPercentage = AnsPerVar.First().AnswerPercentage,
-                            StudentsEmails = [.. AnsPerVar.Select(A => A.StudentEmail)],
-                            RiskLevel = (int)AnsPerVar.First().AnswerRisk
-                        })]
-                })]
-        })];
+            .GroupBy(A => A.ComponentName)
+            .Select(AnsPerComp => new AvgReportComponent
+            {
+                Description = AnsPerComp.Key.ToUpper(),
+                AverageRisk = avgByComponent.TryGetValue(AnsPerComp.Key, out var compAvg) ? compAvg : 0,
+                Questions = [.. AnsPerComp
+                    .OrderBy(A => A.VariableAverageRisk)
+                    .GroupBy(A => new { A.Question, A.Position })
+                    .Select(AnsPerVar => new AvgReportQuestions
+                    {
+                        Question = AnsPerVar.Key.Question,
+                        Position = AnsPerVar.Key.Position,
+                        AverageAnswer = AnsPerVar
+                            .Where(A => A.AnswerText != "-" && 
+                                A.AnswerText != "" && 
+                                !string.IsNullOrEmpty(A.AnswerText) &&
+                                A.AnswerText != "None" && A.AnswerText != "none" &&
+                                A.AnswerText != "Ninguno" && A.AnswerText != "ninguno" &&
+                                A.AnswerText != "Ninguna" && A.AnswerText != "ninguna")
+                            .GroupBy(A => A.AnswerText)
+                            .OrderByDescending(A => A.Count())
+                            .FirstOrDefault()?.Key ?? "-",
+                        AverageRisk = avgByComponent.TryGetValue(AnsPerComp.Key, out var qCompAvg) ? qCompAvg : 0,
+                        AnswersDetails = [.. AnsPerVar          // <- todas las respuestas visibles
+                            .GroupBy(A => A.AnswerText)
+                            .Select(AnsGroup => new AnswerDetails
+                            {
+                                AnswerText = AnsGroup.Key,
+                                AnswerPercentage = AnsGroup.First().AnswerPercentage,
+                                StudentsEmails = [.. AnsGroup.Select(A => A.StudentEmail)],
+                                RiskLevel = (int)AnsGroup.First().AnswerRisk
+                            })]
+                    })]
+            })];
         return new AvgReportResponseVm { Components = report, PollCount = results.DistinctBy(R => R.StudentEmail).Count() };
     }
 
@@ -265,6 +290,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 ComponentId = A.ComponentId,
                 ComponentName = A.ComponentName,
                 ComponentAverageRisk = A.ComponentAverageRisk,
+                VariableAverageRisk = A.VariableAverageRisk,
                 AnswerText = A.AnswerText,
                 AnswerRisk = A.AnswerRisk,
                 Question = A.Question,
@@ -278,34 +304,50 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 
+        var avgByComponent = results
+            .GroupBy(A => A.ComponentName)
+            .ToDictionary(
+                g => g.Key,
+                g => g.First().ComponentAverageRisk
+            );
+
+        var avgByQuestion = results
+            .GroupBy(A => new { A.ComponentName, A.Position, A.Question })
+            .ToDictionary(
+                g => g.Key,
+                g => g.First().VariableAverageRisk
+            );
+            
         List<CountReportComponent> report = [.. results
-        .OrderBy(A => A.ComponentId)
-        .GroupBy(A => A.ComponentName)
-        .Select(AnsPerComp => new CountReportComponent {
-            Description = AnsPerComp.Key.ToUpper(),
-            AverageRisk = (double)Math.Round(AnsPerComp.Average(A => A.AnswerRisk), 2),
-            Questions = [.. AnsPerComp
-                .OrderBy(Q => Q.AnswerRisk)
-                .GroupBy(Q => new { Q.Position, Q.Question })
-                .Select(AnsPerQuestion => new CountReportQuestion {
-                    AverageRisk = (double)Math.Round(AnsPerQuestion.Average(A => A.AnswerRisk),2),
-                    Position = AnsPerQuestion.Key.Position,
-                    Question = AnsPerQuestion.Key.Question,
-                    Answers = [.. AnsPerQuestion
-                        .GroupBy(A => A.AnswerRisk)
-                        .Select(AnsPerAns => new CountReportAnswer
-                        {
-                            AnswerRisk = AnsPerAns.Key,
-                            Count = AnsPerAns.Count(),
-                            Students = [.. AnsPerAns.Select(S => new CountReportStudent {
+            .OrderBy(A => A.ComponentId)
+            .GroupBy(A => A.ComponentName)
+            .Select(AnsPerComp => new CountReportComponent {
+                Description = AnsPerComp.Key.ToUpper(),
+                AverageRisk = avgByComponent.TryGetValue(AnsPerComp.Key, out var compAvg) ? (double)compAvg : 0,
+                Questions = [.. AnsPerComp
+                    .OrderBy(Q => Q.AnswerRisk)
+                    .GroupBy(Q => new { Q.Position, Q.Question })
+                    .Select(AnsPerQuestion => new CountReportQuestion {
+                        AverageRisk = avgByQuestion.TryGetValue(
+                            new { ComponentName = AnsPerComp.Key, AnsPerQuestion.Key.Position, AnsPerQuestion.Key.Question },
+                            out var qAvg) ? (double)qAvg : 0,
+                        Position = AnsPerQuestion.Key.Position,
+                        Question = AnsPerQuestion.Key.Question,
+                        Answers = [.. AnsPerQuestion
+                            .GroupBy(A => A.AnswerRisk)
+                            .Select(AnsPerAns => new CountReportAnswer
+                            {
+                                AnswerRisk = AnsPerAns.Key,
+                                Count = AnsPerAns.Count(),
+                                Students = [.. AnsPerAns.Select(S => new CountReportStudent {
                                     AnswerText = S.AnswerText,
                                     Name = S.StudentEmail,
                                     Email = S.StudentEmail,
                                     CohortId = S.CohortId
+                                })]
                             })]
                     })]
-                })]
-        })];
+            })];
         return new CountReportResponseVm { Components = report };
     }
 
