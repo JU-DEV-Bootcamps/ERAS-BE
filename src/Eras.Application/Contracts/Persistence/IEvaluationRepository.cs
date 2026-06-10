@@ -9,5 +9,6 @@ namespace Eras.Application.Contracts.Persistence
         Task<Evaluation?> GetByNameForUpdateAsync(int Id, string Name);
         Task<Evaluation?> GetByIdForUpdateAsync(int Id);        
         new Task<List<Evaluation>> GetAllAsync();
+        Task<List<Evaluation>> GetByDateRange(DateTime startDate, DateTime endDate);
     }
 }

@@ -40,6 +40,7 @@ namespace Eras.Application.Features.Students.Queries.GetAll
                     Id = Student.Id,
                     Name = Student.Name,
                     Email = Student.Email,
+                    Uuid = Student.Uuid,
                     IsImported = Student.IsImported,
                 }).ToList();
 

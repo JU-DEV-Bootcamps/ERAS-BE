@@ -18,7 +18,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<VariableEntity> Variables { get; set; }
         public virtual DbSet<EvaluationEntity> Evaluations { get; set; }
         public virtual DbSet<EvaluationPollJoin> EvaluationPolls { get; set; }
-        public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
         public virtual DbSet<ConfigurationsEntity> Configurations { get; set; }
         public virtual DbSet<ServiceProvidersEntity> ServiceProviders { get; set; }
         public virtual DbSet<UserPollsEntity> UserPolls { get; set; }
@@ -26,6 +25,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<JUInterventionEntity> Interventions { get; set; }
         public virtual DbSet<JUProfessionalEntity> Professionals { get; set; }
         public virtual DbSet<JUServiceEntity> JUServices { get; set; }
+
+        // Views
+        public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
+        public virtual DbSet<ErasEvaluationDetailsViewEntity> ErasEvaluationDetailsView { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> Options)
             : base(Options)

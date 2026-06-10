@@ -63,15 +63,22 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         {
             try
             {
-                CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos, EvaluationId);
+                var invalidPoll = PollsDtos.FirstOrDefault(p => p.Name?.Length > 100);
+                if (invalidPoll != null)
+                    throw new ArgumentException($"There was an error during the import: Poll Name exceeds the maximum length of 100 characters.");
 
+                CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos, EvaluationId);
+                
                 if (createdPoll.Entity == null)
                 {
                     _logger.LogError("Error saving data: createdPoll is null");
                     throw new Exception($"Error saving data: createdPoll is null");
-
                 }
                 return createdPoll.Entity;
+            }
+            catch (ArgumentException)
+            {
+                throw;
             }
             catch (Exception e)
             {
@@ -195,24 +202,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string studentName = apiResponse.Data.Answers.ElementAt(0).Value.AnswersList[0];
                 string studentEmail = apiResponse.Data.Answers.ElementAt(1).Value.AnswersList[0];
                 string studentCohort = apiResponse.Data.Answers.ElementAt(2).Value.AnswersList[0];
+                DateTime evaluationFinishedAtDate = apiResponse.Data.Evaluation.FinishedAt;
                 StudentDTO studentDto = CreateStudent(studentName, studentEmail, studentCohort);
                 List<ComponentDTO> clonedListComponents = new List<ComponentDTO>();
+                bool isEvaluationWithinRange = ValidateEvaluationWithinDateRange(StartDate, EndDate, evaluationFinishedAtDate);
 
-                if(string.IsNullOrEmpty(StartDate) &&
-                    string.IsNullOrEmpty(EndDate))
-                {
-                    clonedListComponents = CloneComponentsList(Components);
-                }else if (!string.IsNullOrEmpty(StartDate) && 
-                    !string.IsNullOrEmpty(EndDate) && 
-                    CohortsHelper.CohortInDateRange(studentCohort ,DateTime.Parse(StartDate), DateTime.Parse(EndDate))
-                    )
-                {
-                    clonedListComponents = CloneComponentsList(Components);
-                }
-                else if(!string.IsNullOrEmpty(StartDate) &&
-                    string.IsNullOrEmpty(EndDate) &&
-                    CohortsHelper.GetCohort(DateTime.Parse(StartDate)) == studentCohort
-                    )
+                if (isEvaluationWithinRange)
                 {
                     clonedListComponents = CloneComponentsList(Components);
                 }
@@ -471,15 +466,20 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                 var evaluationSet = evaluationSets.data.Find(e => e.name == EvaluationName);
                 if (evaluationSet == null)
-                    throw new Exception($"Evaluation not found: {EvaluationName}");
+                    throw new ArgumentException($"Evaluation not found: {EvaluationName}");
 
                 return evaluationSet._id;
+            }
+            catch (ArgumentException)
+            {
+                throw; 
             }
             catch (Exception e)
             {
                 throw new Exception($"There was an error with the request: {e.Message}");
             }
         }
+
 
         private static List<ComponentDTO> SanitizeComponents(List<ComponentDTO> components)
         {
@@ -613,6 +613,36 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             {
                 component.Variables = component.Variables.OrderBy(v => v.Position).ToList();
             }
+        }
+
+        private bool ValidateEvaluationWithinDateRange(string StartDate, string EndDate, DateTime EvaluationFinishedAtDate)
+        {
+            bool wasStartDateProvided = !string.IsNullOrEmpty(StartDate);
+            bool wasEndDateProvided = !string.IsNullOrEmpty(EndDate);
+
+            if(!wasStartDateProvided && !wasEndDateProvided)
+            {
+                return true;
+            }
+            
+            // Add 1 day to EndDate to account for evaluations finished
+            // on the EndDate.
+            if(wasStartDateProvided && wasEndDateProvided && 
+               EvaluationFinishedAtDate >= DateTime.Parse(StartDate) &&
+               EvaluationFinishedAtDate <= DateTime.Parse(EndDate).AddDays(1)
+              )
+            {
+                return true;
+            }
+
+            if(wasStartDateProvided && !wasEndDateProvided &&
+               EvaluationFinishedAtDate >= DateTime.Parse(StartDate)
+              )
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }
