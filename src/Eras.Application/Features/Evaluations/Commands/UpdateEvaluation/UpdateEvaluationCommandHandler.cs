@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Events;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using Eras.Error.Bussiness;
@@ -66,6 +67,7 @@ namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
                 }
             }
             await _evaluationRepository.UpdateAsync(evaluationDB);
+            await _mediator.Publish(new EvaluationCreatedEvent(Request.EvaluationDTO.Id));
 
             _logger.LogInformation("Successfully updated Evaluation ID {Id}", evaluationDB.Id);
             return new CreateCommandResponse<Evaluation>(evaluationDB, 1, "Success", true);
