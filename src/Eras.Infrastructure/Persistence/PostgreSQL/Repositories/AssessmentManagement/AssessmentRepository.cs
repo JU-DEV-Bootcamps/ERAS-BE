@@ -148,13 +148,25 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
 
         string fileNameToRemove = Path.GetFileName(relativePath);
 
-        List<string> updated = intervention.Attachments
-            .Where(a => !Path.GetFileName(a).Equals(fileNameToRemove, StringComparison.OrdinalIgnoreCase))
+        List<string> attachmentList = intervention.Attachments.ToList();
+        int indexToRemove = attachmentList
+            .FindIndex(a => Path.GetFileName(a).Equals(fileNameToRemove, StringComparison.OrdinalIgnoreCase));
+
+        List<string> updatedPaths = attachmentList
+            .Where((_, i) => i != indexToRemove)
             .ToList();
+
+        List<string> updatedHashes = intervention.AttachmentHashes.ToList();
+        if (indexToRemove >= 0 && indexToRemove < updatedHashes.Count)
+            updatedHashes.RemoveAt(indexToRemove);
 
         _context.Entry(intervention)
             .Property(i => i.Attachments)
-            .CurrentValue = updated.AsReadOnly();
+            .CurrentValue = updatedPaths.AsReadOnly();
+
+        _context.Entry(intervention)
+            .Property(i => i.AttachmentHashes)
+            .CurrentValue = updatedHashes.AsReadOnly();
 
         await _context.SaveChangesAsync();
     }
