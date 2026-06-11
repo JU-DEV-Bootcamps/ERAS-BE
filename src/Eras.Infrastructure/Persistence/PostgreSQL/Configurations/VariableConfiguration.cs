@@ -30,6 +30,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .HasColumnName("position")
                 .HasDefaultValue(0)
                 .IsRequired();
+            Builder.Property(Variable => Variable.QuestionType)
+                .HasColumnName("question_type")
+                .HasMaxLength(50)
+                .IsRequired(false)
+                .HasDefaultValue(string.Empty);
         }
 
         private void ConfigureRelationShips(EntityTypeBuilder<VariableEntity> Builder)

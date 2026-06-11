@@ -2,6 +2,7 @@
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
+using Eras.Application.Events;
 using Eras.Application.Features.Answers.Commands.CreateAnswerList;
 using Eras.Application.Features.Cohorts.Commands.CreateCohort;
 using Eras.Application.Features.Components.Commands.CreateCommand;
@@ -133,7 +134,7 @@ namespace Eras.Application.Services
                                 {
                                     await CreateAnswersAsync(pollToCreate, createdComponents, createdPollInstance);
                                 }
-
+                                await _mediator.Publish(new AnswerSubmittedEvent(EvaluationId));
                                 createdPollsInstances++;
                             }
                         }
