@@ -50,10 +50,31 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                IEnumerable<TPersist> entitiesToPersist = Entities.Select(e => _toPersistence(e));
+                IEnumerable<TPersist> entitiesToPersist = Entities.Select(Entity => _toPersistence(Entity));
                 _context.Set<TPersist>().AddRange(entitiesToPersist);
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+
+            }
+            catch (Exception ex)
+            {
+                _context.ChangeTracker.Clear();
+                await transaction.RollbackAsync();
+                throw new DatabaseCustomException(ex);
+            }
+        }
+
+        public async Task<IEnumerable<TDomain>> AddTrackedBatchAsync(IEnumerable<TDomain> Entities)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                IEnumerable<TPersist> entitiesToPersist = Entities.Select(Entity => _toPersistence(Entity));
+                _context.Set<TPersist>().AddRange(entitiesToPersist);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return _context.ChangeTracker.Entries<TPersist>().Select(Entry =>_toDomain(Entry.Entity));
             }
             catch (Exception ex)
             {

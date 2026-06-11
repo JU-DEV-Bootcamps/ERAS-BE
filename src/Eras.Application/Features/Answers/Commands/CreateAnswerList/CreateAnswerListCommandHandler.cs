@@ -30,7 +30,6 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
             List<Answer> answers = Request.Answers.Select(Ans => Ans.ToDomain()).ToList();
             Dictionary<int, List<Answer>> answersDictionary = new Dictionary<int, List<Answer>>();
             List<Answer> newAnswers = [];
-            List<Task> updateAnswersTasks = [];
             try
             {
                 foreach (Answer answer in answers)
@@ -47,7 +46,7 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
 
                         if (existingAnswer != null)
                         {
-                            updateAnswersTasks.Add(_answerRepository.UpdateAnswerTextAsync(existingAnswer.Id, answer.AnswerText, answer.RiskLevel));
+                            await _answerRepository.UpdateAnswerTextAsync(existingAnswer.Id, answer.AnswerText, answer.RiskLevel);
                         }
                         else
                         {
@@ -64,7 +63,6 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
 
                 
                 await _answerRepository.AddBatchAsync(newAnswers);
-                await Task.WhenAll(updateAnswersTasks);
             }
             catch (Exception ex)
             {

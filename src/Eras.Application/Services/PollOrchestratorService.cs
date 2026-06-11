@@ -1,7 +1,6 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
-using Eras.Application.DTOs.CL;
 using Eras.Application.Events;
 using Eras.Application.Features.Answers.Commands.CreateAnswerList;
 using Eras.Application.Features.Cohorts.Commands.CreateCohort;
@@ -9,7 +8,6 @@ using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Features.Components.Queries.GetByNameAndPoll;
 using Eras.Application.Features.Evaluations.Commands;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
-using Eras.Application.Features.PollInstances.Commands.UpdatePollInstance;
 using Eras.Application.Features.PollInstances.Queries.GetByUuidAndStudentId;
 using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Features.Polls.Commands.UpdatePoll;
@@ -20,9 +18,12 @@ using Eras.Application.Features.Students.Queries.GetByEmail;
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStudentId;
 using Eras.Application.Features.Variables.Commands.CreatePollVariable;
-using Eras.Application.Features.Variables.Commands.CreateVariable;
+using Eras.Application.Features.Variables.Commands.CreatePollVariableList;
+using Eras.Application.Features.Variables.Commands.CreateVariableList;
 using Eras.Application.Features.Variables.Queries.GetByNameAndPollId;
+using Eras.Application.Features.Variables.Queries.GetWithNameAndPollId;
 using Eras.Application.Mappers;
+using Eras.Application.Models.CommandsDTOS;
 using Eras.Application.Models.Enums;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Common;
@@ -323,27 +324,34 @@ namespace Eras.Application.Services
                 return new CreateCommandResponse<Poll>(new Poll(), 0, "Error", false);
             }
         }
-        public async Task<CreateCommandResponse<Variable>> CreateRelationshipPollVariableAsync(VariableDTO Variable, int AsociatedPollId, int AsociatedVariableId)
+
+        public async Task<CreateCommandResponse<List<Variable>>> CreateRelationshipsPollVariablesAsync(List<Variable> Variables, int AsociatedPollId)
         {
             try
             {
-                Variable.Version = new VersionInfo()
+                foreach(Variable variable in Variables)
                 {
-                    VersionNumber = VersionNumber,
-                    VersionDate = InitDate,
-                };
-                CreatePollVariableCommand createPollVariableCommand = new CreatePollVariableCommand()
+                    variable.Version = new VersionInfo()
+                    {
+                        VersionNumber = VersionNumber,
+                        VersionDate = InitDate
+                    };
+                }
+
+                CreatePollVariableListCommand createPollVariableListCommand = new CreatePollVariableListCommand()
                 {
-                    Variable = Variable,
-                    PollId = AsociatedPollId,
-                    VariableId = AsociatedVariableId,
+                    Variables = new PollVariableListCommandDTO()
+                    {
+                        variables = Variables,
+                        pollId = AsociatedPollId
+                    }
                 };
-                return await _mediator.Send(createPollVariableCommand);
+                return await _mediator.Send(createPollVariableListCommand);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error creating component: {ex.Message}");
-                return new CreateCommandResponse<Variable>(null, 0, "Error", false);
+                return new CreateCommandResponse<List<Variable>>(null, 0, "Error", false);
             }
         }
         public async Task<List<Variable>> CreateVariablesAsync(ICollection<VariableDTO> VariablesDtos, int AsociatedPollId, int AsociatedComponentId)
@@ -353,6 +361,12 @@ namespace Eras.Application.Services
                 List<Variable> createdVariables = new List<Variable>();
                 if (VariablesDtos == null) return createdVariables;
 
+                var query = new GetVariablesWithNameAndPollIdQuery(){};
+                GetQueryResponse<List<Variable>> responseQuery = await _mediator.Send(query);
+                List<Variable> existingVariables = responseQuery.Body;
+
+                List<VariableListCommandDTO> variableListCommandDTOs = [];
+
                 foreach (VariableDTO variableDto in VariablesDtos)
                 {
                     variableDto.Audit = new AuditInfo()
@@ -361,34 +375,45 @@ namespace Eras.Application.Services
                         CreatedAt = DateTime.UtcNow,
                         ModifiedAt = DateTime.UtcNow,
                     };
-                    if (!IsNewPoll)
+                    if (!IsNewPoll && responseQuery.Status != QueryEnums.QueryResultStatus.NotFound)
                     {
-                        var query = new GetVariableByNameAndPollIdQuery()
-                        {
-                            VariableName = variableDto.Name,
-                            PollId = AsociatedPollId
-                        };
-                        var responseQuery = await _mediator.Send(query);
-                        if (responseQuery.Success == true && responseQuery.Status == QueryEnums.QueryResultStatus.NotFound && !IsNewVersion)
+                        var variableAlreadyExists = existingVariables.Any(
+                            ExistingVar => ExistingVar.Name == variableDto.Name && ExistingVar.IdPoll == AsociatedPollId 
+                        );
+                        if (!variableAlreadyExists && !IsNewVersion)
                         {
                             VersionNumber += 1;
                             IsNewVersion = true;
                         }
                     }
-                    CreateVariableCommand createVariableCommand = new CreateVariableCommand()
+
+                    variableListCommandDTOs.Add(new VariableListCommandDTO()
                     {
-                        Variable = variableDto,
+                        variable = variableDto,
                         PollId = AsociatedPollId,
                         ComponentId = AsociatedComponentId
-                    };
-                    CreateCommandResponse<Variable> createdVariable = await _mediator.Send(createVariableCommand);
-
-                    if (createdVariable.Success && createdVariable.Entity != null)
+                    });
+                }
+                CreateVariableListCommand createVariableListCommand = new CreateVariableListCommand()
+                {
+                    Variables = variableListCommandDTOs
+                };
+                CreateCommandResponse<List<Variable>> createdVariablesList = await _mediator.Send(createVariableListCommand);
+                if (createdVariablesList.Success && createdVariablesList.Entity != null)
+                {
+                    CreateCommandResponse<List<Variable>> createdPollVariables = await CreateRelationshipsPollVariablesAsync(createdVariablesList.Entity, AsociatedPollId);
+                    if (createdPollVariables.Success && createdPollVariables.Entity != null)
                     {
-                        int asociatedVariableId = createdVariable.Entity.Id;
-                        CreateCommandResponse<Variable> createdPollVariable = await CreateRelationshipPollVariableAsync(variableDto, AsociatedPollId, asociatedVariableId);
-                        createdVariable.Entity.PollVariableId = createdPollVariable.Entity!.PollVariableId;
-                        createdVariables.Add(createdVariable.Entity);
+                        foreach(Variable createdVariable in createdVariablesList.Entity)
+                        {
+                            Variable? createdPollVariable = createdPollVariables.Entity.Find(PollVar => createdVariable.Id == PollVar.Id);
+                            if (createdPollVariable != null)
+                            {
+                                createdVariable.PollVariableId = createdPollVariable.PollVariableId;
+                            }
+
+                            createdVariables.Add(createdVariable);
+                        }
                     }
                 }
                 return createdVariables;

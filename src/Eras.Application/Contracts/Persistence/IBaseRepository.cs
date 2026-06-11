@@ -5,6 +5,7 @@ public interface IBaseRepository<T>
 {
     Task<T> AddAsync(T Entity);
     Task AddBatchAsync(IEnumerable<T> Entities);
+    Task<IEnumerable<T>> AddTrackedBatchAsync(IEnumerable<T> Entities);
     Task<IEnumerable<T>> GetAllAsync();
     Task<IEnumerable<T>> GetPagedAsync(int Page, int PageSize);
     Task<T?> GetByIdAsync(int Id);
