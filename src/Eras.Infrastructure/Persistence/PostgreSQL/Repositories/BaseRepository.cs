@@ -67,6 +67,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<IEnumerable<TDomain>> AddTrackedBatchAsync(IEnumerable<TDomain> Entities)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
+            _context.ChangeTracker.Clear();
             try
             {
                 IEnumerable<TPersist> entitiesToPersist = Entities.Select(Entity => _toPersistence(Entity));

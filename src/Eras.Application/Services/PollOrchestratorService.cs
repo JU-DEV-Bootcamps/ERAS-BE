@@ -406,7 +406,7 @@ namespace Eras.Application.Services
                     {
                         foreach(Variable createdVariable in createdVariablesList.Entity)
                         {
-                            Variable? createdPollVariable = createdPollVariables.Entity.Find(PollVar => createdVariable.Id == PollVar.Id);
+                            Variable? createdPollVariable = createdPollVariables.Entity.FirstOrDefault(PollVar => createdVariable.Id == PollVar.Id);
                             if (createdPollVariable != null)
                             {
                                 createdVariable.PollVariableId = createdPollVariable.PollVariableId;

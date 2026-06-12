@@ -27,7 +27,7 @@ public sealed class CreatePollVariableListCommandHandler : IRequestHandler<Creat
         var pollId = Request.Variables.pollId;
         List<Variable> response = [];
         List<Variable> pollVariablesToCreate = [];
-        IEnumerable<Variable> mappedPollVariables = await _pollVariableRepository.GetAllAsync();
+        List<Variable> mappedPollVariables = await _pollVariableRepository.GetAllWithVariablesAsync();
         try
         {
             foreach(Variable variable in Request.Variables.variables)
@@ -46,7 +46,10 @@ public sealed class CreatePollVariableListCommandHandler : IRequestHandler<Creat
                 }
             }
 
-            response.AddRange(await _pollVariableRepository.AddTrackedBatchAsync(pollVariablesToCreate));
+            if (pollVariablesToCreate.Count > 0)
+            {
+                response.AddRange(await _pollVariableRepository.AddBatchPollVariablesAsync(pollVariablesToCreate));
+            }
         }
         catch(Exception ex)
         {

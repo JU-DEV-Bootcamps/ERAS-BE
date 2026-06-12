@@ -30,6 +30,16 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
             List<Answer> answers = Request.Answers.Select(Ans => Ans.ToDomain()).ToList();
             Dictionary<int, List<Answer>> answersDictionary = new Dictionary<int, List<Answer>>();
             List<Answer> newAnswers = [];
+            if (answers.Count > 0)
+            {
+                Answer? firstAnswer = answers.FirstOrDefault();
+                if (firstAnswer != null)
+                {
+                    List<Answer> persistedAnswersList = await _answerRepository.GetByPollInstanceIdAsync(firstAnswer.PollInstanceId);
+                    answersDictionary.Add(firstAnswer.PollInstanceId, persistedAnswersList);
+                }
+            }
+
             try
             {
                 foreach (Answer answer in answers)

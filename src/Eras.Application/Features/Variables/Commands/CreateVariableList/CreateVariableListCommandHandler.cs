@@ -48,7 +48,10 @@ public sealed class CreateVariableListCommandHandler : IRequestHandler<CreateVar
                     variablesToCreate.Add(variable);
                 }
             }
-            response.AddRange(await _variableRepository.AddTrackedBatchAsync(variablesToCreate));
+            if (variablesToCreate.Count > 0)
+            {
+                response.AddRange(await _variableRepository.AddTrackedBatchAsync(variablesToCreate));
+            }
         }
         catch(Exception ex)
         {
