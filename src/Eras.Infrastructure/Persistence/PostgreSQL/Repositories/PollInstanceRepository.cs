@@ -202,18 +202,27 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
 
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 
-        var avgByComponent = results
+        var filteredResultsForMath = results.Where(A => 
+            A.AnswerText != "-" && 
+            A.AnswerText != "" && 
+            !string.IsNullOrEmpty(A.AnswerText) &&
+            !A.AnswerText.Equals("None", StringComparison.OrdinalIgnoreCase) &&
+            !A.AnswerText.Equals("Ninguno", StringComparison.OrdinalIgnoreCase) &&
+            !A.AnswerText.Equals("Ninguna", StringComparison.OrdinalIgnoreCase)
+        ).ToList();
+
+        var avgByComponent = filteredResultsForMath
             .GroupBy(A => A.ComponentName)
             .ToDictionary(
                 g => g.Key,
-                g => g.First().ComponentAverageRisk
+                g => (decimal)Math.Round(g.Average(x => (double)x.AnswerRisk), 2)
             );
 
-        var avgByQuestion = results
+        var avgByQuestion = filteredResultsForMath
             .GroupBy(A => new { A.ComponentName, A.Position, A.Question })
             .ToDictionary(
                 g => g.Key,
-                g => g.First().VariableAverageRisk
+                g => (decimal)Math.Round(g.Average(x => (double)x.AnswerRisk), 2)
             );
 
         List<AvgReportComponent> report = [.. results
@@ -239,8 +248,8 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                             .GroupBy(A => A.AnswerText)
                             .OrderByDescending(A => A.Count())
                             .FirstOrDefault()?.Key ?? "-",
-                        AverageRisk = avgByComponent.TryGetValue(AnsPerComp.Key, out var qCompAvg) ? qCompAvg : 0,
-                        AnswersDetails = [.. AnsPerVar          // <- todas las respuestas visibles
+                        AverageRisk = AnsPerVar.First().VariableAverageRisk,
+                        AnswersDetails = [.. AnsPerVar
                             .GroupBy(A => A.AnswerText)
                             .Select(AnsGroup => new AnswerDetails
                             {
@@ -305,11 +314,11 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
 
         var avgByComponent = results
-            .GroupBy(A => A.ComponentName)
-            .ToDictionary(
-                g => g.Key,
-                g => g.First().ComponentAverageRisk
-            );
+    .GroupBy(A => A.ComponentName)
+    .ToDictionary(
+        g => g.Key,
+        g => (decimal)Math.Round(g.Average(x => (double)x.AnswerRisk), 2)
+    );
 
         var avgByQuestion = results
             .GroupBy(A => new { A.ComponentName, A.Position, A.Question })
