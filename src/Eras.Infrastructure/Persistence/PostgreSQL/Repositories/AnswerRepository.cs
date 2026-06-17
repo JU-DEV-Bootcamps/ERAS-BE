@@ -31,16 +31,14 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
         return domainAnswers;
     }
 
-    public async Task<List<Answer>> GetByPollInstanceIdAsync(string Uuid)
+    public async Task<List<Answer>> GetByPollInstanceIdAsync(int Id)
     {
-        List<AnswerEntity> answers = await _context.Answers
-            .Where(Answ => Answ.PollInstanceId.Equals(Uuid)).ToListAsync();
-        var domainAnswers = new List<Answer>();
-        foreach (AnswerEntity answer in answers)
-        {
-            domainAnswers.Add(answer.ToDomain());
-        }
-        return domainAnswers;
+        List<Answer> answers = await _context.Answers
+            .Where(Answ => Answ.PollInstanceId.Equals(Id))
+            .Select(Ans => Ans.ToDomain())
+            .ToListAsync();
+
+        return answers;
     }
     public async Task SaveManyAnswersAsync(List<Answer> Answers)
     {
@@ -70,12 +68,12 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
         return answers.Select(Answ => Answ.ToDomain()).ToList();
     }
 
-    public async Task<Answer?> GetByPollInstanceAndVariableAsync(int PollVariableId, int PollInstanceId)
+    public async Task<int?> GetAnswerIdByPollInstanceAndVariableAsync(int PollVariableId, int PollInstanceId)
     {
         AnswerEntity? answer = await _context.Answers
             .FirstOrDefaultAsync(a => a.PollVariableId == PollVariableId && 
                                     a.PollInstanceId == PollInstanceId);
-        return answer?.ToDomain();
+        return answer?.Id;
     }
 
     public async Task UpdateAnswerTextAsync(int Id, string AnswerText, decimal RiskLevel)

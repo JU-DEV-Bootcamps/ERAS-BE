@@ -12,4 +12,6 @@ public interface IPollVariableRepository : IBaseRepository<Variable>
         Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, string VariableIds);
 
         Task<List<Answer>> GetAnswersByPollUuidAsync(string PollUuid);
+        Task<List<Variable>> AddBatchPollVariablesAsync(List<Variable> Variables);
+        Task<List<Variable>> GetAllWithVariablesAsync();
 }

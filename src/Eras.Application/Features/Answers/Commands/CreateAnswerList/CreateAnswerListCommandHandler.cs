@@ -28,28 +28,57 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
             CancellationToken CancellationToken)
         {
             List<Answer> answers = Request.Answers.Select(Ans => Ans.ToDomain()).ToList();
-            foreach (Answer answer in answers)
+            Dictionary<int, List<Answer>> answersDictionary = new Dictionary<int, List<Answer>>();
+            List<Answer> newAnswers = [];
+            if (answers.Count > 0)
             {
-                try
+                Answer? firstAnswer = answers.FirstOrDefault();
+                if (firstAnswer != null)
                 {
-                    var existing = await _answerRepository
-                        .GetByPollInstanceAndVariableAsync(answer.PollVariableId, answer.PollInstanceId);
-
-                    if (existing != null)
-                    {
-                        await _answerRepository.UpdateAnswerTextAsync(existing.Id, answer.AnswerText, answer.RiskLevel);
-                    }
-
-                    else
-                    {
-                        await _answerRepository.AddAsync(answer);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "An error occurred creating or updating answers");
+                    List<Answer> persistedAnswersList = await _answerRepository.GetByPollInstanceIdAsync(firstAnswer.PollInstanceId);
+                    answersDictionary.Add(firstAnswer.PollInstanceId, persistedAnswersList);
                 }
             }
+
+            try
+            {
+                foreach (Answer answer in answers)
+                {
+                    Answer? existingAnswer;
+                    answersDictionary.TryGetValue(answer.PollInstanceId, out var answersList);
+
+                    if (answersList != null)
+                    {
+                        existingAnswer = answersList.Find(
+                            Ans => Ans.PollInstanceId == answer.PollInstanceId
+                                && Ans.PollVariableId == answer.PollVariableId
+                        );
+
+                        if (existingAnswer != null)
+                        {
+                            await _answerRepository.UpdateAnswerTextAsync(existingAnswer.Id, answer.AnswerText, answer.RiskLevel);
+                        }
+                        else
+                        {
+                            newAnswers.Add(answer);
+                        }
+                    }
+                    else
+                    {
+                        List<Answer> persistedAnswersList = await _answerRepository.GetByPollInstanceIdAsync(answer.PollInstanceId);
+                        answersDictionary.Add(answer.PollInstanceId, persistedAnswersList);
+                        newAnswers.Add(answer);
+                    }
+                }
+
+                
+                await _answerRepository.AddBatchAsync(newAnswers);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred creating or updating answers");
+            }
+
             return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);
         }
     }

@@ -107,6 +107,26 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return variable?.ToDomain();
         }
 
+        public async Task<List<Variable>> GetAllWithNameAndPollIdAsync()
+        {
+            List<Variable> response = await _context.Variables
+                .Join(_context.PollVariables,
+                    Var => Var.Id,
+                    PollVar => PollVar.VariableId,
+                    (Variable, PollVariable) => new {Variable, PollVariable}
+                )
+                .Select(JoinResult => new Variable()
+                {
+                    Id = JoinResult.Variable.Id,
+                    Name = JoinResult.Variable.Name,
+                    IdPoll = JoinResult.PollVariable.PollId
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            return response;
+        }
+
         public async Task<Variable?> GetByNameAndPositionAsync(string Name, int Position)
         {
             var variable = await _context.Variables.FirstOrDefaultAsync(Variable =>

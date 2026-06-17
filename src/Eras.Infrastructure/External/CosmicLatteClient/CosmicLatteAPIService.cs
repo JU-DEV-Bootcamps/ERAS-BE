@@ -22,8 +22,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
     [ExcludeFromCodeCoverage]
     public class CosmicLatteAPIService : ICosmicLatteAPIService
     {
-        private const string PathEvalautionSet = "evaluationSets";
-        private const string PathEvalaution = "evaluations";
+        private const string PathEvaluationSet = "evaluationSets";
+        private const string PathEvaluation = "evaluations";
         private const string HeaderApiKey = "x-apikey";
         private readonly HttpClient _httpClient;
         private readonly ILogger<CosmicLatteAPIService> _logger;
@@ -49,7 +49,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy(string ApiKey, string ApiUrl)
         {
             var decryptedApiKey = _encryptor.Decrypt(ApiKey);
-            var request = new HttpRequestMessage(HttpMethod.Get, $"{ApiUrl}{PathEvalautionSet}?$filter=contains(name,' ')");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"{ApiUrl}{PathEvaluationSet}?$filter=contains(name,' ')");
             request.Headers.Add(HeaderApiKey, decryptedApiKey);
 
             try
@@ -98,15 +98,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string ApiUrl)
         {
             var decryptedApiKey = _encryptor.Decrypt(ApiKey);
-            string evaluationSetId = await GetEvaluationSetIdAsync(EvaluationSetName, decryptedApiKey, ApiUrl);
-            string path = $"{ApiUrl}{PathEvalaution}";
-
-            if (!string.IsNullOrEmpty(evaluationSetId))
-            {
-                path += "?$top=1000&$filter=";
-                if (!string.IsNullOrEmpty(evaluationSetId))
-                    path += $"contains(parent,'evaluationSets:{evaluationSetId}')";
-            }
+            string path = $"{ApiUrl}{PathEvaluation}?$top=1000&$filter=name eq '{EvaluationSetName}'";
 
             var request = new HttpRequestMessage(HttpMethod.Get, path);
             request.Headers.Add(HeaderApiKey, decryptedApiKey);
@@ -137,18 +129,34 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             if (componentsAndVariables.Count > 0)
             {
-                foreach (var responseToPollInstance in apiResponse.data)
+                var pollMap = new Dictionary<int, DataItem>();
+                var pollIndex = 0;
+                var populatedComponentsTasks = new List<Task<List<ComponentDTO>>>();
+
+                foreach (DataItem responseToPollInstance in apiResponse.data)
                 {
-                    var populatedComponents = await PopulateListOfComponentsByIdPollInstanceAsync(
+                    pollMap.Add(pollIndex, responseToPollInstance);
+                    populatedComponentsTasks.Add(PopulateListOfComponentsByIdPollInstanceAsync(
                         componentsAndVariables,
                         responseToPollInstance.Id,
                         responseToPollInstance.score,
                         decryptedApiKey,
                         ApiUrl,
                         StartDate,
-                        EndDate);
+                        EndDate
+                    ));
+                    pollIndex++;
+                }
 
-                    if (populatedComponents.Count > 0)
+                List<ComponentDTO>[] populatedComponentsList = await Task.WhenAll<List<ComponentDTO>>(populatedComponentsTasks);
+                var populatedComponentIndex = 0;
+
+                var alreadyImportedStudentsEmails = await _pollInstanceRepository.GetImportedStudentsEmailsByPollName(EvaluationSetName);
+
+                foreach (List<ComponentDTO> populatedComponent in populatedComponentsList)
+                {
+                    DataItem responseToPollInstance = pollMap[populatedComponentIndex];
+                    if (populatedComponent.Count > 0)
                     {
                         var pollDto = new PollDTO
                         {
@@ -158,7 +166,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                             FinishedAt = responseToPollInstance.finishedAt,
                             LastVersion = 1,
                             LastVersionDate = DateTime.UtcNow,
-                            Components = SanitizeComponents(populatedComponents),
+                            Components = SanitizeComponents(populatedComponent),
                             ParentId = responseToPollInstance.parent.Split(':')[1]
                         };
                         
@@ -169,11 +177,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
                         if (!string.IsNullOrEmpty(studentEmail))
                         {
-                            pollDto.IsAlreadyImported = await _pollInstanceRepository
-                                .ExistsByPollNameAndStudentEmailAsync(pollDto.Name, studentEmail);
+                            pollDto.IsAlreadyImported = alreadyImportedStudentsEmails.Any(e => e == studentEmail);
                         }
                         pollsDtos.Add(pollDto);
                     }
+
+                    populatedComponentIndex++;
                 }
             }
 
@@ -200,7 +209,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             try
             {
-                string path = $"{ApiUrl}{PathEvalaution}/exec/evaluationDetails";
+                string path = $"{ApiUrl}{PathEvaluation}/exec/evaluationDetails";
                 var request = new HttpRequestMessage(HttpMethod.Post, path);
                 request.Content = content;
                 request.Headers.Add(HeaderApiKey, ApiKey);
@@ -297,7 +306,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             try
             {
-                string path = $"{ApiUrl}{PathEvalaution}/exec/evaluationDetails";
+                string path = $"{ApiUrl}{PathEvaluation}/exec/evaluationDetails";
                 var request = new HttpRequestMessage(HttpMethod.Post, path);
                 request.Content = content;
                 request.Headers.Add(HeaderApiKey, ApiKey);
@@ -441,7 +450,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             try
             {
                 var decryptedApiKey = _encryptor.Decrypt(ApiKey);
-                string path = BaseUrl + PathEvalautionSet + "?$top=100";
+                string path = BaseUrl + PathEvaluationSet + "?$top=100";
                 var request = new HttpRequestMessage(HttpMethod.Get, path);
                 request.Headers.Add(HeaderApiKey, decryptedApiKey);
 
@@ -459,42 +468,6 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 throw new InvalidCastException($"Invalid Cosmic Latte poll, not supported for this version. {e.Message}");
             }
         }
-
-        private async Task<string> GetEvaluationSetIdAsync(string EvaluationName, string ApiKey, string ApiUrl)
-        {
-            string pathEvaluationSet = $"{ApiUrl}{PathEvalautionSet}?$top=100";
-            var requestEvaluationSet = new HttpRequestMessage(HttpMethod.Get, pathEvaluationSet);
-            requestEvaluationSet.Headers.Add(HeaderApiKey, ApiKey);
-
-            try
-            {
-                var responseEvaluationSet = await _httpClient.SendAsync(requestEvaluationSet);
-
-                if (!responseEvaluationSet.IsSuccessStatusCode)
-                    throw new Exception($"Cosmic latte server error, Message: {responseEvaluationSet.ReasonPhrase}");
-
-                var contentResponseEvaluationSet = await responseEvaluationSet.Content.ReadAsStringAsync();
-                var evaluationSets = JsonSerializer.Deserialize<CLEvaluationSetDTOList>(contentResponseEvaluationSet);
-
-                if (evaluationSets == null)
-                    throw new Exception("Evaluation sets not found");
-
-                var evaluationSet = evaluationSets.data.Find(e => e.name == EvaluationName);
-                if (evaluationSet == null)
-                    throw new ArgumentException($"Evaluation not found: {EvaluationName}");
-
-                return evaluationSet._id;
-            }
-            catch (ArgumentException)
-            {
-                throw; 
-            }
-            catch (Exception e)
-            {
-                throw new Exception($"There was an error with the request: {e.Message}");
-            }
-        }
-
 
         private static List<ComponentDTO> SanitizeComponents(List<ComponentDTO> components)
         {

@@ -8,6 +8,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
@@ -107,5 +108,42 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return [.. answers.Select(A => A.Answer)];
         }
 
+        public async Task<List<Variable>> GetAllWithVariablesAsync()
+        {
+            return await _context.PollVariables
+                .Include(PollVar => PollVar.Variable)
+                .Select(PollVar => PollVar.ToDomain())
+                .ToListAsync();
+        }
+        public async Task<List<Variable>> AddBatchPollVariablesAsync(List<Variable> Variables)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            _context.ChangeTracker.Clear();
+            try
+            {
+                IEnumerable<PollVariableJoin> entitiesToPersist = Variables
+                    .Select(Var => PollVariableMapper.ToPersistenceVariable(Var));
+                _context.PollVariables.AddRange(entitiesToPersist);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                IEnumerable<EntityEntry<PollVariableJoin>> entries = _context.ChangeTracker.Entries<PollVariableJoin>();
+                IEnumerable<int> entriesIDs = entries.Select(Entry => Entry.Entity.Id);
+
+                List<PollVariableJoin> persistedEntities = await _context.PollVariables
+                    .AsNoTracking()
+                    .Include(PollVar => PollVar.Variable)
+                    .Where(PollVar => entriesIDs.Any(EntryID => EntryID == PollVar.Id))
+                    .ToListAsync();
+
+                return persistedEntities.Select(Pers => Pers.ToDomain()).ToList();
+            }
+            catch (Exception ex)
+            {
+                _context.ChangeTracker.Clear();
+                await transaction.RollbackAsync();
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
