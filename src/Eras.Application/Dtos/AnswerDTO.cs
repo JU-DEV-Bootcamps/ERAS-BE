@@ -6,7 +6,7 @@ namespace Eras.Application.DTOs;
 
 public class AnswerDTO
 {
-    [StringLength(500, MinimumLength = 0, ErrorMessage = "Answer must be between 0 and 500 characters.")]
+    [StringLength(1000, MinimumLength = 0, ErrorMessage = "Answer must be between 0 and 500 characters.")]
     [NoSqlInjection]
     public string Answer { get; set; } = string.Empty;
 
