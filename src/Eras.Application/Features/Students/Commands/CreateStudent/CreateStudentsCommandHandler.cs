@@ -70,9 +70,6 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         }
                         else if (studentCreatedOrChanged.Success)
                         {
-                            if (studentCreatedOrChanged.SuccessfullImports == 0)
-                                updatedStudents.Add(studentCreatedOrChanged.Entity!);
-
                             bool studentAlreadyHasDetail = studentCreatedOrChanged.Entity!.StudentDetail?.Id != 0;
                             
                             if (!HasDefaultDetailData(dto) && !studentAlreadyHasDetail)
@@ -81,8 +78,14 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                                     await CreateStudentDetailAsync(studentCreatedOrChanged.Entity!, dto);
                                 studentCreatedOrChanged.Entity!.StudentDetail = createdStudentDetail.Entity!;
                             }
-
-                            createdStudents.Add(studentCreatedOrChanged.Entity);
+                            if (studentCreatedOrChanged.SuccessfullImports == 0)
+                            {
+                                updatedStudents.Add(studentCreatedOrChanged.Entity!);
+                            }
+                            else
+                            {
+                                createdStudents.Add(studentCreatedOrChanged.Entity);
+                            }
                         }
                     } else
                     {
