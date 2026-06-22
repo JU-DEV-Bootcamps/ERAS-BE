@@ -36,7 +36,7 @@ namespace Eras.Application.Features.Students.Commands.UpdateStudent
 
                 Student student = Request.StudentDTO.ToDomain();
                 Student studentUpdated = await _studentRepository.UpdateAsync(student);
-                return new CreateCommandResponse<Student>(studentUpdated, 1, "Success", true);
+                return new CreateCommandResponse<Student>(studentUpdated, 0, "Success", true);
             }
             catch (Exception ex)
             {
