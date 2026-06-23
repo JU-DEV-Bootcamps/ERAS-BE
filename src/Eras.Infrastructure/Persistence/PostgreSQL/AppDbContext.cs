@@ -1,4 +1,5 @@
-﻿using Eras.Domain.Entities.AssessmentManagement;
+﻿using Eras.Domain.Entities;
+using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 
@@ -29,6 +30,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<JUServiceEntity> JUServices { get; set; }
         public DbSet<Assessment> Assessments => Set<Assessment>();
         public DbSet<Intervention> Interventions => Set<Intervention>();
+        public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
 
         // Views
         public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
