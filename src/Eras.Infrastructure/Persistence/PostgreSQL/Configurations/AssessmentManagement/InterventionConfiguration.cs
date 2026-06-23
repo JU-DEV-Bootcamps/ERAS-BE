@@ -62,5 +62,8 @@ public sealed class InterventionConfiguration : IEntityTypeConfiguration<Interve
         builder.Property(x => x.Comments)
             .HasColumnName("comments")
             .HasMaxLength(4000);
+
+        builder.Property(e => e.RiskLevel)
+            .HasColumnName("riskLevel");
     }
 }

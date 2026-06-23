@@ -30,4 +30,5 @@ public abstract record InterventionDto
     public InterventionStatus Status { get; init; } = InterventionStatus.Created;
     public string? Remarks { get; init; }
     public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
+    public double? RiskLevel { get; init; }
 }

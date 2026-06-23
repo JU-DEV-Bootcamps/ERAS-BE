@@ -53,7 +53,8 @@ public sealed class AddInterventionCommandHandler
                 Mode = persisted.Mode,
                 Status = persisted.Status,
                 Remarks = persisted.Remarks,
-                Attachments = persisted.Attachments
+                Attachments = persisted.Attachments,
+                RiskLevel = persisted.RiskLevel
             },
             GroupInterventionDto => new GroupInterventionDto
             {
@@ -69,7 +70,8 @@ public sealed class AddInterventionCommandHandler
                 Mode = persisted.Mode,
                 Status = persisted.Status,
                 Remarks = persisted.Remarks,
-                Attachments = persisted.Attachments
+                Attachments = persisted.Attachments,
+                RiskLevel = persisted.RiskLevel
             },
             _ => throw new NotSupportedException(
                 $"Intervention DTO type '{request.Intervention.GetType().Name}' is not supported.")

@@ -31,5 +31,9 @@ public sealed class InterventionValidator : AbstractValidator<Intervention>
         RuleForEach(x => x.Attachments)
             .NotEmpty()
             .MaximumLength(1000);
+
+        RuleFor(x => x.RiskLevel)
+             .GreaterThanOrEqualTo(0)
+            .LessThanOrEqualTo(5);
     }
 }
