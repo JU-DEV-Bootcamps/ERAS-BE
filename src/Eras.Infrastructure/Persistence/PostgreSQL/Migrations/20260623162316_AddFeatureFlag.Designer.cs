@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260623162316_AddFeatureFlag")]
+    partial class AddFeatureFlag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -824,6 +827,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnName("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EvaluationId");
 
                     b.HasIndex("StudentId");
 
@@ -1679,6 +1684,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollInstanceEntity", b =>
                 {
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.EvaluationEntity", "Evaluation")
+                        .WithMany("PollInstances")
+                        .HasForeignKey("EvaluationId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
                         .WithMany("PollInstances")
                         .HasForeignKey("StudentId")
@@ -1719,6 +1729,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
+
+                    b.Navigation("Evaluation");
 
                     b.Navigation("Student");
                 });
@@ -2068,6 +2080,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.EvaluationEntity", b =>
                 {
                     b.Navigation("EvaluationPolls");
+
+                    b.Navigation("PollInstances");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>
