@@ -1,7 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using Eras.Application.Contracts.Persistence;
-using Eras.Domain.Entities;
+using Eras.Domain.Entities.FeatureFlagManagement;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +16,15 @@ public sealed class FeatureFlagRepository(AppDbContext Context) : BaseRepository
         FeatureFlag? featureFlag = await _context.FeatureFlags.FirstOrDefaultAsync(
             FeatureFlag => FeatureFlag.Name == Name
         );
+        return featureFlag;
+    }
+
+    public async Task<FeatureFlag?> GetByIdNoTrackingAsync(int Id)
+    {
+        FeatureFlag? featureFlag = await _context.FeatureFlags
+            .AsNoTracking()
+            .FirstOrDefaultAsync(FeatureFlag => FeatureFlag.Id == Id);
+
         return featureFlag;
     }
 }
