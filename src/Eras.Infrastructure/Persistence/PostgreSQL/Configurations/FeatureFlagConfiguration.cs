@@ -1,4 +1,4 @@
-using Eras.Domain.Entities;
+using Eras.Domain.Entities.FeatureFlagManagement;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
