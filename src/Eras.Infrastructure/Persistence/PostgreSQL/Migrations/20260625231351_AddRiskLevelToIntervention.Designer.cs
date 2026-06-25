@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260623150803_AddRiskLevelToIntervention")]
+    [Migration("20260625231351_AddRiskLevelToIntervention")]
     partial class AddRiskLevelToIntervention
     {
         /// <inheritdoc />
@@ -1010,8 +1010,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EvaluationId");
-
                     b.HasIndex("PollId");
 
                     b.ToTable("evaluation_poll", (string)null);
@@ -1613,11 +1611,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollInstanceEntity", b =>
                 {
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.EvaluationEntity", "Evaluation")
-                        .WithMany("PollInstances")
-                        .HasForeignKey("EvaluationId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
                         .WithMany("PollInstances")
                         .HasForeignKey("StudentId")
@@ -1658,8 +1651,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
-
-                    b.Navigation("Evaluation");
 
                     b.Navigation("Student");
                 });
@@ -2009,8 +2000,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.EvaluationEntity", b =>
                 {
                     b.Navigation("EvaluationPolls");
-
-                    b.Navigation("PollInstances");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>

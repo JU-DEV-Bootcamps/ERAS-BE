@@ -792,8 +792,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EvaluationId");
-
                     b.HasIndex("StudentId");
 
                     b.ToTable("poll_instances", (string)null);
@@ -1610,11 +1608,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollInstanceEntity", b =>
                 {
-                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.EvaluationEntity", "Evaluation")
-                        .WithMany("PollInstances")
-                        .HasForeignKey("EvaluationId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", "Student")
                         .WithMany("PollInstances")
                         .HasForeignKey("StudentId")
@@ -1655,8 +1648,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
-
-                    b.Navigation("Evaluation");
 
                     b.Navigation("Student");
                 });
@@ -2006,8 +1997,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.EvaluationEntity", b =>
                 {
                     b.Navigation("EvaluationPolls");
-
-                    b.Navigation("PollInstances");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.JUInterventionEntity", b =>
