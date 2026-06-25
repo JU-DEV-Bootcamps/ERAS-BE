@@ -13,6 +13,7 @@ public sealed class StudentProfileToDtoMapper : IMapper<Student, StudentProfileD
             Id = source.Id,
             Name = source.Name,
             Email = source.Email,
+            AvgRiskLevel = 0,
         };
     }
 }

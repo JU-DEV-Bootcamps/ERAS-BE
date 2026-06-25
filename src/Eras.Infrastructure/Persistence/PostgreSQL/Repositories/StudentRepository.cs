@@ -267,5 +267,23 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return persistenceEntity.Select(Entity => StudentMapper.ToDomain(Entity));
         }
+        public async Task<Dictionary<int, double>> GetAverageRiskByStudentIdsAsync(IEnumerable<int> StudentIds)
+        {
+            var query = from A in _context.ErasCalculationsByPoll
+                        join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
+                        where StudentIds.Contains(A.StudentId)
+                        select A;
+
+            var results = await query
+                .GroupBy(x => x.StudentId)
+                .Select(g => new
+                {
+                    StudentId = g.Key,
+                    AvgRisk = g.Average(x => x.AnswerRisk)
+                })
+                .ToListAsync();
+            return results.ToDictionary(x => x.StudentId, X => (double)X.AvgRisk);
+                
+        }
     }
 }

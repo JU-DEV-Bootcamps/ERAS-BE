@@ -7,4 +7,5 @@ public sealed record StudentProfileDto
     public required string Name { get; init; }
     
     public required string Email {  get; init; }
+    public required double AvgRiskLevel { get; init; }
 }
