@@ -2,12 +2,11 @@
 
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.DTOs.AssessmentManagement;
-using Eras.Application.Mappers;
 using Eras.Application.Mappers.AssessmentManagement;
-using Eras.Application.Models.Response.HeatMap;
 using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Domain.Entities.AssessmentManagement.Validators;
+using Eras.Domain.Entities.FeatureFlagManagement;
 
 using FluentValidation;
 
@@ -52,6 +51,7 @@ namespace Eras.Application.Services
 
             services.AddScoped<IValidator<InterventionPlan>, InterventionPlanValidator>();
             services.AddScoped<IValidator<Assessment>, AssessementValidator>();
+            services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
 
             return services;
         }
