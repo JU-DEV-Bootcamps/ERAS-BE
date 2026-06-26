@@ -23,6 +23,7 @@ public sealed class IndividualInterventionMapper : IMapper<IndividualInterventio
             Comments = source.Comments,
             Attachments = source.Attachments,
             RiskLevel = source.RiskLevel,
+            RiskLevelName = source.RiskLevelName,
         };
     }
 }

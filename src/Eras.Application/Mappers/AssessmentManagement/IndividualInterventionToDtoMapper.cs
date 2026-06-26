@@ -23,6 +23,7 @@ public sealed class IndividualInterventionToDtoMapper : IMapper<IndividualInterv
             Remarks = source.Remarks,
             Attachments = source.Attachments,
             RiskLevel = source.RiskLevel,
+            RiskLevelName = source.RiskLevelName,
         };
     }
 }

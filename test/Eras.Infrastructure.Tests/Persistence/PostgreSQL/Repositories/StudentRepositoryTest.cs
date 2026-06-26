@@ -2,15 +2,20 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Mappers;
+using Eras.Application.Utils;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+
 using Microsoft.EntityFrameworkCore;
+
 using MockQueryable.Moq;
+
 using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
@@ -28,7 +33,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                 .Options;
             _context = new AppDbContext(options);
             _context.Database.EnsureCreated();
-            _repository = new StudentRepository(_context);
+            _repository = new StudentRepository(_context, new AnswerRiskValidator());
         }
 
 
