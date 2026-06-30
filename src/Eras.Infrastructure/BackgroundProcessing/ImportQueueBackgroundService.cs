@@ -49,7 +49,16 @@ namespace Eras.Infrastructure.BackgroundProcessing
                     break;
                 }
 
-                await ProcessAsync(importJobId);
+                // A failure while processing one job must never stop the host or the queue loop.
+                try
+                {
+                    await ProcessAsync(importJobId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Unhandled error processing import job {Id}", importJobId);
+                    await TryMarkJobFailedAsync(importJobId, ex.Message);
+                }
             }
         }
 
@@ -70,59 +79,66 @@ namespace Eras.Infrastructure.BackgroundProcessing
             List<ImportJobItem> queuedItems = await itemRepository.GetByJobIdAndStatusAsync(importJobId, ImportJobStatus.Queued);
             if (queuedItems.Count == 0)
             {
-                await UpdateAggregateStatusAsync(jobRepository, itemRepository, job);
+                await UpdateAggregateStatusAsync(jobRepository, itemRepository, job.Id);
                 return;
             }
 
-            job.Status = ImportJobStatus.Running;
-            job.UpdatedAtUtc = DateTime.UtcNow;
-            await jobRepository.UpdateAsync(job);
+            await jobRepository.SetStatusAsync(job.Id, ImportJobStatus.Running, DateTime.UtcNow);
 
             // Resolve/create the poll template once for the whole job (idempotent on retries).
             List<PollDTO> polls = JsonSerializer.Deserialize<List<PollDTO>>(job.PollsPayload) ?? [];
             var setup = await orchestrator.SetupImportStructureAsync(polls, job.EvaluationId);
             if (!setup.Success)
             {
-                job.Status = ImportJobStatus.Failed;
-                job.ErrorMessage = setup.Message;
-                job.UpdatedAtUtc = DateTime.UtcNow;
-                await jobRepository.UpdateAsync(job);
+                await jobRepository.SetResultAsync(job.Id, ImportJobStatus.Failed, 0, setup.Message, DateTime.UtcNow);
                 return;
             }
 
             foreach (ImportJobItem item in queuedItems)
             {
-                item.Status = ImportJobStatus.Running;
-                item.UpdatedAtUtc = DateTime.UtcNow;
-                await itemRepository.UpdateAsync(item);
+                await itemRepository.SetStatusAsync(item.Id, ImportJobStatus.Running, null, DateTime.UtcNow);
 
                 PollDTO poll = JsonSerializer.Deserialize<PollDTO>(item.PollPayload)!;
                 ImportStudentResult result = await orchestrator.ProcessStudentAsync(poll, job.EvaluationId);
 
-                item.Status = result.Success ? ImportJobStatus.Completed : ImportJobStatus.Failed;
-                item.ErrorMessage = result.ErrorMessage;
-                item.UpdatedAtUtc = DateTime.UtcNow;
-                await itemRepository.UpdateAsync(item);
+                ImportJobStatus itemStatus = result.Success ? ImportJobStatus.Completed : ImportJobStatus.Failed;
+                await itemRepository.SetStatusAsync(item.Id, itemStatus, result.ErrorMessage, DateTime.UtcNow);
             }
 
-            await UpdateAggregateStatusAsync(jobRepository, itemRepository, job);
+            await UpdateAggregateStatusAsync(jobRepository, itemRepository, job.Id);
         }
 
         private static async Task UpdateAggregateStatusAsync(
             IImportJobRepository jobRepository,
             IImportJobItemRepository itemRepository,
-            ImportJob job)
+            int jobId)
         {
-            List<ImportJobItem> allItems = await itemRepository.GetByJobIdAsync(job.Id);
-            int completed = allItems.Count(I => I.Status == ImportJobStatus.Completed);
-            int failed = allItems.Count(I => I.Status == ImportJobStatus.Failed);
+            (int completed, int failed, int total) = await itemRepository.GetStatusCountsAsync(jobId);
 
-            job.ProcessedCount = completed;
-            job.Status = failed == 0
-                ? ImportJobStatus.Completed
-                : completed > 0 ? ImportJobStatus.PartiallyCompleted : ImportJobStatus.Failed;
-            job.UpdatedAtUtc = DateTime.UtcNow;
-            await jobRepository.UpdateAsync(job);
+            // Don't declare a job terminal while items are still pending (covers a worker that
+            // dequeued before all items were committed).
+            bool hasPending = completed + failed < total;
+            ImportJobStatus status = hasPending
+                ? ImportJobStatus.Running
+                : failed == 0
+                    ? ImportJobStatus.Completed
+                    : completed > 0 ? ImportJobStatus.PartiallyCompleted : ImportJobStatus.Failed;
+
+            await jobRepository.SetResultAsync(jobId, status, completed, null, DateTime.UtcNow);
+        }
+
+        private async Task TryMarkJobFailedAsync(int importJobId, string message)
+        {
+            try
+            {
+                await using var scope = _scopeFactory.CreateAsyncScope();
+                var jobRepository = scope.ServiceProvider.GetRequiredService<IImportJobRepository>();
+                await jobRepository.SetResultAsync(importJobId, ImportJobStatus.Failed, 0, message, DateTime.UtcNow);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to mark import job {Id} as Failed", importJobId);
+            }
         }
     }
 }

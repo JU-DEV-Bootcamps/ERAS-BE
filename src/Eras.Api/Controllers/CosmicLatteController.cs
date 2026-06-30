@@ -77,8 +77,7 @@ public class CosmicLatteController(IMediator Mediator, ICosmicLatteAPIService Co
             // Queue the import for background processing and return immediately; the client polls
             // GET imports/{importJobId} for progress instead of waiting for the whole import.
             int importJobId = await _importJobService.QueueImportAsync(PollsInstances, EvaluationId);
-            return AcceptedAtAction(nameof(GetImportStatusAsync), new { ImportJobId = importJobId },
-                new { importJobId, status = "Queued" });
+            return Accepted(new { importJobId, status = "Queued" });
         }
         catch (ArgumentException ex)
         {
