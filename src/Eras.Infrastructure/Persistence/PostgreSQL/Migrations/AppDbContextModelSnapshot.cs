@@ -804,6 +804,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AnswersHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("answers_hash");
+
                     b.Property<int?>("EvaluationId")
                         .HasColumnType("integer");
 
@@ -833,6 +838,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("StudentId");
+
+                    b.HasIndex("StudentId", "AnswersHash")
+                        .HasDatabaseName("ix_poll_instances_student_id_answers_hash");
 
                     b.ToTable("poll_instances", (string)null);
                 });

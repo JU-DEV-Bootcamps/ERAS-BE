@@ -13,5 +13,6 @@ namespace Eras.Domain.Entities
         public DateTime FinishedAt { get; set; }
         public int? EvaluationId { get; set; }
         public int? SourcePollInstanceId { get; set; }
+        public string? AnswersHash { get; set; }
     }
 }

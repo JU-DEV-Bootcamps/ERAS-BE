@@ -122,10 +122,12 @@ namespace Eras.Application.Services
                         if (createdStudent.Success && createdStudent.Entity != null)
                         {
                             createdPoll.studentDTOs.Add(createdStudent.Entity.ToDto());
-                            // Create poll instances
-                            CreateCommandResponse<Poll> pollOfPollInstance = await CreatePollAsync(pollToCreate);
+                            // Create poll instances. All entries in PollsToCreate share the same poll
+                            // template (resolved once above), so reuse it instead of re-querying per instance.
+                            // Persist the answers hash so future imports can match duplicates via index.
+                            string answersHash = _pollInstanceRepository.ComputeAnswersHash(pollToCreate);
                             CreateCommandResponse<PollInstance> createdPollInstance = await CreatePollInstanceAsync(createdStudent.Entity,
-                                pollOfPollInstance.Entity.Uuid, pollToCreate.FinishedAt, EvaluationId);
+                                createdPollResponse.Entity.Uuid, pollToCreate.FinishedAt, EvaluationId, answersHash);
                             // Create asnswers
                             if (createdPollInstance.Success)
                             {
@@ -162,7 +164,7 @@ namespace Eras.Application.Services
                 return new CreateCommandResponse<CreatedPollDTO>(null, 0, $"Error during import process {ex.Message}", false);
             }
         }
-        public async Task<CreateCommandResponse<PollInstance>> CreatePollInstanceAsync(Student Student, string PollUuid, DateTime FinishedAt, int EvaluationId)
+        public async Task<CreateCommandResponse<PollInstance>> CreatePollInstanceAsync(Student Student, string PollUuid, DateTime FinishedAt, int EvaluationId, string? AnswersHash = null)
         {
             try
             {
@@ -196,6 +198,7 @@ namespace Eras.Application.Services
                 };
                 pollInstance.LastVersion = VersionNumber;
                 pollInstance.LastVersionDate = InitDate;
+                pollInstance.AnswersHash = AnswersHash;
 
                 CreatePollInstanceCommand createPollInstanceCommand = new CreatePollInstanceCommand()
                 {
@@ -375,7 +378,7 @@ namespace Eras.Application.Services
                 List<Variable> createdVariables = new List<Variable>();
                 if (VariablesDtos == null) return createdVariables;
 
-                var query = new GetVariablesWithNameAndPollIdQuery(){};
+                var query = new GetVariablesWithNameAndPollIdQuery() { PollId = AsociatedPollId };
                 GetQueryResponse<List<Variable>> responseQuery = await _mediator.Send(query);
                 List<Variable> existingVariables = responseQuery.Body;
 

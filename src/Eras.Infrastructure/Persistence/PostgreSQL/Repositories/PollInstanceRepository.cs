@@ -398,19 +398,33 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
 
         return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content)));
     }
+    public string ComputeAnswersHash(PollDTO incomingPoll) => ComputeHashFromDTO(incomingPoll);
+
     public async Task<PollInstance?> FindMatchingSourceInstanceAsync(int studentId, int currentPollInstanceId, PollDTO incomingPoll)
     {
         var incomingHash = ComputeHashFromDTO(incomingPoll);
 
-        var candidates = await _context.PollInstances
+        // Fast path: indexed lookup on the persisted hash (ix_poll_instances_student_id_answers_hash).
+        var match = await _context.PollInstances
             .Where(pi => pi.StudentId == studentId
                       && pi.SourcePollInstanceId == null
-                      && pi.Id != currentPollInstanceId)
+                      && pi.Id != currentPollInstanceId
+                      && pi.AnswersHash == incomingHash)
+            .OrderByDescending(pi => pi.FinishedAt)
+            .FirstOrDefaultAsync();
+        if (match != null) return PollInstanceMapper.ToDomain(match);
+
+        // Fallback for legacy rows persisted before AnswersHash existed: hash their answers in memory.
+        var legacyCandidates = await _context.PollInstances
+            .Where(pi => pi.StudentId == studentId
+                      && pi.SourcePollInstanceId == null
+                      && pi.Id != currentPollInstanceId
+                      && pi.AnswersHash == null)
             .Include(pi => pi.Answers)
             .OrderByDescending(pi => pi.FinishedAt)
             .ToListAsync();
 
-        var foundHash = candidates.FirstOrDefault(pi =>
+        var foundHash = legacyCandidates.FirstOrDefault(pi =>
             ComputeHashFromAnswers(pi.Answers) == incomingHash);
         return foundHash != null ? PollInstanceMapper.ToDomain(foundHash) : null;
     }
