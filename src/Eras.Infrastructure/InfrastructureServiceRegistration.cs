@@ -29,6 +29,8 @@ namespace Eras.Infrastructure
             Services.AddScoped<IApiKeyEncryptor, AesApiKeyEncryptor>();
             Services.AddScoped<IAnswerRiskValidator, AnswerRiskValidator>();
             Services.AddHostedService<EvaluationStatusSyncJob>();
+            Services.AddSingleton<IImportJobQueue, BackgroundProcessing.ImportJobQueue>();
+            Services.AddHostedService<BackgroundProcessing.ImportQueueBackgroundService>();
 
             Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));
 

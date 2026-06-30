@@ -796,6 +796,125 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("polls", (string)null);
                 });
 
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ImportJobEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text")
+                        .HasColumnName("error_message");
+
+                    b.Property<int>("EvaluationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("evaluation_id");
+
+                    b.Property<string>("PollsPayload")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("polls_payload");
+
+                    b.Property<int>("ProcessedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("processed_count");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("retry_count");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TotalCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("total_count");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EvaluationId")
+                        .HasDatabaseName("ix_import_jobs_evaluation_id");
+
+                    b.ToTable("import_jobs", (string)null);
+                });
+
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.ImportJobItemEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Cohort")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("cohort");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at_utc");
+
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("text")
+                        .HasColumnName("error_message");
+
+                    b.Property<int>("ImportJobId")
+                        .HasColumnType("integer")
+                        .HasColumnName("import_job_id");
+
+                    b.Property<string>("PollPayload")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("poll_payload");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("retry_count");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("StudentEmail")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("character varying(320)")
+                        .HasColumnName("student_email");
+
+                    b.Property<string>("StudentName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("student_name");
+
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at_utc");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ImportJobId", "Status")
+                        .HasDatabaseName("ix_import_job_items_import_job_id_status");
+
+                    b.ToTable("import_job_items", (string)null);
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.PollInstanceEntity", b =>
                 {
                     b.Property<int>("Id")

@@ -48,7 +48,9 @@ namespace Eras.Api.Tests.Controllers
             It.IsAny<string>()
             )).ReturnsAsync(new List<PollDTO>());
 
-            controller = new CosmicLatteController(mockMediator.Object, mockService.Object);
+            var mockImportJobService = new Mock<IImportJobService>();
+
+            controller = new CosmicLatteController(mockMediator.Object, mockService.Object, mockImportJobService.Object);
         }
 
 

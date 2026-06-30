@@ -28,6 +28,7 @@ namespace Eras.Application.Services
             Services.AddScoped<PollStructureImporter>();
             Services.AddScoped<StudentImporter>();
             Services.AddScoped<PollInstanceImporter>();
+            Services.AddScoped<IImportJobService, ImportJobService>();
             Services.AddScoped<EvaluationStatusUpdater>();
             Services.ConfigureMappers();
             return Services;
