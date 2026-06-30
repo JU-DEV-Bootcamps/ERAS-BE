@@ -37,6 +37,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public static IServiceCollection AddPersistenceServices(this IServiceCollection Services, IConfiguration Configuration)
         {
             AddDbContextPostgreSql(Services, Configuration);
+            Services.AddScoped<IUnitOfWork, UnitOfWork>();
             Services.AddScoped<IAnswerRepository, AnswerRepository>();
             Services.AddScoped<ICohortRepository, CohortRepository>();
             Services.AddScoped<IComponentRepository, ComponentRepository>();

@@ -115,25 +115,37 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Select(PollVar => PollVar.ToDomain())
                 .ToListAsync();
         }
+        public async Task<List<Variable>> GetAllWithVariablesByPollIdAsync(int PollId)
+        {
+            return await _context.PollVariables
+                .Where(PollVar => PollVar.PollId == PollId)
+                .Include(PollVar => PollVar.Variable)
+                .Select(PollVar => PollVar.ToDomain())
+                .ToListAsync();
+        }
         public async Task<List<Variable>> AddBatchPollVariablesAsync(List<Variable> Variables)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            _context.ChangeTracker.Clear();
+            // Reuse an ambient transaction (e.g. an import wrapped in IUnitOfWork) when present
+            // so we don't open a conflicting nested transaction.
+            var transaction = _context.Database.CurrentTransaction == null
+                ? await _context.Database.BeginTransactionAsync()
+                : null;
             try
             {
-                IEnumerable<PollVariableJoin> entitiesToPersist = Variables
-                    .Select(Var => PollVariableMapper.ToPersistenceVariable(Var));
+                List<PollVariableJoin> entitiesToPersist = Variables
+                    .Select(Var => PollVariableMapper.ToPersistenceVariable(Var))
+                    .ToList();
                 _context.PollVariables.AddRange(entitiesToPersist);
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
+                if (transaction != null) await transaction.CommitAsync();
 
-                IEnumerable<EntityEntry<PollVariableJoin>> entries = _context.ChangeTracker.Entries<PollVariableJoin>();
-                IEnumerable<int> entriesIDs = entries.Select(Entry => Entry.Entity.Id);
-
+                // Ids are populated on the tracked entities after SaveChanges; refetch with the
+                // Variable navigation so ToDomain can resolve ComponentId.
+                List<int> persistedIds = entitiesToPersist.Select(Entity => Entity.Id).ToList();
                 List<PollVariableJoin> persistedEntities = await _context.PollVariables
                     .AsNoTracking()
                     .Include(PollVar => PollVar.Variable)
-                    .Where(PollVar => entriesIDs.Any(EntryID => EntryID == PollVar.Id))
+                    .Where(PollVar => persistedIds.Contains(PollVar.Id))
                     .ToListAsync();
 
                 return persistedEntities.Select(Pers => Pers.ToDomain()).ToList();
@@ -141,8 +153,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             catch (Exception ex)
             {
                 _context.ChangeTracker.Clear();
-                await transaction.RollbackAsync();
+                if (transaction != null) await transaction.RollbackAsync();
                 throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (transaction != null) await transaction.DisposeAsync();
             }
         }
     }

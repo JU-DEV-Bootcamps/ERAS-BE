@@ -236,17 +236,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     clonedListComponents = CloneComponentsList(Components);
                 }
 
+                ILookup<int, VariableDTO> variablesByPosition = clonedListComponents
+                    .SelectMany(Component => Component.Variables)
+                    .ToLookup(Variable => Variable.Position);
+
                 foreach (var answerCL in apiResponse.Data.Answers)
                 {
-                    foreach (var component in clonedListComponents)
+                    foreach (VariableDTO variable in variablesByPosition[answerCL.Value.Position])
                     {
-                        foreach (var variable in component.Variables)
-                        {
-                            if (variable.Position == answerCL.Value.Position)
-                            {
-                                variable.Answer = CreateAnswer(answerCL, studentDto, ScoreItem);
-                            }
-                        }
+                        variable.Answer = CreateAnswer(answerCL, studentDto, ScoreItem);
                     }
                 }
 
