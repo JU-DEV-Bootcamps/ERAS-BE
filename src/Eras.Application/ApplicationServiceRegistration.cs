@@ -25,6 +25,9 @@ namespace Eras.Application.Services
             Services.AddScoped<IPollService, PollService>();
             Services.AddScoped<IAnswerService, AnswerService>();
             Services.AddScoped<PollOrchestratorService, PollOrchestratorService>();
+            Services.AddScoped<PollStructureImporter>();
+            Services.AddScoped<StudentImporter>();
+            Services.AddScoped<PollInstanceImporter>();
             Services.AddScoped<EvaluationStatusUpdater>();
             Services.ConfigureMappers();
             return Services;
