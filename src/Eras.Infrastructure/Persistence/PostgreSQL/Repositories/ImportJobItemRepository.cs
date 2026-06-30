@@ -38,5 +38,44 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Select(Item => Item.ToDomain())
                 .ToListAsync();
         }
+
+        public async Task SetStatusAsync(int Id, ImportJobStatus Status, string? ErrorMessage, DateTime UpdatedAtUtc)
+        {
+            await _context.Set<ImportJobItemEntity>()
+                .Where(Item => Item.Id == Id)
+                .ExecuteUpdateAsync(S => S
+                    .SetProperty(Item => Item.Status, Status)
+                    .SetProperty(Item => Item.ErrorMessage, ErrorMessage)
+                    .SetProperty(Item => Item.UpdatedAtUtc, UpdatedAtUtc));
+        }
+
+        // Counts items by status directly in the database (robust against in-memory/race issues).
+        public async Task<(int Completed, int Failed, int Total)> GetStatusCountsAsync(int ImportJobId)
+        {
+            var rows = await _context.Set<ImportJobItemEntity>()
+                .Where(Item => Item.ImportJobId == ImportJobId)
+                .GroupBy(Item => Item.Status)
+                .Select(Group => new { Status = Group.Key, Count = Group.Count() })
+                .ToListAsync();
+
+            int completed = rows.Where(R => R.Status == ImportJobStatus.Completed).Sum(R => R.Count);
+            int failed = rows.Where(R => R.Status == ImportJobStatus.Failed).Sum(R => R.Count);
+            int total = rows.Sum(R => R.Count);
+            return (completed, failed, total);
+        }
+
+        // Re-queues only the still-Failed items among the given ids and bumps their retry count.
+        public async Task<int> RequeueFailedAsync(int ImportJobId, List<int> ItemIds, DateTime UpdatedAtUtc)
+        {
+            return await _context.Set<ImportJobItemEntity>()
+                .Where(Item => Item.ImportJobId == ImportJobId
+                    && ItemIds.Contains(Item.Id)
+                    && Item.Status == ImportJobStatus.Failed)
+                .ExecuteUpdateAsync(S => S
+                    .SetProperty(Item => Item.Status, ImportJobStatus.Queued)
+                    .SetProperty(Item => Item.RetryCount, Item => Item.RetryCount + 1)
+                    .SetProperty(Item => Item.ErrorMessage, (string?)null)
+                    .SetProperty(Item => Item.UpdatedAtUtc, UpdatedAtUtc));
+        }
     }
 }

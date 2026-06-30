@@ -115,24 +115,11 @@ namespace Eras.Application.Services
             ImportJob? job = await _importJobRepository.GetByIdAsync(ImportJobId);
             if (job == null) return false;
 
-            List<ImportJobItem> items = await _importJobItemRepository.GetByIdsAsync(ImportJobId, ItemIds);
-            List<ImportJobItem> failed = items.Where(Item => Item.Status == ImportJobStatus.Failed).ToList();
-            if (failed.Count == 0) return true;
-
             DateTime now = DateTime.UtcNow;
-            foreach (ImportJobItem item in failed)
-            {
-                item.Status = ImportJobStatus.Queued;
-                item.RetryCount += 1;
-                item.ErrorMessage = null;
-                item.UpdatedAtUtc = now;
-                await _importJobItemRepository.UpdateAsync(item);
-            }
+            int requeued = await _importJobItemRepository.RequeueFailedAsync(ImportJobId, ItemIds, now);
+            if (requeued == 0) return true;
 
-            job.Status = ImportJobStatus.Queued;
-            job.UpdatedAtUtc = now;
-            await _importJobRepository.UpdateAsync(job);
-
+            await _importJobRepository.SetStatusAsync(ImportJobId, ImportJobStatus.Queued, now);
             await _queue.EnqueueAsync(ImportJobId);
             return true;
         }
