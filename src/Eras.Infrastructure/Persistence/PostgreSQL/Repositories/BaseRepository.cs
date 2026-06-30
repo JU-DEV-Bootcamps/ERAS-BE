@@ -45,43 +45,55 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             }
         }
 
+        // When an ambient transaction is already open (e.g. an import wrapped in a
+        // IUnitOfWork transaction), reuse it so we don't open a conflicting nested
+        // transaction; the outermost caller owns commit/rollback.
+        private bool HasAmbientTransaction => _context.Database.CurrentTransaction != null;
+
         public async Task AddBatchAsync(IEnumerable<TDomain> Entities)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
+            var transaction = HasAmbientTransaction ? null : await _context.Database.BeginTransactionAsync();
             try
             {
                 IEnumerable<TPersist> entitiesToPersist = Entities.Select(Entity => _toPersistence(Entity));
                 _context.Set<TPersist>().AddRange(entitiesToPersist);
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
+                if (transaction != null) await transaction.CommitAsync();
             }
             catch (Exception ex)
             {
                 _context.ChangeTracker.Clear();
-                await transaction.RollbackAsync();
+                if (transaction != null) await transaction.RollbackAsync();
                 throw new DatabaseCustomException(ex);
+            }
+            finally
+            {
+                if (transaction != null) await transaction.DisposeAsync();
             }
         }
 
         public async Task<IEnumerable<TDomain>> AddTrackedBatchAsync(IEnumerable<TDomain> Entities)
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            _context.ChangeTracker.Clear();
+            var transaction = HasAmbientTransaction ? null : await _context.Database.BeginTransactionAsync();
             try
             {
-                IEnumerable<TPersist> entitiesToPersist = Entities.Select(Entity => _toPersistence(Entity));
+                List<TPersist> entitiesToPersist = Entities.Select(Entity => _toPersistence(Entity)).ToList();
                 _context.Set<TPersist>().AddRange(entitiesToPersist);
                 await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
+                if (transaction != null) await transaction.CommitAsync();
 
-                return _context.ChangeTracker.Entries<TPersist>().Select(Entry =>_toDomain(Entry.Entity));
+                // EF populates DB-generated keys on the tracked instances after SaveChanges.
+                return entitiesToPersist.Select(Entity => _toDomain(Entity)).ToList();
             }
             catch (Exception ex)
             {
                 _context.ChangeTracker.Clear();
-                await transaction.RollbackAsync();
+                if (transaction != null) await transaction.RollbackAsync();
                 throw new DatabaseCustomException(ex);
+            }
+            finally
+            {
+                if (transaction != null) await transaction.DisposeAsync();
             }
         }
         public async Task DeleteAsync(TDomain Entity)

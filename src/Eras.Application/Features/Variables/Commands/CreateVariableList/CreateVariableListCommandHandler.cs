@@ -28,7 +28,12 @@ public sealed class CreateVariableListCommandHandler : IRequestHandler<CreateVar
     {
         List<Variable> response = [];
         List<Variable> variablesToCreate = [];
-        IEnumerable<Variable> existingVariables = await _variableRepository.GetAllAsync();
+        // Only load variables already associated with the poll being imported instead of the
+        // whole Variables table; the request's variables all belong to a single poll.
+        int pollId = Request.Variables.FirstOrDefault()?.PollId ?? 0;
+        IEnumerable<Variable> existingVariables = pollId > 0
+            ? await _variableRepository.GetByPollIdAsync(pollId)
+            : [];
         try
         {
             foreach(VariableListCommandDTO variableDTO in Request.Variables)

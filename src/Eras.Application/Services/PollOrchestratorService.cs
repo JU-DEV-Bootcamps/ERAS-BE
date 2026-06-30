@@ -49,26 +49,37 @@ namespace Eras.Application.Services
         private DateTime InitDate;
         private readonly IEvaluationRepository _evaluationRepository;
         private readonly IPollInstanceRepository _pollInstanceRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public PollOrchestratorService(
-            IMediator Mediator, 
+            IMediator Mediator,
             ILogger<PollOrchestratorService> Logger,
             IEvaluationRepository EvaluationRepository,
-            IPollInstanceRepository PollInstanceRepository)
+            IPollInstanceRepository PollInstanceRepository,
+            IUnitOfWork UnitOfWork)
         {
             _logger = Logger;
             _mediator = Mediator;
             _evaluationRepository = EvaluationRepository;
             _pollInstanceRepository = PollInstanceRepository;
+            _unitOfWork = UnitOfWork;
         }
 
         public async Task<CreateCommandResponse<CreatedPollDTO>> ImportPollInstancesAsync(List<PollDTO> PollsToCreate, int EvaluationId)
         {
             try
             {
+                // Wrap the whole import in a single transaction: poll, components, variables,
+                // poll instances and answers either all persist or none do (no orphaned data).
+                return await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                {
                 InitDate = DateTime.UtcNow;
                 PollDTO pollDTO = PollsToCreate[0];
                 CreateCommandResponse<Poll> createdPollResponse = await CreatePollAsync(pollDTO);
+                if (!createdPollResponse.Success || createdPollResponse.Entity == null)
+                {
+                    throw new InvalidOperationException($"Import aborted: could not resolve poll '{pollDTO.Name}'.");
+                }
                 int createdPollsInstances = 0;
                 CreatedPollDTO createdPoll = new CreatedPollDTO();
 
@@ -142,9 +153,12 @@ namespace Eras.Application.Services
                     }
                 }
                 return new CreateCommandResponse<CreatedPollDTO>(createdPoll, createdPollsInstances, "Success", true);
+                });
             }
             catch (Exception ex)
             {
+                // The transaction has already rolled back; surface the failure to the caller.
+                _logger.LogError(ex, "Error during import process; transaction rolled back");
                 return new CreateCommandResponse<CreatedPollDTO>(null, 0, $"Error during import process {ex.Message}", false);
             }
         }

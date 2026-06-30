@@ -27,7 +27,7 @@ public sealed class CreatePollVariableListCommandHandler : IRequestHandler<Creat
         var pollId = Request.Variables.pollId;
         List<Variable> response = [];
         List<Variable> pollVariablesToCreate = [];
-        List<Variable> mappedPollVariables = await _pollVariableRepository.GetAllWithVariablesAsync();
+        List<Variable> mappedPollVariables = await _pollVariableRepository.GetAllWithVariablesByPollIdAsync(pollId);
         try
         {
             foreach(Variable variable in Request.Variables.variables)
