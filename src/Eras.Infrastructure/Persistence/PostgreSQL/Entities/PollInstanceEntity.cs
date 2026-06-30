@@ -15,5 +15,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public int? EvaluationId { get; set; }
         public EvaluationEntity? Evaluation { get; set; }
         public int? SourcePollInstanceId { get; set; }
+        public string? AnswersHash { get; set; }
     }
 }

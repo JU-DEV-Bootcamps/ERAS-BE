@@ -21,7 +21,10 @@ public class GetVariablesWithNameAndPollIdQueryHandler:
     public async Task<GetQueryResponse<List<Variable>>> Handle(GetVariablesWithNameAndPollIdQuery Request, 
         CancellationToken CancellationToken)
     {
-        List<Variable> result = await _variableRepository.GetAllWithNameAndPollIdAsync();
+        // Only load variables already linked to this poll instead of scanning the whole table.
+        List<Variable> result = Request.PollId > 0
+            ? await _variableRepository.GetByPollIdAsync(Request.PollId)
+            : await _variableRepository.GetAllWithNameAndPollIdAsync();
         if (result.Count == 0) 
             return new GetQueryResponse<List<Variable>>(result,"Variables Not Found",true,
                 Models.Enums.QueryEnums.QueryResultStatus.NotFound);

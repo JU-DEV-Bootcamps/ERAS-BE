@@ -30,6 +30,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Poll => Poll.LastVersionDate)
                 .HasColumnName("last_version_date")
                 .IsRequired();
+            Builder.Property(PollInstance => PollInstance.AnswersHash)
+                .HasColumnName("answers_hash")
+                .HasMaxLength(64);
+
+            // Backs the indexed duplicate-detection lookup in FindMatchingSourceInstanceAsync.
+            Builder.HasIndex(PollInstance => new { PollInstance.StudentId, PollInstance.AnswersHash })
+                .HasDatabaseName("ix_poll_instances_student_id_answers_hash");
         }
 
         private static void ConfigureRelationShips(EntityTypeBuilder<PollInstanceEntity> Builder)

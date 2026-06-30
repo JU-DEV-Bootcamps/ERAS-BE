@@ -18,6 +18,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 LastVersion = Entity.LastVersion,
                 LastVersionDate = Entity.LastVersionDate,
                 EvaluationId = Entity.EvaluationId,
+                AnswersHash = Entity.AnswersHash,
             };
         }
 
@@ -47,6 +48,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 LastVersion = Model.LastVersion,
                 LastVersionDate = Model.LastVersionDate,
                 EvaluationId = Model.EvaluationId,
+                AnswersHash = Model.AnswersHash,
             };
         }
     }

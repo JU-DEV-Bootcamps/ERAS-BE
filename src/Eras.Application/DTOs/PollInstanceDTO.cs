@@ -13,4 +13,5 @@ public class PollInstanceDTO
     public int LastVersion { get; set; }
     public DateTime LastVersionDate { get; set; }
     public int? EvaluationId { get; set; }
+    public string? AnswersHash { get; set; }
 }
