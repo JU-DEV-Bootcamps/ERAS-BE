@@ -3,8 +3,12 @@ using System.Text.Json;
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
+using Eras.Application.DTOs;
+using Eras.Application.Features.Configurations.Queries.GetConfiguration;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
+
+using MediatR;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -14,10 +18,14 @@ namespace Eras.Infrastructure.BackgroundProcessing
 {
     /// <summary>
     /// Consumes queued import job ids and processes them in their own DI scope (same pattern as
-    /// <c>EvaluationStatusSyncJob</c>). Each job: resolves the poll structure once, then processes
-    /// every <see cref="ImportJobStatus.Queued"/> item (one student) in its own transaction, so a
-    /// single student's failure does not roll back the others. Failed items are surfaced for manual
-    /// retry via the API rather than retried automatically.
+    /// <c>EvaluationStatusSyncJob</c>). A job has two phases driven by its status:
+    /// <list type="bullet">
+    /// <item><b>Extracting</b>: fetch respondents from Cosmic Latte, creating one
+    /// <see cref="ImportJobItem"/> per student (Extracted) with its payload; then → Ready.</item>
+    /// <item><b>Importing</b> (items in Queued): resolve the poll structure once, then persist each
+    /// confirmed student in its own transaction so one failure doesn't roll back the rest.</item>
+    /// </list>
+    /// A failure never stops the host or the queue loop.
     /// </summary>
     public sealed class ImportQueueBackgroundService : BackgroundService
     {
@@ -49,7 +57,6 @@ namespace Eras.Infrastructure.BackgroundProcessing
                     break;
                 }
 
-                // A failure while processing one job must never stop the host or the queue loop.
                 try
                 {
                     await ProcessAsync(importJobId);
@@ -66,8 +73,6 @@ namespace Eras.Infrastructure.BackgroundProcessing
         {
             await using var scope = _scopeFactory.CreateAsyncScope();
             var jobRepository = scope.ServiceProvider.GetRequiredService<IImportJobRepository>();
-            var itemRepository = scope.ServiceProvider.GetRequiredService<IImportJobItemRepository>();
-            var orchestrator = scope.ServiceProvider.GetRequiredService<PollOrchestratorService>();
 
             ImportJob? job = await jobRepository.GetByIdAsync(importJobId);
             if (job == null)
@@ -76,18 +81,74 @@ namespace Eras.Infrastructure.BackgroundProcessing
                 return;
             }
 
-            List<ImportJobItem> queuedItems = await itemRepository.GetByJobIdAndStatusAsync(importJobId, ImportJobStatus.Queued);
+            if (job.Status == ImportJobStatus.Extracting)
+            {
+                await ExtractAsync(scope, job);
+            }
+            else
+            {
+                await ImportAsync(scope, job);
+            }
+        }
+
+        private async Task ExtractAsync(IServiceScope scope, ImportJob job)
+        {
+            var jobRepository = scope.ServiceProvider.GetRequiredService<IImportJobRepository>();
+            var itemRepository = scope.ServiceProvider.GetRequiredService<IImportJobItemRepository>();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var cosmicLatte = scope.ServiceProvider.GetRequiredService<ICosmicLatteAPIService>();
+
+            var configuration = await mediator.Send(new GetConfigurationQuery { ConfigurationId = job.ConfigurationId });
+
+            int extracted = 0;
+            await cosmicLatte.ExtractRespondentsAsync(
+                job.EvaluationSetName ?? string.Empty,
+                job.StartDate ?? string.Empty,
+                job.EndDate ?? string.Empty,
+                configuration.EncryptedKey,
+                configuration.BaseURL,
+                async (poll, alreadyImported) =>
+                {
+                    StudentDTO? student = poll.Components?.FirstOrDefault()?.Variables?.FirstOrDefault()?.Answer?.Student;
+                    DateTime now = DateTime.UtcNow;
+                    await itemRepository.AddAsync(new ImportJobItem
+                    {
+                        ImportJobId = job.Id,
+                        StudentEmail = student?.Email ?? string.Empty,
+                        StudentName = student?.Name ?? string.Empty,
+                        Cohort = student?.Cohort?.Name,
+                        Status = ImportJobStatus.Extracted,
+                        IsAlreadyImported = alreadyImported,
+                        PollPayload = JsonSerializer.Serialize(poll),
+                        CreatedAtUtc = now,
+                        UpdatedAtUtc = now,
+                    });
+                    extracted++;
+                    await jobRepository.SetExtractedCountAsync(job.Id, extracted, now);
+                });
+
+            await jobRepository.SetReadyAsync(job.Id, extracted, DateTime.UtcNow);
+        }
+
+        private async Task ImportAsync(IServiceScope scope, ImportJob job)
+        {
+            var jobRepository = scope.ServiceProvider.GetRequiredService<IImportJobRepository>();
+            var itemRepository = scope.ServiceProvider.GetRequiredService<IImportJobItemRepository>();
+            var orchestrator = scope.ServiceProvider.GetRequiredService<PollOrchestratorService>();
+
+            List<ImportJobItem> queuedItems = await itemRepository.GetByJobIdAndStatusAsync(job.Id, ImportJobStatus.Queued);
             if (queuedItems.Count == 0)
             {
                 await UpdateAggregateStatusAsync(jobRepository, itemRepository, job.Id);
                 return;
             }
 
-            await jobRepository.SetStatusAsync(job.Id, ImportJobStatus.Running, DateTime.UtcNow);
+            await jobRepository.SetStatusAsync(job.Id, ImportJobStatus.Importing, DateTime.UtcNow);
 
-            // Resolve/create the poll template once for the whole job (idempotent on retries).
-            List<PollDTO> polls = JsonSerializer.Deserialize<List<PollDTO>>(job.PollsPayload) ?? [];
-            var setup = await orchestrator.SetupImportStructureAsync(polls, job.EvaluationId);
+            // Resolve/create the poll template once (all confirmed students share it). The structure
+            // is derived from the first item's payload so it works for the extract flow too.
+            PollDTO firstPoll = JsonSerializer.Deserialize<PollDTO>(queuedItems[0].PollPayload)!;
+            var setup = await orchestrator.SetupImportStructureAsync([firstPoll], job.EvaluationId);
             if (!setup.Success)
             {
                 await jobRepository.SetResultAsync(job.Id, ImportJobStatus.Failed, 0, setup.Message, DateTime.UtcNow);
@@ -113,13 +174,10 @@ namespace Eras.Infrastructure.BackgroundProcessing
             IImportJobItemRepository itemRepository,
             int jobId)
         {
-            (int completed, int failed, int total) = await itemRepository.GetStatusCountsAsync(jobId);
+            (int pending, int completed, int failed) = await itemRepository.GetImportPhaseCountsAsync(jobId);
 
-            // Don't declare a job terminal while items are still pending (covers a worker that
-            // dequeued before all items were committed).
-            bool hasPending = completed + failed < total;
-            ImportJobStatus status = hasPending
-                ? ImportJobStatus.Running
+            ImportJobStatus status = pending > 0
+                ? ImportJobStatus.Importing
                 : failed == 0
                     ? ImportJobStatus.Completed
                     : completed > 0 ? ImportJobStatus.PartiallyCompleted : ImportJobStatus.Failed;

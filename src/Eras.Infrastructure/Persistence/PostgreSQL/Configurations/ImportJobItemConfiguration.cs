@@ -33,6 +33,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
             Builder.Property(Item => Item.RetryCount)
                 .HasColumnName("retry_count");
+            Builder.Property(Item => Item.IsAlreadyImported)
+                .HasColumnName("is_already_imported");
             Builder.Property(Item => Item.ErrorMessage)
                 .HasColumnName("error_message");
             Builder.Property(Item => Item.PollPayload)

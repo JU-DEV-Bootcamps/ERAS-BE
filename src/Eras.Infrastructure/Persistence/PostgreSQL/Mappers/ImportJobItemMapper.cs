@@ -16,6 +16,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 Cohort = Entity.Cohort,
                 Status = Entity.Status,
                 RetryCount = Entity.RetryCount,
+                IsAlreadyImported = Entity.IsAlreadyImported,
                 ErrorMessage = Entity.ErrorMessage,
                 PollPayload = Entity.PollPayload,
                 CreatedAtUtc = Entity.CreatedAtUtc,

@@ -804,9 +804,18 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ConfigurationId")
+                        .HasColumnType("integer")
+                        .HasColumnName("configuration_id");
+
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at_utc");
+
+                    b.Property<string>("EndDate")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("end_date");
 
                     b.Property<string>("ErrorMessage")
                         .HasColumnType("text")
@@ -815,6 +824,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Property<int>("EvaluationId")
                         .HasColumnType("integer")
                         .HasColumnName("evaluation_id");
+
+                    b.Property<string>("EvaluationSetName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("evaluation_set_name");
+
+                    b.Property<int>("ExtractedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("extracted_count");
 
                     b.Property<string>("PollsPayload")
                         .IsRequired()
@@ -828,6 +846,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Property<int>("RetryCount")
                         .HasColumnType("integer")
                         .HasColumnName("retry_count");
+
+                    b.Property<string>("StartDate")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("start_date");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -875,6 +898,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Property<int>("ImportJobId")
                         .HasColumnType("integer")
                         .HasColumnName("import_job_id");
+
+                    b.Property<bool>("IsAlreadyImported")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_already_imported");
 
                     b.Property<string>("PollPayload")
                         .IsRequired()

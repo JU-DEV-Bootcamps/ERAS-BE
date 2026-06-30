@@ -34,5 +34,37 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     .SetProperty(Job => Job.ErrorMessage, ErrorMessage)
                     .SetProperty(Job => Job.UpdatedAtUtc, UpdatedAtUtc));
         }
+
+        public async Task SetExtractedCountAsync(int Id, int ExtractedCount, DateTime UpdatedAtUtc)
+        {
+            await _context.Set<ImportJobEntity>()
+                .Where(Job => Job.Id == Id)
+                .ExecuteUpdateAsync(S => S
+                    .SetProperty(Job => Job.ExtractedCount, ExtractedCount)
+                    .SetProperty(Job => Job.UpdatedAtUtc, UpdatedAtUtc));
+        }
+
+        public async Task SetReadyAsync(int Id, int TotalCount, DateTime UpdatedAtUtc)
+        {
+            await _context.Set<ImportJobEntity>()
+                .Where(Job => Job.Id == Id)
+                .ExecuteUpdateAsync(S => S
+                    .SetProperty(Job => Job.Status, ImportJobStatus.Ready)
+                    .SetProperty(Job => Job.TotalCount, TotalCount)
+                    .SetProperty(Job => Job.ExtractedCount, TotalCount)
+                    .SetProperty(Job => Job.UpdatedAtUtc, UpdatedAtUtc));
+        }
+
+        // On confirm, the import total becomes the number of confirmed respondents (not all extracted).
+        public async Task SetImportingAsync(int Id, int TotalCount, DateTime UpdatedAtUtc)
+        {
+            await _context.Set<ImportJobEntity>()
+                .Where(Job => Job.Id == Id)
+                .ExecuteUpdateAsync(S => S
+                    .SetProperty(Job => Job.Status, ImportJobStatus.Importing)
+                    .SetProperty(Job => Job.TotalCount, TotalCount)
+                    .SetProperty(Job => Job.ProcessedCount, 0)
+                    .SetProperty(Job => Job.UpdatedAtUtc, UpdatedAtUtc));
+        }
     }
 }
