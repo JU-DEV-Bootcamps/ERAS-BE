@@ -3,6 +3,7 @@ using System;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260625231351_AddRiskLevelToIntervention")]
+    partial class AddRiskLevelToIntervention
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,9 +170,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("riskLevel");
 
-                    b.Property<int>("RiskLevelName")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -194,43 +194,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.HasDiscriminator().HasValue("Intervention");
 
                     b.UseTphMappingStrategy();
-                });
-
-            modelBuilder.Entity("Eras.Domain.Entities.FeatureFlag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("")
-                        .HasColumnName("description");
-
-                    b.Property<bool>("IsEnabled")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_enabled");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique()
-                        .HasDatabaseName("idx_feature_flag_name");
-
-                    b.ToTable("feature_flag", (string)null);
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.AnswerEntity", b =>
@@ -832,6 +795,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("EvaluationId");
+
                     b.HasIndex("StudentId");
 
                     b.ToTable("poll_instances", (string)null);
@@ -1045,8 +1010,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EvaluationId");
-
                     b.HasIndex("PollId");
 
                     b.ToTable("evaluation_poll", (string)null);
@@ -1180,44 +1143,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .WithMany("Interventions")
                         .HasForeignKey("remission_id")
                         .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Eras.Domain.Entities.FeatureFlag", b =>
-                {
-                    b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
-                        {
-                            b1.Property<int>("FeatureFlagId")
-                                .HasColumnType("integer");
-
-                            b1.Property<DateTime>("CreatedAt")
-                                .HasColumnType("timestamp with time zone")
-                                .HasColumnName("created_at");
-
-                            b1.Property<string>("CreatedBy")
-                                .IsRequired()
-                                .HasMaxLength(50)
-                                .HasColumnType("character varying(50)")
-                                .HasColumnName("created_by");
-
-                            b1.Property<DateTime?>("ModifiedAt")
-                                .HasColumnType("timestamp with time zone")
-                                .HasColumnName("updated_at");
-
-                            b1.Property<string>("ModifiedBy")
-                                .HasMaxLength(50)
-                                .HasColumnType("character varying(50)")
-                                .HasColumnName("modified_by");
-
-                            b1.HasKey("FeatureFlagId");
-
-                            b1.ToTable("feature_flag");
-
-                            b1.WithOwner()
-                                .HasForeignKey("FeatureFlagId");
-                        });
-
-                    b.Navigation("Audit")
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.AnswerEntity", b =>

@@ -1,19 +1,20 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Models;
+using Eras.Application.Models.Response.HeatMap;
 using Eras.Application.Services;
+using Eras.Application.Utils;
 using Eras.Domain.Common;
 using Eras.Infrastructure.Cryptography;
 using Eras.Infrastructure.External.CosmicLatteClient;
 using Eras.Infrastructure.External.KeycloakClient;
+using Eras.Infrastructure.FileStorage;
+using Eras.Infrastructure.Persistence.PostgreSQL.Jobs;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-
-using Eras.Application.Models;
-using Eras.Infrastructure.FileStorage;
 using Microsoft.Extensions.Logging;
-using Eras.Infrastructure.Persistence.PostgreSQL.Jobs;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Eras.Infrastructure
 {
@@ -26,6 +27,7 @@ namespace Eras.Infrastructure
             Services.AddScoped<IKeycloakAuthService<TokenResponse>, KeycloakAuthService>();
             Services.AddScoped<ICosmicLatteAPIService, CosmicLatteAPIService>();
             Services.AddScoped<IApiKeyEncryptor, AesApiKeyEncryptor>();
+            Services.AddScoped<IAnswerRiskValidator, AnswerRiskValidator>();
             Services.AddHostedService<EvaluationStatusSyncJob>();
 
             Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));

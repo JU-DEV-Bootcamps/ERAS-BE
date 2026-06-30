@@ -40,6 +40,10 @@ public sealed class GetAllRemissionsQueryHandler
             ? await _studentRepository.GetByIdsAsync(uniqueIds, cancellationToken)
             : Array.Empty<Student>();
 
+        var avgRisks = uniqueIds.Any()
+            ? await _studentRepository.GetAverageRiskByStudentIdsAsync(uniqueIds)
+            : new Dictionary<int, double>();
+
         var studentDict = students.ToDictionary(s => s.Id);
 
         return entities.Select(entity =>
@@ -50,11 +54,14 @@ public sealed class GetAllRemissionsQueryHandler
                 {
                     if (studentDict.TryGetValue(id, out var student))
                     {
+                        var avgRisk = avgRisks.TryGetValue(id, out var risk) ? risk : 0;
                         return new StudentProfileDto
                         {
                             Id = student.Id,
                             Name = student.Name,
                             Email = student.Email,
+                            AvgRiskLevel = avgRisk,
+
                         };
                     }
 
@@ -63,6 +70,7 @@ public sealed class GetAllRemissionsQueryHandler
                         Id = id,
                         Name = $"ID {id}",
                         Email = string.Empty,
+                        AvgRiskLevel = 0,
                     };
                 })
                 .ToArray();

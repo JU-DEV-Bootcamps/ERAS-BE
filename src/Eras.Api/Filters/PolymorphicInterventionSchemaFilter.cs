@@ -41,7 +41,8 @@ public class PolymorphicInterventionSchemaFilter : ISchemaFilter
                 ["mode"] = new OpenApiString("InPlace"),
                 ["status"] = new OpenApiString("Created"),
                 ["remarks"] = new OpenApiString("El estudiante mostró avance."),
-                ["attachments"] = new OpenApiArray()
+                ["attachments"] = new OpenApiArray(),
+                ["riskLevelName"] = new OpenApiString("High, Medium or Low")
             };
         }
 
@@ -66,7 +67,8 @@ public class PolymorphicInterventionSchemaFilter : ISchemaFilter
                     },
                     ["mode"] = new OpenApiString("InPlace"),
                     ["remarks"] = new OpenApiString("El estudiante mostró avance."),
-                    ["attachments"] = new OpenApiArray()
+                    ["attachments"] = new OpenApiArray(),
+                    ["riskLevelName"] = new OpenApiString("High, Medium or Low")
                 }
             };
         }

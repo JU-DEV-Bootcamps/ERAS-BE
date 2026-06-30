@@ -23,4 +23,6 @@ public abstract class Intervention : BaseEntity
     public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
 
     public IReadOnlyCollection<string> AttachmentHashes { get; init; } = Array.Empty<string>();
+    public double? RiskLevel { get; init; }
+    public InterventionLevel RiskLevelName { get; init; } = InterventionLevel.Medium;
 }

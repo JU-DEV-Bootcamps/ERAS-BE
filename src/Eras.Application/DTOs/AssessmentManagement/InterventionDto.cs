@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
+using Eras.Application.Models.Enums;
 using Eras.Domain.Entities.AssessmentManagement;
 
 namespace Eras.Application.DTOs.AssessmentManagement;
@@ -30,4 +31,6 @@ public abstract record InterventionDto
     public InterventionStatus Status { get; init; } = InterventionStatus.Created;
     public string? Remarks { get; init; }
     public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
+    public double? RiskLevel { get; init; }
+    public InterventionLevel RiskLevelName { get; init; }
 }

@@ -14,9 +14,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
     public class StudentRepository : BaseRepository<Student, StudentEntity>, IStudentRepository
     {
         private const int _defaultLimit = 5;
+        private readonly IAnswerRiskValidator _answerRiskValidator;
 
-        public StudentRepository(AppDbContext Context)
-            : base(Context, StudentMapper.ToDomain, StudentMapper.ToPersistence) { }
+        public StudentRepository(AppDbContext Context, IAnswerRiskValidator validator)
+            : base(Context, StudentMapper.ToDomain, StudentMapper.ToPersistence) {
+            _answerRiskValidator = validator;
+        }
 
         public async Task<Student?> GetByNameAsync(string Name)
         {
@@ -266,6 +269,33 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .ToListAsync();
 
             return persistenceEntity.Select(Entity => StudentMapper.ToDomain(Entity));
+        }
+        public async Task<Dictionary<int, double>> GetAverageRiskByStudentIdsAsync(IEnumerable<int> studentIds)
+        {
+            var studentIdsList = studentIds.ToList();
+
+            var rows = await _context.ErasCalculationsByPoll
+                .Where(e => studentIdsList.Contains(e.StudentId))
+                .Select(e => new { e.StudentId, e.ComponentId, e.AnswerRisk, e.AnswerText })
+                .ToListAsync();
+
+            var results = rows
+                .Where(r => _answerRiskValidator.IsValidAnswer(r.AnswerText))
+                .GroupBy(r => new { r.StudentId, r.ComponentId })
+                .Select(g => new
+                {
+                    g.Key.StudentId,
+                    ComponentAvg = g.Average(x => (double)x.AnswerRisk)
+                })
+                .GroupBy(c => c.StudentId)
+                .Select(g => new
+                {
+                    StudentId = g.Key,
+                    AvgRisk = g.Average(c => c.ComponentAvg)
+                })
+                .ToList();
+
+            return results.ToDictionary(x => x.StudentId, x => x.AvgRisk);
         }
     }
 }

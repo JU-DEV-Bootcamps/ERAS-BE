@@ -39,5 +39,6 @@ namespace Eras.Application.Contracts.Persistence
 
         Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize);
         Task<IEnumerable<Student>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
+        Task<Dictionary<int, double>> GetAverageRiskByStudentIdsAsync(IEnumerable<int> StudentIds);
     }
 }
