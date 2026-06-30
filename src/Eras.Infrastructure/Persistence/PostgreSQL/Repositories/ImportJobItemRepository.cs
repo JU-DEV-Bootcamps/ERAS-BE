@@ -50,7 +50,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         }
 
         // Counts items by status directly in the database (robust against in-memory/race issues).
-        public async Task<(int Completed, int Failed, int Total)> GetStatusCountsAsync(int ImportJobId)
+        public async Task<(int Pending, int Completed, int Failed)> GetImportPhaseCountsAsync(int ImportJobId)
         {
             var rows = await _context.Set<ImportJobItemEntity>()
                 .Where(Item => Item.ImportJobId == ImportJobId)
@@ -58,10 +58,33 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Select(Group => new { Status = Group.Key, Count = Group.Count() })
                 .ToListAsync();
 
+            int pending = rows
+                .Where(R => R.Status == ImportJobStatus.Queued || R.Status == ImportJobStatus.Running)
+                .Sum(R => R.Count);
             int completed = rows.Where(R => R.Status == ImportJobStatus.Completed).Sum(R => R.Count);
             int failed = rows.Where(R => R.Status == ImportJobStatus.Failed).Sum(R => R.Count);
-            int total = rows.Sum(R => R.Count);
-            return (completed, failed, total);
+            return (pending, completed, failed);
+        }
+
+        public async Task ConfirmSelectionAsync(int ImportJobId, List<int> SelectedIds, DateTime UpdatedAtUtc)
+        {
+            // Selected extracted items → Queued (ready to import).
+            await _context.Set<ImportJobItemEntity>()
+                .Where(Item => Item.ImportJobId == ImportJobId
+                    && Item.Status == ImportJobStatus.Extracted
+                    && SelectedIds.Contains(Item.Id))
+                .ExecuteUpdateAsync(S => S
+                    .SetProperty(Item => Item.Status, ImportJobStatus.Queued)
+                    .SetProperty(Item => Item.UpdatedAtUtc, UpdatedAtUtc));
+
+            // Remaining extracted items → Skipped.
+            await _context.Set<ImportJobItemEntity>()
+                .Where(Item => Item.ImportJobId == ImportJobId
+                    && Item.Status == ImportJobStatus.Extracted
+                    && !SelectedIds.Contains(Item.Id))
+                .ExecuteUpdateAsync(S => S
+                    .SetProperty(Item => Item.Status, ImportJobStatus.Skipped)
+                    .SetProperty(Item => Item.UpdatedAtUtc, UpdatedAtUtc));
         }
 
         // Re-queues only the still-Failed items among the given ids and bumps their retry count.

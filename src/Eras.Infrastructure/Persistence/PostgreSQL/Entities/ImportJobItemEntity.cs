@@ -11,6 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public string? Cohort { get; set; }
         public ImportJobStatus Status { get; set; } = ImportJobStatus.Queued;
         public int RetryCount { get; set; }
+        public bool IsAlreadyImported { get; set; }
         public string? ErrorMessage { get; set; }
         public string PollPayload { get; set; } = string.Empty;
         public DateTime CreatedAtUtc { get; set; }

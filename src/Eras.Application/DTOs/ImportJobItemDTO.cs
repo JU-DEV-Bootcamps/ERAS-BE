@@ -9,6 +9,7 @@ namespace Eras.Application.DTOs
         public string? Cohort { get; set; }
         public string Status { get; set; } = string.Empty;
         public int RetryCount { get; set; }
+        public bool IsAlreadyImported { get; set; }
         public string? ErrorMessage { get; set; }
     }
 }

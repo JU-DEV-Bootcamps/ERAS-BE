@@ -30,6 +30,49 @@ namespace Eras.Application.Services
             _queue = Queue;
         }
 
+        public async Task<int> StartExtractionAsync(string EvaluationSetName, int ConfigurationId, string? StartDate, string? EndDate, int EvaluationId)
+        {
+            if (EvaluationSetName.Length > MaxPollNameLength)
+            {
+                throw new ArgumentException("There was an error during the import: Poll Name exceeds the maximum length of 100 characters.");
+            }
+
+            DateTime now = DateTime.UtcNow;
+            ImportJob job = new ImportJob
+            {
+                EvaluationId = EvaluationId,
+                Status = ImportJobStatus.Extracting,
+                EvaluationSetName = EvaluationSetName,
+                ConfigurationId = ConfigurationId,
+                StartDate = StartDate,
+                EndDate = EndDate,
+                PollsPayload = "[]",
+                CreatedAtUtc = now,
+                UpdatedAtUtc = now,
+            };
+            ImportJob created = await _importJobRepository.AddAsync(job);
+            await _queue.EnqueueAsync(created.Id);
+            return created.Id;
+        }
+
+        /// <summary>
+        /// Confirms which extracted respondents to import: selected items → Queued, the rest → Skipped,
+        /// the job → Importing, and re-enqueues so the worker persists them. No data is re-sent.
+        /// </summary>
+        public async Task<bool> ConfirmImportAsync(int ImportJobId, List<int> ItemIds)
+        {
+            ImportJob? job = await _importJobRepository.GetByIdAsync(ImportJobId);
+            if (job == null) return false;
+
+            DateTime now = DateTime.UtcNow;
+            await _importJobItemRepository.ConfirmSelectionAsync(ImportJobId, ItemIds, now);
+            // The import total is the number of confirmed (now Queued) respondents.
+            (int confirmed, _, _) = await _importJobItemRepository.GetImportPhaseCountsAsync(ImportJobId);
+            await _importJobRepository.SetImportingAsync(ImportJobId, confirmed, now);
+            await _queue.EnqueueAsync(ImportJobId);
+            return true;
+        }
+
         public async Task<int> QueueImportAsync(List<PollDTO> Polls, int EvaluationId)
         {
             if (Polls.Any(P => P.Name?.Length > MaxPollNameLength))
@@ -83,6 +126,7 @@ namespace Eras.Application.Services
                 Status = job.Status.ToString(),
                 TotalCount = job.TotalCount,
                 ProcessedCount = job.ProcessedCount,
+                ExtractedCount = job.ExtractedCount,
                 RetryCount = job.RetryCount,
                 ErrorMessage = job.ErrorMessage,
                 CreatedAtUtc = job.CreatedAtUtc,
@@ -102,6 +146,7 @@ namespace Eras.Application.Services
                 Cohort = Item.Cohort,
                 Status = Item.Status.ToString(),
                 RetryCount = Item.RetryCount,
+                IsAlreadyImported = Item.IsAlreadyImported,
                 ErrorMessage = Item.ErrorMessage,
             }).ToList();
         }

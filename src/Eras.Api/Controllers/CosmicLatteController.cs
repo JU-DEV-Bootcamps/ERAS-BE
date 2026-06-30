@@ -90,6 +90,44 @@ public class CosmicLatteController(IMediator Mediator, ICosmicLatteAPIService Co
     }
 
     [Authorize]
+    [HttpPost("imports/extract")]
+    public async Task<IActionResult> StartExtractionAsync([FromBody] StartExtractionRequest Request)
+    {
+        try
+        {
+            // Extract respondents from Cosmic Latte in the background; the client polls
+            // GET imports/{id} + /items and confirms the selection later (no payload round-trip).
+            int importJobId = await _importJobService.StartExtractionAsync(
+                Request.EvaluationSetName, Request.ConfigurationId, Request.StartDate, Request.EndDate, Request.EvaluationId);
+            return Accepted(new { importJobId, status = "Extracting" });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpPost("imports/{ImportJobId}/confirm")]
+    public async Task<IActionResult> ConfirmImportAsync(int ImportJobId, [FromBody] ConfirmImportRequest Request)
+    {
+        if (Request?.ItemIds == null || Request.ItemIds.Count == 0)
+        {
+            return BadRequest(new { message = "No items selected to import." });
+        }
+        bool found = await _importJobService.ConfirmImportAsync(ImportJobId, Request.ItemIds);
+        if (!found)
+        {
+            return NotFound(new { message = $"Import job {ImportJobId} not found" });
+        }
+        return Accepted(new { importJobId = ImportJobId, status = "Importing" });
+    }
+
+    [Authorize]
     [HttpGet("imports/{ImportJobId}")]
     public async Task<IActionResult> GetImportStatusAsync(int ImportJobId)
     {

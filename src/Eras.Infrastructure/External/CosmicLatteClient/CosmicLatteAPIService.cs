@@ -190,6 +190,90 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
 
 
+        public async Task ExtractRespondentsAsync(
+            string EvaluationSetName,
+            string StartDate,
+            string EndDate,
+            string ApiKey,
+            string ApiUrl,
+            Func<PollDTO, bool, Task> OnExtracted)
+        {
+            var decryptedApiKey = _encryptor.Decrypt(ApiKey);
+            string path = $"{ApiUrl}{PathEvaluation}?$top=1000&$filter=name eq '{EvaluationSetName}'";
+
+            var request = new HttpRequestMessage(HttpMethod.Get, path);
+            request.Headers.Add(HeaderApiKey, decryptedApiKey);
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+                throw new Exception($"Cosmic latte server error, Message: {response.ReasonPhrase}");
+
+            string responseBody = await response.Content.ReadAsStringAsync();
+            var apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody)
+                              ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+
+            var validatedEvaluations = apiResponse.data.Where(E => E.status == "validated").ToList();
+            if (validatedEvaluations.Count == 0 || validatedEvaluations[0].Id == null)
+                return;
+
+            var variablesPositionByComponents = GetListOfVariablePositionByComponents(validatedEvaluations[0]);
+            var componentsAndVariables = await GetComponentsAndVariablesAsync(
+                validatedEvaluations[0].Id!, variablesPositionByComponents, decryptedApiKey, ApiUrl);
+            if (componentsAndVariables.Count == 0)
+                return;
+
+            var alreadyImportedEmails = await _pollInstanceRepository.GetImportedStudentsEmailsByPollName(EvaluationSetName);
+
+            // Fetch respondent details in parallel (the slow part) but serialize the OnExtracted
+            // callback so the caller's scoped DbContext is never used concurrently.
+            using var httpGate = new SemaphoreSlim(8);
+            using var persistGate = new SemaphoreSlim(1, 1);
+
+            var tasks = apiResponse.data.Select(async dataItem =>
+            {
+                await httpGate.WaitAsync();
+                List<ComponentDTO> populated;
+                try
+                {
+                    populated = await PopulateListOfComponentsByIdPollInstanceAsync(
+                        componentsAndVariables, dataItem.Id, dataItem.score, decryptedApiKey, ApiUrl, StartDate, EndDate);
+                }
+                finally
+                {
+                    httpGate.Release();
+                }
+
+                if (populated.Count == 0) return;
+
+                var pollDto = new PollDTO
+                {
+                    IdCosmicLatte = dataItem.Id ?? string.Empty,
+                    Uuid = Guid.NewGuid().ToString(),
+                    Name = SqlInjectionValidator.Sanitize(dataItem.name),
+                    FinishedAt = dataItem.finishedAt,
+                    LastVersion = 1,
+                    LastVersionDate = DateTime.UtcNow,
+                    Components = SanitizeComponents(populated),
+                    ParentId = dataItem.parent.Split(':')[1]
+                };
+
+                var studentEmail = pollDto.Components?.FirstOrDefault()?.Variables?.FirstOrDefault()?.Answer?.Student?.Email;
+                bool alreadyImported = !string.IsNullOrEmpty(studentEmail) && alreadyImportedEmails.Any(E => E == studentEmail);
+
+                await persistGate.WaitAsync();
+                try
+                {
+                    await OnExtracted(pollDto, alreadyImported);
+                }
+                finally
+                {
+                    persistGate.Release();
+                }
+            });
+
+            await Task.WhenAll(tasks);
+        }
+
         public async Task<List<ComponentDTO>> PopulateListOfComponentsByIdPollInstanceAsync(
                 List<ComponentDTO> Components,
                 string? PollId,

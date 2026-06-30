@@ -9,8 +9,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public ImportJobStatus Status { get; set; } = ImportJobStatus.Queued;
         public int TotalCount { get; set; }
         public int ProcessedCount { get; set; }
+        public int ExtractedCount { get; set; }
         public int RetryCount { get; set; }
         public string? ErrorMessage { get; set; }
+        public string? EvaluationSetName { get; set; }
+        public int ConfigurationId { get; set; }
+        public string? StartDate { get; set; }
+        public string? EndDate { get; set; }
         public string PollsPayload { get; set; } = string.Empty;
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }

@@ -24,10 +24,23 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .HasColumnName("total_count");
             Builder.Property(Job => Job.ProcessedCount)
                 .HasColumnName("processed_count");
+            Builder.Property(Job => Job.ExtractedCount)
+                .HasColumnName("extracted_count");
             Builder.Property(Job => Job.RetryCount)
                 .HasColumnName("retry_count");
             Builder.Property(Job => Job.ErrorMessage)
                 .HasColumnName("error_message");
+            Builder.Property(Job => Job.EvaluationSetName)
+                .HasColumnName("evaluation_set_name")
+                .HasMaxLength(200);
+            Builder.Property(Job => Job.ConfigurationId)
+                .HasColumnName("configuration_id");
+            Builder.Property(Job => Job.StartDate)
+                .HasColumnName("start_date")
+                .HasMaxLength(40);
+            Builder.Property(Job => Job.EndDate)
+                .HasColumnName("end_date")
+                .HasMaxLength(40);
             Builder.Property(Job => Job.PollsPayload)
                 .HasColumnName("polls_payload")
                 .HasColumnType("jsonb")
