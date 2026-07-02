@@ -1,6 +1,7 @@
 ﻿using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
+using Eras.Error.Critical;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -169,5 +170,29 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
             .CurrentValue = updatedHashes.AsReadOnly();
 
         await _context.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<Intervention>> GetInterventionsContainingStudentAsync(Assessment entity, IReadOnlyCollection<int> studentToRemoveIds)
+    {
+        try
+        {
+            var assessment = await _context.Set<Assessment>()
+                .AsNoTracking()
+                .Include(a => a.Interventions)
+                .FirstOrDefaultAsync(a => a.Id == entity.Id);
+
+            if (assessment == null)
+            {
+                return new List<Intervention>();
+            }
+
+            return assessment.Interventions
+                .Where(i => i.StudentIds.Any(studentToRemoveIds.Contains))
+                .ToList();
+        }
+        catch (Exception e)
+        {
+            throw new DatabaseCustomException(e);
+        }
     }
 }

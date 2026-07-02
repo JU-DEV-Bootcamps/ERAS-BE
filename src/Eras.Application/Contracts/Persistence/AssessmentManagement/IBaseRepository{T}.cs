@@ -9,6 +9,7 @@ public interface IBaseRepository<T>
 
     Task<T?> GetByIdAsync(Guid id);
     Task<T?> GetByIdAsync(int id);
+    Task<T?> GetByIdNoTrackingAsync(int id);
     Task<IEnumerable<T>> GetAllAsync();
     Task<IEnumerable<T>> GetPagedAsync(int page, int pageSize);
     Task<int> CountAsync();
