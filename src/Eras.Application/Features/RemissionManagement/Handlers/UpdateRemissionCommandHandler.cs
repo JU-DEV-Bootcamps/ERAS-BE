@@ -54,8 +54,8 @@ public sealed class UpdateRemissionCommandHandler
                 var affectedInterventions = await _repository.GetInterventionsContainingStudentAsync(existing, removedStudentIds);
                 if (affectedInterventions.ToList().Count > 0)
                 {
-                    _logger.LogError("Error updating assessment: Some students cannot be removed. Since they have interventions related.");
-                    throw new Exception($"Error updating assessment: Some students cannot be removed. Since they have interventions related.");
+                    _logger.LogError("Cannot update assessment {AssessmentId}: student(s) {StudentIds} have related interventions.", entity.Id, string.Join(",", removedStudentIds));
+                    throw new OperationCanceledException($"Error updating assessment: Some students cannot be removed. Since they have interventions related.");
                 }
             }
 
