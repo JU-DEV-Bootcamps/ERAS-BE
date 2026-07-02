@@ -15,6 +15,11 @@ using Eras.Infrastructure.FileStorage;
 using Microsoft.Extensions.Logging;
 using Eras.Infrastructure.Persistence.PostgreSQL.Jobs;
 
+using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
+using Eras.Infrastructure.Authorization;
+using Microsoft.AspNetCore.Authorization;
+
 namespace Eras.Infrastructure
 {
     public static class InfrastructureServiceRegistration
@@ -43,6 +48,15 @@ namespace Eras.Infrastructure
                     sp.GetRequiredService<ILogger<LocalFileStorageService>>()
                 ));
             AddAuthentication(Services, Configuration);
+
+            Services.AddHttpContextAccessor();
+            Services.AddScoped<ICurrentUserService, Authentication.CurrentUserService>();
+            Services.AddScoped<IAuthorizationHandler, ErasAdminHandler>();
+            Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireErasAdmin", policy =>
+                    policy.Requirements.Add(new ErasAdminRequirement()));
+            });
 
             return Services;
         }
@@ -98,7 +112,6 @@ namespace Eras.Infrastructure
 
                 });
             Services.AddAuthorization();
-
         }
     }
 }

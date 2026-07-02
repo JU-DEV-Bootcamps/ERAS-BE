@@ -2,6 +2,7 @@ using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Domain.Entities.FeatureFlagManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+using Eras.Domain.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +32,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public DbSet<Assessment> Assessments => Set<Assessment>();
         public DbSet<Intervention> Interventions => Set<Intervention>();
         public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
+        public DbSet<UserRoleEntity> UserRoles { get; set; }
 
         // Views
         public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
