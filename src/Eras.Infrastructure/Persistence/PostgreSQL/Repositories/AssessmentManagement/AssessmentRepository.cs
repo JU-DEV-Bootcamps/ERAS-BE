@@ -192,7 +192,7 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         }
         catch (Exception e)
         {
-            throw new DatabaseCustomException(e);
+            throw;
         }
     }
 }
