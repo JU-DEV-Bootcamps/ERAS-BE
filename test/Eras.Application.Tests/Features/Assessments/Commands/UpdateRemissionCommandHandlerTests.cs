@@ -46,10 +46,10 @@ public class UpdateRemissionCommandHandlerTests
         var dto = new AssessmentDto
         {
             Id = 1,
-            StudentIds = [1, 2],
+            StudentIds = [1, 2, 3],
             CreatedBy = "",
             Service = "",
-            Status = AssessmentStatus.OnHold,
+            Status = AssessmentStatus.Remitted,
         };
         var command = new UpdateRemissionCommand(dto);
 
@@ -58,8 +58,8 @@ public class UpdateRemissionCommandHandlerTests
             Id = 1,
             CreatedBy = "Any",
             Service = "Smth",
-            Status = AssessmentStatus.OnHold,
-            StudentIds = [1, 2]
+            Status = AssessmentStatus.Remitted,
+            StudentIds = [1, 2, 3]
         };
 
         var existingEntity = new Assessment
@@ -67,17 +67,17 @@ public class UpdateRemissionCommandHandlerTests
             Id = 1,
             CreatedBy = "Any",
             Service = "Smth",
-            Status = AssessmentStatus.OnHold,
+            Status = AssessmentStatus.Remitted,
             StudentIds = [1, 2]
         };
 
         var persistedEntity = mappedEntity;
         var expectedDto = new AssessmentDto { 
             Id = 1, 
-            StudentIds = [1, 2], 
+            StudentIds = [1, 2, 3], 
             CreatedBy = "",
             Service = "",
-            Status= AssessmentStatus.OnHold,
+            Status= AssessmentStatus.Remitted,
         };
 
         _toDomainMapper.Setup(m => m.Map(dto)).Returns(mappedEntity);
@@ -94,6 +94,67 @@ public class UpdateRemissionCommandHandlerTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(expectedDto.Id, result.Id);
+        _mockRepository.Verify(r => r.GetInterventionsContainingStudentAsync(
+            It.IsAny<Assessment>(), It.IsAny<IReadOnlyCollection<int>>()), Times.Never);
+        _mockRepository.Verify(r => r.UpdateAsync(mappedEntity), Times.Once);
+    }
+
+    [Fact]
+    public async Task HandleUpdateRemissionStatusAsync()
+    {
+        var dto = new AssessmentDto
+        {
+            Id = 1,
+            StudentIds = [1, 2],
+            CreatedBy = "",
+            Service = "",
+            Status = AssessmentStatus.InProgress,
+        };
+        var command = new UpdateRemissionCommand(dto);
+
+        var mappedEntity = new Assessment
+        {
+            Id = 1,
+            CreatedBy = "",
+            Service = "",
+            Status = AssessmentStatus.InProgress,
+            StudentIds = [1, 2]
+        };
+
+        var existingEntity = new Assessment
+        {
+            Id = 1,
+            CreatedBy = "",
+            Service = "",
+            Status = AssessmentStatus.Remitted,
+            StudentIds = [1, 2]
+        };
+
+        var persistedEntity = mappedEntity;
+        var expectedDto = new AssessmentDto
+        {
+            Id = 1,
+            StudentIds = [1, 2],
+            CreatedBy = "",
+            Service = "",
+            Status = AssessmentStatus.InProgress,
+        };
+
+        _toDomainMapper.Setup(m => m.Map(dto)).Returns(mappedEntity);
+        _validator
+            .Setup(v => v.ValidateAsync(It.IsAny<Assessment>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+        _mockRepository.Setup(r => r.GetByIdNoTrackingAsync(1)).ReturnsAsync(existingEntity);
+        _mockRepository.Setup(r => r.UpdateAsync(mappedEntity)).ReturnsAsync(persistedEntity);
+        _toDtoMapper.Setup(m => m.Map(persistedEntity)).Returns(expectedDto);
+
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(expectedDto.Id, result.Id);
+        Assert.Equal(expectedDto.Status, AssessmentStatus.InProgress);
         _mockRepository.Verify(r => r.GetInterventionsContainingStudentAsync(
             It.IsAny<Assessment>(), It.IsAny<IReadOnlyCollection<int>>()), Times.Never);
         _mockRepository.Verify(r => r.UpdateAsync(mappedEntity), Times.Once);
