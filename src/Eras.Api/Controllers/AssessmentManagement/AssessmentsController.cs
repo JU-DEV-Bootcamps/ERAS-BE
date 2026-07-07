@@ -92,8 +92,18 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         if (dto.Id == default)
             return BadRequest("Route id must match payload id.");
 
-        var response = await Mediator.Send(new UpdateRemissionCommand(dto with { Id = id }), cancellationToken);
-        return Ok(response);
+        try
+        {
+            var response = await Mediator.Send(new UpdateRemissionCommand(dto with { Id = id }), cancellationToken);
+            return Ok(response);
+        }
+        catch (OperationCanceledException ex)
+        {
+            return Conflict(new
+            {
+                message = ex.Message
+            });
+        }
     }
 
     [HttpDelete("{id:int}")]
