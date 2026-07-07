@@ -28,7 +28,7 @@ public abstract record InterventionDto
     public IReadOnlyDictionary<int, bool> Attendance { get; init; } = new Dictionary<int, bool>();
 
     public InterventionMode Mode { get; init; }
-    public InterventionStatus Status { get; init; } = InterventionStatus.Created;
+    public InterventionStatus Status { get; init; } = InterventionStatus.Remitted;
     public string? Remarks { get; init; }
     public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
     public double? RiskLevel { get; init; }
