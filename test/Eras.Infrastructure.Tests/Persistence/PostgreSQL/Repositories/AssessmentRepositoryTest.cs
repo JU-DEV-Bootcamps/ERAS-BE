@@ -4,6 +4,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManageme
 using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Entities;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 
 using MockQueryable.Moq;
@@ -57,7 +58,7 @@ public class AssessmentRepositoryTest
             Id = 1,
             CreatedBy = "Any",
             Service = "Smth",
-            Status = AssessmentStatus.OnHold,
+            Status = AssessmentStatus.InProgress,
             StudentIds = [1, 2, 3, 4],
             Interventions = interventions
         };
@@ -88,7 +89,7 @@ public class AssessmentRepositoryTest
             Id = 1,
             CreatedBy = "Any",
             Service = "Smth",
-            Status = AssessmentStatus.OnHold,
+            Status = AssessmentStatus.InProgress,
             StudentIds = [1, 2, 3],
             Interventions = interventions
         };
@@ -117,7 +118,7 @@ public class AssessmentRepositoryTest
             Id = 1,
             CreatedBy = "Any",
             Service = "Smth",
-            Status = AssessmentStatus.OnHold,
+            Status = AssessmentStatus.Remitted,
             StudentIds = [1, 2, 3],
             Interventions = interventions
         };
@@ -141,7 +142,7 @@ public class AssessmentRepositoryTest
             Id = 1,
             CreatedBy = "Any",
             Service = "Smth",
-            Status = AssessmentStatus.OnHold,
+            Status = AssessmentStatus.Remitted,
             StudentIds = [1, 2],
             Interventions = new List<Intervention>()
         };
@@ -166,7 +167,7 @@ public class AssessmentRepositoryTest
             Id = 1,
             CreatedBy = "Any",
             Service = "Smth",
-            Status = AssessmentStatus.OnHold,
+            Status = AssessmentStatus.Remitted,
             StudentIds = [1, 2],
             Interventions = interventions
         };
@@ -181,4 +182,84 @@ public class AssessmentRepositoryTest
         Assert.Empty(result);
     }
 
+    [Fact]
+    public async Task GetByStatus_Should_ReturnListofRemitted()
+    {
+        // Arrange
+        var assessments = new List<Assessment>
+        {
+            new Assessment {
+                 Id = 1,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [1, 2]
+            },
+            new Assessment {
+                 Id = 2,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.InProgress,
+                StudentIds = [5, 8]
+            },
+            new Assessment {
+                 Id = 3,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [10, 20]
+            },
+        };
+
+        var mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(r => r.Set<Assessment>()).Returns(mockSet.Object);
+
+        // Act
+        var result = await _repository.GetByStatusAsync(AssessmentStatus.Remitted);
+
+        // Assert
+        Assert.Equal(2, result.Count());
+        Assert.Contains(result, i => i.Id == 1);
+        Assert.Contains(result, i => i.Id == 3);
+    }
+
+    [Fact]
+    public async Task GetByStatus_Should_ReturnEmptyList()
+    {
+        // Arrange
+        var assessments = new List<Assessment>
+        {
+            new Assessment {
+                 Id = 1,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.InProgress,
+                StudentIds = [1, 2]
+            },
+            new Assessment {
+                 Id = 2,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.InProgress,
+                StudentIds = [5, 8]
+            },
+            new Assessment {
+                 Id = 3,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [10, 20]
+            },
+        };
+
+        var mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(r => r.Set<Assessment>()).Returns(mockSet.Object);
+
+        // Act
+        var result = await _repository.GetByStatusAsync(AssessmentStatus.Finalized);
+
+        // Assert
+        Assert.Equal(0, result.Count());
+        Assert.Empty(result);
+    }
 }
