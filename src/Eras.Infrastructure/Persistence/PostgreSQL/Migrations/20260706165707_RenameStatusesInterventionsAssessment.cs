@@ -23,6 +23,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 UPDATE remissions
                 SET status = 'Finalized'
                 WHERE status = 'Resolved';
+
+                UPDATE remissions
+                SET status = 'InProgress'
+                WHERE status IN ('OnHold', 'Rejected');
             ");
 
             migrationBuilder.Sql(@"
@@ -33,6 +37,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 UPDATE ""Interventions""
                 SET status = 'Finalized'
                 WHERE status = 'Resolved';
+
+                UPDATE ""Interventions""
+                SET status = 'InProgress'
+                WHERE status IN ('OnHold', 'Rejected');
             ");
 
         }

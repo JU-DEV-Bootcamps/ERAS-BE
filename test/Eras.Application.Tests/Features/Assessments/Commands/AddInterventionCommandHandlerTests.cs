@@ -100,9 +100,7 @@ public class AddInterventionCommandHandlerTests
         _mockIndividualMapper.Verify(m => m.Map(dto), Times.Once);
         _mockRepository.Verify(r => r.AddInterventionAsync(1, mappedIntervention), Times.Once);
 
-        //_mockGroupMapper.Verify(
-        //    m => m.Map(It.IsAny<GroupInterventionDto>()),
-        //    Times.Never);
+        _mockGroupMapper.Verify(m => m.Map(It.IsAny<GroupInterventionDto>()), Times.Never);
     }
 
     [Fact]
@@ -170,5 +168,7 @@ public class AddInterventionCommandHandlerTests
         _mockRepository.Verify(r => r.GetByIdWithInterventionsAsync(1), Times.Once);
         _mockGroupMapper.Verify(m => m.Map(dto), Times.Once);
         _mockRepository.Verify(r => r.AddInterventionAsync(1, mappedIntervention), Times.Once);
+
+        _mockIndividualMapper.Verify(m => m.Map(It.IsAny<IndividualInterventionDto>()), Times.Never);
     }
 }
