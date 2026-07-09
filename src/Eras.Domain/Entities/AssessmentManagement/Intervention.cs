@@ -15,7 +15,7 @@ public abstract class Intervention : BaseEntity
     public IReadOnlyDictionary<int, bool> Attendance { get; init; } = new Dictionary<int, bool>();
 
     public InterventionMode Mode { get; init; }
-    public InterventionStatus Status { get; init; } = InterventionStatus.Created;
+    public InterventionStatus Status { get; init; } = InterventionStatus.Remitted;
     public string? Remarks { get; init; }
 
     public abstract InterventionKind Kind { get; }

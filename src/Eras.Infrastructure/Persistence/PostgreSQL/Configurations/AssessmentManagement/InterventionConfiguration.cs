@@ -45,7 +45,7 @@ public sealed class InterventionConfiguration : IEntityTypeConfiguration<Interve
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .HasConversion<string>()
-            .HasDefaultValue(InterventionStatus.Created);
+            .HasDefaultValue(InterventionStatus.Remitted);
 
         builder.Property(e => e.Remarks)
             .HasColumnName("remarks")
