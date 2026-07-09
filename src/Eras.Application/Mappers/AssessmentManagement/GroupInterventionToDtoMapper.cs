@@ -24,6 +24,7 @@ public sealed class GroupInterventionToDtoMapper : IMapper<GroupIntervention, Gr
             Attachments = source.Attachments,
             RiskLevel = source.RiskLevel,
             RiskLevelName = source.RiskLevelName,
+            EndRiskLevelName = source.EndRiskLevelName,
         };
     }
 }
