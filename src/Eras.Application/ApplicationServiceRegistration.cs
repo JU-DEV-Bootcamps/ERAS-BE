@@ -5,6 +5,7 @@ using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
+using Eras.Domain.Entities.AssessmentManagement.StatusManagement;
 using Eras.Domain.Entities.AssessmentManagement.Validators;
 using Eras.Domain.Entities.FeatureFlagManagement;
 
@@ -51,6 +52,8 @@ namespace Eras.Application.Services
 
             services.AddScoped<IValidator<InterventionPlan>, InterventionPlanValidator>();
             services.AddScoped<IValidator<Assessment>, AssessementValidator>();
+            services.AddScoped<IValidator<StatusTransitionRequest<AssessmentStatus>>, StatusTransitionValidator<AssessmentStatus>>();
+            services.AddScoped<IValidator<StatusTransitionRequest<InterventionStatus>>, StatusTransitionValidator<InterventionStatus>>();
             services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
 
             return services;
