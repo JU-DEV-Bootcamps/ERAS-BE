@@ -7,16 +7,24 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Eras.Application.Features.FeatureFlags;
+using Eras.Application.Models;
+using Eras.Application.Contracts.Services;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/cosmic-latte")]
-public class CosmicLatteController(IMediator Mediator, ICosmicLatteAPIService CosmicLatteService, IImportJobService ImportJobService) : ControllerBase
+public class CosmicLatteController(
+    IMediator Mediator,
+    ICosmicLatteAPIService CosmicLatteService,
+    IImportJobService ImportJobService,
+    IFeatureFlagService FeatureFlagService) : ControllerBase
 {
     private readonly ICosmicLatteAPIService _cosmicLatteService = CosmicLatteService;
     private readonly IMediator _mediator = Mediator;
     private readonly IImportJobService _importJobService = ImportJobService;
+    private readonly IFeatureFlagService _featureFlagService = FeatureFlagService;
 
     [HttpGet("polls")]
     public async Task<IActionResult> GetPreviewPollsAsync(
@@ -74,10 +82,17 @@ public class CosmicLatteController(IMediator Mediator, ICosmicLatteAPIService Co
     {
         try
         {
-            // Queue the import for background processing and return immediately; the client polls
-            // GET imports/{importJobId} for progress instead of waiting for the whole import.
-            int importJobId = await _importJobService.QueueImportAsync(PollsInstances, EvaluationId);
-            return Accepted(new { importJobId, status = "Queued" });
+            if (await _featureFlagService.UseEnhancedEvaluationImport())
+            {
+                // Queue the import for background processing and return immediately; the client polls
+                // GET imports/{importJobId} for progress instead of waiting for the whole import.
+                int importJobId = await _importJobService.QueueImportAsync(PollsInstances, EvaluationId);
+                return Accepted(new { importJobId, status = "Queued" });
+            }
+            else
+            {
+                return Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances, EvaluationId));
+            }
         }
         catch (ArgumentException ex)
         {

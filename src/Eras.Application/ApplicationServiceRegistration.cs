@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 
 using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Domain.Entities;
@@ -24,12 +25,14 @@ namespace Eras.Application.Services
             Services.AddScoped<IStudentService, StudentService>();
             Services.AddScoped<IPollService, PollService>();
             Services.AddScoped<IAnswerService, AnswerService>();
-            Services.AddScoped<PollOrchestratorService, PollOrchestratorService>();
+            Services.AddScoped<PollOrchestratorService>();
+            Services.AddScoped<PollOrchestratorServiceV2>();
             Services.AddScoped<PollStructureImporter>();
             Services.AddScoped<StudentImporter>();
             Services.AddScoped<PollInstanceImporter>();
             Services.AddScoped<IImportJobService, ImportJobService>();
             Services.AddScoped<EvaluationStatusUpdater>();
+            Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
             Services.ConfigureMappers();
             return Services;
         }

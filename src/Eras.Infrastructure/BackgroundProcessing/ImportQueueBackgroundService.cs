@@ -134,7 +134,7 @@ namespace Eras.Infrastructure.BackgroundProcessing
         {
             var jobRepository = scope.ServiceProvider.GetRequiredService<IImportJobRepository>();
             var itemRepository = scope.ServiceProvider.GetRequiredService<IImportJobItemRepository>();
-            var orchestrator = scope.ServiceProvider.GetRequiredService<PollOrchestratorService>();
+            var orchestrator = scope.ServiceProvider.GetRequiredService<PollOrchestratorServiceV2>();
 
             List<ImportJobItem> queuedItems = await itemRepository.GetByJobIdAndStatusAsync(job.Id, ImportJobStatus.Queued);
             if (queuedItems.Count == 0)
