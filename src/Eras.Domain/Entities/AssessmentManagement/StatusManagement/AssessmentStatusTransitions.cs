@@ -1,17 +1,17 @@
 ﻿namespace Eras.Domain.Entities.AssessmentManagement.StatusManagement;
 
-public static class StatusTransitions<TStatus> where TStatus : struct, Enum
+public static class AssessmentStatusTransitions
 {
-    private static Dictionary<TStatus, TStatus[]> AllowedTransitions = new();
-    
-    public static void Configure(Dictionary<TStatus, TStatus[]> transitions)
+    private static readonly Dictionary<AssessmentStatus, AssessmentStatus[]> AllowedTransitions = new()
     {
-        AllowedTransitions = transitions;
-    }
+        [AssessmentStatus.Remitted] = new[] { AssessmentStatus.InProgress },
+        [AssessmentStatus.InProgress] = new[] { AssessmentStatus.Finalized },
+        [AssessmentStatus.Finalized] = Array.Empty<AssessmentStatus>(),
+    };
 
-    public static bool CanTransition(TStatus from, TStatus to)
+    public static bool CanTransition(AssessmentStatus from, AssessmentStatus to)
     {
-        if (from.Equals(to)) return true;
+        if (from == to) return true;
         return AllowedTransitions.TryGetValue(from, out var allowed) && allowed.Contains(to);
     }
 }

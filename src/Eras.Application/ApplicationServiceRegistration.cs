@@ -52,8 +52,8 @@ namespace Eras.Application.Services
 
             services.AddScoped<IValidator<InterventionPlan>, InterventionPlanValidator>();
             services.AddScoped<IValidator<Assessment>, AssessementValidator>();
-            services.AddScoped<IValidator<StatusTransitionRequest<AssessmentStatus>>, StatusTransitionValidator<AssessmentStatus>>();
-            services.AddScoped<IValidator<StatusTransitionRequest<InterventionStatus>>, StatusTransitionValidator<InterventionStatus>>();
+            services.AddScoped<IValidator<StatusTransitionRequest<InterventionStatus>>, InterventionStatusTransitionValidator>();
+            services.AddScoped<IValidator<StatusTransitionRequest<AssessmentStatus>>, AssessmentStatusTransitionValidator>();
             services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
 
             return services;

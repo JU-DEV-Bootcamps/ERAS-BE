@@ -56,7 +56,7 @@ public sealed class DeleteInterventionCommandHandler : IRequestHandler<DeleteInt
         {
             _logger.LogWarning(ex, "Intervention '{InterventionId}' not found for assessment '{AssessmentId}'.",
                 request.InterventionId, request.AssessmentId);
-            throw;
+            throw new KeyNotFoundException($"Intervention '{request.InterventionId}' not found for assessment '{request.AssessmentId}'");
         }
     }
 }
