@@ -76,7 +76,10 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
             }
             catch (Exception ex)
             {
+                // Propagate so the surrounding import transaction rolls back instead of
+                // silently committing a partial set of answers.
                 _logger.LogError(ex, "An error occurred creating or updating answers");
+                throw;
             }
 
             return new CreateCommandResponse<List<Answer>>(answers, 1, "Success", true);

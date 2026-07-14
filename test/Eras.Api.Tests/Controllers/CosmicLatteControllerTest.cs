@@ -1,4 +1,5 @@
 ﻿using Eras.Api.Controllers;
+using Eras.Application.Contracts.Services;
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Configurations.Queries.GetConfiguration;
@@ -48,7 +49,14 @@ namespace Eras.Api.Tests.Controllers
             It.IsAny<string>()
             )).ReturnsAsync(new List<PollDTO>());
 
-            controller = new CosmicLatteController(mockMediator.Object, mockService.Object);
+            var mockImportJobService = new Mock<IImportJobService>();
+            var mockFeatureFlagService = new Mock<IFeatureFlagService>();
+
+            controller = new CosmicLatteController(
+                mockMediator.Object,
+                mockService.Object,
+                mockImportJobService.Object,
+                mockFeatureFlagService.Object);
         }
 
 

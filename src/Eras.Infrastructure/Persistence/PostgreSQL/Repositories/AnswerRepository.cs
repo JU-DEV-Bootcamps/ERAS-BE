@@ -40,25 +40,6 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
 
         return answers;
     }
-    public async Task SaveManyAnswersAsync(List<Answer> Answers)
-    {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        foreach (Answer ans in Answers)
-        {
-            try
-            {
-                await _context.Answers.AddAsync(ans.ToPersistence());
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                _context.ChangeTracker.Clear();
-                Console.WriteLine($"Error storing answer: {ex.Message}");
-            }
-            await transaction.CommitAsync();
-        }
-    }
-
     public async Task<List<Answer>> GetByPollInstanceAnswerAndPollVariableAsync(int PollVariableId,
         int PollInstanceId, string AnswerText)
     {

@@ -1,0 +1,172 @@
+using System.Text.Json;
+
+using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
+using Eras.Application.Dtos;
+using Eras.Application.DTOs;
+using Eras.Domain.Entities;
+
+namespace Eras.Application.Services
+{
+    /// <summary>
+    /// Creates and queues asynchronous import jobs (with one item per student), exposes their status
+    /// for polling, and re-queues selected failed items for retry.
+    /// </summary>
+    public class ImportJobService : IImportJobService
+    {
+        private const int MaxPollNameLength = 100;
+
+        private readonly IImportJobRepository _importJobRepository;
+        private readonly IImportJobItemRepository _importJobItemRepository;
+        private readonly IImportJobQueue _queue;
+
+        public ImportJobService(
+            IImportJobRepository ImportJobRepository,
+            IImportJobItemRepository ImportJobItemRepository,
+            IImportJobQueue Queue)
+        {
+            _importJobRepository = ImportJobRepository;
+            _importJobItemRepository = ImportJobItemRepository;
+            _queue = Queue;
+        }
+
+        public async Task<int> StartExtractionAsync(string EvaluationSetName, int ConfigurationId, string? StartDate, string? EndDate, int EvaluationId)
+        {
+            if (EvaluationSetName.Length > MaxPollNameLength)
+            {
+                throw new ArgumentException("There was an error during the import: Poll Name exceeds the maximum length of 100 characters.");
+            }
+
+            DateTime now = DateTime.UtcNow;
+            ImportJob job = new ImportJob
+            {
+                EvaluationId = EvaluationId,
+                Status = ImportJobStatus.Extracting,
+                EvaluationSetName = EvaluationSetName,
+                ConfigurationId = ConfigurationId,
+                StartDate = StartDate,
+                EndDate = EndDate,
+                PollsPayload = "[]",
+                CreatedAtUtc = now,
+                UpdatedAtUtc = now,
+            };
+            ImportJob created = await _importJobRepository.AddAsync(job);
+            await _queue.EnqueueAsync(created.Id);
+            return created.Id;
+        }
+
+        /// <summary>
+        /// Confirms which extracted respondents to import: selected items → Queued, the rest → Skipped,
+        /// the job → Importing, and re-enqueues so the worker persists them. No data is re-sent.
+        /// </summary>
+        public async Task<bool> ConfirmImportAsync(int ImportJobId, List<int> ItemIds)
+        {
+            ImportJob? job = await _importJobRepository.GetByIdAsync(ImportJobId);
+            if (job == null) return false;
+
+            DateTime now = DateTime.UtcNow;
+            await _importJobItemRepository.ConfirmSelectionAsync(ImportJobId, ItemIds, now);
+            // The import total is the number of confirmed (now Queued) respondents.
+            (int confirmed, _, _) = await _importJobItemRepository.GetImportPhaseCountsAsync(ImportJobId);
+            await _importJobRepository.SetImportingAsync(ImportJobId, confirmed, now);
+            await _queue.EnqueueAsync(ImportJobId);
+            return true;
+        }
+
+        public async Task<int> QueueImportAsync(List<PollDTO> Polls, int EvaluationId)
+        {
+            if (Polls.Any(P => P.Name?.Length > MaxPollNameLength))
+            {
+                throw new ArgumentException("There was an error during the import: Poll Name exceeds the maximum length of 100 characters.");
+            }
+
+            DateTime now = DateTime.UtcNow;
+            ImportJob job = new ImportJob
+            {
+                EvaluationId = EvaluationId,
+                Status = ImportJobStatus.Queued,
+                TotalCount = Polls.Count,
+                PollsPayload = JsonSerializer.Serialize(Polls),
+                CreatedAtUtc = now,
+                UpdatedAtUtc = now,
+            };
+            ImportJob created = await _importJobRepository.AddAsync(job);
+
+            // One item per student so progress and retries are tracked individually.
+            foreach (PollDTO poll in Polls)
+            {
+                StudentDTO? student = poll.Components?.FirstOrDefault()?.Variables?.FirstOrDefault()?.Answer?.Student;
+                ImportJobItem item = new ImportJobItem
+                {
+                    ImportJobId = created.Id,
+                    StudentEmail = student?.Email ?? string.Empty,
+                    StudentName = student?.Name ?? string.Empty,
+                    Cohort = student?.Cohort?.Name,
+                    Status = ImportJobStatus.Queued,
+                    PollPayload = JsonSerializer.Serialize(poll),
+                    CreatedAtUtc = now,
+                    UpdatedAtUtc = now,
+                };
+                await _importJobItemRepository.AddAsync(item);
+            }
+
+            await _queue.EnqueueAsync(created.Id);
+            return created.Id;
+        }
+
+        public async Task<ImportJobStatusDTO?> GetStatusAsync(int ImportJobId)
+        {
+            ImportJob? job = await _importJobRepository.GetByIdAsync(ImportJobId);
+            if (job == null) return null;
+
+            return new ImportJobStatusDTO
+            {
+                ImportJobId = job.Id,
+                EvaluationId = job.EvaluationId,
+                Status = job.Status.ToString(),
+                TotalCount = job.TotalCount,
+                ProcessedCount = job.ProcessedCount,
+                ExtractedCount = job.ExtractedCount,
+                RetryCount = job.RetryCount,
+                ErrorMessage = job.ErrorMessage,
+                CreatedAtUtc = job.CreatedAtUtc,
+                UpdatedAtUtc = job.UpdatedAtUtc,
+            };
+        }
+
+        public async Task<List<ImportJobItemDTO>> GetItemsAsync(int ImportJobId)
+        {
+            List<ImportJobItem> items = await _importJobItemRepository.GetByJobIdAsync(ImportJobId);
+            return items.Select(Item => new ImportJobItemDTO
+            {
+                Id = Item.Id,
+                ImportJobId = Item.ImportJobId,
+                StudentEmail = Item.StudentEmail,
+                StudentName = Item.StudentName,
+                Cohort = Item.Cohort,
+                Status = Item.Status.ToString(),
+                RetryCount = Item.RetryCount,
+                IsAlreadyImported = Item.IsAlreadyImported,
+                ErrorMessage = Item.ErrorMessage,
+            }).ToList();
+        }
+
+        /// <summary>
+        /// Re-queues the given failed items for processing and re-enqueues the job so the worker
+        /// reprocesses them. Returns false if the job does not exist.
+        /// </summary>
+        public async Task<bool> RetryItemsAsync(int ImportJobId, List<int> ItemIds)
+        {
+            ImportJob? job = await _importJobRepository.GetByIdAsync(ImportJobId);
+            if (job == null) return false;
+
+            DateTime now = DateTime.UtcNow;
+            int requeued = await _importJobItemRepository.RequeueFailedAsync(ImportJobId, ItemIds, now);
+            if (requeued == 0) return true;
+
+            await _importJobRepository.SetStatusAsync(ImportJobId, ImportJobStatus.Queued, now);
+            await _queue.EnqueueAsync(ImportJobId);
+            return true;
+        }
+    }
+}

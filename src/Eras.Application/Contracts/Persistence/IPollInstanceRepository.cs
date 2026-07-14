@@ -32,4 +32,5 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
     Task<bool> ExistsForStudentAndEvaluationAsync(int StudentId, string PollUuid, int EvaluationId);
     Task<PollInstance?> FindMatchingSourceInstanceAsync(int studentId, int currentPollInstanceId, PollDTO incomingPoll);
     Task SetSourceInstanceAsync(int pollInstanceId, int sourceInstanceId);
+    string ComputeAnswersHash(PollDTO incomingPoll);
 }

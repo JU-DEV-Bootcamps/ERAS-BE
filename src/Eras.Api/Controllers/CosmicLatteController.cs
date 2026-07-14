@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Dtos;
+using Eras.Application.DTOs;
 using Eras.Application.Features.Configurations.Queries.GetConfiguration;
 using Eras.Application.Services;
 
@@ -6,15 +7,24 @@ using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Eras.Application.Features.FeatureFlags;
+using Eras.Application.Models;
+using Eras.Application.Contracts.Services;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/cosmic-latte")]
-public class CosmicLatteController(IMediator Mediator, ICosmicLatteAPIService CosmicLatteService) : ControllerBase
+public class CosmicLatteController(
+    IMediator Mediator,
+    ICosmicLatteAPIService CosmicLatteService,
+    IImportJobService ImportJobService,
+    IFeatureFlagService FeatureFlagService) : ControllerBase
 {
     private readonly ICosmicLatteAPIService _cosmicLatteService = CosmicLatteService;
     private readonly IMediator _mediator = Mediator;
+    private readonly IImportJobService _importJobService = ImportJobService;
+    private readonly IFeatureFlagService _featureFlagService = FeatureFlagService;
 
     [HttpGet("polls")]
     public async Task<IActionResult> GetPreviewPollsAsync(
@@ -72,7 +82,17 @@ public class CosmicLatteController(IMediator Mediator, ICosmicLatteAPIService Co
     {
         try
         {
-            return Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances, EvaluationId));
+            if (await _featureFlagService.UseEnhancedEvaluationImport())
+            {
+                // Queue the import for background processing and return immediately; the client polls
+                // GET imports/{importJobId} for progress instead of waiting for the whole import.
+                int importJobId = await _importJobService.QueueImportAsync(PollsInstances, EvaluationId);
+                return Accepted(new { importJobId, status = "Queued" });
+            }
+            else
+            {
+                return Ok(await _cosmicLatteService.SavePreviewPolls(PollsInstances, EvaluationId));
+            }
         }
         catch (ArgumentException ex)
         {
@@ -82,6 +102,84 @@ public class CosmicLatteController(IMediator Mediator, ICosmicLatteAPIService Co
         {
             return StatusCode(500, new { message = ex.Message });
         }
+    }
+
+    [Authorize]
+    [HttpPost("imports/extract")]
+    public async Task<IActionResult> StartExtractionAsync([FromBody] StartExtractionRequest Request)
+    {
+        try
+        {
+            // Extract respondents from Cosmic Latte in the background; the client polls
+            // GET imports/{id} + /items and confirms the selection later (no payload round-trip).
+            int importJobId = await _importJobService.StartExtractionAsync(
+                Request.EvaluationSetName, Request.ConfigurationId, Request.StartDate, Request.EndDate, Request.EvaluationId);
+            return Accepted(new { importJobId, status = "Extracting" });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = ex.Message });
+        }
+    }
+
+    [Authorize]
+    [HttpPost("imports/{ImportJobId}/confirm")]
+    public async Task<IActionResult> ConfirmImportAsync(int ImportJobId, [FromBody] ConfirmImportRequest Request)
+    {
+        if (Request?.ItemIds == null || Request.ItemIds.Count == 0)
+        {
+            return BadRequest(new { message = "No items selected to import." });
+        }
+        bool found = await _importJobService.ConfirmImportAsync(ImportJobId, Request.ItemIds);
+        if (!found)
+        {
+            return NotFound(new { message = $"Import job {ImportJobId} not found" });
+        }
+        return Accepted(new { importJobId = ImportJobId, status = "Importing" });
+    }
+
+    [Authorize]
+    [HttpGet("imports/{ImportJobId}")]
+    public async Task<IActionResult> GetImportStatusAsync(int ImportJobId)
+    {
+        var status = await _importJobService.GetStatusAsync(ImportJobId);
+        if (status == null)
+        {
+            return NotFound(new { message = $"Import job {ImportJobId} not found" });
+        }
+        return Ok(status);
+    }
+
+    [Authorize]
+    [HttpGet("imports/{ImportJobId}/items")]
+    public async Task<IActionResult> GetImportItemsAsync(int ImportJobId)
+    {
+        var status = await _importJobService.GetStatusAsync(ImportJobId);
+        if (status == null)
+        {
+            return NotFound(new { message = $"Import job {ImportJobId} not found" });
+        }
+        return Ok(await _importJobService.GetItemsAsync(ImportJobId));
+    }
+
+    [Authorize]
+    [HttpPost("imports/{ImportJobId}/retry")]
+    public async Task<IActionResult> RetryImportItemsAsync(int ImportJobId, [FromBody] RetryImportItemsRequest Request)
+    {
+        if (Request?.ItemIds == null || Request.ItemIds.Count == 0)
+        {
+            return BadRequest(new { message = "No items provided to retry." });
+        }
+        bool found = await _importJobService.RetryItemsAsync(ImportJobId, Request.ItemIds);
+        if (!found)
+        {
+            return NotFound(new { message = $"Import job {ImportJobId} not found" });
+        }
+        return Accepted(new { importJobId = ImportJobId, status = "Queued" });
     }
 
     [HttpGet("polls/names")]
