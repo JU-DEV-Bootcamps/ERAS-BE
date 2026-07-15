@@ -17,5 +17,6 @@ namespace Eras.Domain.Entities
         public ICollection<Poll> Polls { get; set; } = [];
         public ICollection<PollInstance>? PollInstances { get; set; }
         public AuditInfo Audit { get; set; } = default!;
+        public int? LatestImportJobId { get; set; }
     }
 }

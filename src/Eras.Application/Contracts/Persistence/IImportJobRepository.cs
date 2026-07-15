@@ -9,5 +9,6 @@ namespace Eras.Application.Contracts.Persistence
         Task SetExtractedCountAsync(int Id, int ExtractedCount, DateTime UpdatedAtUtc);
         Task SetReadyAsync(int Id, int TotalCount, DateTime UpdatedAtUtc);
         Task SetImportingAsync(int Id, int TotalCount, DateTime UpdatedAtUtc);
+        Task<Dictionary<int, int>> GetLatestImportJobIdsByEvaluationIdsAsync(IEnumerable<int> EvaluationIds);
     }
 }

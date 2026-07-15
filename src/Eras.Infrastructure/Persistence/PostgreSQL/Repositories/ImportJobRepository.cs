@@ -66,5 +66,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     .SetProperty(Job => Job.ProcessedCount, 0)
                     .SetProperty(Job => Job.UpdatedAtUtc, UpdatedAtUtc));
         }
+
+        // Returns, per evaluation, the id of its most recently created import job (used by the
+        // frontend to enable/disable "View Import" without an extra request per row).
+        public async Task<Dictionary<int, int>> GetLatestImportJobIdsByEvaluationIdsAsync(
+            IEnumerable<int> EvaluationIds)
+        {
+            return await _context.Set<ImportJobEntity>()
+                .Where(Job => EvaluationIds.Contains(Job.EvaluationId))
+                .GroupBy(Job => Job.EvaluationId)
+                .Select(Group => Group.OrderByDescending(Job => Job.CreatedAtUtc).First())
+                .ToDictionaryAsync(Job => Job.EvaluationId, Job => Job.Id);
+        }
     }
 }
