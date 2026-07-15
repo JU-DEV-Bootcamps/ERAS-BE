@@ -24,6 +24,7 @@ public sealed class IndividualInterventionMapper : IMapper<IndividualInterventio
             Attachments = source.Attachments,
             RiskLevel = source.RiskLevel,
             RiskLevelName = source.RiskLevelName,
+            EndRiskLevelName = source.EndRiskLevelName,
         };
     }
 }

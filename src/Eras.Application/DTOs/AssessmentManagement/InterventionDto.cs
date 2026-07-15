@@ -33,4 +33,5 @@ public abstract record InterventionDto
     public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
     public double? RiskLevel { get; init; }
     public InterventionLevel RiskLevelName { get; init; }
+    public InterventionLevel? EndRiskLevelName { get; init; }
 }

@@ -24,14 +24,14 @@ public class BaseRepository<T>(AppDbContext context) : BaseRepository<T, T>(cont
         return null;
     }
 
-    public async Task<T?> GetByIdNoTrackingAsync(int id)
+    public async Task<T?> GetByIdNoTrackingAsync(int id, Func<IQueryable<T>, IQueryable<T>>? include = null)
     {
-        T? persistenceEntity = await _context.Set<T>().FindAsync(id);
-        if (persistenceEntity is T found)
+        IQueryable<T> query = _context.Set<T>().AsNoTracking();
+        if(include is not null)
         {
-            _context.Entry(persistenceEntity).State = EntityState.Detached;
-            return found;
+            query = include(query);
         }
-        return null;
+
+        return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
     }
 }

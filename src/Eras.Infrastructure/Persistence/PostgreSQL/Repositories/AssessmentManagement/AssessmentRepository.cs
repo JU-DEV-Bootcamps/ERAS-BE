@@ -43,7 +43,7 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
     public async Task DeleteAssessmentAsync(int assessmentId)
     {
         Assessment? assessment = await _context.Set<Assessment>()
-            .FirstOrDefaultAsync(i => i.Id == assessmentId && i.Status != AssessmentStatus.Remitted);
+            .FirstOrDefaultAsync(i => i.Id == assessmentId && i.Status == AssessmentStatus.Remitted);
 
         if (assessment is null)
             throw new KeyNotFoundException(
