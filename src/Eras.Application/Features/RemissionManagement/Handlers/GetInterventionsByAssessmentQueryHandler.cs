@@ -30,6 +30,6 @@ public sealed class GetInterventionsByAssessmentQueryHandler
         if (assessment is null)
             throw new KeyNotFoundException($"Assessment '{request.AssessmentId}' not found.");
 
-        return _toDtoMapper.Map(assessment).Interventions;
+        return _toDtoMapper.Map(assessment).Interventions.OrderBy(i => i.DateUtc).ToList();
     }
 }

@@ -155,8 +155,18 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         [FromBody] IReadOnlyCollection<InterventionDto> interventions,
         CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(new UpsertInterventionsCommand(id, interventions), cancellationToken);
-        return Ok(response);
+        try
+        {
+            var response = await Mediator.Send(new UpsertInterventionsCommand(id, interventions), cancellationToken);
+            return Ok(response);
+        }
+        catch (OperationCanceledException ex)
+        {
+            return Conflict(new
+            {
+                message = ex.Message
+            });
+        }
     }
 
     [HttpDelete("{id:int}/interventions/{interventionId:int}")]
@@ -167,8 +177,14 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         int interventionId,
         CancellationToken cancellationToken)
     {
-        await Mediator.Send(new DeleteInterventionCommand(id, interventionId), cancellationToken);
-        return NoContent();
+        try
+        {
+            await Mediator.Send(new DeleteInterventionCommand(id, interventionId), cancellationToken);
+            return NoContent();
+        } catch(KeyNotFoundException)
+        {
+            return NotFound();
+        }
     }
 
     [HttpPost("interventions/{interventionId}/attachments")]

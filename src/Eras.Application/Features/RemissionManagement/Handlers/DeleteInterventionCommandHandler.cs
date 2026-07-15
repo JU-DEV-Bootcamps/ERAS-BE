@@ -1,5 +1,7 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
+using Eras.Domain.Entities.AssessmentManagement;
+
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +29,7 @@ public sealed class DeleteInterventionCommandHandler : IRequestHandler<DeleteInt
         {
             var intervention = await _repository.GetInterventionByIdAsync(request.InterventionId);
 
-            if (intervention is not null)
+            if (intervention is not null && intervention.Status != InterventionStatus.Remitted)
             {
                 foreach (string attachment in intervention.Attachments)
                 {
@@ -43,6 +45,10 @@ public sealed class DeleteInterventionCommandHandler : IRequestHandler<DeleteInt
                     }
                 }
             }
+            if (intervention.Status != InterventionStatus.Remitted)
+            {
+                throw new KeyNotFoundException($"Intervention '{request.InterventionId}' cannot be removed by its status.");
+            }
 
             await _repository.DeleteInterventionAsync(request.AssessmentId, request.InterventionId);
         }
@@ -50,7 +56,7 @@ public sealed class DeleteInterventionCommandHandler : IRequestHandler<DeleteInt
         {
             _logger.LogWarning(ex, "Intervention '{InterventionId}' not found for assessment '{AssessmentId}'.",
                 request.InterventionId, request.AssessmentId);
-            throw;
+            throw new KeyNotFoundException($"Intervention '{request.InterventionId}' not found for assessment '{request.AssessmentId}'");
         }
     }
 }
