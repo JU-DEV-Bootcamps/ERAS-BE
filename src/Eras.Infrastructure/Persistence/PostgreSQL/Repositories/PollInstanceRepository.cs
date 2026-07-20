@@ -82,15 +82,19 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             bool LastVersion,
             string PollUuid,
             DateTime? StartDate,
-            DateTime? EndDate 
+            DateTime? EndDate,
+            int? EvaluationId = null
     )
     {
-        var query = _context.PollInstances.Include(PI => PI.Student)
-            .Join(_context.StudentCohorts,
-                PollInstance => PollInstance.StudentId,
-                StudentCohort => StudentCohort.StudentId,
-                (PollInstance, StudentCohort) => new { pollInstance = PollInstance, studentCohort = StudentCohort })
-            .Where(Joined => CohortId.Contains(Joined.studentCohort.CohortId) && Joined.pollInstance.Uuid == PollUuid);
+        var query = _context.PollInstances
+            .Include(PI => PI.Student)
+            .Where(PI => PI.Uuid == PollUuid &&
+                        _context.StudentCohorts.Any(SC => SC.StudentId == PI.StudentId && CohortId.Contains(SC.CohortId)));
+
+        if (EvaluationId.HasValue)
+        {
+            query = query.Where(PI => PI.EvaluationId == EvaluationId.Value);
+        }
 
         int pollVersion = _context.Polls
             .Where(A => A.Uuid == PollUuid)
@@ -99,43 +103,39 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
 
         if (StartDate.HasValue && EndDate.HasValue)
         {
-            query = query.Where(PI =>
-                PI.pollInstance.FinishedAt >= StartDate.Value &&
-                PI.pollInstance.FinishedAt <= EndDate.Value);
+            query = query.Where(PI => PI.FinishedAt >= StartDate.Value && PI.FinishedAt <= EndDate.Value);
         }
         else if (Days.HasValue && Days != 0 && LastVersion)
         {
             DateTime dateLimit = DateTime.UtcNow.AddDays(-Days.Value);
-            query = query.Where(PI =>
-                PI.pollInstance.FinishedAt >= dateLimit &&
-                PI.pollInstance.LastVersion == pollVersion);
+            query = query.Where(PI => PI.FinishedAt >= dateLimit && PI.LastVersion == pollVersion);
         }
         else
         {
             DateTime dateLimit = DateTime.UtcNow.AddDays(Days.HasValue ? -Days.Value : 0);
-            query = query.Where(PI =>
-                PI.pollInstance.FinishedAt >= dateLimit &&
-                PI.pollInstance.LastVersion != pollVersion);
+            query = query.Where(PI => PI.FinishedAt >= dateLimit && PI.LastVersion != pollVersion);
         }
 
-        var totalCount = await query.Distinct().CountAsync();
-        var pollInstances = await
-            query
-            .Distinct()
-            .Select(Resp => new PollInstance
-            {
-                Uuid = Resp.pollInstance.Uuid,
-                Student = Resp.pollInstance.Student.ToDomain(),
-                Audit = Resp.pollInstance.Audit,
-                LastVersion = Resp.pollInstance.LastVersion,
-                FinishedAt = Resp.pollInstance.FinishedAt,
-            })
-            .OrderBy(P => P.FinishedAt)
+        var totalCount = await query.CountAsync();
+
+        var pollInstances = await query
+            .OrderBy(PI => PI.FinishedAt)
             .Skip((Page - 1) * PageSize)
             .Take(PageSize)
             .ToListAsync();
 
-        return new PagedResult<PollInstance>(totalCount, pollInstances);
+        var mapped = pollInstances
+            .Select(PI => new PollInstance
+            {
+                Uuid = PI.Uuid,
+                Student = PI.Student.ToDomain(),
+                Audit = PI.Audit,
+                LastVersion = PI.LastVersion,
+                FinishedAt = PI.FinishedAt,
+            })
+            .ToList();
+
+        return new PagedResult<PollInstance>(totalCount, mapped);
     }
 
     public async Task<AvgReportResponseVm> GetReportByPollCohortAsync(
