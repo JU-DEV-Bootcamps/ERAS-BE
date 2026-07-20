@@ -129,6 +129,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
     private async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsWithoutPagination()
     {
         var prevItems = await _context.ErasEvaluationDetailsView
+            .Where(e => e.Status == "Completed" || e.Status == "InProgress")
             .Select(e => new
             {
                 e.StudentId,
