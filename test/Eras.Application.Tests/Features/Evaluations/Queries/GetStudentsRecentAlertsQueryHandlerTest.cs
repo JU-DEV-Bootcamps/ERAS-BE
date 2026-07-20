@@ -61,8 +61,28 @@ public class GetStudentsRecentAlertsQueryHandlerTest
         _mockRepository.Setup(Repo => Repo.CountRecentAlerts()).ReturnsAsync(2);
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
+        _mockRepository.Verify(x => x.GetRecentAlertsStudentAsync(It.IsAny<int>(), It.IsAny<int>()),Times.Once);
 
+        _mockRepository.Verify(x => x.CountRecentAlerts(),Times.Once);
         // Assert
         Assert.Equal(2, result.Count);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_Empty_With_Exception()
+    {
+        // Arrange
+        var query = new GetStudentsRecentAlertsQuery(new Utils.Pagination());
+        _mockRepository
+            .Setup(x => x.GetRecentAlertsStudentAsync(It.IsAny<int>(), It.IsAny<int>()))
+            .ThrowsAsync(new Exception("Error occurs"));
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(0, result.Count);
+        Assert.Empty(result.Items);
     }
 }
