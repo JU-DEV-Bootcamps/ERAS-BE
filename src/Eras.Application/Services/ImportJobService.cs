@@ -4,6 +4,7 @@ using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
+using Eras.Application.Validation;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Services
@@ -19,15 +20,18 @@ namespace Eras.Application.Services
         private readonly IImportJobRepository _importJobRepository;
         private readonly IImportJobItemRepository _importJobItemRepository;
         private readonly IImportJobQueue _queue;
+        private readonly IEvaluationRepository _evaluationRepository;
 
         public ImportJobService(
             IImportJobRepository ImportJobRepository,
             IImportJobItemRepository ImportJobItemRepository,
-            IImportJobQueue Queue)
+            IImportJobQueue Queue,
+            IEvaluationRepository EvaluationRepository)
         {
             _importJobRepository = ImportJobRepository;
             _importJobItemRepository = ImportJobItemRepository;
             _queue = Queue;
+            _evaluationRepository = EvaluationRepository;
         }
 
         public async Task<int> StartExtractionAsync(string EvaluationSetName, int ConfigurationId, string? StartDate, string? EndDate, int EvaluationId)
@@ -37,6 +41,14 @@ namespace Eras.Application.Services
                 throw new ArgumentException("There was an error during the import: Poll Name exceeds the maximum length of 100 characters.");
             }
 
+            Evaluation? evaluation = await _evaluationRepository.GetByIdAsync(EvaluationId);
+            if (!DateTime.TryParse(StartDate, out DateTime requestedStart) || !DateTime.TryParse(EndDate, out DateTime requestedEnd))
+            {
+                throw new ArgumentException("There was an error during the import: Invalid start or end date.");
+            }
+
+            EvaluationDateRangeValidator.EnsureWithinRange(evaluation, requestedStart, requestedEnd);
+           
             DateTime now = DateTime.UtcNow;
             ImportJob job = new ImportJob
             {
