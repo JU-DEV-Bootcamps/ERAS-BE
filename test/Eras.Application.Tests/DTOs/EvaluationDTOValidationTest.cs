@@ -18,6 +18,16 @@ public class EvaluationDTOValidationTests
         Status = "Completed"
     };
 
+    [Fact]
+    public void ValidDTO_PassesValidation()
+    {
+        EvaluationDTO dto = CreateValidDTO();
+
+        IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
+
+        Assert.Empty(results);
+    }
+
     [Theory]
     [InlineData(null)]
     [InlineData("")]
@@ -34,7 +44,7 @@ public class EvaluationDTOValidationTests
     }
 
     [Fact]
-    public void Name_Fails_WhenLenghtTooShort()
+    public void Name_Fails_WhenLengthTooShort()
     {
         EvaluationDTO dto = CreateValidDTO();
         dto.Name = new string('a', 2);
@@ -47,7 +57,7 @@ public class EvaluationDTOValidationTests
     }
 
     [Fact]
-    public void Name_Fails_WhenLenghtTooLong()
+    public void Name_Fails_WhenLengthTooLong()
     {
         EvaluationDTO dto = CreateValidDTO();
         dto.Name = new string('a', 51);
@@ -75,7 +85,7 @@ public class EvaluationDTOValidationTests
     }
 
     [Fact]
-    public void PollName_Fails_WhenLenghtTooLong()
+    public void PollName_Fails_WhenLengthTooLong()
     {
         EvaluationDTO dto = CreateValidDTO();
         dto.PollName = new string('a', 101);
@@ -88,7 +98,7 @@ public class EvaluationDTOValidationTests
     }
 
     [Fact]
-    public void Country_Fails_WhenLenghtTooLong()
+    public void Country_Fails_WhenLengthTooLong()
     {
         EvaluationDTO dto = CreateValidDTO();
         dto.Country = new string('a', 11);
@@ -115,7 +125,7 @@ public class EvaluationDTOValidationTests
     }
 
     [Fact]
-    public void Status_Fails_WhenLenghtTooLong()
+    public void Status_Fails_WhenLengthTooLong()
     {
         EvaluationDTO dto = CreateValidDTO();
         dto.Status = new string('a', 31);
