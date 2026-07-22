@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using Eras.Application.DTOs;
-using Eras.Application.Validation;
 
 namespace Eras.Application.Tests.DTOs;
 public class ConfigurationsDTOValidationTests
