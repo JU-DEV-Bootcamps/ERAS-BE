@@ -21,7 +21,8 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
             bool LastVersion,
             string PollUuid,
             DateTime? StartDate,
-            DateTime? EndDate
+            DateTime? EndDate,
+            int? EvaluationId = null
     );
 
     Task<AvgReportResponseVm> GetReportByPollCohortAsync(string PollUuid, List<int> CohortIds, bool LastVersion, DateTime StartDate, DateTime EndDate);
