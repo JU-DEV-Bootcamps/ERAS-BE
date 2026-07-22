@@ -11,6 +11,7 @@ public class AnswerDTO
     [NoSqlInjection]
     public string Answer { get; set; } = string.Empty;
 
+    [Required(ErrorMessage = "Score is required")]
     [Range(0, 100, ErrorMessage = "Score must be between 0 and 100.")]
     public decimal Score { get; set; }
 
