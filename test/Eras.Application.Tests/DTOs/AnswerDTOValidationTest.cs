@@ -60,7 +60,6 @@ public class AnswerDTOValidationTests
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
 
         Assert.Single(results);
-        Console.WriteLine("memnames", results.First().MemberNames);
         Assert.Equal($"The field {nameof(AnswerDTO.Answer)} contains potentially unsafe content that could be used for SQL injection attacks.", results.First().ErrorMessage);
     }
 
