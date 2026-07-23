@@ -26,3 +26,13 @@ public class UuidFormatTestData : TheoryData<string>
         Add("7cd01d8a_37fc_4b4a_9537_03eaa0916f25");
     }
 }
+
+public class URLFormatTestData : TheoryData<string>
+{
+    public URLFormatTestData()
+    {
+        Add("htt/test.a/");
+        Add("http//test");
+        Add("http//test.sql/api");
+    }
+}
