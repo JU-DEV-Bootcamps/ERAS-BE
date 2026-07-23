@@ -36,3 +36,16 @@ public class URLFormatTestData : TheoryData<string>
         Add("http//test.sql/api");
     }
 }
+
+public class EmailFormatTestData : TheoryData<string>
+{
+    public EmailFormatTestData()
+    {
+        Add("plainaddress");
+        Add("@domain.com");
+        Add("user@");
+        Add("user@.com");
+        Add("user@domain.co1");
+        Add("user @test.com");
+    }
+}
