@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Eras.Application.DTOs;
+using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
 public class AnswerDTOValidationTests
@@ -24,8 +25,7 @@ public class AnswerDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void Answer_Required_FailsWhenMissing(string InvalidAnswer)
     {
         AnswerDTO dto = CreateValidDTO();
@@ -51,11 +51,12 @@ public class AnswerDTOValidationTests
         Assert.Contains(nameof(AnswerDTO.Answer), results.First().MemberNames);
     }
 
-    [Fact]
-    public void Answer_Fails_WithSqlInjectionPattern()
+    [Theory]
+    [ClassData(typeof(SqlInjectionTestData))]
+    public void Answer_Fails_WithSqlInjectionPattern(string InjectionPattern)
     {
         AnswerDTO dto = CreateValidDTO();
-        dto.Answer = "'; DROP TABLE Students; --";
+        dto.Answer = InjectionPattern;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
 

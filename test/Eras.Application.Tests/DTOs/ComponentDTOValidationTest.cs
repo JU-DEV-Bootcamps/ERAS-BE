@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Eras.Application.DTOs;
+using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
 public class ComponentDTOValidationTest
@@ -20,8 +21,7 @@ public class ComponentDTOValidationTest
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void Name_Required_FailsWhenMissing(string InvalidName)
     {
         ComponentDTO dto = CreateValidDTO();
@@ -60,11 +60,12 @@ public class ComponentDTOValidationTest
         Assert.Contains(nameof(ComponentDTO.Name), results.First().MemberNames);
     }
 
-    [Fact]
-    public void Name_Fails_WithSqlInjectionPattern()
+    [Theory]
+    [ClassData(typeof(SqlInjectionTestData))]
+    public void Name_Fails_WithSqlInjectionPattern(string InjectionPattern)
     {
         ComponentDTO dto = CreateValidDTO();
-        dto.Name = "'; DROP TABLE Students; --";
+        dto.Name = InjectionPattern;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
 

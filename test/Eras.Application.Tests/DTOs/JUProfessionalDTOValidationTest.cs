@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Eras.Application.DTOs;
+using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
 
@@ -37,8 +38,7 @@ public class JUProfessionalDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void Name_Required_FailsWhenMissing(string InvalidName)
     {
         JUProfessionalDTO dto = CreateValidDTO();
@@ -94,8 +94,7 @@ public class JUProfessionalDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void Uuid_Required_FailsWhenMissing(string InvalidUUID)
     {
         JUProfessionalDTO dto = CreateValidDTO();
@@ -135,8 +134,7 @@ public class JUProfessionalDTOValidationTests
     }
 
     [Theory]
-    [InlineData("7gd01d8z-37fh-4b4a-9537-03epa0916f25")]
-    [InlineData("7cd01d8a_37fc_4b4a_9537_03eaa0916f25")]
+    [ClassData(typeof(UuidFormatTestData))]
     public void Uuid_Fails_WhenRegExpDoesNotMatch(string InvalidUuid)
     {
         JUProfessionalDTO dto = CreateValidDTO();

@@ -1,9 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-using Eras.Application.DTOs;
 using Eras.Application.DTOs.Poll;
-using Eras.Application.Tests.TestUtils;
-
 namespace Eras.Application.Tests.DTOs;
 
 public class PollVariableDTOValidationTests

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Eras.Application.DTOs;
+using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
 public class JUServiceDTOValidationTests
@@ -35,8 +36,7 @@ public class JUServiceDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void Name_Required_FailsWhenMissing(string InvalidName)
     {
         JUServiceDTO dto = CreateValidDTO();

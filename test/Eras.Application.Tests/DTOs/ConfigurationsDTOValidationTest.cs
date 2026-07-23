@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Eras.Application.DTOs;
+using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
 public class ConfigurationsDTOValidationTests
@@ -39,8 +40,7 @@ public class ConfigurationsDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void UserId_Required_FailsWhenMissing(string InvalidUserId)
     {
         ConfigurationsDTO dto = CreateValidDTO();
@@ -80,8 +80,7 @@ public class ConfigurationsDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void ConfigurationName_Required_FailsWhenMissing(string InvalidConfigurationName)
     {
         ConfigurationsDTO dto = CreateValidDTO();
@@ -108,8 +107,7 @@ public class ConfigurationsDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void BaseURL_Required_FailsWhenMissing(string InvalidBaseURL)
     {
         ConfigurationsDTO dto = CreateValidDTO();
@@ -123,9 +121,7 @@ public class ConfigurationsDTOValidationTests
     }
 
     [Theory]
-    [InlineData("htt/test.a/")]
-    [InlineData("http//test")]
-    [InlineData("http//test.sql/api")]
+    [ClassData(typeof(URLFormatTestData))]
     public void BaseURL_URL_FailsWhenInvalid(string InvalidBaseURL)
     {
         ConfigurationsDTO dto = CreateValidDTO();
@@ -152,8 +148,7 @@ public class ConfigurationsDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void EncryptedKey_Required_FailsWhenMissing(string InvalidEncryptedKey)
     {
         ConfigurationsDTO dto = CreateValidDTO();

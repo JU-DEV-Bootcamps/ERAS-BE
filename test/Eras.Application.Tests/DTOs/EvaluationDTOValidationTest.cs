@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Eras.Application.DTOs;
+using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
 public class EvaluationDTOValidationTests
@@ -29,8 +30,7 @@ public class EvaluationDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void Name_Required_FailsWhenMissing(string InvalidName)
     {
         EvaluationDTO dto = CreateValidDTO();
@@ -70,8 +70,7 @@ public class EvaluationDTOValidationTests
     }
 
     [Theory]
-    [InlineData(null)]
-    [InlineData("")]
+    [ClassData(typeof(RequiredStringTestData))]
     public void PollName_Required_FailsWhenMissing(string InvalidPollName)
     {
         EvaluationDTO dto = CreateValidDTO();
