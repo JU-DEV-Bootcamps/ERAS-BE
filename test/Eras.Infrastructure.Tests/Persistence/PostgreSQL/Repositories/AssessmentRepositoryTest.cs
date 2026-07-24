@@ -4,7 +4,6 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManageme
 using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Entities;
 
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 
 using MockQueryable.Moq;
@@ -158,7 +157,7 @@ public class AssessmentRepositoryTest
     }
 
     [Fact]
-    public async Task GetInterventionsContainingStudent_Should_ReturnEmpty_When_StudentIdsListIsEmpty()
+    public async Task GetInterventionsContainingStudent_Should_ReturnEmpty_When_StudentIdsListIsEmptyAsync()
     {
         // Arrange
         var interventions = new List<Intervention> { BuildIntervention(1, 1, 2) };
@@ -183,7 +182,7 @@ public class AssessmentRepositoryTest
     }
 
     [Fact]
-    public async Task GetByStatus_Should_ReturnListofRemitted()
+    public async Task GetByStatus_Should_ReturnListofRemittedAsync()
     {
         // Arrange
         var assessments = new List<Assessment>
@@ -224,7 +223,7 @@ public class AssessmentRepositoryTest
     }
 
     [Fact]
-    public async Task GetByStatus_Should_ReturnEmptyList()
+    public async Task GetByStatus_Should_ReturnEmptyListAsync()
     {
         // Arrange
         var assessments = new List<Assessment>
@@ -260,6 +259,288 @@ public class AssessmentRepositoryTest
 
         // Assert
         Assert.Equal(0, result.Count());
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task AddAttachmentsAsync_Should_SaveAttachmentAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1, 2],
+            Mode = InterventionMode.InPlace,
+            Attachments = new List<string>().AsReadOnly(),
+            AttachmentHashes = new List<string>().AsReadOnly()
+        };
+
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Smth",
+            StudentIds = [1, 2],
+            Status = AssessmentStatus.InProgress,
+            Interventions = new List<Intervention> { intervention }
+        };
+
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        var newPaths = new List<string> { "interventions/1/file1.pdf" };
+        var newHashes = new List<string> { "HASH123" };
+
+        // Act
+        await repository.AddAttachmentsAsync(intervention.Id, newPaths, newHashes);
+
+        // Assert
+        Intervention updated = await context.Set<Intervention>().FirstAsync(i => i.Id == intervention.Id);
+        Assert.Single(updated.Attachments);
+        Assert.Contains("interventions/1/file1.pdf", updated.Attachments);
+        Assert.Single(updated.AttachmentHashes);
+        Assert.Contains("HASH123", updated.AttachmentHashes);
+    }
+
+    [Fact]
+    public async Task AddAttachmentsAsync_Should_ThrowKeyNotFoundException_When_InterventionNotFoundAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Assert
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => repository.AddAttachmentsAsync(999, ["interventions/999/file.pdf"], ["HASH"]));
+
+        Assert.Equal("Intervention '999' not found.", exception.Message);
+    }
+
+    [Fact]
+    public async Task RemoveAttachmentAsync_Should_RemoveMatchingAttachmentAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1, 2],
+            Mode = InterventionMode.InPlace,
+            Attachments = new List<string>
+        {
+            "interventions/1/file1.pdf",
+            "interventions/1/file2.png"
+        }.AsReadOnly(),
+            AttachmentHashes = new List<string> { "HASH1", "HASH2" }.AsReadOnly()
+        };
+
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Smth",
+            StudentIds = [1, 2],
+            Status = AssessmentStatus.InProgress,
+            Interventions = new List<Intervention> { intervention }
+        };
+
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        await repository.RemoveAttachmentAsync(intervention.Id, "interventions/1/file1.pdf");
+
+        // Assert
+        Intervention updated = await context.Set<Intervention>().FirstAsync(i => i.Id == intervention.Id);
+        Assert.Single(updated.Attachments);
+        Assert.Contains("interventions/1/file2.png", updated.Attachments);
+        Assert.Single(updated.AttachmentHashes);
+        Assert.Contains("HASH2", updated.AttachmentHashes);
+    }
+
+    [Fact]
+    public async Task RemoveAttachmentAsync_Should_MatchByFileName_CaseInsensitiveAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1, 2],
+            Mode = InterventionMode.InPlace,
+            Attachments = new List<string> { "interventions/1/File1.PDF" }.AsReadOnly(),
+            AttachmentHashes = new List<string> { "HASH1" }.AsReadOnly()
+        };
+
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Smth",
+            StudentIds = [1, 2],
+            Status = AssessmentStatus.InProgress,
+            Interventions = new List<Intervention> { intervention }
+        };
+
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        await repository.RemoveAttachmentAsync(intervention.Id, "somewhere-else/file1.pdf");
+
+        // Assert
+        Intervention updated = await context.Set<Intervention>().FirstAsync(i => i.Id == intervention.Id);
+        Assert.Empty(updated.Attachments);
+        Assert.Empty(updated.AttachmentHashes);
+    }
+
+    [Fact]
+    public async Task RemoveAttachmentAsync_Should_NotModifyList_When_FileNameNotFoundAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1, 2],
+            Mode = InterventionMode.InPlace,
+            Attachments = new List<string> { "interventions/1/file1.pdf" }.AsReadOnly(),
+            AttachmentHashes = new List<string> { "HASH1" }.AsReadOnly()
+        };
+
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Smth",
+            StudentIds = [1, 2],
+            Status = AssessmentStatus.InProgress,
+            Interventions = new List<Intervention> { intervention }
+        };
+
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        await repository.RemoveAttachmentAsync(intervention.Id, "does-not-exist.pdf");
+
+        // Assert 
+        Intervention updated = await context.Set<Intervention>().FirstAsync(i => i.Id == intervention.Id);
+        Assert.Single(updated.Attachments);
+        Assert.Contains("interventions/1/file1.pdf", updated.Attachments);
+        Assert.Single(updated.AttachmentHashes);
+        Assert.Contains("HASH1", updated.AttachmentHashes);
+    }
+
+    [Fact]
+    public async Task RemoveAttachmentAsync_Should_ThrowException_When_InterventionNotFoundAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act 
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => repository.RemoveAttachmentAsync(999, "interventions/999/file.pdf"));
+        //Assert
+        Assert.Equal("Intervention '999' not found.", exception.Message);
+    }
+
+    [Fact]
+    public async Task GetAttachmentHashesAsync_Should_ReturnHashes_When_InterventionExistsAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1, 2],
+            Mode = InterventionMode.InPlace,
+            Attachments = new List<string> { "interventions/1/file1.pdf", "interventions/1/file2.png" }.AsReadOnly(),
+            AttachmentHashes = new List<string> { "HASH1", "HASH2" }.AsReadOnly()
+        };
+
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Smth",
+            StudentIds = [1, 2],
+            Status = AssessmentStatus.InProgress,
+            Interventions = new List<Intervention> { intervention }
+        };
+
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        var result = await repository.GetAttachmentHashesAsync(intervention.Id, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.Contains("HASH1", result);
+        Assert.Contains("HASH2", result);
+    }
+
+    [Fact]
+    public async Task GetAttachmentHashesAsync_Should_ReturnEmpty_When_InterventionNotFoundAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        var result = await repository.GetAttachmentHashesAsync(999, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
         Assert.Empty(result);
     }
 }

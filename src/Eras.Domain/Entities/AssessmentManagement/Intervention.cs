@@ -2,7 +2,7 @@
 
 namespace Eras.Domain.Entities.AssessmentManagement;
 
-public abstract class Intervention : BaseEntity
+public class Intervention : BaseEntity
 {
     public required DateTime DateUtc { get; init; }
     public string? Activity { get; init; }
@@ -18,7 +18,7 @@ public abstract class Intervention : BaseEntity
     public InterventionStatus Status { get; init; } = InterventionStatus.Remitted;
     public string? Remarks { get; init; }
 
-    public abstract InterventionKind Kind { get; }
+    public virtual InterventionKind Kind { get; }
 
     public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
 
