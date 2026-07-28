@@ -8,21 +8,23 @@ public sealed class FeatureFlagValidator : AbstractValidator<FeatureFlag>
     {
         RuleFor(F => F.Name)
             .NotEmpty()
+            .WithMessage("Name is required.")
             .MaximumLength(100)
-            .WithMessage("Name is required");
+            .WithMessage("Name must be under 100 characters.");
         RuleFor(F => F.Description)
             .NotEmpty()
+            .WithMessage("Description is required.")
             .MaximumLength(1000)
-            .WithMessage("Description is required and should be under 1000 characters");
+            .WithMessage("Description must be under 1000 characters.");
         
         RuleFor(F => F.Audit)
             .NotEmpty()
             .WithMessage("Audit information is required");
         RuleFor(F => F.Audit.CreatedBy)
             .MaximumLength(50)
-            .WithMessage("Audit.CreatedBy should be under 50 characters");
+            .WithMessage("Audit.CreatedBy must be under 50 characters.");
         RuleFor(F => F.Audit.ModifiedBy)
             .MaximumLength(50)
-            .WithMessage("Audit.ModifiedBy should be under 50 characters");
+            .WithMessage("Audit.ModifiedBy must be under 50 characters.");
     }
 }

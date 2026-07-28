@@ -23,7 +23,7 @@ public sealed class InterventionValidator : AbstractValidator<Intervention>
             .MaximumLength(4000);
             
         RuleFor(x => x.StudentIds)
-            .NotNull();
+            .NotEmpty();
 
         RuleFor(x => x.Remarks)
             .MaximumLength(1000);

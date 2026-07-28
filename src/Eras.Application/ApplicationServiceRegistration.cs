@@ -35,6 +35,7 @@ namespace Eras.Application.Services
             Services.AddScoped<EvaluationStatusUpdater>();
             Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
             Services.ConfigureMappers();
+            Services.ConfigureValidators();
             return Services;
         }
 
@@ -57,13 +58,18 @@ namespace Eras.Application.Services
             services.AddScoped<IMapper<AssessmentDto, Assessment>, AssessmentMapper>();
             services.AddScoped<IMapper<Assessment, AssessmentDto>, AssessmentToDtoMapper>();
 
-            services.AddScoped<IValidator<InterventionPlan>, InterventionPlanValidator>();
-            services.AddScoped<IValidator<Assessment>, AssessementValidator>();
-            services.AddScoped<IValidator<StatusTransitionRequest<InterventionStatus>>, InterventionStatusTransitionValidator>();
-            services.AddScoped<IValidator<StatusTransitionRequest<AssessmentStatus>>, AssessmentStatusTransitionValidator>();
-            services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
-
             return services;
+        }
+
+        public static IServiceCollection ConfigureValidators(this IServiceCollection Services)
+        {
+            Services.AddScoped<IValidator<InterventionPlan>, InterventionPlanValidator>();
+            Services.AddScoped<IValidator<Assessment>, AssessementValidator>();
+            Services.AddScoped<IValidator<StatusTransitionRequest<InterventionStatus>>, InterventionStatusTransitionValidator>();
+            Services.AddScoped<IValidator<StatusTransitionRequest<AssessmentStatus>>, AssessmentStatusTransitionValidator>();
+            Services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
+
+            return Services;  
         }
     }
 }

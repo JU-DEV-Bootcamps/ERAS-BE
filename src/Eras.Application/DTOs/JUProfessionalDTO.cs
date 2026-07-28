@@ -5,8 +5,8 @@ using Eras.Domain.Common;
 namespace Eras.Application.DTOs;
 public class JUProfessionalDTO
 {
-    [Required(ErrorMessage = "Configuration Id is required.")]
-    [Range(0, 2147483647, ErrorMessage = "Id must be greater than or equals 0.")]
+    [Required(ErrorMessage = "Professional Id is required.")]
+    [Range(0, 2147483647, ErrorMessage = "Id must be greater or equal to 0.")]
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Professional name is required.")]

@@ -9,6 +9,7 @@ public class StudentDTO
     [Range(0, 2147483647, ErrorMessage = "Student Id must be zero or greater.")]
     public int Id { get; set; }
 
+    [Required(ErrorMessage = "UUID is required.")]
     [RegularExpression(@"^([a-fA-F0-9\-]{36}|)$", ErrorMessage = "UUID format is invalid.")] 
     public string Uuid { get; set; } = string.Empty;
     
@@ -21,7 +22,7 @@ public class StudentDTO
     [StringLength(255, ErrorMessage = "Email must be less than 255 characters.")]
     [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Email format is invalid.")]
     public string Email { get; set; } = string.Empty;
-    
+
     public bool IsImported { get; set; }
     public StudentDetailDTO? StudentDetail { get; set; }
     public CohortDTO? Cohort { get; set; } = default!;
