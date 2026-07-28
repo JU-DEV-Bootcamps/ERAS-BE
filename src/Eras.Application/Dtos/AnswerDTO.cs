@@ -6,12 +6,10 @@ namespace Eras.Application.DTOs;
 
 public class AnswerDTO
 {
-    [Required(ErrorMessage = "Answer text is required.")]
-    [StringLength(1000, MinimumLength = 1, ErrorMessage = "Answer must be between 1 and 1000 characters.")]
+    [StringLength(1000, MinimumLength = 0, ErrorMessage = "Answer must be between 0 and 1000 characters.")]
     [NoSqlInjection]
     public string Answer { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Score is required")]
     [Range(0, 100, ErrorMessage = "Score must be between 0 and 100.")]
     public decimal Score { get; set; }
 

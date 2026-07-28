@@ -24,20 +24,6 @@ public class AnswerDTOValidationTests
         Assert.Empty(results);
     }
 
-    [Theory]
-    [ClassData(typeof(RequiredStringTestData))]
-    public void Answer_Required_FailsWhenMissing(string InvalidAnswer)
-    {
-        AnswerDTO dto = CreateValidDTO();
-        dto.Answer = InvalidAnswer!;
-
-        IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-
-        Assert.Single(results);
-        Assert.Equal("Answer text is required.", results.First().ErrorMessage);
-        Assert.Contains(nameof(AnswerDTO.Answer), results.First().MemberNames);
-    }
-
     [Fact]
     public void Answer_Fails_WhenLengthTooLong()
     {
@@ -47,7 +33,7 @@ public class AnswerDTOValidationTests
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
 
         Assert.Single(results);
-        Assert.Equal("Answer must be between 1 and 1000 characters.", results.First().ErrorMessage);
+        Assert.Equal("Answer must be between 0 and 1000 characters.", results.First().ErrorMessage);
         Assert.Contains(nameof(AnswerDTO.Answer), results.First().MemberNames);
     }
 
