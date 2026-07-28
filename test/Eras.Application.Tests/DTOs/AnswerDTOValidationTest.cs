@@ -42,12 +42,12 @@ public class AnswerDTOValidationTests
     public void Answer_Fails_WhenLengthTooLong()
     {
         AnswerDTO dto = CreateValidDTO();
-        dto.Answer = new string('a', 501);
+        dto.Answer = new string('a', 1001);
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
 
         Assert.Single(results);
-        Assert.Equal("Answer must be between 1 and 500 characters.", results.First().ErrorMessage);
+        Assert.Equal("Answer must be between 1 and 1000 characters.", results.First().ErrorMessage);
         Assert.Contains(nameof(AnswerDTO.Answer), results.First().MemberNames);
     }
 
