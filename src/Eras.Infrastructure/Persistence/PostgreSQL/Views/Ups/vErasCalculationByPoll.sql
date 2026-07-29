@@ -1,25 +1,17 @@
 DROP VIEW IF EXISTS vErasCalculationByPoll;
 CREATE VIEW vErasCalculationByPoll AS
-WITH LatestPollInstancePerStudent AS (
-    SELECT DISTINCT ON (pi."StudentId", pi."uuid")
-        pi."Id"
-    FROM poll_instances pi
-    ORDER BY pi."StudentId", pi."uuid", pi."FinishedAt" DESC
-),
-ResolvedAnswers AS (
+WITH ResolvedAnswers AS (
     SELECT 
         a."Id", a.poll_instance_id, a.poll_variable_id, a.answer_text, a.risk_level, a.version_number
     FROM answers a
     JOIN poll_instances pi ON pi."Id" = a.poll_instance_id
     WHERE pi."SourcePollInstanceId" IS NULL
-      AND pi."Id" IN (SELECT "Id" FROM LatestPollInstancePerStudent)
     UNION ALL
     SELECT
         a."Id", pi."Id" AS poll_instance_id, a.poll_variable_id, a.answer_text, a.risk_level, a.version_number
     FROM poll_instances pi
     JOIN answers a ON a.poll_instance_id = pi."SourcePollInstanceId"
     WHERE pi."SourcePollInstanceId" IS NOT NULL
-      AND pi."Id" IN (SELECT "Id" FROM LatestPollInstancePerStudent)
 ),
 PercentageCalc AS (
     SELECT
