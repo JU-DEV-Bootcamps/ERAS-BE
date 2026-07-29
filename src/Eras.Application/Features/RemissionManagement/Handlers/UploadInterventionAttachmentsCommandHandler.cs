@@ -1,6 +1,7 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Models;
+using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
 
@@ -44,6 +45,15 @@ public sealed class UploadInterventionAttachmentsCommandHandler
 
         IReadOnlyCollection<string> existingHashes =
             await _repository.GetAttachmentHashesAsync(request.InterventionId, cancellationToken);
+
+        int maxNewFiles = InterventionConstants.MaxAttachments - existingHashes.Count;
+        if (maxNewFiles <= 0)
+            throw new InvalidOperationException(
+                $"This intervention already has the maximum of {InterventionConstants.MaxAttachments} documents.");
+
+        if (request.Files.Count > maxNewFiles)
+            throw new InvalidOperationException(
+                $"Only {maxNewFiles} more document(s) can be added (maximum {InterventionConstants.MaxAttachments} per intervention).");
 
         List<string> savedPaths = [];
         List<string> savedHashes = [];
