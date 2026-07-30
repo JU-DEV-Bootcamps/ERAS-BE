@@ -69,20 +69,6 @@ public class EvaluationDTOValidationTests
         Assert.Contains(nameof(EvaluationDTO.Name), results.First().MemberNames);
     }
 
-    [Theory]
-    [ClassData(typeof(RequiredStringTestData))]
-    public void PollName_Required_FailsWhenMissing(string InvalidPollName)
-    {
-        EvaluationDTO dto = CreateValidDTO();
-        dto.PollName = InvalidPollName;
-
-        IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
-        Assert.Single(results);
-        Assert.Equal("Poll name is required", results.First().ErrorMessage);
-        Assert.Contains(nameof(EvaluationDTO.PollName), results.First().MemberNames);
-    }
-
     [Fact]
     public void PollName_Fails_WhenLengthTooLong()
     {

@@ -18,7 +18,6 @@ public class EvaluationDTO
     [DataType(DataType.DateTime)]
     public required DateTime EndDate { get; set; }
 
-    [Required(ErrorMessage = "Poll name is required")]
     [StringLength(100, ErrorMessage = "Poll name must be less than 100 characters.")]
     public string PollName { get; set; } = string.Empty;
 
