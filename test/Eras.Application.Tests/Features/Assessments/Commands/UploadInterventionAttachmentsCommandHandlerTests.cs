@@ -227,4 +227,104 @@ public class UploadInterventionAttachmentsCommandHandlerTests
                 It.IsAny<IReadOnlyCollection<string>>()),
             Times.Never);
     }
+
+    [Fact]
+    public async Task Handle_Should_Throw_InvalidOperationException_When_Already_At_MaxAsync()
+    {
+        var interventionId = 3;
+        var file = CreateFile("extra.pdf", "extra-content");
+        var command = new UploadInterventionAttachmentsCommand(interventionId, [file]);
+
+        var existingHashes = new List<string> { "h1", "h2", "h3", "h4", "h5" };
+
+        _mockRepository
+            .Setup(x => x.GetAttachmentHashesAsync(interventionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyCollection<string>)existingHashes);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _handler.Handle(command, CancellationToken.None));
+
+        Assert.Equal(
+            "This intervention already has the maximum of 5 documents.",
+            exception.Message);
+
+        _mockFileStorage.Verify(
+            x => x.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+
+        _mockRepository.Verify(
+            x => x.AddAttachmentsAsync(
+                It.IsAny<int>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<IReadOnlyCollection<string>>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Throw_InvalidOperationException_When_New_Files_Exceed_Remaining_SlotsAsync()
+    {
+        var interventionId = 4;
+        var file1 = CreateFile("a.pdf", "content-a");
+        var file2 = CreateFile("b.pdf", "content-b");
+        var file3 = CreateFile("c.pdf", "content-c");
+        var command = new UploadInterventionAttachmentsCommand(interventionId, [file1, file2, file3]);
+
+        var existingHashes = new List<string> { "h1", "h2", "h3" };
+
+        _mockRepository
+            .Setup(x => x.GetAttachmentHashesAsync(interventionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyCollection<string>)existingHashes);
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _handler.Handle(command, CancellationToken.None));
+
+        Assert.Equal(
+            "Only 2 more document(s) can be added (maximum 5 per intervention).",
+            exception.Message);
+
+        _mockFileStorage.Verify(
+            x => x.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+
+        _mockRepository.Verify(
+            x => x.AddAttachmentsAsync(
+                It.IsAny<int>(),
+                It.IsAny<IReadOnlyCollection<string>>(),
+                It.IsAny<IReadOnlyCollection<string>>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Save_Files_When_Exactly_Reaching_MaxAsync()
+    {
+        var interventionId = 5;
+        var file1 = CreateFile("d.pdf", "content-d");
+        var file2 = CreateFile("e.pdf", "content-e");
+        var command = new UploadInterventionAttachmentsCommand(interventionId, [file1, file2]);
+
+        var existingHashes = new List<string> { "h1", "h2", "h3" };
+
+        _mockRepository
+            .Setup(x => x.GetAttachmentHashesAsync(interventionId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyCollection<string>)existingHashes);
+
+        _mockFileStorage
+            .Setup(x => x.SaveAsync(It.IsAny<Stream>(), "d.pdf", $"interventions/{interventionId}"))
+            .ReturnsAsync($"interventions/{interventionId}/d.pdf");
+
+        _mockFileStorage
+            .Setup(x => x.SaveAsync(It.IsAny<Stream>(), "e.pdf", $"interventions/{interventionId}"))
+            .ReturnsAsync($"interventions/{interventionId}/e.pdf");
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Equal(2, result.Count);
+
+        _mockRepository.Verify(
+            x => x.AddAttachmentsAsync(
+                interventionId,
+                It.Is<IReadOnlyCollection<string>>(paths => paths.Count == 2),
+                It.Is<IReadOnlyCollection<string>>(hashes => hashes.Count == 2)),
+            Times.Once);
+    }
 }

@@ -32,6 +32,10 @@ public sealed class InterventionValidator : AbstractValidator<Intervention>
             .NotEmpty()
             .MaximumLength(1000);
 
+        RuleFor(x => x.Attachments)
+            .Must(attachments => attachments.Count <= InterventionConstants.MaxAttachments)
+            .WithMessage($"An intervention cannot have more than {InterventionConstants.MaxAttachments} attached documents.");
+
         RuleFor(x => x.RiskLevel)
              .GreaterThanOrEqualTo(0)
             .LessThanOrEqualTo(5);
