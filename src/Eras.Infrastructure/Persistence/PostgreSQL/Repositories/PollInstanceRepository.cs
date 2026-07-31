@@ -153,11 +153,6 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
 
         IQueryable<ErasCalculationsByPollDTO> reportQuery;
 
-        int pollVersion = _context.Polls
-            .Where(A => A.Uuid == PollUuid)
-            .Select(A => A.LastVersion)
-            .FirstOrDefault();
-
         if (LastVersion)
         {
             reportQuery =
