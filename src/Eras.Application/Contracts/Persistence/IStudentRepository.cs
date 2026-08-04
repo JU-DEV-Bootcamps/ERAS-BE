@@ -1,4 +1,5 @@
 ﻿using Eras.Application.DTOs.HeatMap;
+using Eras.Application.DTOs;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
@@ -40,5 +41,7 @@ namespace Eras.Application.Contracts.Persistence
         Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize);
         Task<IEnumerable<Student>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
         Task<Dictionary<int, double>> GetAverageRiskByStudentIdsAsync(IEnumerable<int> StudentIds);
+
+        Task<IEnumerable<StudentLightDto>> GetAllLightAsync();
     }
 }
