@@ -8,13 +8,11 @@ using Eras.Application.Features.Configurations.Queries.GetUserConfigurations;
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/configurations")]
-[ExcludeFromCodeCoverage]
 public class ConfigurationsController(IMediator Mediator, ILogger<ConfigurationsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
