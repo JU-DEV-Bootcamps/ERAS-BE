@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Api.Controllers;
+﻿using Eras.Api.Controllers;
+using Eras.Application.DTOs;
+using Eras.Application.Features.EvaluationDetails.Queries.GetStudentsByEvaluationId;
+using Eras.Application.Features.EvaluationDetails.Queries.GetStudentsByFilters;
 using Eras.Application.Features.EvaluationDetails.Queries.GetStudentsRecentAlerts;
 using Eras.Application.Models.Response.Controllers.EvaluationDetailsController;
 using Eras.Application.Utils;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -53,5 +49,89 @@ public class EvaluationDetailsControllerTests
         _mockMediator.Verify(X => X.Send(
             It.IsAny<GetStudentsRecentAlertsQuery>(),
             It.IsAny<CancellationToken>()),Times.Once);
-     }
+    }
+
+    [Fact]
+    public async Task StudentsByFilterAsync_Should_Return_SuccessAsync()
+    {
+        // Arrange
+        var pagination = new Pagination();
+        var expectedResult = new PagedResult<StudentsByFiltersResponse>(2, new List<StudentsByFiltersResponse> { new(), new() });
+        _mockMediator
+            .Setup(X => X.Send(It.IsAny<GetStudentsByFiltersQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await _controller.StudentsByFilterAsync("", 1, [""], [1], [1], [1], pagination);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var value = Assert.IsType<PagedResult<StudentsByFiltersResponse>>(okResult.Value);
+        Assert.Equal(expectedResult, value);
+
+        _mockMediator.Verify(X => X.Send(
+            It.IsAny<GetStudentsByFiltersQuery>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task StudentsByFilterAsync_Should_Return_NotFound_WhenResponseIsNullAsync()
+    {
+        // Arrange
+        _mockMediator
+            .Setup(x => x.Send(It.IsAny<StudentsByFiltersResponse>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((PagedResult<StudentsByFiltersResponse>?)null);
+        // Act
+        var result = await _controller.StudentsByFilterAsync("", 1, [""], [1], [1], [1], new Pagination());
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task StudentsByEvaluationIdAsync_Should_Return_SuccessAsync()
+    {
+        // Arrange
+        var expectedResult = new List<StudentsByFiltersResponse>{
+            new StudentsByFiltersResponse() {
+                Id = 2,
+                Name = "",
+                Email = "",
+                AnswerId = 2,
+                AnswerText = "",
+                RiskLevel = 2
+            }
+        };
+        _mockMediator
+            .Setup(X => X.Send(It.IsAny<GetStudentsByEvaluationIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await _controller.StudentsByEvaluationIdAsync(1, [""], [1], [1], [1]);
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(expectedResult, okResult.Value);
+
+        _mockMediator.Verify(X => X.Send(
+            It.IsAny<GetStudentsByEvaluationIdQuery>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task StudentsByEvaluationIdAsync_Should_Return_NotFound_WhenResponseIsNullAsync()
+    {
+        // Arrange
+        _mockMediator
+            .Setup(x => x.Send(It.IsAny<GetStudentsByEvaluationIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((List<StudentsByFiltersResponse>?)null);
+        // Act
+        var result = await _controller.StudentsByEvaluationIdAsync(
+            1,
+            new List<string> { "" },
+            new List<int> { 1 },
+            new List<int> { 10 },
+            new List<decimal> { 0.25m });
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
 }
