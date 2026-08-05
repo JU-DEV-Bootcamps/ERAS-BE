@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class StudentRepository : BaseRepository<Student, StudentEntity>, IStudentRepository
     {
         private const int _defaultLimit = 5;
