@@ -1,34 +1,26 @@
 DROP VIEW IF EXISTS vErasCalculationByPoll;
 CREATE VIEW vErasCalculationByPoll AS
-WITH LatestPollInstancePerStudent AS (
-    SELECT DISTINCT ON (pi."StudentId", pi."uuid")
-        pi."Id"
-    FROM poll_instances pi
-    ORDER BY pi."StudentId", pi."uuid", pi."FinishedAt" DESC
-),
-ResolvedAnswers AS (
+WITH ResolvedAnswers AS (
     SELECT 
-        a."Id", a.poll_instance_id, a.poll_variable_id, a.answer_text, a.risk_level, a.version_number
+        a."Id", a.poll_instance_id, a.poll_variable_id, a.answer_text, a.risk_level, a.version_number, pi."EvaluationId"
     FROM answers a
     JOIN poll_instances pi ON pi."Id" = a.poll_instance_id
     WHERE pi."SourcePollInstanceId" IS NULL
-      AND pi."Id" IN (SELECT "Id" FROM LatestPollInstancePerStudent)
     UNION ALL
     SELECT
-        a."Id", pi."Id" AS poll_instance_id, a.poll_variable_id, a.answer_text, a.risk_level, a.version_number
+        a."Id", pi."Id" AS poll_instance_id, a.poll_variable_id, a.answer_text, a.risk_level, a.version_number, pi."EvaluationId"
     FROM poll_instances pi
     JOIN answers a ON a.poll_instance_id = pi."SourcePollInstanceId"
     WHERE pi."SourcePollInstanceId" IS NOT NULL
-      AND pi."Id" IN (SELECT "Id" FROM LatestPollInstancePerStudent)
 ),
 PercentageCalc AS (
     SELECT
-        a.poll_variable_id, answer_text,
-        ROUND((COUNT(answer_text) * 100.0) / SUM(COUNT(answer_text)) OVER (PARTITION BY a.poll_variable_id), 2) AS answer_percentage,
+        a."EvaluationId", a.poll_variable_id, answer_text,
+        ROUND((COUNT(answer_text) * 100.0) / SUM(COUNT(answer_text)) OVER (PARTITION BY a."EvaluationId", a.poll_variable_id), 2) AS answer_percentage,
         COUNT(answer_text) AS answer_count
     FROM ResolvedAnswers a
     WHERE a.answer_text NOT IN ('-', '', 'None', 'none', 'Ninguno', 'ninguno', 'Ninguna', 'ninguna') AND a.answer_text IS NOT NULL
-    GROUP BY a.poll_variable_id, answer_text
+    GROUP BY a."EvaluationId", a.poll_variable_id, answer_text
 ),
 RiskAverageByComponent AS (
     SELECT
@@ -105,7 +97,7 @@ JOIN polls p ON pv.poll_id = p."Id"
 JOIN poll_instances pi ON a.poll_instance_id = pi."Id"
 JOIN student_cohort sc ON sc.student_id = pi."StudentId"
 JOIN cohorts coh ON coh."Id" = sc.cohort_id
-LEFT JOIN PercentageCalc pc ON a.poll_variable_id = pc.poll_variable_id AND a.answer_text = pc.answer_text
+LEFT JOIN PercentageCalc pc ON a.poll_variable_id = pc.poll_variable_id AND a.answer_text = pc.answer_text AND a."EvaluationId" = pc."EvaluationId"
 LEFT JOIN RiskAverageByComponent rac ON c."name" = rac.component_name AND p."Id" = rac.poll_id
 LEFT JOIN RiskAverageByVariable rav ON v."Id" = rav.variable_id
 LEFT JOIN RiskCountByPollInstance rcbi ON a.poll_instance_id = rcbi.poll_instance_id
