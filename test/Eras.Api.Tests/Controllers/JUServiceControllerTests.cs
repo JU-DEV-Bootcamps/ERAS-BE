@@ -64,7 +64,7 @@ public class JUServiceControllerTests
 
         // Assert
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("JUService cannot be null", badRequest.Value);
+        Assert.Equal("Service cannot be null", badRequest.Value);
     }
 
     [Fact]
