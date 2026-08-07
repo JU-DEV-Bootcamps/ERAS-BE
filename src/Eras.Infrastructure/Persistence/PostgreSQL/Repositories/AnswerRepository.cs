@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
-[ExcludeFromCodeCoverage]
 public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, AnswerEntity>
     (Context, AnswerMapper.ToDomain, AnswerMapper.ToPersistence), IAnswerRepository
 {

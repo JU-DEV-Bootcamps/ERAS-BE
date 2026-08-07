@@ -43,6 +43,82 @@ public class AssessmentRepositoryTest
     }
 
     [Fact]
+    public async Task GetAllAsync_Should_ReturnListAsync()
+    {
+        // Arrange
+        var assessments = new List<Assessment>
+        {
+            new Assessment {
+                 Id = 1,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [1, 2]
+            },
+            new Assessment {
+                 Id = 2,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.InProgress,
+                StudentIds = [5, 8]
+            },
+        };
+
+        var mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(r => r.Set<Assessment>()).Returns(mockSet.Object);
+
+        // Act
+        var result = await _repository.GetAllAsync();
+
+        // Assert
+        Assert.Equal(2, result.Count());
+        Assert.Contains(result, i => i.Id == 1);
+        Assert.Contains(result, i => i.Id == 2);
+    }
+
+    [Fact]
+    public async Task GetByStudentIdAsync_Should_ReturnListAsync()
+    {
+        // Arrange
+        var assessments = new List<Assessment>
+        {
+            new Assessment {
+                Id = 1,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [1, 2]
+            },
+            new Assessment {
+                Id = 2,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.InProgress,
+                StudentIds = [5, 8]
+            },
+            new Assessment {
+                Id = 3,
+                CreatedBy = "",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [1, 20]
+            },
+        };
+
+        var mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(r => r.Set<Assessment>()).Returns(mockSet.Object);
+
+        // Act
+        var result = await _repository.GetByStudentIdAsync(1);
+
+        // Assert
+        Assert.Equal(2, result.Count());
+        Assert.Contains(result, i => i.Id == 1);
+        Assert.Contains(result, i => i.Id == 3);
+    }
+
+
+    [Fact]
     public void GetInterventionsContainingStudent_Should_Return()
     {
         // Arrange
@@ -541,5 +617,308 @@ public class AssessmentRepositoryTest
         // Assert
         Assert.NotNull(result);
         Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task DeleteAssessmentAsync_Should_DeleteAssessmentAndInterventionsAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        await using var context = new AppDbContext(options);
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.Remitted
+        };
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1],
+            Mode = InterventionMode.InPlace
+        };
+        context.Interventions.Add(intervention);
+        context.Entry(intervention).Property("remission_id").CurrentValue = assessment.Id;
+        await context.SaveChangesAsync();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        await repository.DeleteAssessmentAsync(assessment.Id);
+
+        // Assert
+        Assert.Empty(context.Set<Assessment>());
+        Assert.Empty(context.Interventions);
+    }
+
+    [Fact]
+    public async Task DeleteAssessmentAsync_Should_Throw_WhenAssessmentIsNotFoundOrNotRemittedAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        await using var context = new AppDbContext(options);
+        context.Set<Assessment>().Add(new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.InProgress
+        });
+        await context.SaveChangesAsync();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => repository.DeleteAssessmentAsync(1));
+
+        // Assert
+        Assert.Equal(
+            "Assessment '1' not found or not permitted.",
+            exception.Message);
+    }
+
+    [Fact]
+    public async Task GetByIdWithInterventionsAsync_Should_ReturnAssessmentAndInterventionsAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        await using var context = new AppDbContext(options);
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.Remitted
+        };
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1],
+            Mode = InterventionMode.InPlace
+        };
+        context.Interventions.Add(intervention);
+        context.Entry(intervention).Property("remission_id").CurrentValue = assessment.Id;
+        await context.SaveChangesAsync();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        await repository.GetByIdWithInterventionsAsync(assessment.Id);
+
+        // Assert
+        Assert.NotEmpty(context.Set<Assessment>());
+        Assert.NotEmpty(context.Interventions);
+    }
+
+    [Fact]
+    public async Task DeleteInterventionAsync_Should_Throw_WhenInterventionIsNotFoundAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        await using var context = new AppDbContext(options);
+        context.Set<Assessment>().Add(new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.InProgress
+        });
+        await context.SaveChangesAsync();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => repository.DeleteInterventionAsync(1,1));
+
+        // Assert
+        Assert.Equal(
+            "Intervention '1' not found for assessment '1'.",
+            exception.Message);
+    }
+
+    [Fact]
+    public async Task DeleteInterventionAsync_ShouldThrow_InterventionNotFoundAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        await using var context = new AppDbContext(options);
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.Remitted
+        };
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1],
+            Mode = InterventionMode.InPlace
+        };
+        context.Interventions.Add(intervention);
+        context.Entry(intervention).Property("remission_id").CurrentValue = assessment.Id;
+        await context.SaveChangesAsync();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        await repository.DeleteInterventionAsync(assessment.Id, 1);
+
+        // Assert
+        Assert.Empty(context.Interventions);
+    }
+
+    [Fact]
+    public async Task ReplaceInterventionsAsync_ShouldReplaceExistingInterventionsAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.InProgress
+        };
+
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+
+        var existingIntervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow.AddDays(-1),
+            StudentIds = [1],
+            Mode = InterventionMode.InPlace
+        };
+
+        context.Interventions.Add(existingIntervention);
+        context.Entry(existingIntervention)
+            .Property("remission_id")
+            .CurrentValue = assessment.Id;
+
+        await context.SaveChangesAsync();
+
+        var newInterventions = new List<Intervention>
+        {
+            new TestIntervention
+            {
+                DateUtc = DateTime.UtcNow,
+                StudentIds = [1, 2],
+                Mode = InterventionMode.InPlace
+            },
+            new TestIntervention
+            {
+                DateUtc = DateTime.UtcNow,
+                StudentIds = [2],
+                Mode = InterventionMode.InPlace
+            }
+        };
+
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        var result = await repository.ReplaceInterventionsAsync(
+            assessment.Id,
+            newInterventions);
+
+        // Assert
+        Assert.Same(newInterventions, result);
+
+        var interventions = await context.Interventions.ToListAsync();
+
+        Assert.Equal(2, interventions.Count);
+        Assert.DoesNotContain(
+            interventions,
+            i => i.Id == existingIntervention.Id);
+    }
+
+    [Fact]
+    public async Task AddInterventionAsync_ShouldAddInterventionAndSetAssessmentIdAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1, 2],
+            Mode = InterventionMode.InPlace
+        };
+
+        var repository = new AssessmentRepository(
+            context,
+            _mockLogger.Object);
+
+        // Act
+        var result = await repository.AddInterventionAsync(
+            123,
+            intervention);
+
+        // Assert
+        Assert.Same(intervention, result);
+        var saved = await context.Interventions
+            .FirstAsync(i => i.Id == intervention.Id);
+        Assert.Equal(intervention.Id, saved.Id);
+    }
+
+    [Fact]
+    public async Task GetInterventionByIdAsync_ShouldReturnIntervention_WhenExistsAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1, 2],
+            Mode = InterventionMode.InPlace
+        };
+
+        context.Interventions.Add(intervention);
+        await context.SaveChangesAsync();
+
+        var repository = new AssessmentRepository(
+            context,
+            _mockLogger.Object);
+
+        // Act
+        var result = await repository.GetInterventionByIdAsync(intervention.Id);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(intervention.Id, result.Id);
     }
 }
