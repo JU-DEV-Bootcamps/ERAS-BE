@@ -34,6 +34,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Student => Student.IsImported)
                 .HasColumnName("is_imported")
                 .IsRequired();
+
+            Builder.HasIndex(Student => Student.Name)
+                .HasDatabaseName("ix_students_name");
         }
         private static void ConfigureRelationShips(EntityTypeBuilder<StudentEntity> Builder)
         {

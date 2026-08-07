@@ -16,6 +16,7 @@ using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+using Eras.Application.Features.Students.Queries.GetAllLight;
 
 using MediatR;
 
@@ -196,5 +197,12 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
             _logger.LogWarning("Could not get answers for that {StudentId} of pollInstance={PollInstanceId}.\n {e}", Id, InstanceId, e);
             return NotFound($"Could not get answers for that {Id} of pollInstance={InstanceId}.\n {e}");
         }
+    }
+
+    [HttpGet("light")]
+    public async Task<IActionResult> GetAllLightAsync()
+    {
+        var result = await _mediator.Send(new GetAllStudentsLightQuery());
+        return Ok(result);
     }
 }

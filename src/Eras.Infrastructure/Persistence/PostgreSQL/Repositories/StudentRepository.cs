@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.DTOs;
 using Eras.Application.DTOs.HeatMap;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Utils;
@@ -10,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class StudentRepository : BaseRepository<Student, StudentEntity>, IStudentRepository
     {
         private const int _defaultLimit = 5;
@@ -262,10 +262,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize)
         {
             var persistenceEntity = await _context.Set<StudentEntity>()
+                .AsNoTracking()
+                .Include(E => E.StudentDetail)
                 .OrderBy(Stu => Stu.Name)
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize)
-                .Include(E => E.StudentDetail)
                 .ToListAsync();
 
             return persistenceEntity.Select(Entity => StudentMapper.ToDomain(Entity));
@@ -296,6 +297,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .ToList();
 
             return results.ToDictionary(x => x.StudentId, x => x.AvgRisk);
+        }
+
+        public async Task<IEnumerable<StudentLightDto>> GetAllLightAsync()
+        {
+            return await _context.Set<StudentEntity>()
+                .AsNoTracking()
+                .OrderBy(Student => Student.Name)
+                .Select(Student => new StudentLightDto
+                {
+                    Id = Student.Id,
+                    Name = Student.Name
+                })
+                .ToListAsync();
         }
     }
 }
