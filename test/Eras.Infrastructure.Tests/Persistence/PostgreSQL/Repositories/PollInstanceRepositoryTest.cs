@@ -534,14 +534,16 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                     PollUuid = "poll-Uuid", ComponentName = "Academic", Question = "How are your grades?",
                     AnswerText = "Good", StudentEmail = "student1@test.com", AnswerRisk = 10,
                     VariableAverageRisk = 10, AnswerPercentage = 50, PollInstanceId = 1,
-                    StudentName = "Student One", CohortName = "Cohort A"
+                    StudentName = "Student One", CohortName = "Cohort A",
+                    PollVersion = 1
                 },
                 new ErasCalculationsByPollEntity
                 {
                     PollUuid = "poll-Uuid", ComponentName = "Academic", Question = "How are your grades?",
                     AnswerText = "Bad", StudentEmail = "student1@test.com", AnswerRisk = 30,
                     VariableAverageRisk = 20, AnswerPercentage = 50, PollInstanceId = 1,
-                    StudentName = "Student One", CohortName = "Cohort A"
+                    StudentName = "Student One", CohortName = "Cohort A",
+                    PollVersion = 1
                 }
             }.AsQueryable().BuildMockDbSet();
 
@@ -591,14 +593,16 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                     PollUuid = "poll-Uuid", ComponentName = "Academic", Question = "Q1",
                     AnswerText = "Ninguno", StudentEmail = "student1@test.com", AnswerRisk = 0,
                     VariableAverageRisk = 0, AnswerPercentage = 100, PollInstanceId = 1,
-                    StudentName = "Student One", CohortName = "Cohort A"
+                    StudentName = "Student One", CohortName = "Cohort A",
+                    PollVersion = 1
                 },
                 new ErasCalculationsByPollEntity
                 {
                     PollUuid = "poll-Uuid", ComponentName = "Academic", Question = "Q1",
                     AnswerText = "Good", StudentEmail = "student1@test.com", AnswerRisk = 20,
                     VariableAverageRisk = 20, AnswerPercentage = 100, PollInstanceId = 1,
-                    StudentName = "Student One", CohortName = "Cohort A"
+                    StudentName = "Student One", CohortName = "Cohort A",
+                    PollVersion = 1
                 }
             }.AsQueryable().BuildMockDbSet();
 
