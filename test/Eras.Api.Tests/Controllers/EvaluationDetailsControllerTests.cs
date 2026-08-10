@@ -79,7 +79,7 @@ public class EvaluationDetailsControllerTests
     {
         // Arrange
         _mockMediator
-            .Setup(x => x.Send(It.IsAny<StudentsByFiltersResponse>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<StudentsByFiltersResponse>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PagedResult<StudentsByFiltersResponse>?)null);
         // Act
         var result = await _controller.StudentsByFilterAsync("", 1, [""], [1], [1], [1], new Pagination());
@@ -122,8 +122,8 @@ public class EvaluationDetailsControllerTests
     {
         // Arrange
         _mockMediator
-            .Setup(x => x.Send(It.IsAny<GetStudentsByEvaluationIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((List<StudentsByFiltersResponse>?)null);
+            .Setup(X => X.Send(It.IsAny<GetStudentsByEvaluationIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(It.IsAny<List<StudentsByFiltersResponse>>());
         // Act
         var result = await _controller.StudentsByEvaluationIdAsync(
             1,

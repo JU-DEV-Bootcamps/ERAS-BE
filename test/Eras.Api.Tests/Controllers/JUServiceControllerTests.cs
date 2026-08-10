@@ -45,7 +45,7 @@ public class JUServiceControllerTests
             Count: 1
         );
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetJUServicesQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetJUServicesQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -75,7 +75,7 @@ public class JUServiceControllerTests
         var service = new JUService();
         var response = new CreateCommandResponse<JUService>(service, "Success", true);
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateJUServiceCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateJUServiceCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -91,9 +91,9 @@ public class JUServiceControllerTests
     {
         // Arrange
         var dto = new JUServiceDTO() { Name = "b" };
-        var response = new CreateCommandResponse<JUService>(null, "Error", false);
+        var response = new CreateCommandResponse<JUService>(null!, "Error", false);
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateJUServiceCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateJUServiceCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act

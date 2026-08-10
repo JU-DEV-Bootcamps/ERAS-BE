@@ -45,7 +45,7 @@ public class StudentsControllerTests
     [Fact]
     public async Task ImportStudentsAsync_ReturnsBadRequest_WhenStudentsIsNullAsync()
     {
-        var result = await _controller.ImportStudentsAsync(null);
+        var result = await _controller.ImportStudentsAsync(null!);
 
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
         Assert.Equal("No Students body found", badRequest.Value);
@@ -60,10 +60,10 @@ public class StudentsControllerTests
             Email = "s@mail.com",
             SISId = "120,"
         };
-        var response = new CreateCommandResponse<Student[]>(null, "Success", true);
+        var response = new CreateCommandResponse<Student[]>(null!, "Success", true);
 
         _mediator
-            .Setup(x => x.Send(It.IsAny<CreateStudentsCommand>(), default))
+            .Setup(X => X.Send(It.IsAny<CreateStudentsCommand>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.ImportStudentsAsync([dto]);
@@ -80,10 +80,10 @@ public class StudentsControllerTests
             Email = "s@mail.com",
             SISId = "120,"
         };
-        var response = new CreateCommandResponse<Student[]>(null, "Error", false);
+        var response = new CreateCommandResponse<Student[]>(null!, "Error", false);
 
         _mediator
-            .Setup(x => x.Send(It.IsAny<CreateStudentsCommand>(), default))
+            .Setup(X => X.Send(It.IsAny<CreateStudentsCommand>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.ImportStudentsAsync([students]);
@@ -101,7 +101,7 @@ public class StudentsControllerTests
             Count: 1
         );
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetAllStudentsQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetAllStudentsQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetAllAsync(pagination);
@@ -118,7 +118,7 @@ public class StudentsControllerTests
         };
         var response = new CreateCommandResponse<Student>(student, "Success", true);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetStudentDetailsQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetStudentDetailsQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetStudentDetailsByIdAsync(1);
@@ -129,9 +129,9 @@ public class StudentsControllerTests
     [Fact]
     public async Task GetStudentDetailsByIdAsync_ReturnsNotFound_WhenStudentDoesNotExistAsync()
     {
-        var response = new CreateCommandResponse<Student>(null, "Error", false);
+        var response = new CreateCommandResponse<Student>(null!, "Error", false);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetStudentDetailsQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetStudentDetailsQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetStudentDetailsByIdAsync(1);
@@ -145,7 +145,7 @@ public class StudentsControllerTests
         var pagination = new Pagination();
         var response = new PagedResult<Student>(Items: [new Student()], Count: 1);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetAllStudentsByPollUuidAndDaysQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetAllStudentsByPollUuidAndDaysQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetPreviewPollsAsync(pagination, Guid.NewGuid().ToString(), 30);
@@ -159,7 +159,7 @@ public class StudentsControllerTests
         var pagination = new Pagination();
         var response = new PagedResult<StudentAverageRiskDto>(Items: [new StudentAverageRiskDto()], Count: 1);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetAllAverageRiskByCohortAndPollQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetAllAverageRiskByCohortAndPollQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetAllAvgRiskByCohortAndPollAsync(
@@ -176,7 +176,7 @@ public class StudentsControllerTests
     public async Task GetPollRiskSumStudentsAsync_ReturnsOkAsync()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetCohortStudentsRiskByPollQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetCohortStudentsRiskByPollQuery>(), default))
             .ReturnsAsync(new List<GetCohortStudentsRiskByPollResponse>());
 
         var result = await _controller.GetPollRiskSumStudentsAsync(
@@ -190,10 +190,10 @@ public class StudentsControllerTests
     public async Task GetPollTopStudentsAsync_ReturnsOkAsync()
     {
         var response = new GetQueryResponse<PagedResult<GetCohortTopRiskStudentsByComponentResponse>>(
-            null, "Success", true);
+            null!, "Success", true);
 
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetCohortTopRiskStudentsQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetCohortTopRiskStudentsQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetPollTopStudentsAsync(
@@ -209,9 +209,9 @@ public class StudentsControllerTests
     public async Task GetComponentTopStudentsAsync_ReturnsOkAsync()
     {
         var response = new GetQueryResponse<PagedResult<GetCohortTopRiskStudentsByComponentResponse>>(
-            null, "Success", true);
+            null!, "Success", true);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetCohortTopRiskStudentsByComponentQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetCohortTopRiskStudentsByComponentQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetComponentTopStudentsAsync(
@@ -227,9 +227,9 @@ public class StudentsControllerTests
     [Fact]
     public async Task GetStudentAnswersByPollAsync_ReturnsOkAsync()
     {
-        var response = new PagedResult<StudentAnswer>(Items: null, Count: 0);
+        var response = new PagedResult<StudentAnswer>(Items: null!, Count: 0);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetStudentAnswersByPollQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetStudentAnswersByPollQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetStudentAnswersByPollAsync(1, 2, new Pagination());
@@ -241,7 +241,7 @@ public class StudentsControllerTests
     public async Task GetStudentAnswersByPollAsync_ReturnsNotFound_WhenExceptionOccursAsync()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetStudentAnswersByPollQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetStudentAnswersByPollQuery>(), default))
             .ThrowsAsync(new Exception("failure"));
 
         var result = await _controller.GetStudentAnswersByPollAsync(1, 2, new Pagination());

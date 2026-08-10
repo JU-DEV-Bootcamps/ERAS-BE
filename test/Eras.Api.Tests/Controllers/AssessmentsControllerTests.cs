@@ -51,7 +51,7 @@ public class AssessmentsControllerTests
         };
         var response = new List<AssessmentDto> { dto };
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetAllRemissionsQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetAllRemissionsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         var result = await _controller.GetAll(CancellationToken.None);
@@ -71,7 +71,7 @@ public class AssessmentsControllerTests
         };
 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetRemissionByIdQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetRemissionByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
         var result = await _controller.GetById(1, CancellationToken.None);
@@ -83,7 +83,7 @@ public class AssessmentsControllerTests
     public async Task GetById_ReturnsNotFound_WhenNullAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetRemissionByIdQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetRemissionByIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((AssessmentDto?)null);
 
         var result = await _controller.GetById(1, CancellationToken.None);
@@ -104,7 +104,7 @@ public class AssessmentsControllerTests
             }
         };
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetRemissionsByStudentIdQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetRemissionsByStudentIdQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
         var result = await _controller.GetByStudentId(1, CancellationToken.None);
@@ -116,8 +116,8 @@ public class AssessmentsControllerTests
     public async Task GetByStudentId_ReturnsNotFound_WhenNullAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetRemissionsByStudentIdQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((List<AssessmentDto>?)null);
+            .Setup(X => X.Send(It.IsAny<GetRemissionsByStudentIdQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(It.IsAny<List<AssessmentDto>>());
 
         var result = await _controller.GetById(1, CancellationToken.None);
 
@@ -128,7 +128,7 @@ public class AssessmentsControllerTests
     public async Task GetByStatus_ReturnsOkAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetRemissionsByStatusQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetRemissionsByStatusQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AssessmentDto>());
 
         var result = await _controller.GetByStatus("Remitted", CancellationToken.None);
@@ -155,7 +155,7 @@ public class AssessmentsControllerTests
             StudentIds = [1, 2],
         };
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateRemissionCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateRemissionCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
         var result = await _controller.Create(dto, CancellationToken.None);
@@ -176,7 +176,7 @@ public class AssessmentsControllerTests
             StudentIds = [1, 2],
         };
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<UpdateRemissionCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<UpdateRemissionCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
         var result = await _controller.Update(5, dto, CancellationToken.None);
@@ -196,8 +196,8 @@ public class AssessmentsControllerTests
             StudentIds = [1, 2],
         };
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<UpdateRemissionCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((AssessmentDto?)null);
+            .Setup(X => X.Send(It.IsAny<UpdateRemissionCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(It.IsAny<AssessmentDto>());
 
         var result = await _controller.Update(1, dto, CancellationToken.None);
 
@@ -216,7 +216,7 @@ public class AssessmentsControllerTests
             StudentIds = [1, 2],
         };
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<UpdateRemissionCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<UpdateRemissionCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OperationCanceledException("busy"));
         var result = await _controller.Update(1, dto, CancellationToken.None);
 
@@ -227,7 +227,7 @@ public class AssessmentsControllerTests
     public async Task Delete_ReturnsNoContentResultAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<DeleteAssessmentCommand>(), It.IsAny<CancellationToken>()));
+            .Setup(X => X.Send(It.IsAny<DeleteAssessmentCommand>(), It.IsAny<CancellationToken>()));
 
         var result = await _controller.Delete(1, CancellationToken.None);
 
@@ -238,7 +238,7 @@ public class AssessmentsControllerTests
     public async Task Delete_FailsAndReturnsNotFoundAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<DeleteAssessmentCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<DeleteAssessmentCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new KeyNotFoundException());
         var result = await _controller.Delete(1, CancellationToken.None);
 
@@ -249,7 +249,7 @@ public class AssessmentsControllerTests
     public async Task GetInterventions_ReturnsOkAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetInterventionsByAssessmentQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetInterventionsByAssessmentQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(It.IsAny<List<InterventionDto>>);
 
         var result = await _controller.GetInterventions(1, CancellationToken.None);
@@ -263,10 +263,10 @@ public class AssessmentsControllerTests
         var dto = new AddInterventionDto
         {
             AssessmentId = 1,
-            Intervention = null,
+            Intervention = new IndividualInterventionDto() { DateUtc = DateTime.Now, StudentIds = [] },
         };
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<AddInterventionCommand>(), It.IsAny<CancellationToken>()));
+            .Setup(X => X.Send(It.IsAny<AddInterventionCommand>(), It.IsAny<CancellationToken>()));
 
         var result = await _controller.AddIntervention(dto, CancellationToken.None);
 
@@ -277,7 +277,7 @@ public class AssessmentsControllerTests
     public async Task UpsertInterventions_ReturnsConflictResponseAsync()
     { 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<UpsertInterventionsCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<UpsertInterventionsCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OperationCanceledException("busy"));
         var result = await _controller.UpsertInterventions(1, It.IsAny<List<InterventionDto>>(), CancellationToken.None);
 
@@ -288,7 +288,7 @@ public class AssessmentsControllerTests
     public async Task UpsertInterventions_ReturnsOkResponseAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<UpsertInterventionsCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<UpsertInterventionsCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(It.IsAny<List<InterventionDto>>());
         var result = await _controller.UpsertInterventions(1, It.IsAny<List<InterventionDto>>(), CancellationToken.None);
 
@@ -299,7 +299,7 @@ public class AssessmentsControllerTests
     public async Task DeleteIntervention_ReturnsNoContentResultAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<DeleteInterventionCommand>(), It.IsAny<CancellationToken>()));
+            .Setup(X => X.Send(It.IsAny<DeleteInterventionCommand>(), It.IsAny<CancellationToken>()));
 
         var result = await _controller.DeleteIntervention(1, 1, CancellationToken.None);
 
@@ -310,7 +310,7 @@ public class AssessmentsControllerTests
     public async Task DeleteIntervention_FailsAndReturnsNotFoundAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<DeleteInterventionCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<DeleteInterventionCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new KeyNotFoundException());
         var result = await _controller.DeleteIntervention(1, 1, CancellationToken.None);
 
@@ -333,7 +333,7 @@ public class AssessmentsControllerTests
         var files = new FormFileCollection{file};
 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<UploadInterventionAttachmentsCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<UploadInterventionAttachmentsCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<string> { "test.pdf" });
 
         var result = await _controller.UploadAttachments(1, files, CancellationToken.None);
@@ -348,7 +348,7 @@ public class AssessmentsControllerTests
         IFormFile file = new FormFile(stream, 0, stream.Length, "file", "test.pdf");
         var files = new FormFileCollection { file };
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<UploadInterventionAttachmentsCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<UploadInterventionAttachmentsCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("exists"));
         var result = await _controller.UploadAttachments(1, files, CancellationToken.None);
 
@@ -359,7 +359,7 @@ public class AssessmentsControllerTests
     public async Task DownloadAttachment_WithUnrecognizedExtensionAsync()
     {
         _storageMock
-            .Setup(x => x.ReadAsync(It.IsAny<string>()))
+            .Setup(X => X.ReadAsync(It.IsAny<string>()))
             .ReturnsAsync(new MemoryStream());
         var result = await _controller.DownloadAttachment(1, "file.xyz", CancellationToken.None);
 
@@ -372,7 +372,7 @@ public class AssessmentsControllerTests
     public async Task DownloadAttachment_ReturnsOkAsync()
     {
         _storageMock
-            .Setup(x => x.ReadAsync(It.IsAny<string>()))
+            .Setup(X => X.ReadAsync(It.IsAny<string>()))
             .ReturnsAsync(new MemoryStream());
         var result = await _controller.DownloadAttachment(1, "test.pdf", CancellationToken.None);
         var file = Assert.IsType<FileStreamResult>(result);
@@ -384,7 +384,7 @@ public class AssessmentsControllerTests
     public async Task DownloadAttachment_FailsAndReturnsConflictAsync()
     {
         _storageMock
-            .Setup(x => x.ReadAsync(It.IsAny<string>()))
+            .Setup(X => X.ReadAsync(It.IsAny<string>()))
             .ThrowsAsync(new FileNotFoundException());
 
         var result = await _controller.DownloadAttachment(1, "missing.pdf", CancellationToken.None);
@@ -396,7 +396,7 @@ public class AssessmentsControllerTests
     public async Task DeleteAttachment_ReturnsOkAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<DeleteInterventionAttachmentCommand>(), It.IsAny<CancellationToken>()));
+            .Setup(X => X.Send(It.IsAny<DeleteInterventionAttachmentCommand>(), It.IsAny<CancellationToken>()));
         var result = await _controller.DeleteAttachment(1, "test.pdf", CancellationToken.None);
 
         Assert.IsType<NoContentResult>(result);
@@ -406,7 +406,7 @@ public class AssessmentsControllerTests
     public async Task DeleteAttachment_FailsAndReturnsNotFoundAsync()
     {
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<DeleteInterventionAttachmentCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<DeleteInterventionAttachmentCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new KeyNotFoundException());
 
         var result = await _controller.DeleteAttachment(1, "missing.pdf", CancellationToken.None);

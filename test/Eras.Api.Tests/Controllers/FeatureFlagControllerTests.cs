@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Eras.Api.Tests.Controllers;
+﻿namespace Eras.Api.Tests.Controllers;
 
 using Eras.Api.Controllers;
 using Eras.Application.DTOs;
@@ -46,13 +40,11 @@ public class FeatureFlagControllerTests
             Name = "FeatureA",
             Description = "Description",
             IsEnabled = true,
-            Audit = null,
+            Audit = null!,
         };
 
         _mediatorMock
-            .Setup(x => x.Send(
-                It.IsAny<GetFeatureFlagByNameQuery>(),
-                It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetFeatureFlagByNameQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(dto);
 
         // Act
@@ -68,7 +60,7 @@ public class FeatureFlagControllerTests
     {
         // Arrange
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetFeatureFlagByNameQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetFeatureFlagByNameQuery>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new NotFoundException("error"));
 
         // Act
@@ -90,12 +82,12 @@ public class FeatureFlagControllerTests
                 Name = "FeatureA",
                 Description = "Description",
                 IsEnabled = true,
-                Audit = null,
+                Audit = null!,
             }
         ];
 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetAllFeatureFlagsQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetAllFeatureFlagsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -116,7 +108,7 @@ public class FeatureFlagControllerTests
             Name = "FeatureA",
             Description = "Description",
             IsEnabled = true,
-            Audit = null,
+            Audit = null!,
         };
 
         var created = new FeatureFlagDTO
@@ -125,11 +117,11 @@ public class FeatureFlagControllerTests
             Name = "FeatureA",
             Description = "Description",
             IsEnabled = true,
-            Audit = null,
+            Audit = null!,
         };
 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateFeatureFlagCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateFeatureFlagCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(created);
 
         // Act
@@ -150,11 +142,11 @@ public class FeatureFlagControllerTests
             Name = "FeatureA",
             Description = "Description",
             IsEnabled = true,
-            Audit = null,
+            Audit = null!,
         };
 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateFeatureFlagCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateFeatureFlagCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("Already exists"));
 
         // Act
@@ -174,18 +166,18 @@ public class FeatureFlagControllerTests
             Name = "FeatureA",
             Description = "Description",
             IsEnabled = true,
-            Audit = null,
+            Audit = null!,
         };
 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<UpdateFeatureFlagCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<UpdateFeatureFlagCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FeatureFlagDTO
             {
                 Id = 5,
                 Name = "FeatureA",
                 Description = "Description",
                 IsEnabled = true,
-                Audit = null,
+                Audit = null!,
             });
 
         // Act
@@ -204,7 +196,7 @@ public class FeatureFlagControllerTests
     {
         // Arrange
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<DeleteFeatureFlagCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<DeleteFeatureFlagCommand>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -219,7 +211,7 @@ public class FeatureFlagControllerTests
     {
         // Arrange
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<DeleteFeatureFlagCommand>(),It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<DeleteFeatureFlagCommand>(),It.IsAny<CancellationToken>()))
             .ThrowsAsync(new KeyNotFoundException());
 
         // Act

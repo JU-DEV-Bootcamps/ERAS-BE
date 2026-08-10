@@ -88,10 +88,10 @@ namespace Eras.Api.Tests.Controllers
         {
             // Arrange
             var pagination = new Pagination();
-            var expected = new GetQueryResponse<PagedResult<PollInstanceDTO>>(null, "Success", true);
+            var expected = new GetQueryResponse<PagedResult<PollInstanceDTO>>(null!, "Success", true);
 
             _mockMediator
-                .Setup(x => x.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(X => X.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expected);
 
             // Act
@@ -131,7 +131,7 @@ namespace Eras.Api.Tests.Controllers
         };
 
             _mockMediator
-                .Setup(x => x.Send(
+                .Setup(X => X.Send(
                     It.IsAny<GetCohortComponentsByPollQuery>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
@@ -170,7 +170,7 @@ namespace Eras.Api.Tests.Controllers
         };
 
             _mockMediator
-                .Setup(x => x.Send(
+                .Setup(X => X.Send(
                     It.IsAny<GetCohortComponentsByPollQuery>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
@@ -191,8 +191,8 @@ namespace Eras.Api.Tests.Controllers
         {
             // Arrange
             _mockMediator
-                .Setup(x => x.Send(It.IsAny<GetComponentsAvgByStudentQuery>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((List<ComponentsAvg>?)null);
+                .Setup(X => X.Send(It.IsAny<GetComponentsAvgByStudentQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(It.IsAny<List<ComponentsAvg>>());
 
             // Act
             IActionResult result =
@@ -203,11 +203,11 @@ namespace Eras.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetComponentsRiskAvgByStudentAsync_ReturnsNotFound_WhenMediatorReturnsEmptyCollection()
+        public async Task GetComponentsRiskAvgByStudentAsync_ReturnsNotFound_WhenMediatorReturnsEmptyCollectionAsync()
         {
             // Arrange
             _mockMediator
-                .Setup(x => x.Send(It.IsAny<GetComponentsAvgByStudentQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(X => X.Send(It.IsAny<GetComponentsAvgByStudentQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<ComponentsAvg>());
 
             // Act
@@ -219,7 +219,7 @@ namespace Eras.Api.Tests.Controllers
         }
 
         [Fact]
-        public async Task GetComponentsRiskAvgByStudentAsync_ReturnsOk_WhenMediatorReturnsData()
+        public async Task GetComponentsRiskAvgByStudentAsync_ReturnsOk_WhenMediatorReturnsDataAsync()
         {
             // Arrange
             var response = new List<ComponentsAvg>
@@ -228,7 +228,7 @@ namespace Eras.Api.Tests.Controllers
         };
 
             _mockMediator
-                .Setup(x => x.Send(
+                .Setup(X => X.Send(
                     It.IsAny<GetComponentsAvgByStudentQuery>(),
                     It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);

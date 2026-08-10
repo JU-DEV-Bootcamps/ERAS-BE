@@ -49,7 +49,7 @@ public class ConfigurationsControllerTests
         var response = new List<Configurations>();
 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetAllConfigurationsQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetAllConfigurationsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -61,13 +61,13 @@ public class ConfigurationsControllerTests
     }
 
     [Fact]
-    public async Task GetUserConfigurationsAsync_ReturnsOk()
+    public async Task GetUserConfigurationsAsync_ReturnsOkAsync()
     {
         // Arrange
         var response = new List<Configurations>();
 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetUserConfigurationsQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetUserConfigurationsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -101,7 +101,7 @@ public class ConfigurationsControllerTests
         var response = new CreateCommandResponse<Configurations>(new Configurations(), "Success", true);
 
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateConfigurationCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateConfigurationCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -123,7 +123,7 @@ public class ConfigurationsControllerTests
         };
         var response = new CreateCommandResponse<Configurations>(new Configurations(), "Error", false);
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateConfigurationCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateConfigurationCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -146,7 +146,7 @@ public class ConfigurationsControllerTests
     }
 
     [Fact]
-    public async Task EditConfigurationAsync_ReturnsOk_WhenMediatorReturnsSuccess()
+    public async Task EditConfigurationAsync_ReturnsOk_WhenMediatorReturnsSuccessAsync()
     {
         // Arrange
         var dto = new ConfigurationsDTO
@@ -157,7 +157,7 @@ public class ConfigurationsControllerTests
         var response = new CreateCommandResponse<Configurations>(new Configurations(), "Success", true);
 
         _mediatorMock
-            .Setup(x => x.Send(
+            .Setup(X => X.Send(
                 It.IsAny<EditConfigurationCommand>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
@@ -182,7 +182,7 @@ public class ConfigurationsControllerTests
         var response = new CreateCommandResponse<Configurations>(new Configurations(), "Error", false);
 
         _mediatorMock
-            .Setup(x => x.Send(
+            .Setup(X => X.Send(
                 It.IsAny<EditConfigurationCommand>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
@@ -207,7 +207,7 @@ public class ConfigurationsControllerTests
     }
 
     [Fact]
-    public async Task DeleteConfigurationAsync_ReturnsOk_WhenMediatorReturnsSuccess()
+    public async Task DeleteConfigurationAsync_ReturnsOk_WhenMediatorReturnsSuccessAsync()
     {
         // Arrange
         var response = new BaseResponse
@@ -216,7 +216,7 @@ public class ConfigurationsControllerTests
             Message = "Deleted"
         };
         _mediatorMock
-            .Setup(x => x.Send(
+            .Setup(X => X.Send(
                 It.IsAny<DeleteConfigurationCommand>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
@@ -240,7 +240,7 @@ public class ConfigurationsControllerTests
         };
 
         _mediatorMock
-            .Setup(x => x.Send(
+            .Setup(X => X.Send(
                 It.IsAny<DeleteConfigurationCommand>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);

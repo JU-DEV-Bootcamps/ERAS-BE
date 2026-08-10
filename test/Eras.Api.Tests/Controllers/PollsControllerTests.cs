@@ -49,7 +49,7 @@ public class PollsControllerTests
         var badRequest = Assert.IsType<BadRequestObjectResult>(result);
         Assert.Equal("Only filter by StudentId or CohortId", badRequest.Value);
 
-        _mediatorMock.Verify(m => m.Send(It.IsAny<IRequest<object>>(), It.IsAny<CancellationToken>()),
+        _mediatorMock.Verify(M => M.Send(It.IsAny<IRequest<object>>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -60,7 +60,7 @@ public class PollsControllerTests
         var expected = new List<GetPollsQueryResponse>();
 
         _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetAllPollsQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(M => M.Send(It.IsAny<GetAllPollsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
         // Act
@@ -69,8 +69,8 @@ public class PollsControllerTests
         // Assert
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.Same(expected, ok.Value);
-        _mediatorMock.Verify(m =>
-            m.Send(It.IsAny<GetAllPollsQuery>(),It.IsAny<CancellationToken>()),
+        _mediatorMock.Verify(M =>
+            M.Send(It.IsAny<GetAllPollsQuery>(),It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -81,7 +81,7 @@ public class PollsControllerTests
         var expected = new List<GetPollsQueryResponse>();
 
         _mediatorMock
-            .Setup(m => m.Send(It.Is<GetPollsByStudentQuery>(q => q.StudentId == 5),It.IsAny<CancellationToken>()))
+            .Setup(M => M.Send(It.Is<GetPollsByStudentQuery>(Q => Q.StudentId == 5), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
         // Act
@@ -90,8 +90,8 @@ public class PollsControllerTests
         // Assert
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.Same(expected, ok.Value);
-        _mediatorMock.Verify(m =>
-            m.Send(It.Is<GetPollsByStudentQuery>(q => q.StudentId == 5), It.IsAny<CancellationToken>()),
+        _mediatorMock.Verify(M =>
+            M.Send(It.Is<GetPollsByStudentQuery>(Q => Q.StudentId == 5), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -101,7 +101,7 @@ public class PollsControllerTests
         // Arrange
         var expected = new List<GetPollsQueryResponse>();
         _mediatorMock
-            .Setup(m => m.Send(It.Is<GetPollsByCohortListQuery>(q => q.CohortId == 10), It.IsAny<CancellationToken>()))
+            .Setup(M => M.Send(It.Is<GetPollsByCohortListQuery>(Q => Q.CohortId == 10), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
         // Act
@@ -111,8 +111,8 @@ public class PollsControllerTests
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.Same(expected, ok.Value);
 
-        _mediatorMock.Verify(m =>
-            m.Send(It.Is<GetPollsByCohortListQuery>(q => q.CohortId == 10),It.IsAny<CancellationToken>()),
+        _mediatorMock.Verify(M =>
+            M.Send(It.Is<GetPollsByCohortListQuery>(Q => Q.CohortId == 10), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -123,9 +123,7 @@ public class PollsControllerTests
         var expected = new List<PollVariableDto>();
 
         _mediatorMock
-            .Setup(m => m.Send(
-                It.Is<GetAllByPollAndCohortQuery>(q => q.cohortId == 7 && q.pollId == 3),
-                It.IsAny<CancellationToken>()))
+            .Setup(M => M.Send(It.Is<GetAllByPollAndCohortQuery>(Q => Q.cohortId == 7 && Q.pollId == 3), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
         // Act
@@ -149,11 +147,11 @@ public class PollsControllerTests
         };
 
         _mediatorMock
-            .Setup(m => m.Send(
-                It.Is<GetVariablesByPollUuidAndComponentQuery>(q =>
-                    q.pollUuid == "poll-uuid" &&
-                    q.LastVersion &&
-                    q.component.SequenceEqual(components)),
+            .Setup(M => M.Send(
+                It.Is<GetVariablesByPollUuidAndComponentQuery>(Q =>
+                    Q.pollUuid == "poll-uuid" &&
+                    Q.LastVersion &&
+                    Q.component.SequenceEqual(components)),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
@@ -163,8 +161,8 @@ public class PollsControllerTests
         // Assert
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.Same(expected, ok.Value);
-        _mediatorMock.Verify(m =>
-            m.Send(It.IsAny<GetVariablesByPollUuidAndComponentQuery>(), It.IsAny<CancellationToken>()),
+        _mediatorMock.Verify(M =>
+            M.Send(It.IsAny<GetVariablesByPollUuidAndComponentQuery>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 }

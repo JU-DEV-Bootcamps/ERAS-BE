@@ -42,7 +42,7 @@ public class ServiceProvidersControllerTests
             }
         ]);
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetAllServiceProvidersQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetAllServiceProvidersQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -76,7 +76,7 @@ public class ServiceProvidersControllerTests
         };
         var response = new CreateCommandResponse<ServiceProviders>(serviceProvider, "Success", true);
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateServiceProviderCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateServiceProviderCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -92,9 +92,9 @@ public class ServiceProvidersControllerTests
     {
         // Arrange
         var dto = new ServiceProvidersDTO() { ServiceProviderName = "", ServiceProviderLogo = "b" };
-        var response = new CreateCommandResponse<ServiceProviders>(null, "Error", false);
+        var response = new CreateCommandResponse<ServiceProviders>(null!, "Error", false);
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateServiceProviderCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateServiceProviderCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act

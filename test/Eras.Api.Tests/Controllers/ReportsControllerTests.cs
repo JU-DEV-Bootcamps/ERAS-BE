@@ -17,8 +17,6 @@ using Moq;
 
 using Xunit;
 
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
 namespace Eras.Api.Tests.Controllers;
 
 public class ReportsControllerTests
@@ -57,7 +55,7 @@ public class ReportsControllerTests
 
         var response = new GetQueryResponse<List<(Student, List<Answer>, decimal)>>(student, "Success", true);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetStudentTopQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetStudentTopQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetHigherRiskStudentsByCohortAsync("C1", "Poll", 5);
@@ -68,9 +66,9 @@ public class ReportsControllerTests
     [Fact]
     public async Task GetHigherRiskStudentsByCohortAsync_ReturnsBadRequest_WhenQueryFailsAsync()
     {
-        var response = new GetQueryResponse<List<(Student, List<Answer>, decimal)>>(null, "Error", false);
+        var response = new GetQueryResponse<List<(Student, List<Answer>, decimal)>>(null!, "Error", false);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetStudentTopQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetStudentTopQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetHigherRiskStudentsByCohortAsync("C1", "Poll", 5);
@@ -82,7 +80,7 @@ public class ReportsControllerTests
     public async Task GetHigherRiskStudentsByCohortAsync_ReturnsNotFound_WhenExceptionOccursAsync()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetStudentTopQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetStudentTopQuery>(), default))
             .ThrowsAsync(new Exception("boom"));
 
         var result = await _controller.GetHigherRiskStudentsByCohortAsync("C1", "Poll", 5);
@@ -93,9 +91,9 @@ public class ReportsControllerTests
     [Fact]
     public async Task GetHigherRiskStudentsByPollAsync_ReturnsOkAsync()
     {
-        var response = new PagedResult<ErasCalculationsByPollDTO>(Items: null, Count: 0 );
+        var response = new PagedResult<ErasCalculationsByPollDTO>(Items: null!, Count: 0 );
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetPollTopQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetPollTopQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetHigherRiskStudentsByPollAsync(
@@ -110,7 +108,7 @@ public class ReportsControllerTests
     public async Task GetHigherRiskStudentsByPollAsync_ReturnsNotFound_WhenExceptionOccursAsync()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetPollTopQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetPollTopQuery>(), default))
             .ThrowsAsync(new Exception());
 
         var result = await _controller.GetHigherRiskStudentsByPollAsync(
@@ -136,7 +134,7 @@ public class ReportsControllerTests
         var data = new AvgReportResponseVm();
         var response = new GetQueryResponse<AvgReportResponseVm>(data, "Success", true);
         _mediator
-            .Setup(x => x.Send(It.IsAny<PollAvgQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<PollAvgQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetAvgRiskByPollAsync(Guid.NewGuid().ToString(), "1,2", false, 1);
@@ -147,9 +145,9 @@ public class ReportsControllerTests
     [Fact]
     public async Task GetAvgRiskByPollAsync_ReturnsBadRequest_WhenQueryFailsAsync()
     {
-        var response = new GetQueryResponse<AvgReportResponseVm>(null, "Error", false);
+        var response = new GetQueryResponse<AvgReportResponseVm>(null!, "Error", false);
         _mediator
-            .Setup(x => x.Send(It.IsAny<PollAvgQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<PollAvgQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetAvgRiskByPollAsync(Guid.NewGuid().ToString(), "1", false, 1);
@@ -161,7 +159,7 @@ public class ReportsControllerTests
     public async Task GetAvgRiskByPollAsync_Returns500_WhenExceptionOccursAsync()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<PollAvgQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<PollAvgQuery>(), default))
             .ThrowsAsync(new Exception());
 
         var result = await _controller.GetAvgRiskByPollAsync(Guid.NewGuid().ToString(),"1",false,1);
@@ -176,7 +174,7 @@ public class ReportsControllerTests
         var data = new CountReportResponseVm();
         var response = new GetQueryResponse<CountReportResponseVm>(data, "Success", true);
         _mediator
-            .Setup(x => x.Send(It.IsAny<PollCountQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<PollCountQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetPollResultsCountAsync(
@@ -188,9 +186,9 @@ public class ReportsControllerTests
     [Fact]
     public async Task GetPollResultsCountAsync_ReturnsBadRequest_WhenQueryFailsAsync()
     {
-        var response = new GetQueryResponse<CountReportResponseVm>(null, "Error", false);
+        var response = new GetQueryResponse<CountReportResponseVm>(null!, "Error", false);
         _mediator
-            .Setup(x => x.Send(It.IsAny<PollCountQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<PollCountQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetPollResultsCountAsync(
@@ -203,7 +201,7 @@ public class ReportsControllerTests
     public async Task GetPollResultsCountAsync_Returns500_WhenExceptionOccursAsync()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<PollCountQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<PollCountQuery>(), default))
             .ThrowsAsync(new Exception());
 
         var result = await _controller.GetPollResultsCountAsync(
@@ -222,7 +220,7 @@ public class ReportsControllerTests
         };
         var response = new GetQueryResponse<RiskCountResponseVm>(data, "Success", true);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetRiskCountQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetRiskCountQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetComponentSummaryByPollAsync(Guid.NewGuid().ToString());
@@ -236,7 +234,7 @@ public class ReportsControllerTests
         var data = It.IsAny<RiskCountResponseVm>();
         var response = new GetQueryResponse<RiskCountResponseVm>(data, "Error", false);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetRiskCountQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetRiskCountQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetComponentSummaryByPollAsync(Guid.NewGuid().ToString());
@@ -248,7 +246,7 @@ public class ReportsControllerTests
     public async Task GetComponentSummaryByPollAsync_ReturnsBadRequest_WhenExceptionOccursAsync()
     {
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetRiskCountQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetRiskCountQuery>(), default))
             .ThrowsAsync(new Exception());
 
         var result = await _controller.GetComponentSummaryByPollAsync(Guid.NewGuid().ToString());
@@ -262,7 +260,7 @@ public class ReportsControllerTests
         var data = It.IsAny<Dictionary<string, int>>();
         var response = new GetQueryResponse<Dictionary<string, int>>(data, "Success", true);
         _mediator
-            .Setup(x => x.Send(It.IsAny<GetCountSummaryQuery>(), default))
+            .Setup(X => X.Send(It.IsAny<GetCountSummaryQuery>(), default))
             .ReturnsAsync(response);
 
         var result = await _controller.GetCountSummaryAsync();

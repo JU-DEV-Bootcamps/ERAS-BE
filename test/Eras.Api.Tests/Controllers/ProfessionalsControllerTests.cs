@@ -48,7 +48,7 @@ public class ProfessionalsControllerTests
             Count: 1
         );
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<GetProfessionalsQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<GetProfessionalsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -78,7 +78,7 @@ public class ProfessionalsControllerTests
         var professional = new JUProfessional();
         var response = new CreateCommandResponse<JUProfessional>(professional, "Success", true);
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateProfessionalCommand>(),It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateProfessionalCommand>(),It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
@@ -90,13 +90,13 @@ public class ProfessionalsControllerTests
     }
 
     [Fact]
-    public async Task CreateProfessionalAsync_ReturnsBadRequest_WhenMediatorReturnsFailure()
+    public async Task CreateProfessionalAsync_ReturnsBadRequest_WhenMediatorReturnsFailureAsync()
     {
         // Arrange
         var dto = new JUProfessionalDTO() { Name = "b" };
-        var response = new CreateCommandResponse<JUProfessional>(null, "Error", false);
+        var response = new CreateCommandResponse<JUProfessional>(null!, "Error", false);
         _mediatorMock
-            .Setup(x => x.Send(It.IsAny<CreateProfessionalCommand>(), It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateProfessionalCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act
