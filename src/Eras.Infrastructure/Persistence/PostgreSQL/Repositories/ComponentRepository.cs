@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class ComponentRepository : BaseRepository<Component, ComponentEntity>, IComponentRepository
     {
         public ComponentRepository(AppDbContext Context)
