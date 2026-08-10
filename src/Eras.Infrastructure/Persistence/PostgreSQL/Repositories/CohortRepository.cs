@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
-[ExcludeFromCodeCoverage]
 public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, CohortEntity>(Context, CohortMapper.ToDomain, CohortMapper.ToPersistence), ICohortRepository
 {
     public async Task<Cohort?> GetByNameAsync(string Name)

@@ -25,21 +25,21 @@ public class AssessmentRepositoryTest
         _repository = new AssessmentRepository(_mockContext.Object, _mockLogger.Object);
     }
 
-    private static TestIntervention BuildIntervention(int id, params int[] studentIds)
+    private static TestIntervention BuildIntervention(int Id, params int[] StudentIds)
     {
         return new TestIntervention
         {
-            Id = id,
+            Id = Id,
             DateUtc = DateTime.UtcNow,
-            StudentIds = studentIds,
+            StudentIds = StudentIds,
             Mode = InterventionMode.InPlace
         };
     }
 
-    private void SetupAssessments(params Assessment[] assessments)
+    private void SetupAssessments(params Assessment[] Assessments)
     {
-        var mockSet = assessments.AsQueryable().BuildMockDbSet();
-        _mockContext.Setup(c => c.Set<Assessment>()).Returns(mockSet.Object);
+        var mockSet = Assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(C => C.Set<Assessment>()).Returns(mockSet.Object);
     }
 
     [Fact]
@@ -65,15 +65,15 @@ public class AssessmentRepositoryTest
         };
 
         var mockSet = assessments.AsQueryable().BuildMockDbSet();
-        _mockContext.Setup(r => r.Set<Assessment>()).Returns(mockSet.Object);
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
 
         // Act
         var result = await _repository.GetAllAsync();
 
         // Assert
         Assert.Equal(2, result.Count());
-        Assert.Contains(result, i => i.Id == 1);
-        Assert.Contains(result, i => i.Id == 2);
+        Assert.Contains(result, I => I.Id == 1);
+        Assert.Contains(result, I => I.Id == 2);
     }
 
     [Fact]
@@ -106,15 +106,15 @@ public class AssessmentRepositoryTest
         };
 
         var mockSet = assessments.AsQueryable().BuildMockDbSet();
-        _mockContext.Setup(r => r.Set<Assessment>()).Returns(mockSet.Object);
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
 
         // Act
         var result = await _repository.GetByStudentIdAsync(1);
 
         // Assert
         Assert.Equal(2, result.Count());
-        Assert.Contains(result, i => i.Id == 1);
-        Assert.Contains(result, i => i.Id == 3);
+        Assert.Contains(result, I => I.Id == 1);
+        Assert.Contains(result, I => I.Id == 3);
     }
 
 
@@ -176,8 +176,8 @@ public class AssessmentRepositoryTest
 
         // Assert
         Assert.Equal(2, result.Result.Count());
-        Assert.Contains(result.Result, i => i.Id == 1);
-        Assert.Contains(result.Result, i => i.Id == 2);
+        Assert.Contains(result.Result, I => I.Id == 1);
+        Assert.Contains(result.Result, I => I.Id == 2);
     }
 
     [Fact]
@@ -287,15 +287,15 @@ public class AssessmentRepositoryTest
         };
 
         var mockSet = assessments.AsQueryable().BuildMockDbSet();
-        _mockContext.Setup(r => r.Set<Assessment>()).Returns(mockSet.Object);
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
 
         // Act
         var result = await _repository.GetByStatusAsync(AssessmentStatus.Remitted);
 
         // Assert
         Assert.Equal(2, result.Count());
-        Assert.Contains(result, i => i.Id == 1);
-        Assert.Contains(result, i => i.Id == 3);
+        Assert.Contains(result, I => I.Id == 1);
+        Assert.Contains(result, I => I.Id == 3);
     }
 
     [Fact]
@@ -328,7 +328,7 @@ public class AssessmentRepositoryTest
         };
 
         var mockSet = assessments.AsQueryable().BuildMockDbSet();
-        _mockContext.Setup(r => r.Set<Assessment>()).Returns(mockSet.Object);
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
 
         // Act
         var result = await _repository.GetByStatusAsync(AssessmentStatus.Finalized);
@@ -377,7 +377,7 @@ public class AssessmentRepositoryTest
         await repository.AddAttachmentsAsync(intervention.Id, newPaths, newHashes);
 
         // Assert
-        Intervention updated = await context.Set<Intervention>().FirstAsync(i => i.Id == intervention.Id);
+        Intervention updated = await context.Set<Intervention>().FirstAsync(I => I.Id == intervention.Id);
         Assert.Single(updated.Attachments);
         Assert.Contains("interventions/1/file1.pdf", updated.Attachments);
         Assert.Single(updated.AttachmentHashes);
@@ -444,7 +444,7 @@ public class AssessmentRepositoryTest
         await repository.RemoveAttachmentAsync(intervention.Id, "interventions/1/file1.pdf");
 
         // Assert
-        Intervention updated = await context.Set<Intervention>().FirstAsync(i => i.Id == intervention.Id);
+        Intervention updated = await context.Set<Intervention>().FirstAsync(I => I.Id == intervention.Id);
         Assert.Single(updated.Attachments);
         Assert.Contains("interventions/1/file2.png", updated.Attachments);
         Assert.Single(updated.AttachmentHashes);
@@ -489,7 +489,7 @@ public class AssessmentRepositoryTest
         await repository.RemoveAttachmentAsync(intervention.Id, "somewhere-else/file1.pdf");
 
         // Assert
-        Intervention updated = await context.Set<Intervention>().FirstAsync(i => i.Id == intervention.Id);
+        Intervention updated = await context.Set<Intervention>().FirstAsync(I => I.Id == intervention.Id);
         Assert.Empty(updated.Attachments);
         Assert.Empty(updated.AttachmentHashes);
     }
@@ -532,7 +532,7 @@ public class AssessmentRepositoryTest
         await repository.RemoveAttachmentAsync(intervention.Id, "does-not-exist.pdf");
 
         // Assert 
-        Intervention updated = await context.Set<Intervention>().FirstAsync(i => i.Id == intervention.Id);
+        Intervention updated = await context.Set<Intervention>().FirstAsync(I => I.Id == intervention.Id);
         Assert.Single(updated.Attachments);
         Assert.Contains("interventions/1/file1.pdf", updated.Attachments);
         Assert.Single(updated.AttachmentHashes);
@@ -854,7 +854,7 @@ public class AssessmentRepositoryTest
         Assert.Equal(2, interventions.Count);
         Assert.DoesNotContain(
             interventions,
-            i => i.Id == existingIntervention.Id);
+            I => I.Id == existingIntervention.Id);
     }
 
     [Fact]
@@ -886,7 +886,7 @@ public class AssessmentRepositoryTest
         // Assert
         Assert.Same(intervention, result);
         var saved = await context.Interventions
-            .FirstAsync(i => i.Id == intervention.Id);
+            .FirstAsync(I => I.Id == intervention.Id);
         Assert.Equal(intervention.Id, saved.Id);
     }
 
