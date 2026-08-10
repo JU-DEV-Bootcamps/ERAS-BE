@@ -16,6 +16,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollInstance, PollInstanceEntity>(Context, PollInstanceMapper.ToDomain, PollInstanceMapper.ToPersistence), IPollInstanceRepository
 {
+    private static bool IsValidAnswer(string? answerText) =>
+        !string.IsNullOrEmpty(answerText) &&
+        answerText != "-" &&
+        !answerText.Equals("None", StringComparison.OrdinalIgnoreCase) &&
+        !answerText.Equals("Ninguno", StringComparison.OrdinalIgnoreCase) &&
+        !answerText.Equals("Ninguna", StringComparison.OrdinalIgnoreCase);
+
     public async Task<PollInstance?> GetByUuidAsync(string Uuid)
     {
         PollInstanceEntity? pollInstance = await _context.PollInstances
@@ -139,8 +146,8 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     }
 
     public async Task<AvgReportResponseVm> GetReportByPollCohortAsync(
-    string PollUuid, List<int> CohortIds, bool LastVersion,
-    DateTime startDate, DateTime endDate)
+        string PollUuid, List<int> CohortIds, bool LastVersion,
+        DateTime startDate, DateTime endDate)
     {
         List<string> emailsInCohort = await _context.StudentCohorts
             .Where(SC => CohortIds.Contains(SC.CohortId))
@@ -149,7 +156,13 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 S => S.Id,
                 (SC, S) => new { SC, S })
             .Select(SC => SC.S.Email)
+            .Distinct()
             .ToListAsync();
+
+        int pollVersion = _context.Polls
+            .Where(A => A.Uuid == PollUuid)
+            .Select(A => A.LastVersion)
+            .FirstOrDefault();
 
         IQueryable<ErasCalculationsByPollDTO> reportQuery;
 
@@ -161,6 +174,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             where A.PollUuid == PollUuid
             where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate
             where emailsInCohort.Contains(A.StudentEmail)
+            where A.PollVersion == pollVersion
             select new ErasCalculationsByPollDTO
             {
                 ComponentName = A.ComponentName,
@@ -178,10 +192,11 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         {
             reportQuery =
             from A in _context.ErasCalculationsByPoll
-            join PI in _context.PollInstances on A.PollInstanceId equals PI.Id 
+            join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
             where A.PollUuid == PollUuid
-            where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate 
+            where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate
             where emailsInCohort.Contains(A.StudentEmail)
+            where A.PollVersion != pollVersion
             select new ErasCalculationsByPollDTO
             {
                 ComponentName = A.ComponentName,
@@ -196,26 +211,16 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             };
         }
 
-        List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
+        List<ErasCalculationsByPollDTO> rawResults = await reportQuery.ToListAsync();
 
-        var filteredResultsForMath = results.Where(A => 
-            A.AnswerText != "-" && 
-            A.AnswerText != "" && 
-            !string.IsNullOrEmpty(A.AnswerText) &&
-            !A.AnswerText.Equals("None", StringComparison.OrdinalIgnoreCase) &&
-            !A.AnswerText.Equals("Ninguno", StringComparison.OrdinalIgnoreCase) &&
-            !A.AnswerText.Equals("Ninguna", StringComparison.OrdinalIgnoreCase)
-        ).ToList();
+        List<ErasCalculationsByPollDTO> results = [.. rawResults
+            .GroupBy(A => new { A.ComponentName, A.Question, A.Position, A.AnswerText, A.StudentEmail })
+            .Select(g => g.First())];
+
+        var filteredResultsForMath = results.Where(A => IsValidAnswer(A.AnswerText)).ToList();
 
         var avgByComponent = filteredResultsForMath
             .GroupBy(A => A.ComponentName)
-            .ToDictionary(
-                g => g.Key,
-                g => (decimal)Math.Round(g.Average(x => (double)x.AnswerRisk), 2)
-            );
-
-        var avgByQuestion = filteredResultsForMath
-            .GroupBy(A => new { A.ComponentName, A.Position, A.Question })
             .ToDictionary(
                 g => g.Key,
                 g => (decimal)Math.Round(g.Average(x => (double)x.AnswerRisk), 2)
@@ -230,32 +235,35 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 Questions = [.. AnsPerComp
                     .OrderBy(A => A.VariableAverageRisk)
                     .GroupBy(A => new { A.Question, A.Position })
-                    .Select(AnsPerVar => new AvgReportQuestions
+                    .Select(AnsPerVar =>
                     {
-                        Question = AnsPerVar.Key.Question,
-                        Position = AnsPerVar.Key.Position,
-                        AverageAnswer = AnsPerVar
-                            .Where(A => A.AnswerText != "-" && 
-                                A.AnswerText != "" && 
-                                !string.IsNullOrEmpty(A.AnswerText) &&
-                                A.AnswerText != "None" && A.AnswerText != "none" &&
-                                A.AnswerText != "Ninguno" && A.AnswerText != "ninguno" &&
-                                A.AnswerText != "Ninguna" && A.AnswerText != "ninguna")
-                            .GroupBy(A => A.AnswerText)
-                            .OrderByDescending(A => A.Count())
-                            .FirstOrDefault()?.Key ?? "-",
-                        AverageRisk = AnsPerVar.First().VariableAverageRisk,
-                        AnswersDetails = [.. AnsPerVar
-                            .GroupBy(A => A.AnswerText)
-                            .Select(AnsGroup => new AnswerDetails
-                            {
-                                AnswerText = AnsGroup.Key,
-                                AnswerPercentage = AnsGroup.First().AnswerPercentage,
-                                StudentsEmails = [.. AnsGroup.Select(A => A.StudentEmail)],
-                                RiskLevel = (int)AnsGroup.First().AnswerRisk
-                            })]
+                        var validAnswers = AnsPerVar.Where(A => IsValidAnswer(A.AnswerText)).ToList();
+                        var totalValid = validAnswers.Count;
+
+                        return new AvgReportQuestions
+                        {
+                            Question = AnsPerVar.Key.Question,
+                            Position = AnsPerVar.Key.Position,
+                            AverageAnswer = validAnswers
+                                .GroupBy(A => A.AnswerText)
+                                .OrderByDescending(A => A.Count())
+                                .FirstOrDefault()?.Key ?? "-",
+                            AverageRisk = AnsPerVar.First().VariableAverageRisk,
+                            AnswersDetails = [.. AnsPerVar
+                                .GroupBy(A => A.AnswerText)
+                                .Select(AnsGroup => new AnswerDetails
+                                {
+                                    AnswerText = AnsGroup.Key,
+                                    AnswerPercentage = IsValidAnswer(AnsGroup.Key) && totalValid > 0
+                                        ? Math.Round(AnsGroup.Count() * 100m / totalValid, 2)
+                                        : 0,
+                                    StudentsEmails = [.. AnsGroup.Select(A => A.StudentEmail)],
+                                    RiskLevel = (int)AnsGroup.First().AnswerRisk
+                                })]
+                        };
                     })]
             })];
+
         return new AvgReportResponseVm { Components = report, PollCount = results.DistinctBy(R => R.StudentEmail).Count() };
     }
 
@@ -287,7 +295,6 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             where A.PollUuid == PollUuid
             where CohortIds.Contains(A.CohortId)
             where VariableIds.Contains(A.PollVariableId)
-            //where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate -- OLD conditional
             where PI.Audit.CreatedAt >= startDate && PI.FinishedAt <= endDate
             where PI.EvaluationId == EvaluationId
             select new ErasCalculationsByPollDTO
