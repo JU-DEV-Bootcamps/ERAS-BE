@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
-[ExcludeFromCodeCoverage]
 public sealed class AttachmentRepository(AppDbContext Context) : BaseRepository<Attachment, Attachment>
     (Context, X => X, X => X), IAttachmentRepository
 {
