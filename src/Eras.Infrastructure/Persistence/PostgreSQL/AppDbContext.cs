@@ -1,4 +1,3 @@
-using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Domain.Entities.FeatureFlagManagement;
 using Eras.Domain.Entities.UserManagement;
