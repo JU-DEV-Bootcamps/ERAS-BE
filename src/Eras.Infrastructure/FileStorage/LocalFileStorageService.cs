@@ -50,9 +50,9 @@ public sealed class LocalFileStorageService : IFileStorageService
         return Path.Combine(folder, safeFileName).Replace('\\', '/');
     }
 
-    public async Task<Stream> ReadAsync(string relativePath)
+    public async Task<Stream> ReadAsync(string key)
     {
-        string fullPath = Path.Combine(_basePath, relativePath);
+        string fullPath = Path.Combine(_basePath, key);
 
         if (!File.Exists(fullPath))
             throw new FileNotFoundException("Attachment not found.", fullPath);
@@ -64,9 +64,9 @@ public sealed class LocalFileStorageService : IFileStorageService
         return decrypted;
     }
 
-    public Task DeleteAsync(string relativePath)
+    public Task DeleteAsync(string key)
     {
-        string fullPath = Path.Combine(_basePath, relativePath);
+        string fullPath = Path.Combine(_basePath, key);
         if (File.Exists(fullPath))
         {
             File.Delete(fullPath);
@@ -74,4 +74,17 @@ public sealed class LocalFileStorageService : IFileStorageService
         }
         return Task.CompletedTask;
     }
+
+    public Task<bool> ExistsAsync(string key)
+    {
+        string fullPath = Path.Combine(_basePath, key);
+        return Task.FromResult(File.Exists(fullPath));
+    }
+
+    /// <remarks>
+    /// Local disk has no direct-access URL concept — files are only reachable by streaming
+    /// through the application via <see cref="ReadAsync"/>. Always returns <see langword="null"/>;
+    /// this is not an error, callers should treat it as "no direct URL available".
+    /// </remarks>
+    public Task<string?> GetUrlAsync(string key) => Task.FromResult<string?>(null);
 }
