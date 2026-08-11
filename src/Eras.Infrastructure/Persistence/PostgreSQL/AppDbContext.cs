@@ -1,4 +1,3 @@
-using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Domain.Entities.FeatureFlagManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
@@ -31,10 +30,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<JUServiceEntity> JUServices { get; set; }
         public virtual DbSet<ImportJobEntity> ImportJobs { get; set; }
         public virtual DbSet<ImportJobItemEntity> ImportJobItems { get; set; }
+        public virtual DbSet<AttachmentEntity> Attachments { get; set; }
         public DbSet<Assessment> Assessments => Set<Assessment>();
         public DbSet<Intervention> Interventions => Set<Intervention>();
         public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
-        public DbSet<Attachment> Attachments => Set<Attachment>();
 
         // Views
         public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
