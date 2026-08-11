@@ -113,10 +113,15 @@ namespace Eras.Application.Services
                             createdPoll.studentDTOs.Add(createdStudent.Entity.ToDto());
                             // Create poll instances
                             CreateCommandResponse<Poll> pollOfPollInstance = await CreatePollAsync(pollToCreate);
+                            if (pollOfPollInstance.Entity is null)
+                            {
+                                _logger.LogError("Could not resolve poll for instance creation.");
+                                continue; 
+                            }
                             CreateCommandResponse<PollInstance> createdPollInstance = await CreatePollInstanceAsync(createdStudent.Entity,
                                 pollOfPollInstance.Entity.Uuid, pollToCreate.FinishedAt, EvaluationId);
                             // Create asnswers
-                            if (createdPollInstance.Success)
+                            if (createdPollInstance.Success && createdPollInstance.Entity != null)
                             {
                                 PollInstance? sourceInstance = await _pollInstanceRepository
                                     .FindMatchingSourceInstanceAsync(

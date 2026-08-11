@@ -55,7 +55,11 @@ public sealed class UpdateRemissionCommandHandler
 
             await ValidationHelper.ValidateAndThrowAsync(_validator, entity, cancellationToken);
 
-            Assessment existing = await _repository.GetByIdNoTrackingAsync(entity.Id, q => q.Include(a => a.Interventions));
+            Assessment? existing = await _repository.GetByIdNoTrackingAsync(entity.Id, q => q.Include(a => a.Interventions));
+            if (existing is null)
+            {
+                throw new KeyNotFoundException($"Assessment '{entity.Id}' not found.");
+            }
 
             await ValidationHelper.ValidateAndThrowAsync(
                 _assessmentStatusValidator,

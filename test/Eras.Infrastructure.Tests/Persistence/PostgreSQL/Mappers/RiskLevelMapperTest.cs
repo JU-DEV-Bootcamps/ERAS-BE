@@ -9,7 +9,6 @@ public class RiskLevelMapperTest
     public void ToRiskLevel_Should_Convert_ToLowValue()
     {
         var result = RiskLevelMapper.ToRiskLevel(1.5);
-        Assert.NotNull(result);
         Assert.Equal(RiskLevelEnum.RiskLevel.Low, result);
     }
 

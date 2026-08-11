@@ -54,8 +54,10 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         try
                         {
                             GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
-                            getStudentResponse.Body.IsImported = true;
-                            UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = getStudentResponse.Body.ToDto() };
+                            Student existingStudent = getStudentResponse.Body
+                                ?? throw new NotFoundException($"Student with email '{studentDTO.Email}' not found.");
+                            existingStudent.IsImported = true;
+                            UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = existingStudent.ToDto() };
                             studentCreatedOrChanged = await _mediator.Send(updateStudentCommand);
                         }
                         catch (NotFoundException)

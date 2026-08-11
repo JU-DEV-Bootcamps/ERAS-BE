@@ -58,6 +58,12 @@ namespace Eras.Application.Services
                     CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = PollToCreate };
                     return await _mediator.Send(createPollCommand);
                 }
+
+                if (pollByName.Body is null)
+                {
+                    _logger.LogError("Error creating poll: existing poll query returned null body for '{PollName}'", PollToCreate.Name);
+                    return new CreateCommandResponse<Poll>(new Poll(), 0, "Error", false);
+                }
                 Context.VersionNumber = pollByName.Body.LastVersion;
                 return new CreateCommandResponse<Poll>(pollByName.Body, 1, pollByName.Message, pollByName.Success);
             }
@@ -135,7 +141,7 @@ namespace Eras.Application.Services
 
                 var query = new GetVariablesWithNameAndPollIdQuery() { PollId = AsociatedPollId };
                 GetQueryResponse<List<Variable>> responseQuery = await _mediator.Send(query);
-                List<Variable> existingVariables = responseQuery.Body;
+                List<Variable> existingVariables = responseQuery.Body ?? [];
 
                 List<VariableListCommandDTO> variableListCommandDTOs = [];
 

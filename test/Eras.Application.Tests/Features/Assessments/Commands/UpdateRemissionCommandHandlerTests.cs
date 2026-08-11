@@ -182,7 +182,7 @@ public class UpdateRemissionCommandHandlerTests
         // Assert
         Assert.NotNull(result);
         Assert.Equal(expectedDto.Id, result.Id);
-        Assert.Equal(expectedDto.Status, AssessmentStatus.InProgress);
+        Assert.Equal(AssessmentStatus.InProgress, expectedDto.Status);
         _mockRepository.Verify(r => r.GetInterventionsContainingStudentAsync(
             It.IsAny<Assessment>(), It.IsAny<IReadOnlyCollection<int>>()), Times.Never);
         _mockRepository.Verify(r => r.UpdateAsync(mappedEntity), Times.Once);

@@ -32,6 +32,8 @@ namespace Eras.Api.Tests.Controllers
                 .Setup(m => m.Send(It.IsAny<GetConfigurationQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new Configurations
                 {
+                    UserId = "test-user",
+                    ConfigurationName = "Test Config",
                     EncryptedKey = "fake-key",
                     BaseURL = "https://fake-url.com"
                 });

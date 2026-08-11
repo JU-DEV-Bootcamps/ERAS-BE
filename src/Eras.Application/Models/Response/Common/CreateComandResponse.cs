@@ -19,12 +19,12 @@ namespace Eras.Application.Models.Response.Common
             this.SuccessfullImports = SuccessfullImports;
         }
 
-        public CreateCommandResponse(T CreatedEntity, string Message, bool Success) : base(Message, Success)
+        public CreateCommandResponse(T? CreatedEntity, string Message, bool Success) : base(Message, Success)
         {
             Entity = CreatedEntity;
         }
 
-        public CreateCommandResponse(T CreatedEntity, string Message, bool Success,
+        public CreateCommandResponse(T? CreatedEntity, string Message, bool Success,
             CommandEnums.CommandResultStatus Status
             ) : base(Message, Success)
         {
@@ -32,7 +32,7 @@ namespace Eras.Application.Models.Response.Common
             this.Status = Status;
         }
 
-        public CreateCommandResponse(T CreatedEntity, int SuccessfullImports, string Message, bool Success,
+        public CreateCommandResponse(T? CreatedEntity, int SuccessfullImports, string Message, bool Success,
             CommandEnums.CommandResultStatus Status) : base(Message, Success)
         {
             Entity = CreatedEntity;

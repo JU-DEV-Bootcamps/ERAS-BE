@@ -192,6 +192,7 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         }
         catch (Exception e)
         {
+            logger.LogError(e, "Error getting interventions containing student for assessment {AssessmentId}", entity.Id);
             throw;
         }
     }

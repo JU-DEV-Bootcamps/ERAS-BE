@@ -52,6 +52,11 @@ public class EditConfigurationCommandHandler : IRequestHandler<EditConfiguration
             configurationDB.Audit.ModifiedBy = Request.ConfigurationDTO.UserId;
             
             Domain.Entities.ServiceProviders? serviceProvider = await _serviceProvidersRepository.GetByIdAsync(Request.ConfigurationDTO.ServiceProviderId);
+            if (serviceProvider is null)
+            {
+                _logger.LogWarning("ServiceProvider with ID {Id} not found", Request.ConfigurationDTO.ServiceProviderId);
+                return new CreateCommandResponse<Domain.Entities.Configurations>(null, 0, "ServiceProvider not found", false);
+            }
             configurationDB.ServiceProvider = serviceProvider;
             
             await _configurationsRepository.UpdateAsync(configurationDB);

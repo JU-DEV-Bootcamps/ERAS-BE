@@ -19,7 +19,7 @@ namespace Eras.Application.Mappers
                 Date = Dto.Date,
                 Status = Dto.Status,
                 StudentIds = Dto.StudentIds,
-                Audit = Dto.Audit,
+                Audit = Dto.Audit ?? throw new ArgumentException("Audit is required.", nameof(Dto)),
             };
         }
         public static JURemissionDTO ToDTO(this JURemission Entity)
@@ -35,7 +35,7 @@ namespace Eras.Application.Mappers
                 Date = Entity.Date,
                 Status = Entity.Status,
                 StudentIds = Entity.StudentIds,
-                Audit = Entity.Audit,
+                Audit = Entity.Audit ?? throw new ArgumentException("Audit is required.", nameof(Entity)),
             };
 
         }

@@ -13,7 +13,7 @@ namespace Eras.Application.Mappers
             {
                 Id = Dto.Id,
                 Name = Dto.Name,
-                Audit = Dto.Audit,
+                Audit = Dto.Audit ?? throw new ArgumentException("Audit is required.", nameof(Dto)),
             };
         }
 
@@ -25,7 +25,7 @@ namespace Eras.Application.Mappers
             {
                 Id = Entity.Id,
                 Name = Entity.Name,
-                Audit = Entity.Audit,
+                Audit = Entity.Audit ?? throw new ArgumentException("Audit is required.", nameof(Entity)),
             };
         }
     }

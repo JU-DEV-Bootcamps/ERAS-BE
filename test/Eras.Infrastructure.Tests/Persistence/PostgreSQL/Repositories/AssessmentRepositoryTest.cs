@@ -258,7 +258,6 @@ public class AssessmentRepositoryTest
         var result = await _repository.GetByStatusAsync(AssessmentStatus.Finalized);
 
         // Assert
-        Assert.Equal(0, result.Count());
         Assert.Empty(result);
     }
 

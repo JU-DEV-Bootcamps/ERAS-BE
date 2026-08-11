@@ -46,7 +46,11 @@ namespace Eras.Application.Services
             {
                 throw new ArgumentException("There was an error during the import: Invalid start or end date.");
             }
-
+            
+            if (evaluation is null)
+            {
+                throw new ArgumentException("There was an error during the import: Evaluation not found.");
+            }
             EvaluationDateRangeValidator.EnsureWithinRange(evaluation, requestedStart, requestedEnd);
            
             DateTime now = DateTime.UtcNow;

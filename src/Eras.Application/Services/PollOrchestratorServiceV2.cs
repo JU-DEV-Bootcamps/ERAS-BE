@@ -104,7 +104,7 @@ namespace Eras.Application.Services
                         CreateCommandResponse<PollInstance> createdPollInstance = await _pollInstanceImporter.CreatePollInstanceAsync(
                             createdStudent.Entity, createdPollResponse.Entity.Uuid, pollToCreate.FinishedAt, EvaluationId, context, answersHash);
 
-                        if (!createdPollInstance.Success) continue;
+                        if (!createdPollInstance.Success || createdPollInstance.Entity == null) continue;
 
                         PollInstance? sourceInstance = await _pollInstanceRepository.FindMatchingSourceInstanceAsync(
                             studentId: createdStudent.Entity.Id,
