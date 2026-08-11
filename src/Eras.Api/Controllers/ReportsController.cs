@@ -19,7 +19,6 @@ namespace Eras.Api.Controllers;
 [ApiController]
 [Route("api/v1/reports")]
 [Authorize]
-[ExcludeFromCodeCoverage]
 public class ReportsController(IMediator Mediator) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

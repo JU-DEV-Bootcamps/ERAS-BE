@@ -15,7 +15,6 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/polls")]
-[ExcludeFromCodeCoverage]
 public class PollsController(IMediator Mediator, ILogger<PollsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

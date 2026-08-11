@@ -42,15 +42,15 @@ public class DashboardControllerTests
     }
 
     [Fact]
-    public async Task GetKpis_Should_Return_BadRequest_When_Query_Fails()
+    public async Task GetKpis_Should_Return_BadRequest_When_Query_FailsAsync()
     {
         // Arrange
         var response = new GetQueryResponse<DashboardKpiDto>(
-            null,
+            null!,
             "Error retrieving KPIs",
             false);
         _mediatorMock
-            .Setup(m => m.Send(It.IsAny<GetDashboardKpisQuery>(), It.IsAny<CancellationToken>()))
+            .Setup(M => M.Send(It.IsAny<GetDashboardKpisQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
         // Act
         var result = await _controller.GetKpis();

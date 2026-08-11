@@ -15,7 +15,6 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 [ApiController]
 [Route("api/v1/assessments")]
 [Authorize]
-[ExcludeFromCodeCoverage]
 public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger, IOptions<FileStorageSettings> FileStorageOptions, IFileStorageService FileStorage) : ControllerBase 
 {
     private readonly FileStorageSettings _fileStorageSettings = FileStorageOptions.Value;

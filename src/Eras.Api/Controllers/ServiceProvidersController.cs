@@ -13,7 +13,6 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/service-providers")]
-[ExcludeFromCodeCoverage]
 public class ServiceProvidersController(IMediator Mediator, ILogger<ServiceProvidersController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

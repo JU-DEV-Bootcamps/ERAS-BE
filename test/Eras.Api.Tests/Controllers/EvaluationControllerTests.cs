@@ -63,7 +63,7 @@ namespace Eras.Api.Tests.Controllers
                 "Updated",
                 true);
             _mockMediator
-                .Setup(x => x.Send(It.IsAny<UpdateEvaluationCommand>(), It.IsAny<CancellationToken>()))
+                .Setup(X => X.Send(It.IsAny<UpdateEvaluationCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
             var result = await _controller.UpdateEvaluationAsync(1, dto);
             var ok = Assert.IsType<OkObjectResult>(result);
@@ -83,7 +83,7 @@ namespace Eras.Api.Tests.Controllers
             var badRequest = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal(400, badRequest.StatusCode);
             _mockMediator.Verify(
-                x => x.Send(It.IsAny<UpdateEvaluationCommand>(), It.IsAny<CancellationToken>()),
+                X => X.Send(It.IsAny<UpdateEvaluationCommand>(), It.IsAny<CancellationToken>()),
                 Times.Never);
         }
 
@@ -91,7 +91,7 @@ namespace Eras.Api.Tests.Controllers
         public async Task DeleteEvaluation_Should_Return_OkAsync()
         {
             _mockMediator
-                .Setup(x => x.Send(It.IsAny<DeleteEvaluationCommand>(), It.IsAny<CancellationToken>()))
+                .Setup(X => X.Send(It.IsAny<DeleteEvaluationCommand>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new BaseResponse("Deleted", true));
             var result = await _controller.DeleteEvaluationAsync(1);
             var ok = Assert.IsType<OkObjectResult>(result);
@@ -101,7 +101,7 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async Task GetEvaluationDetailsAsync_Should_ReturnOk_WhenFoundAsync()
         {
-            var response = new GetQueryResponse<Evaluation>(
+            var response = new GetQueryResponse<Evaluation?>(
                 new Evaluation(),
                 "Success",
                 true);
@@ -115,12 +115,12 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async Task GetEvaluationDetails_Should_Return_NotFound_WhenBodyIsNullAsync()
         {
-            var response = new GetQueryResponse<Evaluation>(
+            var response = new GetQueryResponse<Evaluation?>(
                 null,
                 "Not found",
                 false);
             _mockMediator
-                .Setup(x => x.Send(It.IsAny<GetEvaluationSummaryQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(X => X.Send(It.IsAny<GetEvaluationSummaryQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(response);
             var result = await _controller.GetEvaluationDetailsAsync(1);
             Assert.IsType<NotFoundObjectResult>(result);
@@ -131,7 +131,7 @@ namespace Eras.Api.Tests.Controllers
         {
             var page = new PagedResult<Evaluation>(0, new List<Evaluation>());
             _mockMediator
-                .Setup(x => x.Send(It.IsAny<GetAllEvaluationsQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(X => X.Send(It.IsAny<GetAllEvaluationsQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(page);
 
             var result = await _controller.GetAllEvaluationsAsync(new Pagination());
@@ -145,7 +145,7 @@ namespace Eras.Api.Tests.Controllers
         {
             var evaluations = new List<Evaluation>{new Evaluation()};
             _mockMediator
-                .Setup(x => x.Send(It.IsAny<GetEvaluationsByDateRangeQuery>(), It.IsAny<CancellationToken>()))
+                .Setup(X => X.Send(It.IsAny<GetEvaluationsByDateRangeQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(evaluations);
             var result = await _controller.GetAllEvaluationsByDateRangeAsync(
                 DateTime.UtcNow,

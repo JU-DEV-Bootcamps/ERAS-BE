@@ -14,7 +14,6 @@ namespace Eras.Api.Controllers;
 
 [Route("api/v1/poll-instances")]
 [ApiController]
-[ExcludeFromCodeCoverage]
 public class PollInstancesController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {
 
