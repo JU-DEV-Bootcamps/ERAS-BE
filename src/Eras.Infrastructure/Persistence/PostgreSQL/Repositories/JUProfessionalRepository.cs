@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class ProfessionalRepository : BaseRepository<JUProfessional, JUProfessionalEntity>, IProfessionalRepository
     {
         public ProfessionalRepository(AppDbContext Context)
