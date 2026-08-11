@@ -7,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
-[ExcludeFromCodeCoverage]
 public sealed class FeatureFlagRepository(AppDbContext Context) : BaseRepository<FeatureFlag, FeatureFlag>
     (Context, X => X, X => X), IFeatureFlagRepository
 {

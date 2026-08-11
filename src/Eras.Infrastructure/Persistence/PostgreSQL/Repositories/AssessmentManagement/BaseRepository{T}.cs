@@ -1,7 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManagement;
 
+[ExcludeFromCodeCoverage]
 public class BaseRepository<T>(AppDbContext context) : BaseRepository<T, T>(context, x => x, x => x)
     where T: class
 {

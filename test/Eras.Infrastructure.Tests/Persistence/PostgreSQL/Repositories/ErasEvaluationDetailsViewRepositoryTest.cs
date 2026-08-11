@@ -22,7 +22,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
     }
 
     [Fact]
-    public async Task GetRecentAlertsStudentAsync_Should_Return_First_Page()
+    public async Task GetRecentAlertsStudentAsync_Should_Return_First_PageAsync()
     {
         // Arrange
         var data = new List<ErasEvaluationDetailsViewEntity>
@@ -78,7 +78,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         _mockContext = new Mock<AppDbContext>(options);
 
         _mockContext
-            .Setup(c => c.ErasEvaluationDetailsView)
+            .Setup(C => C.ErasEvaluationDetailsView)
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -93,7 +93,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         Assert.Equal("2", result[1].StudentId);
     }
     [Fact]
-    public async Task GetRecentAlertsStudentAsync_Should_Return_Second_Page()
+    public async Task GetRecentAlertsStudentAsync_Should_Return_Second_PageAsync()
     {
         // Arrange
         var data = new List<ErasEvaluationDetailsViewEntity>
@@ -162,7 +162,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         _mockContext = new Mock<AppDbContext>(options);
 
         _mockContext
-            .Setup(c => c.ErasEvaluationDetailsView)
+            .Setup(C => C.ErasEvaluationDetailsView)
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -178,7 +178,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
     }
 
     [Fact]
-    public async Task GetRecentAlertsStudentAsync_Should_Return_Empty_When_Evaluations_AreNot_Completed_InProgresss()
+    public async Task GetRecentAlertsStudentAsync_Should_ReturnEmpty_EvaluationsAreNotCompleted_InProgresssAsync()
     {
         // Arrange
         var data = new List<ErasEvaluationDetailsViewEntity>
@@ -218,7 +218,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         _mockContext = new Mock<AppDbContext>(options);
 
         _mockContext
-            .Setup(c => c.ErasEvaluationDetailsView)
+            .Setup(C => C.ErasEvaluationDetailsView)
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -330,7 +330,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -384,7 +384,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
     }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -438,7 +438,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -492,7 +492,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -546,7 +546,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -584,7 +584,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
     }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -643,7 +643,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -682,24 +682,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
                 StudentId = 1,
                 EvaluationName = "Eval1",
                 PollName = "Poll",
-                StudentEmail = "st@mail.com",
-                PollUuid = "1",
-                AnswerText = "I lN",
-                VariableName = "ofhr",
-                Status = "Done",
-                StudentName = "studen1",
-            },
-            new()
-            {
-                EvaluationId = 10,
-                CohortId = 20,
-                ComponentName = "Academic",
-                VariableId = 200,
-                FinishedAt = new DateTime(2026, 1, 15),
-                StudentId = 2,
-                EvaluationName = "Eval1",
-                PollName = "Poll",
-                StudentEmail = "st@mail.com",
+                StudentEmail = "abb@mail.com",
                 PollUuid = "1",
                 AnswerText = "I lN",
                 VariableName = "ofhr",
@@ -707,9 +690,8 @@ public class ErasEvaluationDetailsViewRepositoryTest
                 StudentName = "abby",
             }
         }.AsQueryable().BuildMockDbSet();
-
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -769,7 +751,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -829,7 +811,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -890,7 +872,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -947,7 +929,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -963,7 +945,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
 
 
     [Fact]
-    public async Task GetStudentsByFilters_WhenVariableIdsProvided_FiltersVariables()
+    public async Task GetStudentsByFilters_WhenVariableIdsProvided_FiltersVariablesAsync()
     {
         // Arrange
         var startDate = new DateTime(2026, 1, 1);
@@ -1006,7 +988,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1064,7 +1046,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1123,7 +1105,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1189,7 +1171,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
     }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1204,7 +1186,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
 
 
     [Fact]
-    public async Task GetStudentsByFilters_WhenRiskLevelsAreEmpty_DoesNotFilterRisk()
+    public async Task GetStudentsByFilters_WhenRiskLevelsAreEmpty_DoesNotFilterRiskAsync()
     {
         // Arrange
         var startDate = new DateTime(2026, 1, 1);
@@ -1247,7 +1229,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1320,7 +1302,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1393,7 +1375,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1468,7 +1450,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1526,7 +1508,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1583,7 +1565,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
     }.AsQueryable().BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Set<ErasEvaluationDetailsViewEntity>())
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1657,7 +1639,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         _mockContext = new Mock<AppDbContext>(options);
 
         _mockContext
-            .Setup(c => c.ErasEvaluationDetailsView)
+            .Setup(C => C.ErasEvaluationDetailsView)
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1671,7 +1653,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
 
 
     [Fact]
-    public async Task GetRecentAlertsStudentAsync_GroupsByStudentAndComponent()
+    public async Task GetRecentAlertsStudentAsync_GroupsByStudentAndComponentAsync()
     {
         // Arrange
         var data = new List<ErasEvaluationDetailsViewEntity>
@@ -1715,7 +1697,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         _mockContext = new Mock<AppDbContext>(options);
 
         _mockContext
-            .Setup(c => c.ErasEvaluationDetailsView)
+            .Setup(C => C.ErasEvaluationDetailsView)
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1777,7 +1759,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         _mockContext = new Mock<AppDbContext>(options);
 
         _mockContext
-            .Setup(c => c.ErasEvaluationDetailsView)
+            .Setup(C => C.ErasEvaluationDetailsView)
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
@@ -1850,7 +1832,7 @@ public class ErasEvaluationDetailsViewRepositoryTest
         _mockContext = new Mock<AppDbContext>(options);
 
         _mockContext
-            .Setup(c => c.ErasEvaluationDetailsView)
+            .Setup(C => C.ErasEvaluationDetailsView)
             .Returns(data.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
