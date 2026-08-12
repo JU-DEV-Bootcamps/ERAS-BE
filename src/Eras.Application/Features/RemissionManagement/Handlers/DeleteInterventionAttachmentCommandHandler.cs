@@ -1,5 +1,6 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
+using Eras.Application.Utils;
 using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
@@ -39,8 +40,7 @@ public sealed class DeleteInterventionAttachmentCommandHandler : IRequestHandler
             throw new KeyNotFoundException($"Attachment '{request.FileName}' not found in intervention '{request.InterventionId}'.");
 
         string relativePath = Path.Combine(
-            "interventions",
-            request.InterventionId.ToString(),
+            AttachmentKeyScheme.BuildFolder(InterventionConstants.AttachmentEntityType, request.InterventionId),
             request.FileName).Replace('\\', '/');
 
         await _fileStorage.DeleteAsync(relativePath);
