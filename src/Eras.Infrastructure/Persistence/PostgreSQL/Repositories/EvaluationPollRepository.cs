@@ -5,7 +5,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    internal class EvaluationPollRepository(AppDbContext Context) : BaseRepository<Evaluation, EvaluationPollJoin>(Context, EvaluationPollMapper.ToDomain, EvaluationPollMapper.ToPersistence), IEvaluationPollRepository
+    public class EvaluationPollRepository(AppDbContext Context) : BaseRepository<Evaluation, EvaluationPollJoin>(Context, EvaluationPollMapper.ToDomain, EvaluationPollMapper.ToPersistence), IEvaluationPollRepository
     {
     }
 }

@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class VariableRepository : BaseRepository<Variable, VariableEntity>, IVariableRepository
     {
         public VariableRepository(AppDbContext Context)
