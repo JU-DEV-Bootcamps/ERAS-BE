@@ -24,6 +24,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 PollsPayload = Entity.PollsPayload,
                 CreatedAtUtc = Entity.CreatedAtUtc,
                 UpdatedAtUtc = Entity.UpdatedAtUtc,
+                PollId = Entity.PollId
             };
         }
 
@@ -46,6 +47,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 PollsPayload = Model.PollsPayload,
                 CreatedAtUtc = Model.CreatedAtUtc,
                 UpdatedAtUtc = Model.UpdatedAtUtc,
+                PollId = Model.PollId
             };
         }
     }

@@ -19,5 +19,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public string PollsPayload { get; set; } = string.Empty;
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
+        public string? PollId { get; set; }
     }
 }

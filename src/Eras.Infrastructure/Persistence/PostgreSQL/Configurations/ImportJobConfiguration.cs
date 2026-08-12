@@ -51,6 +51,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Job => Job.UpdatedAtUtc)
                 .HasColumnName("updated_at_utc")
                 .IsRequired();
+            Builder.Property(Job => Job.PollId)
+                .HasColumnName("poll_id");
 
             Builder.HasIndex(Job => Job.EvaluationId)
                 .HasDatabaseName("ix_import_jobs_evaluation_id");
