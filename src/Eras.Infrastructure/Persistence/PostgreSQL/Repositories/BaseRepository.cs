@@ -171,7 +171,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             {
                 if (node.Member.Name == "Audit")
                 {
-                    return base.Visit(node.Expression);
+                    return node.Expression is null ? node : base.Visit(node.Expression);
                 }
 
                 var memberName = node.Member.Name;
@@ -189,8 +189,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
         public async Task<int> CountByDateRangeAsync(DateTime start, DateTime end)
         {
-            var entityType = _context.Model.FindEntityType(typeof(TPersist));
-            var tableName = entityType.GetTableName();
+            var entityType = _context.Model.FindEntityType(typeof(TPersist))
+                ?? throw new InvalidOperationException($"Entity type '{typeof(TPersist).Name}' not found in the EF Core model.");
+            var tableName = entityType.GetTableName()
+                ?? throw new InvalidOperationException($"Could not resolve table name for entity type '{typeof(TPersist).Name}'.");
 
             var sql = $"SELECT COUNT(*) FROM \"{tableName}\" WHERE created_at >= @p0 AND created_at <= @p1";
 
@@ -206,6 +208,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             p1.ParameterName = "@p1";
             p1.Value = DateTime.SpecifyKind(end, DateTimeKind.Utc);
             command.Parameters.Add(p1);
+
+            if (command.Connection is null)
+            {
+                throw new InvalidOperationException("Database command has no connection.");
+            }
 
             if (command.Connection.State != ConnectionState.Open)
                 await command.Connection.OpenAsync();

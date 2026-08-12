@@ -46,6 +46,6 @@ public class GetComponentByNameAndPollIdQueryHandlerTest
 
         // Assert
         Assert.True(result.Success);
-        Assert.Equal("Variable", result.Body.Name);
+        Assert.Equal("Variable", result.Body!.Name);
     }
 }

@@ -42,6 +42,6 @@ public class GetPollInstanceByUuidAndStudentIdQueryHandlerTest
         // Assert
         Assert.True(result.Success);
         Assert.Equal("Poll Found", result.Message);
-        Assert.Equal("uuid1", result.Body.Uuid);
+        Assert.Equal("uuid1", result.Body!.Uuid);
     }
 }

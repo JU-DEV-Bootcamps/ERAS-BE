@@ -13,7 +13,7 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         : BaseRepository<Assessment>(context),
       IAssessmentRepository
 {
-    public async Task<IEnumerable<Assessment>> GetAllAsync()
+    public new async Task<IEnumerable<Assessment>> GetAllAsync()
     {
         return await _context.Set<Assessment>()
             .Include(a => a.Interventions)

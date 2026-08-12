@@ -40,9 +40,9 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllCompone
 
             Assert.True(result.Success);
             Assert.Equal("Success", result.Message);
-            Assert.NotEmpty(result.Body);
+            Assert.NotEmpty(result.Body!);
             // Validate structure of result.Body 
-            Assert.Equal(2, result.Body.Count());
+            Assert.Equal(2, result.Body!.Count());
             foreach (var item in result.Body)
             {
                 Console.WriteLine($"ComponentName: {item.ComponentName}");
@@ -63,7 +63,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllCompone
 
             Assert.False(result.Success);
             Assert.Equal("Failed", result.Message);
-            Assert.Empty(result.Body);
+            Assert.Empty(result.Body!);
             _mockHeatmapRepository.Verify(Repo => Repo.GetHeatMapDataByComponentsAsync("valid-uuid"), Times.Once);
         }
     }

@@ -51,7 +51,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
 
             // Assert
             Assert.True(result.Success);
-            Assert.Equal("Student",result.Body.Name);
+            Assert.Equal("Student",result.Body!.Name);
         }
     }
 }

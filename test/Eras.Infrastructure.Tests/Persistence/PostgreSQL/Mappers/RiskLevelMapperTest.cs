@@ -16,7 +16,6 @@ public class RiskLevelMapperTest
     public void ToRiskLevel_Should_Convert_ToMediumValue()
     {
         var result = RiskLevelMapper.ToRiskLevel(3.08);
-        Assert.NotNull(result);
         Assert.Equal(RiskLevelEnum.RiskLevel.Medium, result);
     }
 
@@ -24,7 +23,6 @@ public class RiskLevelMapperTest
     public void ToRiskLevel_Should_Convert_ToHighValue()
     {
         var result = RiskLevelMapper.ToRiskLevel(4.75);
-        Assert.NotNull(result);
         Assert.Equal(RiskLevelEnum.RiskLevel.High, result);
     }
 

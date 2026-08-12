@@ -4,7 +4,7 @@
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
-    public partial class fixuuids : Migration
+    public partial class FixUuids : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

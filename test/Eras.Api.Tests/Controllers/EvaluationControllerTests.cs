@@ -101,7 +101,7 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async Task GetEvaluationDetailsAsync_Should_ReturnOk_WhenFoundAsync()
         {
-            var response = new GetQueryResponse<Evaluation>(
+            var response = new GetQueryResponse<Evaluation?>(
                 new Evaluation(),
                 "Success",
                 true);
@@ -115,7 +115,7 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async Task GetEvaluationDetails_Should_Return_NotFound_WhenBodyIsNullAsync()
         {
-            var response = new GetQueryResponse<Evaluation>(
+            var response = new GetQueryResponse<Evaluation?>(
                 null,
                 "Not found",
                 false);

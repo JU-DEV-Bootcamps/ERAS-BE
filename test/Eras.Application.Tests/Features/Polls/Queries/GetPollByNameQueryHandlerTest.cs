@@ -45,6 +45,6 @@ public class GetPollByNameQueryHandlerTest
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal("Poll1",result.Body.Name);
+        Assert.Equal("Poll1",result.Body!.Name);
     }
 }

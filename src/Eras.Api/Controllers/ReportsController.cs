@@ -19,7 +19,6 @@ namespace Eras.Api.Controllers;
 [ApiController]
 [Route("api/v1/reports")]
 [Authorize]
-[ExcludeFromCodeCoverage]
 public class ReportsController(IMediator Mediator) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
@@ -34,8 +33,9 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             GetStudentTopQuery query = new() { CohortName = CohortName, PollName = PollName, Take = Take };
             GetQueryResponse<List<(Student Student, List<Answer> Answers, decimal RiskIndex)>> avgRisk = await _mediator.Send(query);
-            var toprmessage = string.Join(", ", avgRisk.Body.Select(St => $"{St.Student.Uuid} - {St.Student.Name} - RISK = {St.RiskIndex}").ToList());
-            var result = avgRisk.Body.Select(St => new
+            List<(Student Student, List<Answer> Answers, decimal RiskIndex)> items = avgRisk.Body ?? [];
+            var toprmessage = string.Join(", ", items.Select(St => $"{St.Student.Uuid} - {St.Student.Name} - RISK = {St.RiskIndex}").ToList());
+            var result = items.Select(St => new
             {
                 StudentUuid = St.Student.Uuid,
                 StudentName = St.Student.Name,

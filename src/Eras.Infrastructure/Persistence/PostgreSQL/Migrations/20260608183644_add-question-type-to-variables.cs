@@ -5,7 +5,7 @@
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     /// <inheritdoc />
-    public partial class addquestiontypetovariables : Migration
+    public partial class AddQuestionTypeToVariables : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

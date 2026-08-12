@@ -220,10 +220,10 @@ public class PollDTOValidationTests
 
     [Theory]
     [ClassData(typeof(RequiredStringTestData))]
-    public void ParentId_Required_FailsWhenMissing(string InvalidId)
+    public void ParentId_Required_FailsWhenMissing(string? InvalidId)
     {
         PollDTO dto = CreateValidDTO();
-        dto.ParentId = InvalidId;
+        dto.ParentId = InvalidId!;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
     

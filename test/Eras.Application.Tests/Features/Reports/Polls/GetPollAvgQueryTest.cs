@@ -44,6 +44,6 @@ public class GetPollAvgQueryTest
 
         // Assert
         Assert.NotNull(result);
-        Assert.Empty(result.Body.Components); // Ensure the response is empty
+        Assert.Empty(result.Body!.Components); // Ensure the response is empty
     }
 }
