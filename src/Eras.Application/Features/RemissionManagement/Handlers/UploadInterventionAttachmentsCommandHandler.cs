@@ -1,6 +1,7 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Models;
+using Eras.Application.Utils;
 using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
@@ -41,7 +42,7 @@ public sealed class UploadInterventionAttachmentsCommandHandler
                 throw new InvalidOperationException($"Extension '{ext}' is not allowed.");
         }
 
-        string folder = $"interventions/{request.InterventionId}";
+        string folder = AttachmentKeyScheme.BuildFolder(InterventionConstants.AttachmentEntityType, request.InterventionId);
 
         IReadOnlyCollection<string> existingHashes =
             await _repository.GetAttachmentHashesAsync(request.InterventionId, cancellationToken);
