@@ -196,7 +196,7 @@ public class PollDTOValidationTests
     public void Components_Required_FailsWhenMissing()
     {
         PollDTO dto = CreateValidDTO();
-        dto.Components = null;
+        dto.Components = null!;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
 
