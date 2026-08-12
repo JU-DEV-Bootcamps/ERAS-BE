@@ -7,6 +7,7 @@ namespace Eras.Application.DTOs
         public string? StartDate { get; set; }
         public string? EndDate { get; set; }
         public int EvaluationId { get; set; }
+        public string? PollId { get; set; }
     }
 
     public class ConfirmImportRequest

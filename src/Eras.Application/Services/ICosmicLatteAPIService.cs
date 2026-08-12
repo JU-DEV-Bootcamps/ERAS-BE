@@ -15,7 +15,7 @@ namespace Eras.Application.Services
         /// invoking <paramref name="OnExtracted"/> per respondent with its PollDTO and whether the
         /// student was already imported. Enables progress reporting during the extraction phase.
         /// </summary>
-        Task ExtractRespondentsAsync(string EvaluationSetName, string StartDate, string EndDate, string ApiKey, string ApiUrl, Func<PollDTO, bool, Task> OnExtracted);
+        Task ExtractRespondentsAsync(string EvaluationSetName, string StartDate, string EndDate, string PollId, string ApiKey, string ApiUrl, Func<PollDTO, bool, Task> OnExtracted);
         Task<CreatedPollDTO> SavePreviewPolls(List<PollDTO> PollsDtos, int EvaluationId);
         Task<List<PollDataItem>> GetPollsNameList(string BaseUrl, string ApiKey);
     }

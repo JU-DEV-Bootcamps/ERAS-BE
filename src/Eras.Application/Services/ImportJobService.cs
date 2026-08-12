@@ -34,7 +34,7 @@ namespace Eras.Application.Services
             _evaluationRepository = EvaluationRepository;
         }
 
-        public async Task<int> StartExtractionAsync(string EvaluationSetName, int ConfigurationId, string? StartDate, string? EndDate, int EvaluationId)
+        public async Task<int> StartExtractionAsync(string EvaluationSetName, int ConfigurationId, string? StartDate, string? EndDate, int EvaluationId, string? PollId)
         {
             if (EvaluationSetName.Length > MaxPollNameLength)
             {
@@ -61,6 +61,7 @@ namespace Eras.Application.Services
                 PollsPayload = "[]",
                 CreatedAtUtc = now,
                 UpdatedAtUtc = now,
+                PollId = PollId
             };
             ImportJob created = await _importJobRepository.AddAsync(job);
             await _queue.EnqueueAsync(created.Id);
