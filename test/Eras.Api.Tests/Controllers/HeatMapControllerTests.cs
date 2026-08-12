@@ -76,7 +76,7 @@ public class HeatMapControllerTests
     {
         string pollUUID = "example-correct-uuid";
         var fakeResponse = new GetQueryResponse<HeatMapSummaryResponseVm>(
-            null, "Success", true
+            null!, "Success", true
         );
 
         _mediatorMock
@@ -95,7 +95,7 @@ public class HeatMapControllerTests
     {
         var pollUUID = "example-invalid-uuid";
         var fakeResponse = new GetQueryResponse<HeatMapSummaryResponseVm>(
-            null, "Invalid request", false
+            null!, "Invalid request", false
         );
 
         _mediatorMock
@@ -113,7 +113,7 @@ public class HeatMapControllerTests
     public async Task GetHeatMapSummaryByFilters_ReturnsOk_WhenSuccessAsync()
     {
         var fakeResponse = new GetQueryResponse<HeatMapSummaryResponseVm>(
-            null, "Success", true
+            null!, "Success", true
         );
 
         _mediatorMock
@@ -131,7 +131,7 @@ public class HeatMapControllerTests
     public async Task GetHeatMapSummaryByFilters_ReturnsBadRequest_WhenFailureAsync()
     {
         var fakeResponse = new GetQueryResponse<HeatMapSummaryResponseVm>(
-            null, "Invalid request", false
+            null!, "Invalid request", false
         );
 
         _mediatorMock

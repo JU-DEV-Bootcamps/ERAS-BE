@@ -1,9 +1,13 @@
 ﻿
-using Eras.Application.Utils;
 using Eras.Api.Controllers;
 using Eras.Application.DTOs;
+using Eras.Application.Features.Cohorts.Queries.GetCohortComponentsByPoll;
+using Eras.Application.Features.Components.Queries;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
+using Eras.Application.Models.Response.Calculations;
 using Eras.Application.Models.Response.Common;
+using Eras.Application.Utils;
+using Eras.Domain.Entities;
 
 using MediatR;
 
@@ -76,6 +80,166 @@ namespace Eras.Api.Tests.Controllers
 
             // Assert
             Assert.NotNull(result);
+        }
+
+
+        [Fact]
+        public async Task GetPollInstancesByCohortIdAndDaysAsync_ReturnsOkAsync()
+        {
+            // Arrange
+            var pagination = new Pagination();
+            var expected = new GetQueryResponse<PagedResult<PollInstanceDTO>>(null!, "Success", true);
+
+            _mockMediator
+                .Setup(X => X.Send(It.IsAny<GetPollInstanceByCohortAndDaysQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expected);
+
+            // Act
+            IActionResult result = await _controller.GetPollInstancesByCohortIdAndDaysAsync(
+                new[] { 1, 2 },
+                30,
+                pagination,
+                true,
+                "poll-uuid",
+                null);
+
+            // Assert
+            var ok = Assert.IsType<OkObjectResult>(result);
+            Assert.Same(expected, ok.Value);
+        }
+
+        [Fact]
+        public async Task GetComponentsAvgGroupedByCohortAsync_ReturnsGroupedResponse_ForSingleCohortAsync()
+        {
+            // Arrange
+            var response = new List<GetCohortComponentsByPollResponse>
+        {
+            new()
+            {
+                CohortId = 1,
+                CohortName = "A",
+                ComponentName = "Academic",
+                AverageRiskByCohortComponent = 2
+            },
+            new()
+            {
+                CohortId = 1,
+                CohortName = "A",
+                ComponentName = "Attendance",
+                AverageRiskByCohortComponent = 3
+            }
+        };
+
+            _mockMediator
+                .Setup(X => X.Send(
+                    It.IsAny<GetCohortComponentsByPollQuery>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            // Act
+            IActionResult result =
+                await _controller.GetComponentsAvgGroupedByCohortAsync("uuid", true);
+
+            // Assert
+            var ok = Assert.IsType<OkObjectResult>(result);
+
+            var value = Assert.IsAssignableFrom<IEnumerable<object>>(ok.Value);
+            Assert.Single(value);
+        }
+
+        [Fact]
+        public async Task GetComponentsAvgGroupedByCohortAsync_ReturnsGroupedResponse_ForMultipleCohortsAsync()
+        {
+            // Arrange
+            var response = new List<GetCohortComponentsByPollResponse>
+        {
+            new()
+            {
+                CohortId = 1,
+                CohortName = "A",
+                ComponentName = "Academic",
+                AverageRiskByCohortComponent = 1
+            },
+            new()
+            {
+                CohortId = 2,
+                CohortName = "B",
+                ComponentName = "Academic",
+                AverageRiskByCohortComponent = 2
+            }
+        };
+
+            _mockMediator
+                .Setup(X => X.Send(
+                    It.IsAny<GetCohortComponentsByPollQuery>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            // Act
+            IActionResult result =
+                await _controller.GetComponentsAvgGroupedByCohortAsync("uuid", false);
+
+            // Assert
+            var ok = Assert.IsType<OkObjectResult>(result);
+
+            var value = Assert.IsAssignableFrom<IEnumerable<object>>(ok.Value);
+            Assert.Equal(2, value.Count());
+        }
+
+        [Fact]
+        public async Task GetComponentsRiskAvgByStudentAsync_ReturnsNotFound_WhenMediatorReturnsNullAsync()
+        {
+            // Arrange
+            _mockMediator
+                .Setup(X => X.Send(It.IsAny<GetComponentsAvgByStudentQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(It.IsAny<List<ComponentsAvg>>());
+
+            // Act
+            IActionResult result =
+                await _controller.GetComponentsRiskAvgByStudentAsync(5, 10);
+
+            // Assert
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task GetComponentsRiskAvgByStudentAsync_ReturnsNotFound_WhenMediatorReturnsEmptyCollectionAsync()
+        {
+            // Arrange
+            _mockMediator
+                .Setup(X => X.Send(It.IsAny<GetComponentsAvgByStudentQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<ComponentsAvg>());
+
+            // Act
+            IActionResult result =
+                await _controller.GetComponentsRiskAvgByStudentAsync(5, 10);
+
+            // Assert
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task GetComponentsRiskAvgByStudentAsync_ReturnsOk_WhenMediatorReturnsDataAsync()
+        {
+            // Arrange
+            var response = new List<ComponentsAvg>
+        {
+            new()
+        };
+
+            _mockMediator
+                .Setup(X => X.Send(
+                    It.IsAny<GetComponentsAvgByStudentQuery>(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(response);
+
+            // Act
+            IActionResult result =
+                await _controller.GetComponentsRiskAvgByStudentAsync(5, 10);
+
+            // Assert
+            var ok = Assert.IsType<OkObjectResult>(result);
+            Assert.Same(response, ok.Value);
         }
     }
 }

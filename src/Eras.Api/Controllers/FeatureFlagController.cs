@@ -14,7 +14,6 @@ namespace Eras.Api.Controllers;
 [ApiController]
 [Route("api/v1/feature-flags")]
 [Authorize]
-[ExcludeFromCodeCoverage]
 public class FeatureFlagController(IMediator Mediator, ILogger<FeatureFlagController> Logger): ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

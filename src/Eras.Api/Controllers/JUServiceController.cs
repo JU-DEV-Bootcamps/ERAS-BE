@@ -13,7 +13,6 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/ju_services")]
-[ExcludeFromCodeCoverage]
 public class JUServiceController(IMediator Mediator, ILogger<JUServiceController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

@@ -13,7 +13,6 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/professionals")]
-[ExcludeFromCodeCoverage]
 public class ProfessionalsController(IMediator Mediator, ILogger<ProfessionalsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
