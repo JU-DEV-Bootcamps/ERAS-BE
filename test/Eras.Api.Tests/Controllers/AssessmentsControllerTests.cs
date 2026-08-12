@@ -20,20 +20,17 @@ namespace Eras.Api.Tests.Controllers;
 public class AssessmentsControllerTests
 {
     private readonly Mock<IMediator> _mediatorMock;
-    private readonly Mock<ILogger<AssessmentsController>> _loggerMock;
     private readonly Mock<IFileStorageService> _storageMock;
     private readonly AssessmentsController _controller;
 
     public AssessmentsControllerTests()
     {
         _mediatorMock = new Mock<IMediator>();
-        _loggerMock = new Mock<ILogger<AssessmentsController>>();
         _storageMock = new Mock<IFileStorageService>();
         IOptions<FileStorageSettings> options = Options.Create(new FileStorageSettings() { AllowedExtensions = [], BasePath = "" });
 
         _controller = new AssessmentsController(
             _mediatorMock.Object,
-            _loggerMock.Object,
             options,
             _storageMock.Object);
     }

@@ -96,9 +96,19 @@ public class ConfigurationsControllerTests
         var dto = new ConfigurationsDTO
         {
             ConfigurationName = "Test",
-            BaseURL = "fake/url"
+            BaseURL = "fake/url",
+            UserId = "test-user",
+            EncryptedKey = "fake-key"
         };
-        var response = new CreateCommandResponse<Configurations>(new Configurations(), "Success", true);
+        var response = new CreateCommandResponse<Configurations>(
+            new Configurations
+            {
+                UserId = "test-user",
+                ConfigurationName = "Test",
+                BaseURL = "fake/url",
+                EncryptedKey = "fake-key"
+            },
+            "Success", true); 
 
         _mediatorMock
             .Setup(X => X.Send(It.IsAny<CreateConfigurationCommand>(), It.IsAny<CancellationToken>()))
@@ -119,9 +129,20 @@ public class ConfigurationsControllerTests
         var dto = new ConfigurationsDTO
         {
             ConfigurationName = "Test",
-            BaseURL = "fake/url"
+            BaseURL = "fake/url",
+            UserId = "test-user",
+            EncryptedKey = "fake-key"
         };
-        var response = new CreateCommandResponse<Configurations>(new Configurations(), "Error", false);
+        var response = new CreateCommandResponse<Configurations>(
+            new Configurations
+            {
+                UserId = "test-user",
+                ConfigurationName = "Test",
+                BaseURL = "fake/url",
+                EncryptedKey = "fake-key"
+            },
+            "Error", false);
+
         _mediatorMock
             .Setup(X => X.Send(It.IsAny<CreateConfigurationCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
@@ -152,9 +173,19 @@ public class ConfigurationsControllerTests
         var dto = new ConfigurationsDTO
         {
             ConfigurationName = "Test",
-            BaseURL = "fake/url"
+            BaseURL = "fake/url",
+            UserId = "test-user",
+            EncryptedKey = "fake-key"
         };
-        var response = new CreateCommandResponse<Configurations>(new Configurations(), "Success", true);
+        var response = new CreateCommandResponse<Configurations>(
+            new Configurations
+            {
+                UserId = "test-user",
+                ConfigurationName = "Test",
+                BaseURL = "fake/url",
+                EncryptedKey = "fake-key"
+            },
+            "Success", true);
 
         _mediatorMock
             .Setup(X => X.Send(
@@ -177,9 +208,19 @@ public class ConfigurationsControllerTests
         var dto = new ConfigurationsDTO
         {
             ConfigurationName = "Test",
-            BaseURL = "fake/url"
+            BaseURL = "fake/url",
+            UserId = "test-user",
+            EncryptedKey = "fake-key"
         };
-        var response = new CreateCommandResponse<Configurations>(new Configurations(), "Error", false);
+        var response = new CreateCommandResponse<Configurations>(
+            new Configurations
+            {
+                UserId = "test-user",
+                ConfigurationName = "Test",
+                BaseURL = "fake/url",
+                EncryptedKey = "fake-key"
+            },
+            "Error", false);
 
         _mediatorMock
             .Setup(X => X.Send(

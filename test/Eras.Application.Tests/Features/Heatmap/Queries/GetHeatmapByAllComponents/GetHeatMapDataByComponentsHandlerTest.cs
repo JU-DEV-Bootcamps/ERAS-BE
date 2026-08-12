@@ -43,7 +43,7 @@ namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllCompone
             Assert.NotEmpty(result.Body!);
             // Validate structure of result.Body 
             Assert.Equal(2, result.Body!.Count());
-            foreach (var item in result.Body)
+            foreach (var item in result.Body!)
             {
                 Console.WriteLine($"ComponentName: {item.ComponentName}");
                 Assert.Equal(2, item.Variables.Variables.Count());
