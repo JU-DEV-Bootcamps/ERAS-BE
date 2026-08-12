@@ -37,7 +37,7 @@ public class ImportJobServiceTests
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => _service.StartExtractionAsync(longName, 1, "2026-01-01", "2026-12-31", 1));
+            () => _service.StartExtractionAsync(longName, 1, "2026-01-01", "2026-12-31", 1, "p0Ll1D"));
 
         // Assert
         Assert.Equal("There was an error during the import: Poll Name exceeds the maximum length of 100 characters.",
@@ -54,7 +54,7 @@ public class ImportJobServiceTests
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentException>(
-            () => _service.StartExtractionAsync("Poll", 1, "not-a-date", "2024-12-31", 1));
+            () => _service.StartExtractionAsync("Poll", 1, "not-a-date", "2024-12-31", 1, "p0Ll1D"));
 
         // Assert
         Assert.Equal("There was an error during the import: Invalid start or end date.", exception.Message);
@@ -81,6 +81,7 @@ public class ImportJobServiceTests
         var evaluationId = 1;
         var configurationId = 5;
         var pollName = "My Poll";
+        var pollId = "p0Ll1D";
 
         _mockEvaluationRepository.Setup(Repo => Repo.GetByIdAsync(evaluationId)).ReturnsAsync(evaluation);
 
@@ -95,7 +96,7 @@ public class ImportJobServiceTests
             });
 
         // Act
-        var result = await _service.StartExtractionAsync(pollName, configurationId, startDate, endDate, evaluationId);
+        var result = await _service.StartExtractionAsync(pollName, configurationId, startDate, endDate, evaluationId, pollId);
 
         // Assert
         Assert.Equal(42, result);
