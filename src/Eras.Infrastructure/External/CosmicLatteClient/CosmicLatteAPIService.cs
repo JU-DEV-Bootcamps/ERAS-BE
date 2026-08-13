@@ -194,12 +194,13 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             string EvaluationSetName,
             string StartDate,
             string EndDate,
+            string PollId,
             string ApiKey,
             string ApiUrl,
             Func<PollDTO, bool, Task> OnExtracted)
         {
             var decryptedApiKey = _encryptor.Decrypt(ApiKey);
-            string path = $"{ApiUrl}{PathEvaluation}?$top=1000&$filter=name eq '{EvaluationSetName}'";
+            string path = $"{ApiUrl}{PathEvaluation}?$top=1000&$filter=name eq '{EvaluationSetName}' or parent eq 'evaluationSets:{PollId}'";
 
             var request = new HttpRequestMessage(HttpMethod.Get, path);
             request.Headers.Add(HeaderApiKey, decryptedApiKey);

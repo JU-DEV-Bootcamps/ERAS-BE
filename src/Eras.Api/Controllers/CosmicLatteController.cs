@@ -113,7 +113,7 @@ public class CosmicLatteController(
             // Extract respondents from Cosmic Latte in the background; the client polls
             // GET imports/{id} + /items and confirms the selection later (no payload round-trip).
             int importJobId = await _importJobService.StartExtractionAsync(
-                Request.EvaluationSetName, Request.ConfigurationId, Request.StartDate, Request.EndDate, Request.EvaluationId);
+                Request.EvaluationSetName, Request.ConfigurationId, Request.StartDate, Request.EndDate, Request.EvaluationId, Request.PollId);
             return Accepted(new { importJobId, status = "Extracting" });
         }
         catch (ArgumentException ex)

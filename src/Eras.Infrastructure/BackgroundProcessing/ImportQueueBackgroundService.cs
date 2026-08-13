@@ -105,6 +105,7 @@ namespace Eras.Infrastructure.BackgroundProcessing
                 job.EvaluationSetName ?? string.Empty,
                 job.StartDate ?? string.Empty,
                 job.EndDate ?? string.Empty,
+                job.PollId ?? string.Empty,
                 configuration.EncryptedKey,
                 configuration.BaseURL,
                 async (poll, alreadyImported) =>

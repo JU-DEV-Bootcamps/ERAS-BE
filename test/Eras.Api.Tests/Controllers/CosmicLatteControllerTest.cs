@@ -205,7 +205,7 @@ namespace Eras.Api.Tests.Controllers
         public async Task StartExtraction_Should_Return_OkResultAsync()
         {
             mockImportJobService
-                .Setup(x => x.StartExtractionAsync("", 1, "", "", 5))
+                .Setup(x => x.StartExtractionAsync("", 1, "", "", 5, ""))
                 .ReturnsAsync(1);
             var result = await controller.StartExtractionAsync(new StartExtractionRequest
             {
@@ -227,7 +227,8 @@ namespace Eras.Api.Tests.Controllers
                 ConfigurationId = 1,
                 StartDate = "2024-01-01",
                 EndDate = "2024-12-31",
-                EvaluationId = 5
+                EvaluationId = 5,
+                PollId = "parentPollId"
             };
             mockImportJobService
                 .Setup(x => x.StartExtractionAsync(
@@ -235,7 +236,8 @@ namespace Eras.Api.Tests.Controllers
                     It.IsAny<int>(),
                     It.IsAny<string>(),
                     It.IsAny<string>(),
-                    It.IsAny<int>()))
+                    It.IsAny<int>(),
+                    It.IsAny<string>()))
                 .ThrowsAsync(new ArgumentException("Error"));
             var result = await controller.StartExtractionAsync(request);
             var badRequest = Assert.IsType<BadRequestObjectResult>(result);
