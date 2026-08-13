@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Mappers;
-using Eras.Domain.Entities;
-using Eras.Error.Critical;
+﻿using Eras.Error.Critical;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
@@ -167,7 +160,7 @@ public class BaseRepositoryTest : RepositoryTestBase
     }
 
     [Fact]
-    public async Task AddAsync_AddsEntity_SavesAndReturnsMappedEntityAsync()
+    public void AddAsync_AddsEntity_SavesAndReturnsMappedEntityAsync()
     {
         var mockSet = new Mock<DbSet<TestPersistEntity>>();
 
@@ -176,14 +169,6 @@ public class BaseRepositoryTest : RepositoryTestBase
             Id = 1,
             Name = "A"
         };
-
-        mockSet
-            .Setup(S => S.AddAsync(
-                It.Is<TestPersistEntity>(E => E.Name == "A"),
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                new EntityEntry<TestPersistEntity>(
-                    null!));
 
         var context = new Mock<AppDbContext>(
             new DbContextOptions<AppDbContext>());
