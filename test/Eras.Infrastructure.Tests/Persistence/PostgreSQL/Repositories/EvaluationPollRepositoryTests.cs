@@ -8,12 +8,13 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class EvaluationPollRepositoryTests
+public class EvaluationPollRepositoryTests : RepositoryTestBase
 {
     private readonly AppDbContext _context;
     private readonly IEvaluationPollRepository _repository;

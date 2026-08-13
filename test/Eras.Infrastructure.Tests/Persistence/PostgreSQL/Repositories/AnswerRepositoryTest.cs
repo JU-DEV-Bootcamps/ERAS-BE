@@ -1,13 +1,17 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Infrastructure.Persistence.PostgreSQL;
-using Microsoft.EntityFrameworkCore;
-using Moq;
-using MockQueryable.Moq;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
+
+using Microsoft.EntityFrameworkCore;
+
+using MockQueryable.Moq;
+
+using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
-public class AnswerRepositoryTest
+public class AnswerRepositoryTest : RepositoryTestBase
 {
     private Mock<DbSet<AnswerEntity>> _mockSet;
     protected Mock<AppDbContext> _mockContext;
@@ -67,11 +71,7 @@ public class AnswerRepositoryTest
     [Fact]
     public async Task GetByStudentIdAsync_ShouldReturnEmpty_WhenStudentDoesNotExistAsync()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        using var context = new AppDbContext(options);
+        using var context = CreateContext();
         var repository = new AnswerRepository(context);
         var result = await repository.GetByStudentIdAsync("unknown");
 
@@ -82,10 +82,7 @@ public class AnswerRepositoryTest
     [Fact]
     public async Task GetByStudentIdAsync_ShouldReturnEmpty_WhenStudentHasNoPollsAsync()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        using var context = new AppDbContext(options);
+        using var context = CreateContext();
         context.Students.Add(new StudentEntity
         {
             Id = 1,
@@ -105,11 +102,7 @@ public class AnswerRepositoryTest
     [Fact]
     public async Task GetByStudentIdAsync_ShouldReturnAnswersFromLatestPollAsync()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         context.Students.Add(new StudentEntity
         {
@@ -158,11 +151,7 @@ public class AnswerRepositoryTest
     [Fact]
     public async Task GetByPollInstanceIdAsync_ShouldReturnAnswersAsync()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         context.Answers.AddRange(
             new AnswerEntity
@@ -194,11 +183,7 @@ public class AnswerRepositoryTest
     [Fact]
     public async Task GetByPollInstanceAnswerAndPollVariableAsync_ShouldFilterCorrectlyAsync()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        using var context = new AppDbContext(options);
+        using var context = CreateContext();
         context.Answers.AddRange(
             new AnswerEntity
             {
@@ -228,11 +213,7 @@ public class AnswerRepositoryTest
     [Fact]
     public async Task GetAnswerIdByPollInstanceAndVariableAsync_ShouldReturnIdAsync()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         context.Answers.Add(new AnswerEntity
         {
@@ -253,10 +234,7 @@ public class AnswerRepositoryTest
     [Fact]
     public async Task GetAnswerIdByPollInstanceAndVariableAsync_ShouldReturnNull_WhenMissingAsync()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        using var context = new AppDbContext(options);
+        using var context = CreateContext();
         var repository = new AnswerRepository(context);
         var id = await repository.GetAnswerIdByPollInstanceAndVariableAsync(1, 1);
 

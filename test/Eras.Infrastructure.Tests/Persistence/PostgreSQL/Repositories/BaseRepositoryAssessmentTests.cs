@@ -4,6 +4,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManagement;
 using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ using Moq;
 
 using Xunit;
 
-public class BaseRepositorySingleGenericTest
+public class BaseRepositorySingleGenericTest : RepositoryTestBase
 {
     private readonly Mock<AppDbContext> _mockContext;
     private readonly BaseRepository<TestPersistEntity> _repository;

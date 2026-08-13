@@ -11,16 +11,8 @@ using Xunit;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class CohortRepositoryTests
+public class CohortRepositoryTests : RepositoryTestBase
 {
-    private static AppDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new AppDbContext(options);
-    }
     
     private static Mock<DbSet<ErasCalculationsByPollEntity>> CreateMockErasCalculations(IEnumerable<ErasCalculationsByPollEntity> Data)
     {

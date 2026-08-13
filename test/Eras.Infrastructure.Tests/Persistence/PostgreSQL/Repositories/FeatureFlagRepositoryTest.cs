@@ -2,6 +2,7 @@
 using Eras.Domain.Entities.FeatureFlagManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -13,16 +14,8 @@ using Xunit;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class FeatureFlagRepositoryTest
+public class FeatureFlagRepositoryTest : RepositoryTestBase
 {
-    private static AppDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new AppDbContext(options);
-    }
 
     [Fact]
     public async Task GetByNameAsync_WhenFeatureFlagExists_ReturnsFeatureFlagAsync()

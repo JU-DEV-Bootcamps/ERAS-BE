@@ -4,6 +4,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 {
-    public class PollInstanceRepositoryTest
+    public class PollInstanceRepositoryTest : RepositoryTestBase
     {
         protected Mock<AppDbContext> _mockContext;
         private PollInstanceRepository? _repository;
@@ -93,19 +94,10 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             Assert.Single(result);
         }
 
-        private static AppDbContext BuildRealContext()
-        {
-            var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-            return new AppDbContext(options);
-        }
-
         [Fact]
         public async Task GetByCohortIdAndLastDays_WithEvaluationId_Returns_Only_That_Evaluations_StudentsAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
 
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
 
@@ -139,7 +131,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task GetByCohortIdAndLastDays_WithoutEvaluationId_Returns_All_Evaluations_For_PollAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
 
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
 
@@ -171,7 +163,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task GetByCohortIdAndLastDays_Excludes_Students_Outside_CohortAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
 
             var studentInCohort = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student In Cohort", Email = "in-cohort@test.com" };
             var studentOutsideCohort = new StudentEntity { Id = 2, Uuid = "student-2-uuid", Name = "Student Outside Cohort", Email = "outside-cohort@test.com" };
@@ -205,7 +197,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task GetByCohortIdAndLastDays_WithDaysAndLastVersion_ReturnsRecentLastVersionAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
 
             var now = DateTime.UtcNow;
 
@@ -242,7 +234,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task GetByCohortIdAndLastDays_WithZeroDays_UsesNonLastVersionBranchAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
 
             var student = new StudentEntity { Id = 1, Uuid = "student-1", Name = "Student", Email = "student@test.com"};
 
@@ -457,7 +449,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task UpdateAsync_Persists_Changes_To_Existing_EntityAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
 
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
 
@@ -487,7 +479,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task UpdateAsync_Returns_Input_When_Entity_Not_FoundAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
             _repository = new PollInstanceRepository(context);
 
             var domainInstance = new Eras.Domain.Entities.PollInstance { Id = 999, Uuid = "missing-Uuid" };
@@ -500,7 +492,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task SetSourceInstanceAsync_Sets_SourcePollInstanceIdAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
 
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
             var entity = new PollInstanceEntity { Uuid = "poll-Uuid", StudentId = 1, FinishedAt = DateTime.UtcNow, Student = student };
@@ -518,7 +510,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task SetSourceInstanceAsync_Does_Nothing_When_Instance_Not_FoundAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
             _repository = new PollInstanceRepository(context);
 
             await _repository.SetSourceInstanceAsync(999, 1);
@@ -527,7 +519,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task FindMatchingSourceInstanceAsync_Finds_Match_By_Precomputed_HashAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
 
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
             var poll = BuildPollDTO(("Q1", "Yes"), ("Q2", "No"));
@@ -555,7 +547,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         [Fact]
         public async Task FindMatchingSourceInstanceAsync_Returns_Null_When_No_MatchAsync()
         {
-            using var context = BuildRealContext();
+            using var context = CreateContext();
 
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
             context.PollInstances.Add(new PollInstanceEntity

@@ -2,6 +2,7 @@
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,7 @@ using Xunit;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class PollRepositoryTest
+public class PollRepositoryTest : RepositoryTestBase
 {
     private readonly Mock<AppDbContext> _mockContext;
     private readonly Mock<DbSet<PollEntity>> _mockSet;
@@ -210,11 +211,7 @@ public class PollRepositoryTest
     public async Task UpdateAsync_ShouldUpdateExistingPollAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var existingPoll = new PollEntity
         {
@@ -257,11 +254,7 @@ public class PollRepositoryTest
     public async Task UpdateAsync_ShouldNotAddPoll_WhenPollDoesNotExistAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var repository = new PollRepository(context);
 

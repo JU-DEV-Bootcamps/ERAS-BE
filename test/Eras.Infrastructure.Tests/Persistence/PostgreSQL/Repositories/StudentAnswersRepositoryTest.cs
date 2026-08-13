@@ -19,16 +19,8 @@ using Moq;
 
 using Xunit;
 
-public class StudentAnswersRepositoryTest
+public class StudentAnswersRepositoryTest : RepositoryTestBase
 {
-    private static AppDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new AppDbContext(options);
-    }
 
     private static Mock<DbSet<ErasCalculationsByPollEntity>> CreateMockErasCalculations(IEnumerable<ErasCalculationsByPollEntity> Data)
     {

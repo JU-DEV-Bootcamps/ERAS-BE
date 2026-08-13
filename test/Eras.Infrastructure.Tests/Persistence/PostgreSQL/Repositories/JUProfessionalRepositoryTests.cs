@@ -2,6 +2,7 @@
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -10,16 +11,8 @@ using Xunit;
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
 
-public class ProfessionalRepositoryTests
+public class ProfessionalRepositoryTests : RepositoryTestBase
 {
-    private static AppDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new AppDbContext(options);
-    }
 
     private static ProfessionalRepository CreateRepository(AppDbContext Context)
     {

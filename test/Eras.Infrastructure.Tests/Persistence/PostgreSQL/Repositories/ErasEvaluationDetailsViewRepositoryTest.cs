@@ -2,6 +2,7 @@
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,7 @@ using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class ErasEvaluationDetailsViewRepositoryTest
+public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 {
     private Mock<AppDbContext> _mockContext;
     private IErasEvaluationDetailsViewRepository? _repository;

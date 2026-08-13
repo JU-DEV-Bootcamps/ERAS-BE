@@ -2,26 +2,18 @@
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class ImportJobRepositoryTest
+public class ImportJobRepositoryTest : RepositoryTestBase
 {
-    private static AppDbContext BuildContext()
-    {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new AppDbContext(options);
-    }
-
     [Fact]
     public async Task GetLatestImportJobIdsByEvaluationIdsAsync_ShouldReturnLatestJobPerEvaluationAsync()
     {
-        using var context = BuildContext();
+        using var context = CreateContext();
 
         var baseTime = DateTime.UtcNow;
 
@@ -81,7 +73,7 @@ public class ImportJobRepositoryTest
     [Fact]
     public async Task GetLatestImportJobIdsByEvaluationIdsAsync_ShouldIgnoreOtherEvaluationsAsync()
     {
-        using var context = BuildContext();
+        using var context = CreateContext();
 
         var baseTime = DateTime.UtcNow;
 
@@ -114,7 +106,7 @@ public class ImportJobRepositoryTest
     [Fact]
     public async Task GetLatestImportJobIdsByEvaluationIdsAsync_ShouldReturnEmpty_WhenNoEvaluationMatchesAsync()
     {
-        using var context = BuildContext();
+        using var context = CreateContext();
 
         context.ImportJobs.Add(new ImportJobEntity
         {
@@ -136,7 +128,7 @@ public class ImportJobRepositoryTest
     [Fact]
     public async Task GetLatestImportJobIdsByEvaluationIdsAsync_ShouldReturnEmpty_WhenInputIsEmptyAsync()
     {
-        using var context = BuildContext();
+        using var context = CreateContext();
 
         context.ImportJobs.Add(new ImportJobEntity
         {

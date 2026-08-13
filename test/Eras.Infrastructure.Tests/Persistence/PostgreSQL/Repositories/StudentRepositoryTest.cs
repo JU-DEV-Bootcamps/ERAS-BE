@@ -27,7 +27,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
     }
 
-    public class StudentRepositoryTest
+    public class StudentRepositoryTest : RepositoryTestBase
     {
         private readonly AppDbContext _context;
         private readonly StudentRepository _repository;

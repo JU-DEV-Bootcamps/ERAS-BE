@@ -2,6 +2,7 @@
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManagement;
 using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,7 @@ using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class AssessmentRepositoryTest
+public class AssessmentRepositoryTest : RepositoryTestBase
 {
     private Mock<AppDbContext> _mockContext;
     private readonly Mock<ILogger<AssessmentRepository>> _mockLogger;
@@ -341,11 +342,7 @@ public class AssessmentRepositoryTest
     public async Task AddAttachmentsAsync_Should_SaveAttachmentAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var intervention = new TestIntervention
         {
@@ -388,11 +385,7 @@ public class AssessmentRepositoryTest
     public async Task AddAttachmentsAsync_Should_ThrowKeyNotFoundException_When_InterventionNotFoundAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
         var repository = new AssessmentRepository(context, _mockLogger.Object);
 
         // Assert
@@ -406,11 +399,7 @@ public class AssessmentRepositoryTest
     public async Task RemoveAttachmentAsync_Should_RemoveMatchingAttachmentAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var intervention = new TestIntervention
         {
@@ -455,11 +444,7 @@ public class AssessmentRepositoryTest
     public async Task RemoveAttachmentAsync_Should_MatchByFileName_CaseInsensitiveAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var intervention = new TestIntervention
         {
@@ -498,11 +483,7 @@ public class AssessmentRepositoryTest
     public async Task RemoveAttachmentAsync_Should_NotModifyList_When_FileNameNotFoundAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var intervention = new TestIntervention
         {
@@ -543,11 +524,7 @@ public class AssessmentRepositoryTest
     public async Task RemoveAttachmentAsync_Should_ThrowException_When_InterventionNotFoundAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
         var repository = new AssessmentRepository(context, _mockLogger.Object);
 
         // Act 
@@ -561,11 +538,7 @@ public class AssessmentRepositoryTest
     public async Task GetAttachmentHashesAsync_Should_ReturnHashes_When_InterventionExistsAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var intervention = new TestIntervention
         {
@@ -604,11 +577,7 @@ public class AssessmentRepositoryTest
     public async Task GetAttachmentHashesAsync_Should_ReturnEmpty_When_InterventionNotFoundAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
         var repository = new AssessmentRepository(context, _mockLogger.Object);
 
         // Act
@@ -623,10 +592,7 @@ public class AssessmentRepositoryTest
     public async Task DeleteAssessmentAsync_Should_DeleteAssessmentAndInterventionsAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
         var assessment = new Assessment
         {
             CreatedAtUtc = DateTime.UtcNow,
@@ -660,10 +626,7 @@ public class AssessmentRepositoryTest
     public async Task DeleteAssessmentAsync_Should_Throw_WhenAssessmentIsNotFoundOrNotRemittedAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
         context.Set<Assessment>().Add(new Assessment
         {
             CreatedAtUtc = DateTime.UtcNow,
@@ -689,10 +652,7 @@ public class AssessmentRepositoryTest
     public async Task GetByIdWithInterventionsAsync_Should_ReturnAssessmentAndInterventionsAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
         var assessment = new Assessment
         {
             CreatedAtUtc = DateTime.UtcNow,
@@ -726,10 +686,7 @@ public class AssessmentRepositoryTest
     public async Task DeleteInterventionAsync_Should_Throw_WhenInterventionIsNotFoundAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
         context.Set<Assessment>().Add(new Assessment
         {
             CreatedAtUtc = DateTime.UtcNow,
@@ -755,10 +712,7 @@ public class AssessmentRepositoryTest
     public async Task DeleteInterventionAsync_ShouldThrow_InterventionNotFoundAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
         var assessment = new Assessment
         {
             CreatedAtUtc = DateTime.UtcNow,
@@ -791,11 +745,7 @@ public class AssessmentRepositoryTest
     public async Task ReplaceInterventionsAsync_ShouldReplaceExistingInterventionsAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var assessment = new Assessment
         {
@@ -861,11 +811,7 @@ public class AssessmentRepositoryTest
     public async Task AddInterventionAsync_ShouldAddInterventionAndSetAssessmentIdAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var intervention = new TestIntervention
         {
@@ -894,11 +840,7 @@ public class AssessmentRepositoryTest
     public async Task GetInterventionByIdAsync_ShouldReturnIntervention_WhenExistsAsync()
     {
         // Arrange
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        await using var context = new AppDbContext(options);
+        using var context = CreateContext();
 
         var intervention = new TestIntervention
         {

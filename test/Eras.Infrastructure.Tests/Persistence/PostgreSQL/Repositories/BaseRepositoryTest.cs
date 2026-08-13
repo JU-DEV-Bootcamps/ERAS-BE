@@ -8,6 +8,7 @@ using Eras.Domain.Entities;
 using Eras.Error.Critical;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -31,7 +32,7 @@ public class TestDomainEntity
     public int Id { get; set; }
     public string Name { get; set; } = "";
 }
-public class BaseRepositoryTest
+public class BaseRepositoryTest : RepositoryTestBase
 {
     private readonly Mock<AppDbContext> _mockContext;
     private readonly BaseRepository<TestDomainEntity, TestPersistEntity> _repository;

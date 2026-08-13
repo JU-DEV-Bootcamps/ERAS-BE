@@ -1,6 +1,7 @@
 ﻿using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -8,17 +9,8 @@ using Xunit;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class ConfigurationsRepositoryTests
+public class ConfigurationsRepositoryTests : RepositoryTestBase
 {
-    private static AppDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new AppDbContext(options);
-    }
-
     [Fact]
     public async Task GetByIdAsyncNoTracking_WhenConfigurationExists_ReturnsConfigurationAsync()
     {
@@ -52,7 +44,7 @@ public class ConfigurationsRepositoryTests
     {
         await using var context = CreateContext();
         var repository = new ConfigurationsRepository(context);
-        await Assert.ThrowsAsync<NullReferenceException>(
+        await Assert.ThrowsAsync<KeyNotFoundException>(
             () => repository.GetByIdAsyncNoTracking(999));
     }
 
@@ -239,7 +231,7 @@ public class ConfigurationsRepositoryTests
     {
         await using var context = CreateContext();
         var repository = new ConfigurationsRepository(context);
-        await Assert.ThrowsAsync<NullReferenceException>(
+        await Assert.ThrowsAsync<KeyNotFoundException>(
             () => repository.UpdateDeleteStatus(999));
     }
 }

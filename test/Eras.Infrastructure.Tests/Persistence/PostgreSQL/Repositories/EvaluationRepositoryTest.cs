@@ -3,15 +3,18 @@ using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
+
 using Microsoft.EntityFrameworkCore;
+
 using MockQueryable.Moq;
+
 using Moq;
 
 using Xunit;
-
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class EvaluationRepositoryTest
+public class EvaluationRepositoryTest : RepositoryTestBase
 {
     private Mock<DbSet<EvaluationEntity>> _mockSet;
     protected Mock<AppDbContext> _mockContext;

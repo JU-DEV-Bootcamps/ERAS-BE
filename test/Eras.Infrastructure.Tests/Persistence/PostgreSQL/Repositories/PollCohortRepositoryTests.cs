@@ -11,16 +11,8 @@ using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class PollCohortRepositoryTests
+public class PollCohortRepositoryTests : RepositoryTestBase
 {
-    private static AppDbContext CreateContext()
-    {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        return new AppDbContext(options);
-    }
 
     private static PollCohortRepository CreateRepository(AppDbContext Context)
     {

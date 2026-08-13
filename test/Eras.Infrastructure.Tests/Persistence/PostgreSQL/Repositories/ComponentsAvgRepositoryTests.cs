@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class ComponentsAvgRepositoryTests
+public class ComponentsAvgRepositoryTests : RepositoryTestBase
 {
     private readonly Mock<AppDbContext> _contextMock;
     private readonly Mock<IAnswerRiskValidator> _validatorMock;

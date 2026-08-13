@@ -2,6 +2,7 @@
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -9,18 +10,14 @@ using Xunit;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
-public class ImportJobItemRepositoryTests
+public class ImportJobItemRepositoryTests : RepositoryTestBase
 {
     private readonly AppDbContext _context;
     private readonly ImportJobItemRepository _repository;
 
     public ImportJobItemRepositoryTests()
     {
-        var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())
-            .Options;
-
-        _context = new AppDbContext(options);
+        _context = CreateContext();
         _repository = new ImportJobItemRepository(_context);
 
         SeedData();
