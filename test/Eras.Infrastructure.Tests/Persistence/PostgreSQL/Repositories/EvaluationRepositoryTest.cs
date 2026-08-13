@@ -24,14 +24,14 @@ public class EvaluationRepositoryTest
             new DbContextOptions<AppDbContext>());
     }
 
-    private void SetupEvaluations(IEnumerable<EvaluationEntity> evaluations)
+    private void SetupEvaluations(IEnumerable<EvaluationEntity> Evaluations)
     {
-        var data = evaluations
+        var data = Evaluations
             .AsQueryable()
             .BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.Evaluations)
+            .Setup(C => C.Evaluations)
             .Returns(data.Object);
     }
 
@@ -136,7 +136,7 @@ public class EvaluationRepositoryTest
     }
 
     [Fact]
-    public async Task GetPagedAsync_ReturnsEvaluationsOrderedByName()
+    public async Task GetPagedAsync_ReturnsEvaluationsOrderedByNameAsync()
     {
         // Arrange
         var poll1 = new PollEntity
@@ -396,11 +396,11 @@ public class EvaluationRepositoryTest
             .BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.EvaluationPolls)
+            .Setup(C => C.EvaluationPolls)
             .Returns(evaluationPolls.Object);
 
         _mockContext
-            .Setup(c => c.PollInstances)
+            .Setup(C => C.PollInstances)
             .Returns(pollInstances.Object);
 
         CreateRepository();
@@ -456,11 +456,11 @@ public class EvaluationRepositoryTest
         .BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.EvaluationPolls)
+            .Setup(C => C.EvaluationPolls)
             .Returns(evaluationPolls.Object);
 
         _mockContext
-            .Setup(c => c.PollInstances)
+            .Setup(C => C.PollInstances)
             .Returns(pollInstances.Object);
 
         CreateRepository();
@@ -478,8 +478,8 @@ public class EvaluationRepositoryTest
         Assert.Single(result.Polls);
         Assert.Equal("poll-1", result.Polls.First().Uuid);
 
-        Assert.Single(result.PollInstances);
-        Assert.Equal("poll-1", result.PollInstances.First().Uuid);
+        Assert.Single(result.PollInstances!);
+        Assert.Equal("poll-1", result.PollInstances!.First().Uuid);
     }
 
     [Fact]
@@ -514,11 +514,11 @@ public class EvaluationRepositoryTest
             .BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.EvaluationPolls)
+            .Setup(C => C.EvaluationPolls)
             .Returns(evaluationPolls.Object);
 
         _mockContext
-            .Setup(c => c.PollInstances)
+            .Setup(C => C.PollInstances)
             .Returns(pollInstances.Object);
 
         CreateRepository();
@@ -565,11 +565,11 @@ public class EvaluationRepositoryTest
             .BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.EvaluationPolls)
+            .Setup(C => C.EvaluationPolls)
             .Returns(evaluationPolls.Object);
 
         _mockContext
-            .Setup(c => c.PollInstances)
+            .Setup(C => C.PollInstances)
             .Returns(pollInstances.Object);
 
         CreateRepository();
@@ -604,11 +604,11 @@ public class EvaluationRepositoryTest
             .BuildMockDbSet();
 
         _mockContext
-            .Setup(c => c.EvaluationPolls)
+            .Setup(C => C.EvaluationPolls)
             .Returns(evaluationPolls.Object);
 
         _mockContext
-            .Setup(c => c.PollInstances)
+            .Setup(C => C.PollInstances)
             .Returns(pollInstances.Object);
 
         CreateRepository();
@@ -725,10 +725,10 @@ public class EvaluationRepositoryTest
 
         // Assert
         Assert.Equal(2, result.Count);
-        Assert.Contains(result, e => e.Id == 1);
-        Assert.Contains(result, e => e.Id == 2);
-        Assert.DoesNotContain(result, e => e.Id == 3);
-        Assert.DoesNotContain(result, e => e.Id == 4);
+        Assert.Contains(result, E => E.Id == 1);
+        Assert.Contains(result, E => E.Id == 2);
+        Assert.DoesNotContain(result, E => E.Id == 3);
+        Assert.DoesNotContain(result, E => E.Id == 4);
     }
 
     [Fact]

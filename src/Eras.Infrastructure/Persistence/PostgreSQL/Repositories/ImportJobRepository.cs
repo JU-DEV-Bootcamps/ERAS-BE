@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class ImportJobRepository(AppDbContext Context)
         : BaseRepository<ImportJob, ImportJobEntity>(Context, ImportJobMapper.ToDomain, ImportJobMapper.ToPersistence), IImportJobRepository
     {

@@ -1,10 +1,14 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL;
-using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
-using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
-using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
-using Microsoft.EntityFrameworkCore;
+﻿using Eras.Application.Models.Consolidator;
 using Eras.Domain.Common;
+using Eras.Infrastructure.Persistence.PostgreSQL;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+
+using Microsoft.EntityFrameworkCore;
+
 using MockQueryable.Moq;
+
 using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
@@ -23,8 +27,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             _mockContext = new Mock<AppDbContext>(options);
         }
 
-        // GetByLastDays
-
         [Fact]
         public void GetByLastDays_Should_Return_Only_Instances_Within_Range_And_Version()
         {
@@ -41,7 +43,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             _mockContext.Setup(C => C.Polls).Returns(pollData.Object);
             _mockContext.Setup(C => C.PollInstances).Returns(pollInstanceData.Object);
-
 
             _repository = new PollInstanceRepository(_mockContext.Object);
 
@@ -66,8 +67,31 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                 _repository.GetByLastDays(10, true, "missing-Uuid"));
         }
 
-        // GetByCohortIdAndLastDays — regression coverage for the
-        // "duplicate students across evaluations" bug fix.
+        [Fact]
+        public void GetByLastDays_ShouldReturn_OnlyInstances_Within_Range_And_VersionIsOld()
+        {
+            var pollData = new List<PollEntity>
+            {
+                new PollEntity { Uuid = "poll-Uuid", LastVersion = 1 }
+            }.AsQueryable().BuildMockDbSet();
+
+            var pollInstanceData = new List<PollInstanceEntity>
+            {
+                new PollInstanceEntity { Id = 1, Uuid = "poll-Uuid", FinishedAt = DateTime.UtcNow, StudentId = 1, LastVersion = 2 },
+                new PollInstanceEntity { Id = 2, Uuid = "poll-Uuid", FinishedAt = DateTime.UtcNow.AddDays(-100), StudentId = 1, LastVersion = 2 }
+            }.AsQueryable().BuildMockDbSet();
+
+            _mockContext.Setup(C => C.Polls).Returns(pollData.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(pollInstanceData.Object);
+
+
+            _repository = new PollInstanceRepository(_mockContext.Object);
+
+            var result = _repository.GetByLastDays(10, false, "poll-Uuid").Result;
+
+            Assert.NotNull(result);
+            Assert.Single(result);
+        }
 
         private static AppDbContext BuildRealContext()
         {
@@ -79,7 +103,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByCohortIdAndLastDays_WithEvaluationId_Returns_Only_That_Evaluations_Students()
+        public async Task GetByCohortIdAndLastDays_WithEvaluationId_Returns_Only_That_Evaluations_StudentsAsync()
         {
             using var context = BuildRealContext();
 
@@ -113,7 +137,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByCohortIdAndLastDays_WithoutEvaluationId_Returns_All_Evaluations_For_Poll()
+        public async Task GetByCohortIdAndLastDays_WithoutEvaluationId_Returns_All_Evaluations_For_PollAsync()
         {
             using var context = BuildRealContext();
 
@@ -145,7 +169,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByCohortIdAndLastDays_Excludes_Students_Outside_Cohort()
+        public async Task GetByCohortIdAndLastDays_Excludes_Students_Outside_CohortAsync()
         {
             using var context = BuildRealContext();
 
@@ -178,14 +202,76 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             Assert.Equal(1, result.Items.First().Student!.Id);
         }
 
-        
+        [Fact]
+        public async Task GetByCohortIdAndLastDays_WithDaysAndLastVersion_ReturnsRecentLastVersionAsync()
+        {
+            using var context = BuildRealContext();
 
-        
+            var now = DateTime.UtcNow;
 
-        // GetByUuidAsync
+            var student = new StudentEntity
+            { Id = 1, Uuid = "student-1", Name = "Student", Email = "student@test.com"};
+
+            context.Polls.Add(new PollEntity { Uuid = "poll-Uuid", LastVersion = 2 });
+
+            context.StudentCohorts.Add(new StudentCohortJoin { StudentId = 1, CohortId = 100 });
+
+            context.PollInstances.AddRange(
+                new PollInstanceEntity
+                {
+                    Id = 1, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = now.AddDays(-2), LastVersion = 2,Student = student
+                },
+                new PollInstanceEntity
+                {
+                    Id = 2, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = now.AddDays(-10), LastVersion = 2, Student = student
+                },
+                new PollInstanceEntity
+                {
+                    Id = 3, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = now.AddDays(-1), LastVersion = 1, Student = student
+                }
+            );
+
+            await context.SaveChangesAsync();
+            _repository = new PollInstanceRepository(context);
+            var result = await _repository.GetByCohortIdAndLastDays(1, 10, [100], 7, true, "poll-Uuid", null, null);
+
+            Assert.Equal(1, result.Count);
+            Assert.Single(result.Items);
+        }
 
         [Fact]
-        public async Task GetByUuidAsync_Returns_Matching_Instance()
+        public async Task GetByCohortIdAndLastDays_WithZeroDays_UsesNonLastVersionBranchAsync()
+        {
+            using var context = BuildRealContext();
+
+            var student = new StudentEntity { Id = 1, Uuid = "student-1", Name = "Student", Email = "student@test.com"};
+
+            context.Polls.Add(new PollEntity { Uuid = "poll-Uuid", LastVersion = 2 });
+
+            context.StudentCohorts.Add(new StudentCohortJoin { StudentId = 1, CohortId = 100 });
+
+            context.PollInstances.AddRange(
+                new PollInstanceEntity
+                {
+                    Id = 1, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = DateTime.UtcNow, LastVersion = 1, Student = student
+                },
+                new PollInstanceEntity
+                {
+                    Id = 2, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = DateTime.UtcNow, LastVersion = 2, Student = student
+                }
+            );
+
+            await context.SaveChangesAsync();
+
+            _repository = new PollInstanceRepository(context);
+
+            var result = await _repository.GetByCohortIdAndLastDays(1, 10, [100], 0, true, "poll-Uuid", null, null);
+
+            Assert.Equal(0, result.Count);
+        }
+
+        [Fact]
+        public async Task GetByUuidAsync_Returns_Matching_InstanceAsync()
         {
             var pollInstanceData = new List<PollInstanceEntity>
             {
@@ -203,7 +289,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByUuidAsync_Returns_Null_When_Not_Found()
+        public async Task GetByUuidAsync_Returns_Null_When_Not_FoundAsync()
         {
             var pollInstanceData = new List<PollInstanceEntity>
             {
@@ -218,10 +304,8 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             Assert.Null(result);
         }
 
-        // GetByUuidAndStudentIdAsync (both overloads)
-
         [Fact]
-        public async Task GetByUuidAndStudentIdAsync_TwoArgs_Returns_Matching_Instance()
+        public async Task GetByUuidAndStudentIdAsync_TwoArgs_Returns_Matching_InstanceAsync()
         {
             var pollInstanceData = new List<PollInstanceEntity>
             {
@@ -239,7 +323,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetByUuidAndStudentIdAsync_ThreeArgs_Filters_By_Evaluation_Too()
+        public async Task GetByUuidAndStudentIdAsync_ThreeArgs_Filters_By_Evaluation_TooAsync()
         {
             var pollInstanceData = new List<PollInstanceEntity>
             {
@@ -256,10 +340,8 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             Assert.Equal(2, result!.Id);
         }
 
-        // GetImportedStudentsEmailsByPollName
-
         [Fact]
-        public async Task GetImportedStudentsEmailsByPollName_Returns_Distinct_Emails()
+        public async Task GetImportedStudentsEmailsByPollName_Returns_Distinct_EmailsAsync()
         {
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
 
@@ -284,12 +366,10 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             Assert.Equal("student1@test.com", result.First());
         }
 
-        // ExistsForStudentAndEvaluationAsync
-
         [Theory]
         [InlineData(5, 10, true)]
         [InlineData(999, 10, false)]
-        public async Task ExistsForStudentAndEvaluationAsync_Returns_Expected(int studentId, int evaluationId, bool expected)
+        public async Task ExistsForStudentAndEvaluationAsync_Returns_ExpectedAsync(int StudentId, int EvaluationId, bool Expected)
         {
             var pollInstanceData = new List<PollInstanceEntity>
             {
@@ -299,15 +379,13 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             _mockContext.Setup(C => C.PollInstances).Returns(pollInstanceData.Object);
             _repository = new PollInstanceRepository(_mockContext.Object);
 
-            var result = await _repository.ExistsForStudentAndEvaluationAsync(studentId, "poll-Uuid", evaluationId);
+            var result = await _repository.ExistsForStudentAndEvaluationAsync(StudentId, "poll-Uuid", EvaluationId);
 
-            Assert.Equal(expected, result);
+            Assert.Equal(Expected, result);
         }
 
-        // CountByDateRangeAsync
-
         [Fact]
-        public async Task CountByDateRangeAsync_Counts_Instances_Within_Range()
+        public async Task CountByDateRangeAsync_Counts_Instances_Within_RangeAsync()
         {
             var now = DateTime.UtcNow;
 
@@ -324,8 +402,6 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             Assert.Equal(1, result);
         }
-
-        // ComputeAnswersHash
 
         [Fact]
         public void ComputeAnswersHash_Is_Order_Independent()
@@ -355,7 +431,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             Assert.NotEqual(hashA, hashB);
         }
 
-        private static Eras.Application.Dtos.PollDTO BuildPollDTO(params (string Question, string Answer)[] answers)
+        private static Eras.Application.Dtos.PollDTO BuildPollDTO(params (string Question, string Answer)[] Answers)
         {
             return new Eras.Application.Dtos.PollDTO
             {
@@ -365,11 +441,11 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                     {
                         Variables =
                         [
-                            .. answers.Select(a => new Eras.Application.DTOs.VariableDTO
+                            .. Answers.Select(A => new Eras.Application.DTOs.VariableDTO
                             {
                                 Answer = new Eras.Application.DTOs.AnswerDTO
                                 {
-                                    Answer = a.Answer
+                                    Answer = A.Answer
                                 }
                             })
                         ]
@@ -378,10 +454,8 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             };
         }
 
-        // UpdateAsync
-
         [Fact]
-        public async Task UpdateAsync_Persists_Changes_To_Existing_Entity()
+        public async Task UpdateAsync_Persists_Changes_To_Existing_EntityAsync()
         {
             using var context = BuildRealContext();
 
@@ -411,7 +485,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task UpdateAsync_Returns_Input_When_Entity_Not_Found()
+        public async Task UpdateAsync_Returns_Input_When_Entity_Not_FoundAsync()
         {
             using var context = BuildRealContext();
             _repository = new PollInstanceRepository(context);
@@ -423,10 +497,8 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             Assert.Equal("missing-Uuid", result.Uuid);
         }
 
-        // SetSourceInstanceAsync
-
         [Fact]
-        public async Task SetSourceInstanceAsync_Sets_SourcePollInstanceId()
+        public async Task SetSourceInstanceAsync_Sets_SourcePollInstanceIdAsync()
         {
             using var context = BuildRealContext();
 
@@ -444,19 +516,16 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task SetSourceInstanceAsync_Does_Nothing_When_Instance_Not_Found()
+        public async Task SetSourceInstanceAsync_Does_Nothing_When_Instance_Not_FoundAsync()
         {
             using var context = BuildRealContext();
             _repository = new PollInstanceRepository(context);
 
-            // Should not throw when the poll instance doesn't exist.
             await _repository.SetSourceInstanceAsync(999, 1);
         }
 
-        // FindMatchingSourceInstanceAsync
-
         [Fact]
-        public async Task FindMatchingSourceInstanceAsync_Finds_Match_By_Precomputed_Hash()
+        public async Task FindMatchingSourceInstanceAsync_Finds_Match_By_Precomputed_HashAsync()
         {
             using var context = BuildRealContext();
 
@@ -484,7 +553,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task FindMatchingSourceInstanceAsync_Returns_Null_When_No_Match()
+        public async Task FindMatchingSourceInstanceAsync_Returns_Null_When_No_MatchAsync()
         {
             using var context = BuildRealContext();
 
@@ -508,10 +577,8 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             Assert.Null(result);
         }
 
-        // GetReportByPollCohortAsync
-
         [Fact]
-        public async Task GetReportByPollCohortAsync_Aggregates_Averages_By_Component()
+        public async Task GetReportByPollCohortAsync_Aggregates_Averages_By_ComponentAsync()
         {
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
 
@@ -570,7 +637,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetReportByPollCohortAsync_Excludes_NonApplicable_Answers_From_Averages()
+        public async Task GetReportByPollCohortAsync_Excludes_NonApplicable_Answers_From_AveragesAsync()
         {
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
 
@@ -626,7 +693,62 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
-        public async Task GetCountReportByVariablesAsync_Groups_Counts_By_Answer_Risk()
+        public async Task GetReportByPollCohortAsync_Excludes_NonApplicable_Answers_WithoutLastVersionAsync()
+        {
+            var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
+
+            var pollInstanceData = new List<PollInstanceEntity>
+            {
+                new PollInstanceEntity { Id = 1, Uuid = "poll-Uuid", StudentId = 1, FinishedAt = DateTime.UtcNow, Student = student }
+            }.AsQueryable().BuildMockDbSet();
+
+            var studentCohortData = new List<StudentCohortJoin>
+            {
+                new StudentCohortJoin { StudentId = 1, CohortId = 100 }
+            }.AsQueryable().BuildMockDbSet();
+
+            var studentData = new List<StudentEntity> { student }.AsQueryable().BuildMockDbSet();
+
+            var calcData = new List<ErasCalculationsByPollEntity>
+            {
+                new ErasCalculationsByPollEntity
+                {
+                    PollUuid = "poll-Uuid", ComponentName = "Academic", Question = "Q1",
+                    AnswerText = "Ninguno", StudentEmail = "student1@test.com", AnswerRisk = 0,
+                    VariableAverageRisk = 0, AnswerPercentage = 100, PollInstanceId = 1,
+                    StudentName = "Student One", CohortName = "Cohort A",
+                    PollVersion = 1
+                },
+                new ErasCalculationsByPollEntity
+                {
+                    PollUuid = "poll-Uuid", ComponentName = "Academic", Question = "Q1",
+                    AnswerText = "Good", StudentEmail = "student1@test.com", AnswerRisk = 20,
+                    VariableAverageRisk = 20, AnswerPercentage = 100, PollInstanceId = 1,
+                    StudentName = "Student One", CohortName = "Cohort A",
+                    PollVersion = 1
+                }
+            }.AsQueryable().BuildMockDbSet();
+
+            var pollData = new List<PollEntity>
+            {
+                new PollEntity { Uuid = "poll-Uuid", LastVersion = 1 }
+            }.AsQueryable().BuildMockDbSet();
+
+            _mockContext.Setup(C => C.Polls).Returns(pollData.Object);
+            _mockContext.Setup(C => C.PollInstances).Returns(pollInstanceData.Object);
+            _mockContext.Setup(C => C.StudentCohorts).Returns(studentCohortData.Object);
+            _mockContext.Setup(C => C.Students).Returns(studentData.Object);
+            _mockContext.Setup(C => C.ErasCalculationsByPoll).Returns(calcData.Object);
+
+            _repository = new PollInstanceRepository(_mockContext.Object);
+
+            var result = await _repository.GetReportByPollCohortAsync(
+                "poll-Uuid", [100], false, DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1));
+            Assert.NotNull(result);
+        }
+
+        [Fact]
+        public async Task GetCountReportByVariablesAsync_Groups_Counts_By_Answer_RiskAsync()
         {
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
 
@@ -677,11 +799,11 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             var component = result.Components.First();
             Assert.Equal("ACADEMIC", component.Description);
             Assert.Single(component.Questions);
-            Assert.Equal(2, component.Questions.First().Answers.Sum(a => a.Count));
+            Assert.Equal(2, component.Questions.First().Answers.Sum(A => A.Count));
         }
 
         [Fact]
-        public async Task GetCountReportByVariablesAsync_Filters_By_EvaluationId()
+        public async Task GetCountReportByVariablesAsync_Filters_By_EvaluationIdAsync()
         {
             var student = new StudentEntity { Id = 1, Uuid = "student-1-uuid", Name = "Student One", Email = "student1@test.com" };
 
@@ -732,7 +854,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                 "poll-Uuid", [100], [5], true,
                 DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1), 10);
 
-            var totalCount = result.Components.First().Questions.First().Answers.Sum(a => a.Count);
+            var totalCount = result.Components.First().Questions.First().Answers.Sum(A => A.Count);
             Assert.Equal(1, totalCount);
         }
     }
