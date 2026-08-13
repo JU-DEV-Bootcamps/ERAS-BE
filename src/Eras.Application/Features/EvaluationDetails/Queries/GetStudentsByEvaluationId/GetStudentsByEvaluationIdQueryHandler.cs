@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.EvaluationDetails.Queries.GetStudentsByEvaluationId;
 
-public class GetStudentsByEvaluationIdQueryHandler : IRequestHandler<GetStudentsByEvaluationIdQuery, List<StudentsByFiltersResponse>?>
+public class GetStudentsByEvaluationIdQueryHandler : IRequestHandler<GetStudentsByEvaluationIdQuery, List<StudentsByFiltersResponse>>
 {
     private readonly IErasEvaluationDetailsViewRepository _repository;
     private readonly IEvaluationRepository _evaluationRepository;
@@ -20,7 +20,7 @@ public class GetStudentsByEvaluationIdQueryHandler : IRequestHandler<GetStudents
         _logger = Logger;
     }
 
-    public async Task<List<StudentsByFiltersResponse>?> Handle(GetStudentsByEvaluationIdQuery Request, CancellationToken CancellationToken)
+    public async Task<List<StudentsByFiltersResponse>> Handle(GetStudentsByEvaluationIdQuery Request, CancellationToken CancellationToken)
     {
         try
         {
