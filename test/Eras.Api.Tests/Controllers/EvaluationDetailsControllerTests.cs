@@ -33,7 +33,11 @@ public class EvaluationDetailsControllerTests
     {
         // Arrange
         var pagination = new Pagination();
-        var expectedResult = new PagedResult<GetStudentsRecentAlertsResponse>(2, new List<GetStudentsRecentAlertsResponse>{ new (), new () }); 
+        var expectedResult = new PagedResult<GetStudentsRecentAlertsResponse>(2, new List<GetStudentsRecentAlertsResponse>
+        {
+            new() { StudentId = "1", StudentName = "Student 1", Category = "Academic", Date = DateTime.UtcNow, Status = "Active" },
+            new() { StudentId = "2", StudentName = "Student 2", Category = "Academic", Date = DateTime.UtcNow, Status = "Active" }
+        });
         _mockMediator
             .Setup(X => X.Send(It.IsAny<GetStudentsRecentAlertsQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(expectedResult);

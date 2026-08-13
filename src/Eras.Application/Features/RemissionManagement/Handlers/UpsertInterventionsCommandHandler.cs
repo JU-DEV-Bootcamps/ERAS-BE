@@ -53,7 +53,7 @@ public sealed class UpsertInterventionsCommandHandler
 
             foreach (var incoming in request.Interventions)
             {
-                if (existingInterventionsById.TryGetValue((int)incoming.Id, out var existingIntervention))
+                if (incoming.Id.HasValue && existingInterventionsById.TryGetValue(incoming.Id.Value, out var existingIntervention))
                 {
                     await ValidationHelper.ValidateAndThrowAsync(
                         _interventionStatusValidator,

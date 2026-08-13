@@ -196,7 +196,7 @@ public class PollDTOValidationTests
     public void Components_Required_FailsWhenMissing()
     {
         PollDTO dto = CreateValidDTO();
-        dto.Components = null;
+        dto.Components = null!;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
 
@@ -220,10 +220,10 @@ public class PollDTOValidationTests
 
     [Theory]
     [ClassData(typeof(RequiredStringTestData))]
-    public void ParentId_Required_FailsWhenMissing(string InvalidId)
+    public void ParentId_Required_FailsWhenMissing(string? InvalidId)
     {
         PollDTO dto = CreateValidDTO();
-        dto.ParentId = InvalidId;
+        dto.ParentId = InvalidId!;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
     

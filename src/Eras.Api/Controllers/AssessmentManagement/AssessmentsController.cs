@@ -15,10 +15,10 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 [ApiController]
 [Route("api/v1/assessments")]
 [Authorize]
-public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger, IOptions<FileStorageSettings> FileStorageOptions, IFileStorageService FileStorage) : ControllerBase 
+public class AssessmentsController(IMediator Mediator, IOptions<FileStorageSettings> FileStorageOptions, IFileStorageService FileStorage) : ControllerBase 
 {
     private readonly FileStorageSettings _fileStorageSettings = FileStorageOptions.Value;
-    private readonly IFileStorageService _fileStorage = FileStorage; 
+    private readonly IFileStorageService _fileStorage = FileStorage;
 
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]

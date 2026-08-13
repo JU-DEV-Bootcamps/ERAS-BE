@@ -4,10 +4,10 @@ namespace Eras.Application.Models.Response.Controllers.EvaluationDetailsControll
 
 public class GetStudentsRecentAlertsResponse
 {
-    public string StudentId { get; set; }
-    public string StudentName { get; set; }
+    public required string StudentId { get; set; }
+    public required string StudentName { get; set; }
     public RiskLevelEnum.RiskLevel RiskLevel { get; set; }
-    public string Category { get; set; }
-    public DateTime? Date { get; set; }
-    public string Status { get; set; }
+    public required string Category { get; set; }
+    public required DateTime? Date { get; set; }
+    public required string Status { get; set; }
 }

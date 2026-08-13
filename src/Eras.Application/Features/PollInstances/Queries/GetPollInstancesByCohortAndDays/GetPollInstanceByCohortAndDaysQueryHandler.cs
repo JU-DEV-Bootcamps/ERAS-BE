@@ -32,6 +32,10 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
             if (Request.EvaluationId.HasValue)
             {
                 var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId.Value);
+                if (evaluation is null)
+                {
+                    throw new KeyNotFoundException($"Evaluation '{Request.EvaluationId}' not found.");
+                }
                 startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
                 endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
                   .Date

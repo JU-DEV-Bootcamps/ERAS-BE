@@ -113,10 +113,15 @@ namespace Eras.Application.Services
                             createdPoll.studentDTOs.Add(createdStudent.Entity.ToDto());
                             // Create poll instances
                             CreateCommandResponse<Poll> pollOfPollInstance = await CreatePollAsync(pollToCreate);
+                            if (pollOfPollInstance.Entity is null)
+                            {
+                                _logger.LogError("Could not resolve poll for instance creation.");
+                                continue; 
+                            }
                             CreateCommandResponse<PollInstance> createdPollInstance = await CreatePollInstanceAsync(createdStudent.Entity,
                                 pollOfPollInstance.Entity.Uuid, pollToCreate.FinishedAt, EvaluationId);
                             // Create asnswers
-                            if (createdPollInstance.Success)
+                            if (createdPollInstance.Success && createdPollInstance.Entity != null)
                             {
                                 PollInstance? sourceInstance = await _pollInstanceRepository
                                     .FindMatchingSourceInstanceAsync(
@@ -315,6 +320,11 @@ namespace Eras.Application.Services
                     CreatePollCommand createPollCommand = new CreatePollCommand() { Poll = PollToCreate };
                     return await _mediator.Send(createPollCommand);
                 }
+                if (pollByName.Body is null)
+                {
+                    _logger.LogError("Error creating poll: existing poll query returned null body for '{PollName}'", PollToCreate.Name);
+                    return new CreateCommandResponse<Poll>(new Poll(), 0, "Error", false);
+                }
                 VersionNumber = pollByName.Body.LastVersion;
                 return new CreateCommandResponse<Poll>(pollByName.Body, 1, pollByName.Message, pollByName.Success);
             }
@@ -363,7 +373,7 @@ namespace Eras.Application.Services
 
                 var query = new GetVariablesWithNameAndPollIdQuery(){};
                 GetQueryResponse<List<Variable>> responseQuery = await _mediator.Send(query);
-                List<Variable> existingVariables = responseQuery.Body;
+                List<Variable> existingVariables = responseQuery.Body ?? [];
 
                 List<VariableListCommandDTO> variableListCommandDTOs = [];
 

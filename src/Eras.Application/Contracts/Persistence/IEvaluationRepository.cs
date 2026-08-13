@@ -10,7 +10,7 @@ namespace Eras.Application.Contracts.Persistence
         Task<Evaluation?> GetByIdForUpdateAsync(int Id);        
         new Task<List<Evaluation>> GetAllAsync();
         Task<List<Evaluation>> GetByDateRange(DateTime startDate, DateTime endDate);
-        Task<int> CountByDateRangeAsync(DateTime startDate, DateTime endDate);
+        new Task<int> CountByDateRangeAsync(DateTime startDate, DateTime endDate);
         Task<IEnumerable<Evaluation>> GetExpiredWithPendingStatusAsync(IEnumerable<string> status, DateTime endDateBefore);
         Task UpdateStatusAsync(int evaluationId, string status);
     }

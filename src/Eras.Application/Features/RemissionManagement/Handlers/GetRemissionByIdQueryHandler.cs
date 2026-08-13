@@ -29,6 +29,7 @@ public sealed class GetRemissionByIdQueryHandler
     {
         _repository = repository;
         _mapper = mapper;
+        _logger = logger;
         _studentRepository = studentRepository;
     }
 
@@ -52,7 +53,7 @@ public sealed class GetRemissionByIdQueryHandler
         var studentDict = students.ToDictionary(s => s.Id);
 
         var dto = _mapper.Map(assessment);
-        var studentDtos = assessment.StudentIds
+        var studentDtos = uniqueIds
                 .Select(id =>
                 {
                     if (studentDict.TryGetValue(id, out var student))

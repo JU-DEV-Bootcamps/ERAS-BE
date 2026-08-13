@@ -49,7 +49,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
             // Assert
             Assert.True(result.Success);
             Assert.Equal("Success", result.Message);
-            Assert.Equal(2, result.Body.Count);
+            Assert.Equal(2, result.Body!.Count);
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace Eras.Application.Tests.Features.PollInstances.Queries
             // Assert
             Assert.False(result.Success);
             Assert.Equal("Failed", result.Message);
-            Assert.Empty(result.Body.Items);
+            Assert.Empty(result.Body!.Items);
         }
     }
 }

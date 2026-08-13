@@ -34,7 +34,7 @@ namespace Eras.Application.Features.Remmisions.Commands.CreateRemission
 
                 foreach (var studentId in remission.StudentIds)
                 {
-                    Student student = await _studentRepository.GetByIdAsync(studentId);
+                    Student? student = await _studentRepository.GetByIdAsync(studentId);
 
                     if (student != null)
                     {

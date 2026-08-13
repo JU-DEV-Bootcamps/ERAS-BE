@@ -12,7 +12,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public string PollName {  get; set; } = string.Empty ;
         public string Country { get; set; } = string.Empty;
         public int ConfigurationId { get; set; }
-        public ConfigurationsEntity Configuration { get; set; }
+        public ConfigurationsEntity Configuration { get; set; } = null!;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public ICollection<EvaluationPollJoin> EvaluationPolls { get; set; } = [];

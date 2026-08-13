@@ -45,6 +45,6 @@ public class GetVariableByNameQueryHandlerTest
 
         // Assert
         Assert.True(result.Success);
-        Assert.Equal("Variable",result.Body.Name);
+        Assert.Equal("Variable",result.Body!.Name);
     }
 }

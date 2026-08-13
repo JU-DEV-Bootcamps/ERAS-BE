@@ -10,8 +10,8 @@ public class StatusTransitionValidatorTests
     private readonly AssessmentStatusTransitionValidator _assessmentValidator = new();
     private readonly InterventionStatusTransitionValidator _interventionValidator = new();
 
-    private StatusTransitionRequest<AssessmentStatus> _assessmentStatusTransitionRequest;
-    private StatusTransitionRequest<InterventionStatus> _interventionStatusTransitionRequest;
+    private StatusTransitionRequest<AssessmentStatus> _assessmentStatusTransitionRequest = null!;
+    private StatusTransitionRequest<InterventionStatus> _interventionStatusTransitionRequest = null!;
 
     private static StatusTransitionRequest<AssessmentStatus> CreateAssessmentStatusRequest(AssessmentStatus Existing, AssessmentStatus New) =>
         new(Existing, New);

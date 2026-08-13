@@ -29,7 +29,12 @@ public sealed class DeleteInterventionCommandHandler : IRequestHandler<DeleteInt
         {
             var intervention = await _repository.GetInterventionByIdAsync(request.InterventionId);
 
-            if (intervention is not null && intervention.Status != InterventionStatus.Remitted)
+            if (intervention is null)
+            {
+                throw new KeyNotFoundException($"Intervention '{request.InterventionId}' not found for assessment '{request.AssessmentId}'.");
+            }
+
+            if (intervention.Status != InterventionStatus.Remitted)
             {
                 foreach (string attachment in intervention.Attachments)
                 {
@@ -45,6 +50,7 @@ public sealed class DeleteInterventionCommandHandler : IRequestHandler<DeleteInt
                     }
                 }
             }
+
             if (intervention.Status != InterventionStatus.Remitted)
             {
                 throw new KeyNotFoundException($"Intervention '{request.InterventionId}' cannot be removed by its status.");

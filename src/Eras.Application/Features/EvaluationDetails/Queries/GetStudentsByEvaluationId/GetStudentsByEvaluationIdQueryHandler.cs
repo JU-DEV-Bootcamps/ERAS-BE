@@ -25,6 +25,10 @@ public class GetStudentsByEvaluationIdQueryHandler : IRequestHandler<GetStudents
         try
         {
             var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId);
+            if (evaluation is null)
+            {
+                throw new KeyNotFoundException($"Evaluation '{Request.EvaluationId}' not found.");
+            }
             var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
             var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc);
 

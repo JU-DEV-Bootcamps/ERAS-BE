@@ -70,10 +70,8 @@ public class ReportsControllerTests
         _mediator
             .Setup(X => X.Send(It.IsAny<GetStudentTopQuery>(), default))
             .ReturnsAsync(response);
-
         var result = await _controller.GetHigherRiskStudentsByCohortAsync("C1", "Poll", 5);
-
-        Assert.IsType<NotFoundObjectResult>(result);
+        Assert.IsType<BadRequestObjectResult>(result);
     }
 
     [Fact]

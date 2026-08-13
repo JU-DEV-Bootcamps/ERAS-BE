@@ -59,6 +59,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             }
             catch (Exception e)
             {
+                _logger.LogError(e, "Cosmic Latte health check failed for {ApiUrl}", ApiUrl);
                 return new CosmicLatteStatus(false);
             }
         }

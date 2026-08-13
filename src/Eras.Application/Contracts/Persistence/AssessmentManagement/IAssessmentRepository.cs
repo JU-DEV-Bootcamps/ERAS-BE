@@ -5,7 +5,7 @@ namespace Eras.Application.Contracts.Persistence.AssessmentManagement;
 
 public interface IAssessmentRepository : IBaseRepository<Assessment>
 {
-    Task<IEnumerable<Assessment>> GetAllAsync();
+    new Task<IEnumerable<Assessment>> GetAllAsync();
     
     Task<IEnumerable<Assessment>> GetByStudentIdAsync(int studentId);
 

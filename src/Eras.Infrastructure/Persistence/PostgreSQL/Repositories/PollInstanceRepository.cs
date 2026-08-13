@@ -390,16 +390,16 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         }
     }
 
-    private string ComputeAnswerHash(PollDTO pollDTO)
+    private string ComputeHashFromDTO(PollDTO pollDTO)
     {
-        var answers = pollDTO.Components
+        var entries = pollDTO.Components
             .SelectMany(c => c.Variables)
-            .Select(v => $"{v.Answer.PollVariableId}:{v.Answer}:{v.Answer.Score}");
+            .Select(v => $"{v.Answer?.Answer}")
+            .OrderBy(x => x);
 
-        var content = string.Join("|", answers.OrderBy(x => x));
-
-        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content)));
+        return Hash(string.Join("|", entries));
     }
+
     public string ComputeAnswersHash(PollDTO incomingPoll) => ComputeHashFromDTO(incomingPoll);
 
     public async Task<PollInstance?> FindMatchingSourceInstanceAsync(int studentId, int currentPollInstanceId, PollDTO incomingPoll)
@@ -429,16 +429,6 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         var foundHash = legacyCandidates.FirstOrDefault(pi =>
             ComputeHashFromAnswers(pi.Answers) == incomingHash);
         return foundHash != null ? PollInstanceMapper.ToDomain(foundHash) : null;
-    }
-
-    private string ComputeHashFromDTO(PollDTO pollDTO)
-    {
-        var entries = pollDTO.Components
-            .SelectMany(c => c.Variables)
-            .Select(v => $"{v.Answer.Answer}")
-            .OrderBy(x => x);
-
-        return Hash(string.Join("|", entries));
     }
 
     private string ComputeHashFromAnswers(ICollection<AnswerEntity> answers)
