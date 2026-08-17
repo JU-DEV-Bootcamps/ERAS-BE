@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    public class HeatMapRespository : IHeatMapRepository
+    public class HeatMapRepository : IHeatMapRepository
     {
         protected readonly AppDbContext _context;
 
-        public HeatMapRespository(AppDbContext Context)
+        public HeatMapRepository(AppDbContext Context)
         {
             _context = Context;
         }
@@ -76,7 +76,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .ToListAsync();
         }
 
-        internal async Task<IEnumerable<PollInstanceEntity>> GetPollInstancesByCohortIdAndLastDaysAsync(
+        public async Task<IEnumerable<PollInstanceEntity>> GetPollInstancesByCohortIdAndLastDaysAsync(
             int? CohortId,
             int? Days
         )

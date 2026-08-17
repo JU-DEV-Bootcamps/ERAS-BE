@@ -12,7 +12,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class PollVariableRepository(AppDbContext Context) : BaseRepository<Variable, PollVariableJoin>(Context, PollVariableMapper.ToDomain, PollVariableMapper.ToPersistenceVariable), IPollVariableRepository
     {
         public async Task<Variable?> GetByPollIdAndVariableIdAsync(int PollId, int VariableId)

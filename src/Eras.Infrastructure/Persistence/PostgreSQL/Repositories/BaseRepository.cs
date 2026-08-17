@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class BaseRepository<TDomain, TPersist> : IBaseRepository<TDomain>
         where TDomain : class
         where TPersist : class
