@@ -1,4 +1,6 @@
-﻿using Eras.Application.Contracts.Infrastructure;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Models;
 using Eras.Application.Models.Response.HeatMap;
 using Eras.Application.Services;
@@ -18,6 +20,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Eras.Infrastructure
 {
+    [ExcludeFromCodeCoverage]
     public static class InfrastructureServiceRegistration
     {
         public static IServiceCollection AddInfrastructureServices(

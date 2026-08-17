@@ -1,4 +1,6 @@
-﻿using Eras.Application.Contracts.Persistence;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManagement;
@@ -10,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
+    [ExcludeFromCodeCoverage]
     public static class PersistenceServiceRegistration
     {
         private static string GetConnectionString(IConfiguration Configuration)
