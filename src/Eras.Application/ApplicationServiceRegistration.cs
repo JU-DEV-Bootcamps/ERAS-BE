@@ -32,7 +32,7 @@ namespace Eras.Application.Services
             Services.AddScoped<StudentImporter>();
             Services.AddScoped<PollInstanceImporter>();
             Services.AddScoped<IImportJobService, ImportJobService>();
-            Services.AddScoped<EvaluationStatusUpdater>();
+            Services.AddScoped<IEvaluationStatusUpdater, EvaluationStatusUpdater>();
             Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
             Services.ConfigureMappers();
             Services.ConfigureValidators();

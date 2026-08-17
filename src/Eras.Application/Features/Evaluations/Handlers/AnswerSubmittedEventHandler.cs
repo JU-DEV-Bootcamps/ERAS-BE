@@ -13,8 +13,8 @@ namespace Eras.Application.Features.Evaluations.Handlers;
 
 public class AnswerSubmittedEventHandler : INotificationHandler<AnswerSubmittedEvent>
 {
-   private readonly EvaluationStatusUpdater _updater;
-   public AnswerSubmittedEventHandler(EvaluationStatusUpdater updater)
+   private readonly IEvaluationStatusUpdater _updater;
+   public AnswerSubmittedEventHandler(IEvaluationStatusUpdater updater)
        => _updater = updater;
 
    public Task Handle(AnswerSubmittedEvent notification, CancellationToken ct)

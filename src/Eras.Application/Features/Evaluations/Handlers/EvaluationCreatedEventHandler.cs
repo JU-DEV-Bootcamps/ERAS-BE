@@ -13,8 +13,8 @@ namespace Eras.Application.Features.Evaluations.Handlers;
 
 public class EvaluationCreatedEventHandler : INotificationHandler<EvaluationCreatedEvent>
 {
-   private readonly EvaluationStatusUpdater _updater;
-   public EvaluationCreatedEventHandler(EvaluationStatusUpdater updater)
+   private readonly IEvaluationStatusUpdater _updater;
+   public EvaluationCreatedEventHandler(IEvaluationStatusUpdater updater)
        => _updater = updater;
 
    public Task Handle(EvaluationCreatedEvent notification, CancellationToken ct)
