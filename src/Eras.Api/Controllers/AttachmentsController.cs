@@ -18,7 +18,6 @@ namespace Eras.Api.Controllers;
 [ApiController]
 [Route("api/v1/attachments")]
 [Authorize]
-[ExcludeFromCodeCoverage]
 public class AttachmentsController(IAttachmentService AttachmentService, ILogger<AttachmentsController> Logger) : ControllerBase
 {
     private readonly IAttachmentService _attachmentService = AttachmentService;
@@ -29,25 +28,25 @@ public class AttachmentsController(IAttachmentService AttachmentService, ILogger
     [ProducesResponseType(typeof(IReadOnlyCollection<AttachmentDto>), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<IReadOnlyCollection<AttachmentDto>>> Upload(
-        [FromQuery] string entityType,
-        [FromQuery] int entityId,
-        [FromForm] IFormFileCollection files,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyCollection<AttachmentDto>>> UploadAsync(
+        [FromQuery] string EntityType,
+        [FromQuery] int EntityId,
+        [FromForm] IFormFileCollection Files,
+        CancellationToken CancellationToken)
     {
-        if (files.Count == 0)
+        if (Files.Count == 0)
             return BadRequest("No files provided.");
 
         string createdBy = GetCurrentUserId();
 
-        var openedFiles = files
-            .Select(file => (Stream: (Stream)file.OpenReadStream(), file.FileName))
+        var openedFiles = Files
+            .Select(File => (Stream: (Stream)File.OpenReadStream(), File.FileName))
             .ToList();
 
         try
         {
             IReadOnlyCollection<AttachmentDto> results = await _attachmentService.UploadAttachmentsAsync(
-                entityType, entityId, openedFiles, createdBy, cancellationToken);
+                EntityType, EntityId, openedFiles, createdBy, CancellationToken);
             return Created(string.Empty, results);
         }
         finally
@@ -60,13 +59,13 @@ public class AttachmentsController(IAttachmentService AttachmentService, ILogger
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyCollection<AttachmentDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IReadOnlyCollection<AttachmentDto>>> List(
-        [FromQuery] string entityType,
-        [FromQuery] int entityId,
-        CancellationToken cancellationToken)
+    public async Task<ActionResult<IReadOnlyCollection<AttachmentDto>>> ListAsync(
+        [FromQuery] string EntityType,
+        [FromQuery] int EntityId,
+        CancellationToken CancellationToken)
     {
         IReadOnlyCollection<AttachmentDto> attachments =
-            await _attachmentService.ListAttachmentsAsync(entityType, entityId, cancellationToken);
+            await _attachmentService.ListAttachmentsAsync(EntityType, EntityId, CancellationToken);
         return Ok(attachments);
     }
 
@@ -74,16 +73,16 @@ public class AttachmentsController(IAttachmentService AttachmentService, ILogger
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status302Found)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Download(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DownloadAsync(int Id, CancellationToken CancellationToken)
     {
         // Prefer a direct-access URL when the active storage provider offers one (e.g. a future
         // Swift Temporary URL) so the file doesn't have to be streamed through this server.
-        string? url = await _attachmentService.GetAttachmentUrlAsync(id, cancellationToken);
+        var url = await _attachmentService.GetAttachmentUrlAsync(Id, CancellationToken);
         if (url is not null)
             return Redirect(url);
 
-        (Stream stream, string? mimeType, string? originalFileName) =
-            await _attachmentService.DownloadAttachmentAsync(id, cancellationToken);
+        (Stream stream, var mimeType, var originalFileName) =
+            await _attachmentService.DownloadAttachmentAsync(Id, CancellationToken);
 
         return File(stream, mimeType ?? "application/octet-stream", originalFileName, enableRangeProcessing: false);
     }
@@ -91,10 +90,10 @@ public class AttachmentsController(IAttachmentService AttachmentService, ILogger
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> DeleteAsync(int Id, CancellationToken CancellationToken)
     {
-        await _attachmentService.DeleteAttachmentAsync(id, cancellationToken);
-        _logger.LogInformation("Attachment {AttachmentId} deleted.", id);
+        await _attachmentService.DeleteAttachmentAsync(Id, CancellationToken);
+        _logger.LogInformation("Attachment {AttachmentId} deleted.", Id);
         return NoContent();
     }
 
