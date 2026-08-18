@@ -3,6 +3,7 @@ using System.Text;
 
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.DTOs.AttachmentManagement;
 using Eras.Application.Models;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
@@ -34,11 +35,11 @@ public class AttachmentServiceTest
         _mockLogger = new Mock<ILogger<AttachmentService>>();
 
         _mockSettings
-            .Setup(x => x.Value)
+            .Setup(X => X.Value)
             .Returns(new FileStorageSettings
             {
                 BasePath = "",
-                AllowedExtensions = [".pdf", ".png"],
+                AllowedExtensions = [".pdf", ".png", ".jpg", ".txt"],
                 MaxAttachmentsPerEntityType = new Dictionary<string, int> { [EntityType] = 5 }
             });
 
@@ -49,40 +50,54 @@ public class AttachmentServiceTest
             _mockLogger.Object);
     }
 
-    private static Stream ContentStream(string content) => new MemoryStream(Encoding.UTF8.GetBytes(content));
+    private AttachmentService CreateServiceWithSettings(FileStorageSettings Settings)
+    {
+        var mockSettings = new Mock<IOptions<FileStorageSettings>>();
+        mockSettings.Setup(X => X.Value).Returns(Settings);
+        return new AttachmentService(_mockRepository.Object, _mockFileStorage.Object, mockSettings.Object, _mockLogger.Object);
+    }
 
-    private static string ComputeHash(string content) =>
-        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content)));
+    private static MemoryStream ContentStream(string Content) => new(Encoding.UTF8.GetBytes(Content));
+
+    private static string ComputeHash(string Content) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(Content)));
+
+    // A minimal, real PDF byte signature (%PDF) — enough to pass magic-byte validation without
+    // needing a genuine, fully-formed PDF document.
+    private static MemoryStream RealPdfStream() => new([0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x34]);
+
+    // The Windows/DOS executable signature (MZ) — used to simulate a renamed executable.
+    private static MemoryStream FakeExecutableStream() => new([0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00]);
 
     [Fact]
     public async Task UploadAttachmentAsync_Should_SaveFileAndPersistMetadata_OnSuccessAsync()
     {
         // Arrange
         _mockRepository
-            .Setup(x => x.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
+            .Setup(X => X.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
             .ReturnsAsync((Attachment?)null);
-        _mockRepository.Setup(x => x.CountByEntityAsync(EntityType, 1)).ReturnsAsync(0);
+        _mockRepository.Setup(X => X.CountByEntityAsync(EntityType, 1)).ReturnsAsync(0);
         _mockFileStorage
-            .Setup(x => x.SaveAsync(It.IsAny<Stream>(), "report.pdf", "interventions/1"))
-            .ReturnsAsync("interventions/1/generated.pdf");
+            .Setup(X => X.SaveAsync(It.IsAny<Stream>(), "report.txt", "interventions/1"))
+            .ReturnsAsync("interventions/1/generated.txt");
         _mockRepository
-            .Setup(x => x.AddAsync(It.IsAny<Attachment>()))
-            .ReturnsAsync((Attachment a) => a);
-        _mockFileStorage.Setup(x => x.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
+            .Setup(X => X.AddAsync(It.IsAny<Attachment>()))
+            .ReturnsAsync((Attachment Obj) => Obj);
+        _mockFileStorage.Setup(X => X.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
 
         // Act
-        var result = await _service.UploadAttachmentAsync(
-            EntityType, 1, ContentStream("hello"), "report.pdf", "user-1", CancellationToken.None);
+        AttachmentDto result = await _service.UploadAttachmentAsync(
+            EntityType, 1, ContentStream("hello"), "report.txt", "user-1", CancellationToken.None);
 
         // Assert
         Assert.Equal(EntityType, result.EntityType);
         Assert.Equal(1, result.EntityId);
-        Assert.Equal("report.pdf", result.OriginalFileName);
+        Assert.Equal("report.txt", result.OriginalFileName);
         Assert.Equal("user-1", result.CreatedBy);
         Assert.Null(result.DownloadUrl);
 
-        _mockFileStorage.Verify(x => x.SaveAsync(It.IsAny<Stream>(), "report.pdf", "interventions/1"), Times.Once);
-        _mockRepository.Verify(x => x.AddAsync(It.IsAny<Attachment>()), Times.Once);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), "report.txt", "interventions/1"), Times.Once);
+        _mockRepository.Verify(X => X.AddAsync(It.IsAny<Attachment>()), Times.Once);
     }
 
     [Fact]
@@ -95,25 +110,25 @@ public class AttachmentServiceTest
             Id = 99,
             EntityType = EntityType,
             EntityId = 1,
-            StorageKey = "interventions/1/existing.pdf",
+            StorageKey = "interventions/1/existing.txt",
             ContentHash = hash,
             CreatedBy = "user-1"
         };
 
         _mockRepository
-            .Setup(x => x.GetByContentHashAsync(EntityType, 1, hash))
+            .Setup(X => X.GetByContentHashAsync(EntityType, 1, hash))
             .ReturnsAsync(existing);
-        _mockFileStorage.Setup(x => x.GetUrlAsync(existing.StorageKey)).ReturnsAsync((string?)null);
+        _mockFileStorage.Setup(X => X.GetUrlAsync(existing.StorageKey)).ReturnsAsync((string?)null);
 
         // Act
-        var result = await _service.UploadAttachmentAsync(
-            EntityType, 1, ContentStream("duplicate-content"), "dup.pdf", "user-1", CancellationToken.None);
+        AttachmentDto result = await _service.UploadAttachmentAsync(
+            EntityType, 1, ContentStream("duplicate-content"), "dup.txt", "user-1", CancellationToken.None);
 
         // Assert
         Assert.Equal(99, result.Id);
 
-        _mockFileStorage.Verify(x => x.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        _mockRepository.Verify(x => x.AddAsync(It.IsAny<Attachment>()), Times.Never);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(X => X.AddAsync(It.IsAny<Attachment>()), Times.Never);
     }
 
     [Fact]
@@ -121,17 +136,17 @@ public class AttachmentServiceTest
     {
         // Arrange
         _mockRepository
-            .Setup(x => x.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
+            .Setup(X => X.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
             .ReturnsAsync((Attachment?)null);
-        _mockRepository.Setup(x => x.CountByEntityAsync(EntityType, 1)).ReturnsAsync(5);
+        _mockRepository.Setup(X => X.CountByEntityAsync(EntityType, 1)).ReturnsAsync(5);
 
         // Act
         var exception = await Assert.ThrowsAsync<BussinessException>(
-            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("x"), "x.pdf", "user-1", CancellationToken.None));
+            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("x"), "x.txt", "user-1", CancellationToken.None));
 
         // Assert
         Assert.Equal(409, exception.StatusCode);
-        _mockFileStorage.Verify(x => x.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
@@ -139,22 +154,22 @@ public class AttachmentServiceTest
     {
         // Arrange
         _mockRepository
-            .Setup(x => x.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
+            .Setup(X => X.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
             .ReturnsAsync((Attachment?)null);
-        _mockRepository.Setup(x => x.CountByEntityAsync(EntityType, 1)).ReturnsAsync(0);
+        _mockRepository.Setup(X => X.CountByEntityAsync(EntityType, 1)).ReturnsAsync(0);
         _mockFileStorage
-            .Setup(x => x.SaveAsync(It.IsAny<Stream>(), "report.pdf", "interventions/1"))
-            .ReturnsAsync("interventions/1/generated.pdf");
+            .Setup(X => X.SaveAsync(It.IsAny<Stream>(), "report.txt", "interventions/1"))
+            .ReturnsAsync("interventions/1/generated.txt");
         _mockRepository
-            .Setup(x => x.AddAsync(It.IsAny<Attachment>()))
+            .Setup(X => X.AddAsync(It.IsAny<Attachment>()))
             .ThrowsAsync(new InvalidOperationException("db down"));
 
         // Act
         await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("hello"), "report.pdf", "user-1", CancellationToken.None));
+            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("hello"), "report.txt", "user-1", CancellationToken.None));
 
         // Assert: the orphaned physical file is cleaned up
-        _mockFileStorage.Verify(x => x.DeleteAsync("interventions/1/generated.pdf"), Times.Once);
+        _mockFileStorage.Verify(X => X.DeleteAsync("interventions/1/generated.txt"), Times.Once);
     }
 
     [Fact]
@@ -166,7 +181,7 @@ public class AttachmentServiceTest
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
-        _mockRepository.Verify(x => x.GetByContentHashAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(X => X.GetByContentHashAsync(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
@@ -178,7 +193,127 @@ public class AttachmentServiceTest
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
-        _mockFileStorage.Verify(x => x.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UploadAttachmentAsync_Should_RejectRenamedExecutable_DisguisedAsAllowedExtensionAsync()
+    {
+        // Arrange — a Windows executable (MZ header) renamed to a .jpg, the AC's exact scenario.
+
+        // Act
+        var exception = await Assert.ThrowsAsync<BussinessException>(
+            () => _service.UploadAttachmentAsync(
+                EntityType, 1, FakeExecutableStream(), "photo.jpg", "user-1", CancellationToken.None));
+
+        // Assert
+        Assert.Equal(400, exception.StatusCode);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(X => X.AddAsync(It.IsAny<Attachment>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UploadAttachmentAsync_Should_RejectRenamedExecutable_DisguisedAsTextFileAsync()
+    {
+        // Arrange — no fixed magic-byte signature exists for .txt, but a known-dangerous
+        // signature (MZ) must still be rejected regardless of claimed extension.
+
+        // Act
+        var exception = await Assert.ThrowsAsync<BussinessException>(
+            () => _service.UploadAttachmentAsync(
+                EntityType, 1, FakeExecutableStream(), "notes.txt", "user-1", CancellationToken.None));
+
+        // Assert
+        Assert.Equal(400, exception.StatusCode);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UploadAttachmentAsync_Should_AcceptContent_MatchingItsExtensionsSignatureAsync()
+    {
+        // Arrange
+        _mockRepository.Setup(X => X.GetByContentHashAsync(EntityType, 1, It.IsAny<string>())).ReturnsAsync((Attachment?)null);
+        _mockRepository.Setup(X => X.CountByEntityAsync(EntityType, 1)).ReturnsAsync(0);
+        _mockFileStorage
+            .Setup(X => X.SaveAsync(It.IsAny<Stream>(), "real.pdf", "interventions/1"))
+            .ReturnsAsync("interventions/1/real-generated.pdf");
+        _mockRepository.Setup(X => X.AddAsync(It.IsAny<Attachment>())).ReturnsAsync((Attachment Obj) => Obj);
+        _mockFileStorage.Setup(X => X.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
+
+        // Act
+        var result = await _service.UploadAttachmentAsync(
+            EntityType, 1, RealPdfStream(), "real.pdf", "user-1", CancellationToken.None);
+
+        // Assert
+        Assert.Equal("real.pdf", result.OriginalFileName);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), "real.pdf", "interventions/1"), Times.Once);
+    }
+
+    [Fact]
+    public async Task UploadAttachmentAsync_Should_RejectMismatchedContent_ForAKnownSignatureExtensionAsync()
+    {
+        // Arrange — plain text content claiming to be a PDF: no dangerous signature, but it still
+        // doesn't match .pdf's known signature, so it must be rejected rather than trusted.
+
+        // Act
+        BussinessException exception = await Assert.ThrowsAsync<BussinessException>(
+            () => _service.UploadAttachmentAsync(
+                EntityType, 1, ContentStream("not actually a pdf"), "fake.pdf", "user-1", CancellationToken.None));
+
+        // Assert
+        Assert.Equal(400, exception.StatusCode);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UploadAttachmentAsync_Should_RejectFile_ExceedingMaxFileSizeBytesAsync()
+    {
+        // Arrange
+        AttachmentService service = CreateServiceWithSettings(new FileStorageSettings
+        {
+            BasePath = "",
+            AllowedExtensions = [".txt"],
+            MaxFileSizeBytes = 10,
+            MaxAttachmentsPerEntityType = new Dictionary<string, int> { [EntityType] = 5 }
+        });
+        Stream oversized = ContentStream(new string('a', 11)); // 11 bytes > 10-byte limit
+
+        // Act
+        BussinessException exception = await Assert.ThrowsAsync<BussinessException>(
+            () => service.UploadAttachmentAsync(EntityType, 1, oversized, "big.txt", "user-1", CancellationToken.None));
+
+        // Assert
+        Assert.Equal(400, exception.StatusCode);
+        Assert.Contains("exceeds the maximum allowed size", exception.FriendlyMessage);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UploadAttachmentAsync_Should_Accept_FileAtExactlyTheSizeLimitAsync()
+    {
+        // Arrange
+        AttachmentService service = CreateServiceWithSettings(new FileStorageSettings
+        {
+            BasePath = "",
+            AllowedExtensions = [".txt"],
+            MaxFileSizeBytes = 10,
+            MaxAttachmentsPerEntityType = new Dictionary<string, int> { [EntityType] = 5 }
+        });
+        Stream exactlyAtLimit = ContentStream(new string('a', 10)); // exactly 10 bytes
+
+        _mockRepository.Setup(X => X.GetByContentHashAsync(EntityType, 1, It.IsAny<string>())).ReturnsAsync((Attachment?)null);
+        _mockRepository.Setup(X => X.CountByEntityAsync(EntityType, 1)).ReturnsAsync(0);
+        _mockFileStorage
+            .Setup(X => X.SaveAsync(It.IsAny<Stream>(), "ok.txt", "interventions/1"))
+            .ReturnsAsync("interventions/1/ok-generated.txt");
+        _mockRepository.Setup(X => X.AddAsync(It.IsAny<Attachment>())).ReturnsAsync((Attachment Obj) => Obj);
+        _mockFileStorage.Setup(X => X.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
+
+        // Act
+        AttachmentDto result = await service.UploadAttachmentAsync(EntityType, 1, exactlyAtLimit, "ok.txt", "user-1", CancellationToken.None);
+
+        // Assert
+        Assert.Equal(10, result.SizeBytes);
     }
 
     [Fact]
@@ -186,30 +321,30 @@ public class AttachmentServiceTest
     {
         // Arrange
         _mockRepository
-            .Setup(x => x.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
+            .Setup(X => X.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
             .ReturnsAsync((Attachment?)null);
-        _mockRepository.Setup(x => x.CountByEntityAsync(EntityType, 1)).ReturnsAsync(0);
+        _mockRepository.Setup(X => X.CountByEntityAsync(EntityType, 1)).ReturnsAsync(0);
         _mockFileStorage
-            .Setup(x => x.SaveAsync(It.IsAny<Stream>(), "a.pdf", "interventions/1"))
-            .ReturnsAsync("interventions/1/a-generated.pdf");
+            .Setup(X => X.SaveAsync(It.IsAny<Stream>(), "a.txt", "interventions/1"))
+            .ReturnsAsync("interventions/1/a-generated.txt");
         _mockFileStorage
-            .Setup(x => x.SaveAsync(It.IsAny<Stream>(), "b.pdf", "interventions/1"))
-            .ReturnsAsync("interventions/1/b-generated.pdf");
-        _mockRepository.Setup(x => x.AddAsync(It.IsAny<Attachment>())).ReturnsAsync((Attachment a) => a);
-        _mockFileStorage.Setup(x => x.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
+            .Setup(X => X.SaveAsync(It.IsAny<Stream>(), "b.txt", "interventions/1"))
+            .ReturnsAsync("interventions/1/b-generated.txt");
+        _mockRepository.Setup(X => X.AddAsync(It.IsAny<Attachment>())).ReturnsAsync((Attachment Obj) => Obj);
+        _mockFileStorage.Setup(X => X.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
 
         var files = new List<(Stream Stream, string FileName)>
         {
-            (ContentStream("content-a"), "a.pdf"),
-            (ContentStream("content-b"), "b.pdf")
+            (ContentStream("content-a"), "a.txt"),
+            (ContentStream("content-b"), "b.txt")
         };
 
         // Act
-        var result = await _service.UploadAttachmentsAsync(EntityType, 1, files, "user-1", CancellationToken.None);
+        IReadOnlyCollection<AttachmentDto> result = await _service.UploadAttachmentsAsync(EntityType, 1, files, "user-1", CancellationToken.None);
 
         // Assert
         Assert.Equal(2, result.Count);
-        _mockRepository.Verify(x => x.AddAsync(It.IsAny<Attachment>()), Times.Exactly(2));
+        _mockRepository.Verify(X => X.AddAsync(It.IsAny<Attachment>()), Times.Exactly(2));
     }
 
     [Fact]
@@ -217,33 +352,33 @@ public class AttachmentServiceTest
     {
         // Arrange
         _mockRepository
-            .Setup(x => x.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
+            .Setup(X => X.GetByContentHashAsync(EntityType, 1, It.IsAny<string>()))
             .ReturnsAsync((Attachment?)null);
-        _mockRepository.SetupSequence(x => x.CountByEntityAsync(EntityType, 1))
+        _mockRepository.SetupSequence(X => X.CountByEntityAsync(EntityType, 1))
             .ReturnsAsync(0)  // "a.pdf": under the limit, allowed
             .ReturnsAsync(5); // "b.pdf": at the limit, rejected
 
         _mockFileStorage
-            .Setup(x => x.SaveAsync(It.IsAny<Stream>(), "a.pdf", "interventions/1"))
-            .ReturnsAsync("interventions/1/a-generated.pdf");
+            .Setup(X => X.SaveAsync(It.IsAny<Stream>(), "a.txt", "interventions/1"))
+            .ReturnsAsync("interventions/1/a-generated.txt");
 
         var createdAttachment = new Attachment
         {
             Id = 42,
             EntityType = EntityType,
             EntityId = 1,
-            StorageKey = "interventions/1/a-generated.pdf",
+            StorageKey = "interventions/1/a-generated.txt",
             ContentHash = "hash-a",
             CreatedBy = "user-1"
         };
-        _mockRepository.Setup(x => x.AddAsync(It.IsAny<Attachment>())).ReturnsAsync(createdAttachment);
-        _mockRepository.Setup(x => x.GetByIdAsync(42)).ReturnsAsync(createdAttachment);
-        _mockFileStorage.Setup(x => x.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
+        _mockRepository.Setup(X => X.AddAsync(It.IsAny<Attachment>())).ReturnsAsync(createdAttachment);
+        _mockRepository.Setup(X => X.GetByIdAsync(42)).ReturnsAsync(createdAttachment);
+        _mockFileStorage.Setup(X => X.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
 
         var files = new List<(Stream Stream, string FileName)>
         {
-            (ContentStream("content-a"), "a.pdf"),
-            (ContentStream("content-b"), "b.pdf")
+            (ContentStream("content-a"), "a.txt"),
+            (ContentStream("content-b"), "b.txt")
         };
 
         // Act
@@ -253,13 +388,13 @@ public class AttachmentServiceTest
         // Assert
         Assert.Equal(409, exception.StatusCode);
 
-        // "a.pdf" was saved, then rolled back once "b.pdf" failed the batch
-        _mockRepository.Verify(x => x.AddAsync(It.IsAny<Attachment>()), Times.Once);
-        _mockRepository.Verify(x => x.DeleteAsync(createdAttachment), Times.Once);
-        _mockFileStorage.Verify(x => x.DeleteAsync("interventions/1/a-generated.pdf"), Times.Once);
+        // "a.txt" was saved, then rolled back once "b.txt" failed the batch
+        _mockRepository.Verify(X => X.AddAsync(It.IsAny<Attachment>()), Times.Once);
+        _mockRepository.Verify(X => X.DeleteAsync(createdAttachment), Times.Once);
+        _mockFileStorage.Verify(X => X.DeleteAsync("interventions/1/a-generated.txt"), Times.Once);
 
-        // "b.pdf" never reached physical storage — it failed the max-count check first
-        _mockFileStorage.Verify(x => x.SaveAsync(It.IsAny<Stream>(), "b.pdf", It.IsAny<string>()), Times.Never);
+        // "b.txt" never reached physical storage — it failed the max-count check first
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), "b.txt", It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
@@ -273,13 +408,13 @@ public class AttachmentServiceTest
         };
 
         // Act
-        var exception = await Assert.ThrowsAsync<BussinessException>(
+        BussinessException exception = await Assert.ThrowsAsync<BussinessException>(
             () => _service.UploadAttachmentsAsync(EntityType, 1, files, "user-1", CancellationToken.None));
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
-        _mockFileStorage.Verify(x => x.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        _mockRepository.Verify(x => x.AddAsync(It.IsAny<Attachment>()), Times.Never);
+        _mockFileStorage.Verify(X => X.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _mockRepository.Verify(X => X.AddAsync(It.IsAny<Attachment>()), Times.Never);
     }
 
     [Fact]
@@ -291,11 +426,11 @@ public class AttachmentServiceTest
             new() { Id = 1, EntityType = EntityType, EntityId = 1, StorageKey = "a", ContentHash = "h1", CreatedBy = "u" },
             new() { Id = 2, EntityType = EntityType, EntityId = 1, StorageKey = "b", ContentHash = "h2", CreatedBy = "u" }
         };
-        _mockRepository.Setup(x => x.GetByEntityAsync(EntityType, 1)).ReturnsAsync(attachments);
-        _mockFileStorage.Setup(x => x.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
+        _mockRepository.Setup(X => X.GetByEntityAsync(EntityType, 1)).ReturnsAsync(attachments);
+        _mockFileStorage.Setup(X => X.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
 
         // Act
-        var result = await _service.ListAttachmentsAsync(EntityType, 1, CancellationToken.None);
+        IReadOnlyCollection<AttachmentDto> result = await _service.ListAttachmentsAsync(EntityType, 1, CancellationToken.None);
 
         // Assert
         Assert.Equal(2, result.Count);
@@ -305,7 +440,7 @@ public class AttachmentServiceTest
     public async Task DownloadAttachmentAsync_Should_ThrowNotFound_When_AttachmentMissingAsync()
     {
         // Arrange
-        _mockRepository.Setup(x => x.GetByIdAsync(999)).ReturnsAsync((Attachment?)null);
+        _mockRepository.Setup(X => X.GetByIdAsync(999)).ReturnsAsync((Attachment?)null);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(
@@ -321,14 +456,14 @@ public class AttachmentServiceTest
             Id = 1, EntityType = EntityType, EntityId = 1, StorageKey = "interventions/1/x.pdf",
             ContentHash = "h", CreatedBy = "u"
         };
-        _mockRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(attachment);
+        _mockRepository.Setup(X => X.GetByIdAsync(1)).ReturnsAsync(attachment);
 
         // Act
         await _service.DeleteAttachmentAsync(1, CancellationToken.None);
 
         // Assert
-        _mockRepository.Verify(x => x.DeleteAsync(attachment), Times.Once);
-        _mockFileStorage.Verify(x => x.DeleteAsync("interventions/1/x.pdf"), Times.Once);
+        _mockRepository.Verify(X => X.DeleteAsync(attachment), Times.Once);
+        _mockFileStorage.Verify(X => X.DeleteAsync("interventions/1/x.pdf"), Times.Once);
     }
 
     [Fact]
@@ -340,19 +475,19 @@ public class AttachmentServiceTest
             Id = 1, EntityType = EntityType, EntityId = 1, StorageKey = "interventions/1/x.pdf",
             ContentHash = "h", CreatedBy = "u"
         };
-        _mockRepository.Setup(x => x.GetByIdAsync(1)).ReturnsAsync(attachment);
-        _mockFileStorage.Setup(x => x.DeleteAsync(attachment.StorageKey)).ThrowsAsync(new IOException("disk error"));
+        _mockRepository.Setup(X => X.GetByIdAsync(1)).ReturnsAsync(attachment);
+        _mockFileStorage.Setup(X => X.DeleteAsync(attachment.StorageKey)).ThrowsAsync(new IOException("disk error"));
 
         // Act & Assert (should not throw despite physical delete failure)
         await _service.DeleteAttachmentAsync(1, CancellationToken.None);
-        _mockRepository.Verify(x => x.DeleteAsync(attachment), Times.Once);
+        _mockRepository.Verify(X => X.DeleteAsync(attachment), Times.Once);
     }
 
     [Fact]
     public async Task DeleteAttachmentAsync_Should_ThrowNotFound_When_AttachmentMissingAsync()
     {
         // Arrange
-        _mockRepository.Setup(x => x.GetByIdAsync(999)).ReturnsAsync((Attachment?)null);
+        _mockRepository.Setup(X => X.GetByIdAsync(999)).ReturnsAsync((Attachment?)null);
 
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(
