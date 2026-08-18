@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Cohorts.Queries
 {
-    class GetCohortsSummaryQueryHandler(
+    public class GetCohortsSummaryQueryHandler(
         IStudentCohortRepository ScRepository,
         IEvaluationRepository EvaluationRepository, 
         ILogger<GetCohortsSummaryQuery> Logger)
