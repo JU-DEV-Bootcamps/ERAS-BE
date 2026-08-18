@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Eras.Api.Filters;
 
-[ExcludeFromCodeCoverage]
 public class PolymorphicInterventionSchemaFilter : ISchemaFilter
 {
     public void Apply(OpenApiSchema schema, SchemaFilterContext context)

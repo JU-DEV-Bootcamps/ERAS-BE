@@ -6,7 +6,6 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
 {
-    [ExcludeFromCodeCoverage]
     public class CosmicLatteHealthCheck : IHealthCheck
     {
         private const string _PATH_EVALUATION = "evaluations";

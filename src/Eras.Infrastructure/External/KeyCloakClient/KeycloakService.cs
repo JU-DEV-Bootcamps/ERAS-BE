@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 
 namespace Eras.Infrastructure.External.KeycloakClient
 {
-    [ExcludeFromCodeCoverage]
     public class KeycloakAuthService : IKeycloakAuthService<TokenResponse>
     {
         private readonly HttpClient _httpClient;
