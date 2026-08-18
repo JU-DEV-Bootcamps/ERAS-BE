@@ -34,6 +34,7 @@ namespace Eras.Application.Services
             Services.AddScoped<IImportJobService, ImportJobService>();
             Services.AddScoped<EvaluationStatusUpdater>();
             Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
+            Services.AddScoped<IAttachmentService, AttachmentService>();
             Services.ConfigureMappers();
             Services.ConfigureValidators();
             return Services;
