@@ -10,7 +10,6 @@ using Eras.Application.Services;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.External.CosmicLatteClient;
-using Eras.Application.Contracts.Persistence; 
 
 using MediatR;
 
@@ -197,6 +196,7 @@ namespace Eras.Infrastructure.Tests.External.CosmicLatteClient
 
             Assert.Equal("Ana", student.Name);
             Assert.Equal("ana@test.com", student.Email);
+            Assert.NotNull(student.Cohort);
             Assert.Equal("Cohort A", student.Cohort.Name);
         }
 
