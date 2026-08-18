@@ -40,7 +40,7 @@ public sealed class AttachmentService(
     public async Task<IReadOnlyCollection<AttachmentDto>> UploadAttachmentsAsync(
         string EntityType,
         int EntityId,
-        IReadOnlyCollection<(Stream Stream, string FileName)> Files,
+        IReadOnlyCollection<(Stream FileStream, string FileName)> Files,
         string CreatedBy,
         CancellationToken CancellationToken = default)
     {
@@ -48,7 +48,7 @@ public sealed class AttachmentService(
         // legacy per-entity handler had, avoided per-file since UploadSingleAsync also checks
         // these (a standalone single-file call still needs them), just redundant-but-cheap here.
         EnsureEntityTypeIsRegistered(EntityType);
-        foreach ((_, string fileName) in Files)
+        foreach ((_, var fileName) in Files)
             EnsureExtensionIsAllowed(fileName);
 
         var uploaded = new List<AttachmentDto>();
@@ -56,7 +56,7 @@ public sealed class AttachmentService(
 
         try
         {
-            foreach ((Stream stream, string fileName) in Files)
+            foreach ((Stream stream, var fileName) in Files)
             {
                 (AttachmentDto dto, bool wasCreated) =
                     await UploadSingleAsync(EntityType, EntityId, stream, fileName, CreatedBy, CancellationToken);
@@ -107,6 +107,8 @@ public sealed class AttachmentService(
     {
         EnsureEntityTypeIsRegistered(EntityType);
         EnsureExtensionIsAllowed(FileName);
+        EnsureSizeIsAllowed(FileStream);
+        await EnsureContentMatchesExtensionAsync(FileStream, FileName, CancellationToken);
 
         (var contentHash, var sizeBytes) = await ComputeHashAndSizeAsync(FileStream, CancellationToken);
         FileStream.Position = 0;
@@ -248,6 +250,32 @@ public sealed class AttachmentService(
         string extension = Path.GetExtension(FileName).ToLowerInvariant();
         if (!_settings.AllowedExtensions.Contains(extension))
             throw new BussinessException($"Extension '{extension}' is not allowed.", 400);
+    }
+
+    private void EnsureSizeIsAllowed(Stream FileStream)
+    {
+        // A metadata-only read (no content I/O), so this fails fast before wasting any work
+        // hashing/peeking an oversized upload.
+        if (FileStream.Length > _settings.MaxFileSizeBytes)
+            throw new BussinessException(
+                $"File size {FileStream.Length} bytes exceeds the maximum allowed size of {_settings.MaxFileSizeBytes} bytes.", 400);
+    }
+
+    /// <summary>
+    /// Rejects content whose actual bytes don't match what <paramref name="FileName"/>'s extension
+    /// claims — extension alone is never the sole validation signal (User Story 1.5). Resets
+    /// <paramref name="FileStream"/> back to its start before returning.
+    /// </summary>
+    private static async Task EnsureContentMatchesExtensionAsync(Stream FileStream, string FileName, CancellationToken CancellationToken)
+    {
+        string extension = Path.GetExtension(FileName).ToLowerInvariant();
+        byte[] header = new byte[FileSignatureValidator.HeaderBytesToRead];
+        int bytesRead = await FileStream.ReadAsync(header.AsMemory(0, header.Length), CancellationToken);
+        FileStream.Position = 0;
+
+        if (!FileSignatureValidator.IsContentValidForExtension(header.AsSpan(0, bytesRead), extension))
+            throw new BussinessException(
+                $"File content does not match the expected format for extension '{extension}'.", 400);
     }
 
     private static async Task<(string ContentHash, long SizeBytes)> ComputeHashAndSizeAsync(
