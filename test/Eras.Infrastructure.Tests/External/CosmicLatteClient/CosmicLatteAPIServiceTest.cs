@@ -1,78 +1,544 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Net;
+using System.Text.Json;
 
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
-using Eras.Application.Models;
+using Eras.Application.DTOs;
+using Eras.Application.DTOs.CL;
+using Eras.Application.Models.Response.Common;
 using Eras.Application.Services;
+using Eras.Domain.Common;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.External.CosmicLatteClient;
+
 using MediatR;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
 using Moq;
+
+using Xunit;
 
 namespace Eras.Infrastructure.Tests.External.CosmicLatteClient
 {
-    public class CosmicLatteAPIServiceTest
+    public class CosmicLatteAPIServiceTests
     {
-        //private Mock<ILogger<CosmicLatteAPIService>> mockLogger;
-        //private Mock<ILogger<PollOrchestratorService>> mockLogger2;
-        //Mock<IMediator> mockMediator;
-        //private Mock<PollOrchestratorService> mockPollOrchestratorService;
-        /*public CosmicLatteAPIServiceTest()
+        private readonly Mock<IConfiguration> _configMock = new();
+        private readonly Mock<ILogger<CosmicLatteAPIService>> _loggerMock = new();
+        private readonly Mock<IApiKeyEncryptor> _encryptorMock = new();
+        private readonly Mock<IPollInstanceRepository> _pollInstanceRepoMock = new();
+        private readonly Mock<IMediator> _mediatorMock = new();
+        private readonly Mock<ILogger<PollOrchestratorService>> _orchestratorLoggerMock = new();
+        private readonly Mock<IEvaluationRepository> _evaluationRepoMock = new();
+
+        private CosmicLatteAPIService CreateService(HttpResponseMessage? response = null, string requestUrl = "http://fakeurl.com/")
         {
-            mockMediator = new Mock<IMediator>();
-            mockLogger = new Mock<ILogger<CosmicLatteAPIService>>();
-            mockLogger2 = new Mock<ILogger<PollOrchestratorService>>();
-            mockPollOrchestratorService = new Mock<PollOrchestratorService>(mockMediator.Object, mockLogger2.Object);
-            mockPollOrchestratorService
-            .Setup(service => service.ImportPollInstances(It.IsAny<List<PollDTO>>()))
-            .ReturnsAsync(new CreateComandResponse<Poll>(null, 1, "Success", true));
+            _encryptorMock.Setup(e => e.Decrypt(It.IsAny<string>())).Returns((string s) => s); // pass-through
+
+            var httpClient = response != null
+                ? new HttpClient(new MockHttpMessageHandler(new Dictionary<string, HttpResponseMessage> { { requestUrl, response } }))
+                : new HttpClient(new ThrowingHandler());
+
+            var factoryMock = new Mock<IHttpClientFactory>();
+            factoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            factoryMock.Setup(f => f.CreateClient(string.Empty)).Returns(httpClient);
+
+            // PollOrchestratorService es una clase concreta con métodos no-virtuales:
+            // no se puede mockear con Moq. La instanciamos real y controlamos su
+            // comportamiento a través de sus propias dependencias mockeadas.
+            var orchestrator = new PollOrchestratorService(
+                _mediatorMock.Object,
+                _orchestratorLoggerMock.Object,
+                _evaluationRepoMock.Object,
+                _pollInstanceRepoMock.Object);
+
+            return new CosmicLatteAPIService(
+                _configMock.Object,
+                factoryMock.Object,
+                _loggerMock.Object,
+                orchestrator,
+                _encryptorMock.Object,
+                _pollInstanceRepoMock.Object);
+        }
+
+        private class ThrowingHandler : DelegatingHandler
+        {
+            protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+                => throw new HttpRequestException("network failure");
+        }
+
+        // ---------- CosmicApiIsHealthy ----------
+
+        [Fact]
+        public async Task CosmicApiIsHealthy_SuccessResponse_ReturnsTrue()
+        {
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent("{}") };
+            var service = CreateService(response, "http://fakeurl.com/evaluationSets?$filter=contains(name,' ')");
+
+            var result = await service.CosmicApiIsHealthy("key", "http://fakeurl.com/");
+
+            Assert.True(result.Status);
         }
 
         [Fact]
-        public async Task GetRegisters_ShouldReturnData_WhenResponseIsSuccessful()
+        public async Task CosmicApiIsHealthy_HttpThrows_ReturnsFalseAndLogsError()
         {
+            var service = CreateService(response: null); // usa ThrowingHandler
 
+            var result = await service.CosmicApiIsHealthy("key", "http://fakeurl.com/");
 
-            var responses = new Dictionary<string, HttpResponseMessage>
+            Assert.False(result.Status);
+            _loggerMock.Verify(
+                l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.Once);
+        }
+
+        // ---------- SavePreviewPolls ----------
+
+        [Fact]
+        public async Task SavePreviewPolls_PollNameTooLong_ThrowsArgumentException()
+        {
+            var service = CreateService();
+            var polls = new List<PollDTO> { new PollDTO { Name = new string('a', 101) } };
+
+            await Assert.ThrowsAsync<ArgumentException>(() => service.SavePreviewPolls(polls, 1));
+        }
+
+        
+
+        // ---------- GetListOfVariablePositionByComponents ----------
+
+        [Fact]
+        public void GetListOfVariablePositionByComponents_NullTraits_ReturnsEmptyDictionary()
+        {
+            var service = CreateService();
+            var dataItem = new DataItem
             {
-                { "https://staging.cosmic-latte.com/api/1.0/evaluations?$filter=contains(name,%27Encuesta%27)", new HttpResponseMessage
+                name = "x", parent = "x", configuration = new Configuration(), access = "x",
+                inventoryKey = "x", inventoryAccess = "x", inventoryId = "x", owner = "x",
+                customFieldsSchema = new List<string>(), TenantName = "x", changeHistory = new List<ChangeHistoryItem>(),
+                customFields = new List<string>(), status = "x", accessToken = "x", score = null
+            };
+
+            var result = service.GetListOfVariablePositionByComponents(dataItem);
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public void GetListOfVariablePositionByComponents_ValidTraits_ReturnsPositionsByComponent()
+        {
+            var service = CreateService();
+            var traitsJson = """
+            {
+              "academico": {
+                "sum": 10, "avg": 5, "count": 2, "min": 1, "max": 9,
+                "facets": {
+                  "academico": { "sum": 10, "avg": 5, "count": 2,
+                    "scores": [{ "score": 1, "position": 5 }, { "score": 9, "position": 6 }] }
+                }
+              }
+            }
+            """;
+            var traits = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(traitsJson)!;
+
+            var dataItem = new DataItem
+            {
+                name = "x", parent = "x", configuration = new Configuration(), access = "x",
+                inventoryKey = "x", inventoryAccess = "x", inventoryId = "x", owner = "x",
+                customFieldsSchema = new List<string>(), TenantName = "x", changeHistory = new List<ChangeHistoryItem>(),
+                customFields = new List<string>(), status = "x", accessToken = "x",
+                score = new Score { byPosition = new List<ByPosition>(), byTrait = new ByTrait { Traits = traits } }
+            };
+
+            var result = service.GetListOfVariablePositionByComponents(dataItem);
+
+            Assert.True(result.ContainsKey("academico"));
+            Assert.Equal(new List<int> { 5, 6 }, result["academico"]);
+        }
+
+        // ---------- CloneComponentsList ----------
+
+        [Fact]
+        public void CloneComponentsList_DeepClonesComponentsAndVariables()
+        {
+            var original = new List<ComponentDTO>
+            {
+                new ComponentDTO
+                {
+                    Name = "Comp1",
+                    Variables = new List<VariableDTO>
                     {
-                        StatusCode = HttpStatusCode.OK,
-                        Content = new StringContent("{ \"@data\": [{ \"_id\": \"qtPwvc3QbDoCwyEaB\", \"name\": \"Encuesta de Caracterización\", \"parent\": \"evaluationSets:J9KgH2Q6MyaJGFj69\", \"configuration\": { \"grantPublicAccessToScore\": false }, \"access\": \"public\", \"inventoryKey\": \"pvxc-vhaf-xcgv-lhch\", \"inventoryAccess\": \"private\", \"inventoryId\": \"J9KgH2Q6MyaJGFj69\", \"owner\": \"nX5vfFZ5CeNku7pGu\", \"customFieldsSchema\": [], \"_tenantName\": \"eras-sandbox\", \"changeHistory\": [{ \"action\": \"created\", \"when\": \"2025-01-31T12:58:36.200Z\", \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.47.5.158\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.47.5.158\", \"when\": \"2025-01-31T12:58:36.296Z\", \"action\": \"updated <status> field\", \"description\": \"status -> started\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.47.5.158\", \"when\": \"2025-01-31T13:02:45.927Z\", \"action\": \"updated <status> field\", \"description\": \"status -> finished\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.47.5.158\", \"when\": \"2025-01-31T13:02:46.078Z\", \"action\": \"updated <status> field\", \"description\": \"status -> scored\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.47.5.158\", \"when\": \"2025-01-31T13:02:46.158Z\", \"action\": \"updated <status> field\", \"description\": \"status -> validated\" }], \"createdAt\": \"2025-01-31T12:58:36.203Z\", \"updatedAt\": \"2025-01-31T13:02:45.917Z\", \"customFields\": [], \"notificationsHistory\": [], \"status\": \"validated\", \"accessToken\": \"bfvcis373k5\", \"startedAt\": \"2025-01-31T12:58:36.283Z\", \"elapsedTimeInSeconds\": 250, \"finishedAt\": \"2025-01-31T13:02:45.915Z\", \"score\": { \"byPosition\": [{ \"score\": 1, \"position\": 5 }, { \"score\": 1, \"position\": 6 }, { \"score\": 23, \"position\": 7 }, { \"score\": 4, \"position\": 8 }, { \"score\": 4, \"position\": 9 }, { \"score\": 1, \"position\": 10 }, { \"score\": 7, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 3, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 5, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 1, \"position\": 19 }, { \"score\": 24, \"position\": 20 }, { \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 4, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 5, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 16, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 5, \"position\": 31 }, { \"score\": 5, \"position\": 33 }, { \"score\": 5, \"position\": 34 }, { \"score\": 5, \"position\": 36 }, { \"score\": 1, \"position\": 38 }, { \"score\": 1, \"position\": 39 }, { \"score\": 1, \"position\": 40 }, { \"score\": 1, \"position\": 41 }, { \"score\": 4, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 4, \"position\": 45 }, { \"score\": 4, \"position\": 46 }, { \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 4, \"position\": 49 }, { \"score\": 1, \"position\": 50 }], \"byTrait\": { \"academico\": { \"sum\": 82, \"avg\": 5.466666666666667, \"count\": 15, \"min\": 1, \"max\": 24, \"facets\": { \"academico\": { \"sum\": 82, \"avg\": 5.466666666666667, \"count\": 15, \"scores\": [{ \"score\": 1, \"position\": 5 }, { \"score\": 1, \"position\": 6 }, { \"score\": 23, \"position\": 7 }, { \"score\": 4, \"position\": 8 }, { \"score\": 4, \"position\": 9 }, { \"score\": 1, \"position\": 10 }, { \"score\": 7, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 3, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 5, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 1, \"position\": 19 }, { \"score\": 24, \"position\": 20 }] } } }, \"individual\": { \"sum\": 62, \"avg\": 4.133333333333334, \"count\": 15, \"min\": 1, \"max\": 16, \"facets\": { \"individual\": { \"sum\": 62, \"avg\": 4.133333333333334, \"count\": 15, \"scores\": [{ \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 4, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 5, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 16, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 5, \"position\": 31 }, { \"score\": 5, \"position\": 33 }, { \"score\": 5, \"position\": 34 }, { \"score\": 5, \"position\": 36 }, { \"score\": 1, \"position\": 38 }, { \"score\": 1, \"position\": 39 }] } } }, \"familiar\": { \"sum\": 20, \"avg\": 2.857142857142857, \"count\": 7, \"min\": 1, \"max\": 4, \"facets\": { \"familiar\": { \"sum\": 20, \"avg\": 2.857142857142857, \"count\": 7, \"scores\": [{ \"score\": 1, \"position\": 40 }, { \"score\": 1, \"position\": 41 }, { \"score\": 4, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 4, \"position\": 45 }, { \"score\": 4, \"position\": 46 }] } } }, \"socioeconomico\": { \"sum\": 13, \"avg\": 3.25, \"count\": 4, \"min\": 1, \"max\": 4, \"facets\": { \"socioeconomico\": { \"sum\": 13, \"avg\": 3.25, \"count\": 4, \"scores\": [{ \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 4, \"position\": 49 }, { \"score\": 1, \"position\": 50 }] } } } } } }, { \"_id\": \"a5igB8nFeG6yLCZKd\", \"name\": \"Encuesta de Caracterización\", \"parent\": \"evaluationSets:J9KgH2Q6MyaJGFj69\", \"configuration\": { \"grantPublicAccessToScore\": false }, \"access\": \"public\", \"inventoryKey\": \"pvxc-vhaf-xcgv-lhch\", \"inventoryAccess\": \"private\", \"inventoryId\": \"J9KgH2Q6MyaJGFj69\", \"owner\": \"nX5vfFZ5CeNku7pGu\", \"customFieldsSchema\": [], \"_tenantName\": \"eras-sandbox\", \"changeHistory\": [{ \"action\": \"created\", \"when\": \"2025-02-15T03:31:41.232Z\", \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"45.175.102.234\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"45.175.102.234\", \"when\": \"2025-02-15T03:31:41.353Z\", \"action\": \"updated <status> field\", \"description\": \"status -> started\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"45.175.102.234\", \"when\": \"2025-02-15T03:34:49.605Z\", \"action\": \"updated <status> field\", \"description\": \"status -> finished\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"45.175.102.234\", \"when\": \"2025-02-15T03:34:49.762Z\", \"action\": \"updated <status> field\", \"description\": \"status -> scored\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"45.175.102.234\", \"when\": \"2025-02-15T03:34:49.857Z\", \"action\": \"updated <status> field\", \"description\": \"status -> validated\" }], \"createdAt\": \"2025-02-15T03:31:41.237Z\", \"updatedAt\": \"2025-02-15T03:34:49.599Z\", \"customFields\": [], \"notificationsHistory\": [], \"status\": \"validated\", \"accessToken\": \"r3hsu8p8gk6\", \"startedAt\": \"2025-02-15T03:31:41.344Z\", \"elapsedTimeInSeconds\": 188, \"finishedAt\": \"2025-02-15T03:34:49.598Z\", \"score\": { \"byPosition\": [{ \"score\": 1, \"position\": 5 }, { \"score\": 1, \"position\": 6 }, { \"score\": 4, \"position\": 7 }, { \"score\": 4, \"position\": 8 }, { \"score\": 4, \"position\": 9 }, { \"score\": 1, \"position\": 10 }, { \"score\": 1, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 3, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 5, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 1, \"position\": 19 }, { \"score\": 5, \"position\": 20 }, { \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 4, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 5, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 4, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 5, \"position\": 31 }, { \"score\": 5, \"position\": 33 }, { \"score\": 5, \"position\": 34 }, { \"score\": 5, \"position\": 36 }, { \"score\": 1, \"position\": 38 }, { \"score\": 1, \"position\": 39 }, { \"score\": 1, \"position\": 40 }, { \"score\": 1, \"position\": 41 }, { \"score\": 4, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 4, \"position\": 45 }, { \"score\": 4, \"position\": 46 }, { \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 4, \"position\": 49 }, { \"score\": 1, \"position\": 50 }], \"byTrait\": { \"academico\": { \"sum\": 38, \"avg\": 2.533333333333333, \"count\": 15, \"min\": 1, \"max\": 5, \"facets\": { \"academico\": { \"sum\": 38, \"avg\": 2.533333333333333, \"count\": 15, \"scores\": [{ \"score\": 1, \"position\": 5 }, { \"score\": 1, \"position\": 6 }, { \"score\": 4, \"position\": 7 }, { \"score\": 4, \"position\": 8 }, { \"score\": 4, \"position\": 9 }, { \"score\": 1, \"position\": 10 }, { \"score\": 1, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 3, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 5, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 1, \"position\": 19 }, { \"score\": 5, \"position\": 20 }] } } }, \"individual\": { \"sum\": 50, \"avg\": 3.3333333333333335, \"count\": 15, \"min\": 1, \"max\": 5, \"facets\": { \"individual\": { \"sum\": 50, \"avg\": 3.3333333333333335, \"count\": 15, \"scores\": [{ \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 4, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 5, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 4, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 5, \"position\": 31 }, { \"score\": 5, \"position\": 33 }, { \"score\": 5, \"position\": 34 }, { \"score\": 5, \"position\": 36 }, { \"score\": 1, \"position\": 38 }, { \"score\": 1, \"position\": 39 }] } } }, \"familiar\": { \"sum\": 20, \"avg\": 2.857142857142857, \"count\": 7, \"min\": 1, \"max\": 4, \"facets\": { \"familiar\": { \"sum\": 20, \"avg\": 2.857142857142857, \"count\": 7, \"scores\": [{ \"score\": 1, \"position\": 40 }, { \"score\": 1, \"position\": 41 }, { \"score\": 4, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 4, \"position\": 45 }, { \"score\": 4, \"position\": 46 }] } } }, \"socioeconomico\": { \"sum\": 13, \"avg\": 3.25, \"count\": 4, \"min\": 1, \"max\": 4, \"facets\": { \"socioeconomico\": { \"sum\": 13, \"avg\": 3.25, \"count\": 4, \"scores\": [{ \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 4, \"position\": 49 }, { \"score\": 1, \"position\": 50 }] } } } } } }, { \"_id\": \"cofKAfcLNMmmzLAX6\", \"name\": \"Encuesta de Caracterización\", \"parent\": \"evaluationSets:J9KgH2Q6MyaJGFj69\", \"configuration\": { \"grantPublicAccessToScore\": false }, \"access\": \"public\", \"inventoryKey\": \"pvxc-vhaf-xcgv-lhch\", \"inventoryAccess\": \"private\", \"inventoryId\": \"J9KgH2Q6MyaJGFj69\", \"owner\": \"nX5vfFZ5CeNku7pGu\", \"customFieldsSchema\": [], \"_tenantName\": \"eras-sandbox\", \"changeHistory\": [{ \"action\": \"created\", \"when\": \"2025-02-17T15:45:46.701Z\", \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.105.158.184\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.105.158.184\", \"when\": \"2025-02-17T15:45:46.925Z\", \"action\": \"updated <status> field\", \"description\": \"status -> started\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.105.158.184\", \"when\": \"2025-02-17T15:58:36.139Z\", \"action\": \"updated <status> field\", \"description\": \"status -> finished\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.105.158.184\", \"when\": \"2025-02-17T15:58:36.737Z\", \"action\": \"updated <status> field\", \"description\": \"status -> scored\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.105.158.184\", \"when\": \"2025-02-17T15:58:36.772Z\", \"action\": \"updated <status> field\", \"description\": \"status -> validated\" }], \"createdAt\": \"2025-02-17T15:45:46.707Z\", \"updatedAt\": \"2025-02-17T15:58:36.132Z\", \"customFields\": [], \"notificationsHistory\": [], \"status\": \"validated\", \"accessToken\": \"d0imbr0by92\", \"startedAt\": \"2025-02-17T15:45:46.858Z\", \"elapsedTimeInSeconds\": 769, \"finishedAt\": \"2025-02-17T15:58:36.130Z\", \"score\": { \"byPosition\": [{ \"score\": 5, \"position\": 5 }, { \"score\": 4, \"position\": 6 }, { \"score\": 6, \"position\": 7 }, { \"score\": 1, \"position\": 8 }, { \"score\": 1, \"position\": 9 }, { \"score\": 4, \"position\": 10 }, { \"score\": 1, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 6, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 4, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 2, \"position\": 19 }, { \"score\": 5, \"position\": 20 }, { \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 1, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 1, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 8, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 5, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 2, \"position\": 38 }, { \"score\": 2, \"position\": 39 }, { \"score\": 1, \"position\": 40 }, { \"score\": 1, \"position\": 41 }, { \"score\": 1, \"position\": 42 }, { \"score\": 1, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 1, \"position\": 46 }, { \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 1, \"position\": 49 }, { \"score\": 1, \"position\": 50 }], \"byTrait\": { \"academico\": { \"sum\": 47, \"avg\": 3.1333333333333333, \"count\": 15, \"min\": 1, \"max\": 6, \"facets\": { \"academico\": { \"sum\": 47, \"avg\": 3.1333333333333333, \"count\": 15, \"scores\": [{ \"score\": 5, \"position\": 5 }, { \"score\": 4, \"position\": 6 }, { \"score\": 6, \"position\": 7 }, { \"score\": 1, \"position\": 8 }, { \"score\": 1, \"position\": 9 }, { \"score\": 4, \"position\": 10 }, { \"score\": 1, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 6, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 4, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 2, \"position\": 19 }, { \"score\": 5, \"position\": 20 }] } } }, \"individual\": { \"sum\": 37, \"avg\": 2.466666666666667, \"count\": 15, \"min\": 1, \"max\": 8, \"facets\": { \"individual\": { \"sum\": 37, \"avg\": 2.466666666666667, \"count\": 15, \"scores\": [{ \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 1, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 1, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 8, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 5, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 2, \"position\": 38 }, { \"score\": 2, \"position\": 39 }] } } }, \"familiar\": { \"sum\": 8, \"avg\": 1.1428571428571428, \"count\": 7, \"min\": 1, \"max\": 2, \"facets\": { \"familiar\": { \"sum\": 8, \"avg\": 1.1428571428571428, \"count\": 7, \"scores\": [{ \"score\": 1, \"position\": 40 }, { \"score\": 1, \"position\": 41 }, { \"score\": 1, \"position\": 42 }, { \"score\": 1, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 1, \"position\": 46 }] } } }, \"socioeconomico\": { \"sum\": 10, \"avg\": 2.5, \"count\": 4, \"min\": 1, \"max\": 4, \"facets\": { \"socioeconomico\": { \"sum\": 10, \"avg\": 2.5, \"count\": 4, \"scores\": [{ \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 1, \"position\": 49 }, { \"score\": 1, \"position\": 50 }] } } } } } }, { \"_id\": \"9JuAN68HxfWDEW7Ao\", \"name\": \"Encuesta de Caracterización\", \"parent\": \"evaluationSets:J9KgH2Q6MyaJGFj69\", \"configuration\": { \"grantPublicAccessToScore\": false }, \"access\": \"public\", \"inventoryKey\": \"pvxc-vhaf-xcgv-lhch\", \"inventoryAccess\": \"private\", \"inventoryId\": \"J9KgH2Q6MyaJGFj69\", \"owner\": \"nX5vfFZ5CeNku7pGu\", \"customFieldsSchema\": [], \"_tenantName\": \"eras-sandbox\", \"changeHistory\": [{ \"action\": \"created\", \"when\": \"2025-02-17T15:47:30.111Z\", \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.171.202\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.171.202\", \"when\": \"2025-02-17T15:47:30.177Z\", \"action\": \"updated <status> field\", \"description\": \"status -> started\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.171.202\", \"when\": \"2025-02-17T16:10:02.721Z\", \"action\": \"updated <status> field\", \"description\": \"status -> finished\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.171.202\", \"when\": \"2025-02-17T16:10:02.861Z\", \"action\": \"updated <status> field\", \"description\": \"status -> scored\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.171.202\", \"when\": \"2025-02-17T16:10:02.950Z\", \"action\": \"updated <status> field\", \"description\": \"status -> validated\" }], \"createdAt\": \"2025-02-17T15:47:30.114Z\", \"updatedAt\": \"2025-02-17T16:10:02.717Z\", \"customFields\": [], \"notificationsHistory\": [], \"status\": \"validated\", \"accessToken\": \"tp8x8po9qng\", \"startedAt\": \"2025-02-17T15:47:30.167Z\", \"elapsedTimeInSeconds\": 1353, \"finishedAt\": \"2025-02-17T16:10:02.716Z\", \"score\": { \"byPosition\": [{ \"score\": 2, \"position\": 5 }, { \"score\": 3, \"position\": 6 }, { \"score\": 5, \"position\": 7 }, { \"score\": 1, \"position\": 8 }, { \"score\": 1, \"position\": 9 }, { \"score\": 1, \"position\": 10 }, { \"score\": 4, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 6, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 1, \"position\": 15 }, { \"score\": 4, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 2, \"position\": 19 }, { \"score\": 14, \"position\": 20 }, { \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 3, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 4, \"position\": 27 }, { \"score\": 4, \"position\": 28 }, { \"score\": 8, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 1, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 2, \"position\": 38 }, { \"score\": 2, \"position\": 39 }, { \"score\": 2, \"position\": 40 }, { \"score\": 2, \"position\": 41 }, { \"score\": 2, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 1, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 1, \"position\": 46 }, { \"score\": 1, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 12, \"position\": 49 }, { \"score\": 4, \"position\": 50 }], \"byTrait\": { \"academico\": { \"sum\": 48, \"avg\": 3.2, \"count\": 15, \"min\": 1, \"max\": 14, \"facets\": { \"academico\": { \"sum\": 48, \"avg\": 3.2, \"count\": 15, \"scores\": [{ \"score\": 2, \"position\": 5 }, { \"score\": 3, \"position\": 6 }, { \"score\": 5, \"position\": 7 }, { \"score\": 1, \"position\": 8 }, { \"score\": 1, \"position\": 9 }, { \"score\": 1, \"position\": 10 }, { \"score\": 4, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 6, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 1, \"position\": 15 }, { \"score\": 4, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 2, \"position\": 19 }, { \"score\": 14, \"position\": 20 }] } } }, \"individual\": { \"sum\": 41, \"avg\": 2.7333333333333334, \"count\": 15, \"min\": 1, \"max\": 8, \"facets\": { \"individual\": { \"sum\": 41, \"avg\": 2.7333333333333334, \"count\": 15, \"scores\": [{ \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 3, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 4, \"position\": 27 }, { \"score\": 4, \"position\": 28 }, { \"score\": 8, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 1, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 2, \"position\": 38 }, { \"score\": 2, \"position\": 39 }] } } }, \"familiar\": { \"sum\": 13, \"avg\": 1.8571428571428572, \"count\": 7, \"min\": 1, \"max\": 4, \"facets\": { \"familiar\": { \"sum\": 13, \"avg\": 1.8571428571428572, \"count\": 7, \"scores\": [{ \"score\": 2, \"position\": 40 }, { \"score\": 2, \"position\": 41 }, { \"score\": 2, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 1, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 1, \"position\": 46 }] } } }, \"socioeconomico\": { \"sum\": 21, \"avg\": 5.25, \"count\": 4, \"min\": 1, \"max\": 12, \"facets\": { \"socioeconomico\": { \"sum\": 21, \"avg\": 5.25, \"count\": 4, \"scores\": [{ \"score\": 1, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 12, \"position\": 49 }, { \"score\": 4, \"position\": 50 }] } } } } } }, { \"_id\": \"e2HnYJYkqpwsdWcWo\", \"name\": \"Encuesta de Caracterización\", \"parent\": \"evaluationSets:J9KgH2Q6MyaJGFj69\", \"configuration\": { \"grantPublicAccessToScore\": false }, \"access\": \"public\", \"inventoryKey\": \"pvxc-vhaf-xcgv-lhch\", \"inventoryAccess\": \"private\", \"inventoryId\": \"J9KgH2Q6MyaJGFj69\", \"owner\": \"nX5vfFZ5CeNku7pGu\", \"customFieldsSchema\": [], \"_tenantName\": \"eras-sandbox\", \"changeHistory\": [{ \"action\": \"created\", \"when\": \"2025-02-17T17:17:56.823Z\", \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.129.164.205\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.129.164.205\", \"when\": \"2025-02-17T17:17:56.986Z\", \"action\": \"updated <status> field\", \"description\": \"status -> started\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.129.164.205\", \"when\": \"2025-02-17T17:22:28.969Z\", \"action\": \"updated <status> field\", \"description\": \"status -> finished\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.129.164.205\", \"when\": \"2025-02-17T17:22:29.139Z\", \"action\": \"updated <status> field\", \"description\": \"status -> scored\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"190.129.164.205\", \"when\": \"2025-02-17T17:22:29.226Z\", \"action\": \"updated <status> field\", \"description\": \"status -> validated\" }], \"createdAt\": \"2025-02-17T17:17:56.828Z\", \"updatedAt\": \"2025-02-17T17:22:28.965Z\", \"customFields\": [], \"notificationsHistory\": [], \"status\": \"validated\", \"accessToken\": \"4ei205xx7c9\", \"startedAt\": \"2025-02-17T17:17:56.974Z\", \"elapsedTimeInSeconds\": 272, \"finishedAt\": \"2025-02-17T17:22:28.964Z\", \"score\": { \"byPosition\": [{ \"score\": 5, \"position\": 5 }, { \"score\": 1, \"position\": 6 }, { \"score\": 8, \"position\": 7 }, { \"score\": 4, \"position\": 8 }, { \"score\": 4, \"position\": 9 }, { \"score\": 4, \"position\": 10 }, { \"score\": 6, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 9, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 5, \"position\": 16 }, { \"score\": 4, \"position\": 17 }, { \"score\": 3, \"position\": 19 }, { \"score\": 10, \"position\": 20 }, { \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 1, \"position\": 25 }, { \"score\": 1, \"position\": 26 }, { \"score\": 4, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 8, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 1, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 2, \"position\": 38 }, { \"score\": 1, \"position\": 39 }, { \"score\": 3, \"position\": 40 }, { \"score\": 3, \"position\": 41 }, { \"score\": 3, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 3, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 1, \"position\": 46 }, { \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 12, \"position\": 49 }, { \"score\": 3, \"position\": 50 }], \"byTrait\": { \"academico\": { \"sum\": 69, \"avg\": 4.6, \"count\": 15, \"min\": 1, \"max\": 10, \"facets\": { \"academico\": { \"sum\": 69, \"avg\": 4.6, \"count\": 15, \"scores\": [{ \"score\": 5, \"position\": 5 }, { \"score\": 1, \"position\": 6 }, { \"score\": 8, \"position\": 7 }, { \"score\": 4, \"position\": 8 }, { \"score\": 4, \"position\": 9 }, { \"score\": 4, \"position\": 10 }, { \"score\": 6, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 9, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 5, \"position\": 16 }, { \"score\": 4, \"position\": 17 }, { \"score\": 3, \"position\": 19 }, { \"score\": 10, \"position\": 20 }] } } }, \"individual\": { \"sum\": 32, \"avg\": 2.1333333333333333, \"count\": 15, \"min\": 1, \"max\": 8, \"facets\": { \"individual\": { \"sum\": 32, \"avg\": 2.1333333333333333, \"count\": 15, \"scores\": [{ \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 1, \"position\": 25 }, { \"score\": 1, \"position\": 26 }, { \"score\": 4, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 8, \"position\": 29 }, { \"score\": 1, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 1, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 2, \"position\": 38 }, { \"score\": 1, \"position\": 39 }] } } }, \"familiar\": { \"sum\": 18, \"avg\": 2.5714285714285716, \"count\": 7, \"min\": 1, \"max\": 4, \"facets\": { \"familiar\": { \"sum\": 18, \"avg\": 2.5714285714285716, \"count\": 7, \"scores\": [{ \"score\": 3, \"position\": 40 }, { \"score\": 3, \"position\": 41 }, { \"score\": 3, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 3, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 1, \"position\": 46 }] } } }, \"socioeconomico\": { \"sum\": 23, \"avg\": 5.75, \"count\": 4, \"min\": 3, \"max\": 12, \"facets\": { \"socioeconomico\": { \"sum\": 23, \"avg\": 5.75, \"count\": 4, \"scores\": [{ \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 12, \"position\": 49 }, { \"score\": 3, \"position\": 50 }] } } } } } }, { \"_id\": \"CQDPCAzzjALSH7PbK\", \"name\": \"Encuesta de Caracterización\", \"parent\": \"evaluationSets:J9KgH2Q6MyaJGFj69\", \"configuration\": { \"grantPublicAccessToScore\": false }, \"access\": \"public\", \"inventoryKey\": \"pvxc-vhaf-xcgv-lhch\", \"inventoryAccess\": \"private\", \"inventoryId\": \"J9KgH2Q6MyaJGFj69\", \"owner\": \"nX5vfFZ5CeNku7pGu\", \"customFieldsSchema\": [], \"_tenantName\": \"eras-sandbox\", \"changeHistory\": [{ \"action\": \"created\", \"when\": \"2025-02-17T17:54:04.617Z\", \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.215.8\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.215.8\", \"when\": \"2025-02-17T17:54:04.693Z\", \"action\": \"updated <status> field\", \"description\": \"status -> started\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.215.8\", \"when\": \"2025-02-17T18:02:14.529Z\", \"action\": \"updated <status> field\", \"description\": \"status -> finished\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.215.8\", \"when\": \"2025-02-17T18:02:14.638Z\", \"action\": \"updated <status> field\", \"description\": \"status -> scored\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.215.8\", \"when\": \"2025-02-17T18:02:14.669Z\", \"action\": \"updated <status> field\", \"description\": \"status -> validated\" }], \"createdAt\": \"2025-02-17T17:54:04.620Z\", \"updatedAt\": \"2025-02-17T18:02:14.525Z\", \"customFields\": [], \"notificationsHistory\": [], \"status\": \"validated\", \"accessToken\": \"50onc2r86mk\", \"startedAt\": \"2025-02-17T17:54:04.684Z\", \"elapsedTimeInSeconds\": 490, \"finishedAt\": \"2025-02-17T18:02:14.524Z\", \"score\": { \"byPosition\": [{ \"score\": 4, \"position\": 5 }, { \"score\": 1, \"position\": 6 }, { \"score\": 10, \"position\": 7 }, { \"score\": 1, \"position\": 8 }, { \"score\": 1, \"position\": 9 }, { \"score\": 1, \"position\": 10 }, { \"score\": 6, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 6, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 1, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 2, \"position\": 19 }, { \"score\": 9, \"position\": 20 }, { \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 1, \"position\": 25 }, { \"score\": 1, \"position\": 26 }, { \"score\": 1, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 8, \"position\": 29 }, { \"score\": 4, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 1, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 5, \"position\": 38 }, { \"score\": 4, \"position\": 39 }, { \"score\": 3, \"position\": 40 }, { \"score\": 3, \"position\": 41 }, { \"score\": 1, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 1, \"position\": 46 }, { \"score\": 1, \"position\": 47 }, { \"score\": 1, \"position\": 48 }, { \"score\": 1, \"position\": 49 }, { \"score\": 1, \"position\": 50 }], \"byTrait\": { \"academico\": { \"sum\": 50, \"avg\": 3.3333333333333335, \"count\": 15, \"min\": 1, \"max\": 10, \"facets\": { \"academico\": { \"sum\": 50, \"avg\": 3.3333333333333335, \"count\": 15, \"scores\": [{ \"score\": 4, \"position\": 5 }, { \"score\": 1, \"position\": 6 }, { \"score\": 10, \"position\": 7 }, { \"score\": 1, \"position\": 8 }, { \"score\": 1, \"position\": 9 }, { \"score\": 1, \"position\": 10 }, { \"score\": 6, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 6, \"position\": 13 }, { \"score\": 1, \"position\": 14 }, { \"score\": 4, \"position\": 15 }, { \"score\": 1, \"position\": 16 }, { \"score\": 2, \"position\": 17 }, { \"score\": 2, \"position\": 19 }, { \"score\": 9, \"position\": 20 }] } } }, \"individual\": { \"sum\": 38, \"avg\": 2.533333333333333, \"count\": 15, \"min\": 1, \"max\": 8, \"facets\": { \"individual\": { \"sum\": 38, \"avg\": 2.533333333333333, \"count\": 15, \"scores\": [{ \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 1, \"position\": 25 }, { \"score\": 1, \"position\": 26 }, { \"score\": 1, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 8, \"position\": 29 }, { \"score\": 4, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 1, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 5, \"position\": 38 }, { \"score\": 4, \"position\": 39 }] } } }, \"familiar\": { \"sum\": 15, \"avg\": 2.142857142857143, \"count\": 7, \"min\": 1, \"max\": 4, \"facets\": { \"familiar\": { \"sum\": 15, \"avg\": 2.142857142857143, \"count\": 7, \"scores\": [{ \"score\": 3, \"position\": 40 }, { \"score\": 3, \"position\": 41 }, { \"score\": 1, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 1, \"position\": 46 }] } } }, \"socioeconomico\": { \"sum\": 4, \"avg\": 1, \"count\": 4, \"min\": 1, \"max\": 1, \"facets\": { \"socioeconomico\": { \"sum\": 4, \"avg\": 1, \"count\": 4, \"scores\": [{ \"score\": 1, \"position\": 47 }, { \"score\": 1, \"position\": 48 }, { \"score\": 1, \"position\": 49 }, { \"score\": 1, \"position\": 50 }] } } } } } }, { \"_id\": \"AB6SMxkkFHZKW9jig\", \"name\": \"Encuesta de Caracterización\", \"parent\": \"evaluationSets:J9KgH2Q6MyaJGFj69\", \"configuration\": { \"grantPublicAccessToScore\": false }, \"access\": \"public\", \"inventoryKey\": \"pvxc-vhaf-xcgv-lhch\", \"inventoryAccess\": \"private\", \"inventoryId\": \"J9KgH2Q6MyaJGFj69\", \"owner\": \"nX5vfFZ5CeNku7pGu\", \"customFieldsSchema\": [], \"_tenantName\": \"eras-sandbox\", \"changeHistory\": [{ \"action\": \"created\", \"when\": \"2025-02-17T20:36:10.492Z\", \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.87.92.171\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.87.92.171\", \"when\": \"2025-02-17T20:36:10.560Z\", \"action\": \"updated <status> field\", \"description\": \"status -> started\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.87.92.171\", \"when\": \"2025-02-17T20:44:21.112Z\", \"action\": \"updated <status> field\", \"description\": \"status -> finished\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.87.92.171\", \"when\": \"2025-02-17T20:44:21.209Z\", \"action\": \"updated <status> field\", \"description\": \"status -> scored\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"200.87.92.171\", \"when\": \"2025-02-17T20:44:21.243Z\", \"action\": \"updated <status> field\", \"description\": \"status -> validated\" }], \"createdAt\": \"2025-02-17T20:36:10.496Z\", \"updatedAt\": \"2025-02-17T20:44:21.108Z\", \"customFields\": [], \"notificationsHistory\": [], \"status\": \"validated\", \"accessToken\": \"gv4ttidu3ep\", \"startedAt\": \"2025-02-17T20:36:10.552Z\", \"elapsedTimeInSeconds\": 491, \"finishedAt\": \"2025-02-17T20:44:21.106Z\", \"score\": { \"byPosition\": [{ \"score\": 2, \"position\": 5 }, { \"score\": 3, \"position\": 6 }, { \"score\": 10, \"position\": 7 }, { \"score\": 4, \"position\": 8 }, { \"score\": 1, \"position\": 9 }, { \"score\": 4, \"position\": 10 }, { \"score\": 4, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 5, \"position\": 13 }, { \"score\": 5, \"position\": 14 }, { \"score\": 1, \"position\": 15 }, { \"score\": 4, \"position\": 16 }, { \"score\": 4, \"position\": 17 }, { \"score\": 1, \"position\": 19 }, { \"score\": 10, \"position\": 20 }, { \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 1, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 3, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 5, \"position\": 29 }, { \"score\": 4, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 1, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 2, \"position\": 38 }, { \"score\": 1, \"position\": 39 }, { \"score\": 3, \"position\": 40 }, { \"score\": 2, \"position\": 41 }, { \"score\": 1, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 4, \"position\": 46 }, { \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 4, \"position\": 49 }, { \"score\": 3, \"position\": 50 }], \"byTrait\": { \"academico\": { \"sum\": 59, \"avg\": 3.933333333333333, \"count\": 15, \"min\": 1, \"max\": 10, \"facets\": { \"academico\": { \"sum\": 59, \"avg\": 3.933333333333333, \"count\": 15, \"scores\": [{ \"score\": 2, \"position\": 5 }, { \"score\": 3, \"position\": 6 }, { \"score\": 10, \"position\": 7 }, { \"score\": 4, \"position\": 8 }, { \"score\": 1, \"position\": 9 }, { \"score\": 4, \"position\": 10 }, { \"score\": 4, \"position\": 11 }, { \"score\": 1, \"position\": 12 }, { \"score\": 5, \"position\": 13 }, { \"score\": 5, \"position\": 14 }, { \"score\": 1, \"position\": 15 }, { \"score\": 4, \"position\": 16 }, { \"score\": 4, \"position\": 17 }, { \"score\": 1, \"position\": 19 }, { \"score\": 10, \"position\": 20 }] } } }, \"individual\": { \"sum\": 34, \"avg\": 2.2666666666666666, \"count\": 15, \"min\": 1, \"max\": 5, \"facets\": { \"individual\": { \"sum\": 34, \"avg\": 2.2666666666666666, \"count\": 15, \"scores\": [{ \"score\": 1, \"position\": 21 }, { \"score\": 4, \"position\": 22 }, { \"score\": 4, \"position\": 24 }, { \"score\": 1, \"position\": 25 }, { \"score\": 4, \"position\": 26 }, { \"score\": 3, \"position\": 27 }, { \"score\": 1, \"position\": 28 }, { \"score\": 5, \"position\": 29 }, { \"score\": 4, \"position\": 30 }, { \"score\": 1, \"position\": 31 }, { \"score\": 1, \"position\": 33 }, { \"score\": 1, \"position\": 34 }, { \"score\": 1, \"position\": 36 }, { \"score\": 2, \"position\": 38 }, { \"score\": 1, \"position\": 39 }] } } }, \"familiar\": { \"sum\": 17, \"avg\": 2.4285714285714284, \"count\": 7, \"min\": 1, \"max\": 4, \"facets\": { \"familiar\": { \"sum\": 17, \"avg\": 2.4285714285714284, \"count\": 7, \"scores\": [{ \"score\": 3, \"position\": 40 }, { \"score\": 2, \"position\": 41 }, { \"score\": 1, \"position\": 42 }, { \"score\": 4, \"position\": 43 }, { \"score\": 2, \"position\": 44 }, { \"score\": 1, \"position\": 45 }, { \"score\": 4, \"position\": 46 }] } } }, \"socioeconomico\": { \"sum\": 15, \"avg\": 3.75, \"count\": 4, \"min\": 3, \"max\": 4, \"facets\": { \"socioeconomico\": { \"sum\": 15, \"avg\": 3.75, \"count\": 4, \"scores\": [{ \"score\": 4, \"position\": 47 }, { \"score\": 4, \"position\": 48 }, { \"score\": 4, \"position\": 49 }, { \"score\": 3, \"position\": 50 }] } } } } } }, { \"_id\": \"t5rxMA9NLtwCDsPRc\", \"name\": \"Encuesta de Caracterización\", \"parent\": \"evaluationSets:J9KgH2Q6MyaJGFj69\", \"configuration\": { \"grantPublicAccessToScore\": false }, \"access\": \"public\", \"inventoryKey\": \"pvxc-vhaf-xcgv-lhch\", \"inventoryAccess\": \"private\", \"inventoryId\": \"J9KgH2Q6MyaJGFj69\", \"owner\": \"nX5vfFZ5CeNku7pGu\", \"customFieldsSchema\": [], \"_tenantName\": \"eras-sandbox\", \"changeHistory\": [{ \"action\": \"created\", \"when\": \"2025-02-18T20:18:15.180Z\", \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.215.8\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.215.8\", \"when\": \"2025-02-18T20:18:15.263Z\", \"action\": \"updated <status> field\", \"description\": \"status -> started\" }], \"createdAt\": \"2025-02-18T20:18:15.185Z\", \"updatedAt\": \"2025-02-18T20:18:15.256Z\", \"customFields\": [], \"notificationsHistory\": [], \"status\": \"started\", \"accessToken\": \"2btdkf48fm2\", \"startedAt\": \"2025-02-18T20:18:15.254Z\" }, { \"_id\": \"EA25JtnNZ7uSraXFM\", \"name\": \"Encuesta de Caracterización\", \"parent\": \"evaluationSets:J9KgH2Q6MyaJGFj69\", \"configuration\": { \"grantPublicAccessToScore\": false }, \"access\": \"public\", \"inventoryKey\": \"pvxc-vhaf-xcgv-lhch\", \"inventoryAccess\": \"private\", \"inventoryId\": \"J9KgH2Q6MyaJGFj69\", \"owner\": \"nX5vfFZ5CeNku7pGu\", \"customFieldsSchema\": [], \"_tenantName\": \"eras-sandbox\", \"changeHistory\": [{ \"action\": \"created\", \"when\": \"2025-02-20T19:10:51.273Z\", \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.215.10\" }, { \"userId\": \"nX5vfFZ5CeNku7pGu\", \"ipAddress\": \"181.115.215.10\", \"when\": \"2025-02-20T19:10:51.403Z\", \"action\": \"updated <status> field\", \"description\": \"status -> started\" }], \"createdAt\": \"2025-02-20T19:10:51.279Z\", \"updatedAt\": \"2025-02-20T19:10:51.396Z\", \"customFields\": [], \"notificationsHistory\": [], \"status\": \"started\", \"accessToken\": \"0wl6emk3osr\", \"startedAt\": \"2025-02-20T19:10:51.394Z\" }], \"@meta\": { \"@totalCount\": 9, \"@count\": 9 } }")
-                    }
-                },
-                { "https://staging.cosmic-latte.com/api/1.0/evaluations/exec/evaluationDetails", new HttpResponseMessage
-                    {
-                        StatusCode = HttpStatusCode.OK,
-                        Content = new StringContent("{\"@data\":{\"_id\":\"qtPwvc3QbDoCwyEaB\",\"evaluationSet\":{\"name\":\"Encuesta de Caracterización\",\"_id\":\"J9KgH2Q6MyaJGFj69\"},\"evaluator\":{\"name\":\"-\",\"email\":\"-\"},\"evaluation\":{\"_id\":\"qtPwvc3QbDoCwyEaB\",\"startedAt\":\"2025-01-31T12:58:36.283Z\",\"finishedAt\":\"2025-01-31T13:02:45.915Z\",\"elapsedTimeInSeconds\":250,\"name\":\"Encuesta de Caracterización\"},\"scores\":{\"datos\":{\"avg\":\"-\",\"sum\":\"-\",\"count\":\"-\",\"facets\":{\"datos\":{\"avg\":\"-\",\"sum\":\"-\",\"count\":\"-\"}}},\"academico\":{\"avg\":5.466666666666667,\"sum\":82,\"count\":15,\"facets\":{\"academico\":{\"avg\":5.466666666666667,\"sum\":82,\"count\":15}}},\"individual\":{\"avg\":4.133333333333334,\"sum\":62,\"count\":15,\"facets\":{\"individual\":{\"avg\":4.133333333333334,\"sum\":62,\"count\":15}}},\"familiar\":{\"avg\":2.857142857142857,\"sum\":20,\"count\":7,\"facets\":{\"familiar\":{\"avg\":2.857142857142857,\"sum\":20,\"count\":7}}},\"socioeconomico\":{\"avg\":3.25,\"sum\":13,\"count\":4,\"facets\":{\"socioeconomico\":{\"avg\":3.25,\"sum\":13,\"count\":4}}}},\"answers\":{\"1\":{\"answer\":[\"David costa\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Escribe tu nombre completo.\",\"es\":\"Escribe tu nombre completo.\"}},\"position\":1,\"type\":\"openTextSingleline\",\"customSettings\":[]},\"2\":{\"answer\":[\"David.Costa@jala.university\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Escribe tu correo institucional.\",\"es\":\"Escribe tu correo institucional.\"}},\"position\":2,\"type\":\"openTextSingleline\",\"customSettings\":[]},\"3\":{\"answer\":[\"Cohort 1 (Enero 2023)\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Selecciona tu cohorte (Grupo de ingreso a la universidad).\",\"es\":\"Selecciona tu cohorte (Grupo de ingreso a la universidad).\"}},\"position\":3,\"type\":\"multipleChoice\",\"customSettings\":[]},\"4\":{\"answer\":[\"Argentina\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Selecciona tu país.\",\"es\":\"Selecciona tu país.\"}},\"position\":4,\"type\":\"multipleChoice\",\"customSettings\":[]},\"5\":{\"answer\":[\"Recién graduado\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Hace cuanto se graduó como bachiller?\",\"es\":\"¿Hace cuanto se graduó como bachiller?\"}},\"position\":5,\"type\":\"multipleChoice\",\"customSettings\":[]},\"6\":{\"answer\":[\"Bachillerato\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Cuál es su nivel de formación máximo completado?\",\"es\":\"¿Cuál es su nivel de formación máximo completado?\"}},\"position\":6,\"type\":\"multipleChoice\",\"customSettings\":[]},\"7\":{\"answer\":[\"Dificultad en adaptación social\",\"Dificultades de salud física\",\"Dificultades de salud emocional\",\"Dificultad en adaptación a la metodología virtual\",\"Dificultad en procesos de aprendizaje\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"De las siguientes situaciones seleccione aquellas que presentó durante su educación previa. (Puede seleccionar más de una opción):\",\"es\":\"De las siguientes situaciones seleccione aquellas que presentó durante su educación previa. (Puede seleccionar más de una opción):\"}},\"position\":7,\"type\":\"multipleChoice\",\"customSettings\":[]},\"8\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Actualmente se encuentra cursando otra carrera?\",\"es\":\"¿Actualmente se encuentra cursando otra carrera?\"}},\"position\":8,\"type\":\"multipleChoice\",\"customSettings\":[]},\"9\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Ha tenido procesos académicos incompletos previamente?\",\"es\":\"¿Ha tenido procesos académicos incompletos previamente?\"}},\"position\":9,\"type\":\"multipleChoice\",\"customSettings\":[]},\"10\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Recibió orientación vocacional para seleccionar su carrera en Jala University?\",\"es\":\"¿Recibió orientación vocacional para seleccionar su carrera en Jala University?\"}},\"position\":10,\"type\":\"multipleChoice\",\"customSettings\":[]},\"11\":{\"answer\":[\"Interés personal y gusto por la programación.\",\"Buena oportunidad en el campo laboral.\",\"Por recomendación de un amigo o familiar.\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Qué le hizo elegir Jala University? (Puede seleccionar más de una opción).\",\"es\":\"¿Qué le hizo elegir Jala University? (Puede seleccionar más de una opción).\"}},\"position\":11,\"type\":\"multipleChoice\",\"customSettings\":[]},\"12\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Conoce el plan de estudios de su carrera en Jala University?\",\"es\":\"¿Conoce el plan de estudios de su carrera en Jala University?\"}},\"position\":12,\"type\":\"multipleChoice\",\"customSettings\":[]},\"13\":{\"answer\":[\"Calidad académica\",\"Infraestructura y recursos\",\"Oportunidades de investigación\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Cuáles son los tres aspectos más importantes que espera de su experiencia universitaria?\",\"es\":\"¿Cuáles son los tres aspectos más importantes que espera de su experiencia universitaria?\"}},\"position\":13,\"type\":\"multipleChoice\",\"customSettings\":[]},\"14\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Tiene acceso a internet estable y de alta velocidad en su hogar?\",\"es\":\"¿Tiene acceso a internet estable y de alta velocidad en su hogar?\"}},\"position\":14,\"type\":\"multipleChoice\",\"customSettings\":[]},\"15\":{\"answer\":[\"Mas de ocho horas diarias\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Cuánto tiempo dispone para dedicarle a sus actividades académicas?\",\"es\":\"¿Cuánto tiempo dispone para dedicarle a sus actividades académicas?\"}},\"position\":15,\"type\":\"multipleChoice\",\"customSettings\":[]},\"16\":{\"answer\":[\"No tengo un espacio destinado para estudiar\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Cuál de las siguientes características describe mejor el espacio que tiene para estudiar en casa?\",\"es\":\"¿Cuál de las siguientes características describe mejor el espacio que tiene para estudiar en casa?\"}},\"position\":16,\"type\":\"multipleChoice\",\"customSettings\":[]},\"17\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Implementa técnicas y/o herramientas de estudio de manera regular?\",\"es\":\"¿Implementa técnicas y/o herramientas de estudio de manera regular?\"}},\"position\":17,\"type\":\"multipleChoice\",\"customSettings\":[]},\"18\":{\"answer\":[\"Otras\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Si la respuesta anterior fue afirmativa indique que técnicas utiliza:\",\"es\":\"Si la respuesta anterior fue afirmativa indique que técnicas utiliza:\"}},\"position\":18,\"type\":\"openTextMultiline\",\"customSettings\":[]},\"19\":{\"answer\":[\"Muy satisfecho\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Cómo se siente con los métodos de estudio que utiliza normalmente?\",\"es\":\"¿Cómo se siente con los métodos de estudio que utiliza normalmente?\"}},\"position\":19,\"type\":\"multipleChoice\",\"customSettings\":[]},\"20\":{\"answer\":[\"Trabajar contenidos matemáticos y numéricos\",\"Comprender lecturas y producir escritos\",\"Memorizar conceptos\",\"Gestionar su tiempo para aumentar su productividad\",\"Dificultad para entender la metodología virtual\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"De los siguientes aspectos indique en cuales presenta mayor dificultad. (Puede seleccionar más de una opción).\",\"es\":\"De los siguientes aspectos indique en cuales presenta mayor dificultad. (Puede seleccionar más de una opción).\"}},\"position\":20,\"type\":\"multipleChoice\",\"customSettings\":[]},\"21\":{\"answer\":[\"Soltero\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Estado Civil:\",\"es\":\"Estado Civil:\"}},\"position\":21,\"type\":\"multipleChoice\",\"customSettings\":[]},\"22\":{\"answer\":[\"Ninguna de las anteriores\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Indique si pertenece a alguno de los siguientes grupos de poblaciones:\",\"es\":\"Indique si pertenece a alguno de los siguientes grupos de poblaciones:\"}},\"position\":22,\"type\":\"multipleChoice\",\"customSettings\":[]},\"23\":{\"answer\":[\"Ninguna test\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Si respondiste \\\"Otro\\\" en la anterior pregunta. Por favor, indica cuál.\",\"es\":\"Si respondiste \\\"Otro\\\" en la anterior pregunta. Por favor, indica cuál.\"}},\"position\":23,\"type\":\"openTextSingleline\",\"customSettings\":[]},\"24\":{\"answer\":[\"No\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Indique si pertenece a la comunidad LGBTIQ+\",\"es\":\"Indique si pertenece a la comunidad LGBTIQ+\"}},\"position\":24,\"type\":\"multipleChoice\",\"customSettings\":[]},\"25\":{\"answer\":[\"Es un problema que no va a poder resolver\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Ante una dificultad usted normalmente piensa que:\",\"es\":\"Ante una dificultad usted normalmente piensa que:\"}},\"position\":25,\"type\":\"multipleChoice\",\"customSettings\":[]},\"26\":{\"answer\":[\"Tímido y/o alejado\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Cuál de las siguientes características describe mejor la manera en que usted establece y mantiene amistades?\",\"es\":\"¿Cuál de las siguientes características describe mejor la manera en que usted establece y mantiene amistades?\"}},\"position\":26,\"type\":\"multipleChoice\",\"customSettings\":[]},\"27\":{\"answer\":[\"Se pone muy nervioso y siente que no puede hacerlo.\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Con cuál de los siguientes enunciados se identifica usted cuando debe hablar en público?\",\"es\":\"¿Con cuál de los siguientes enunciados se identifica usted cuando debe hablar en público?\"}},\"position\":27,\"type\":\"multipleChoice\",\"customSettings\":[]},\"28\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Considera que es una persona que logra entender y gestionar sus emociones de manera asertiva?\",\"es\":\"¿Considera que es una persona que logra entender y gestionar sus emociones de manera asertiva?\"}},\"position\":28,\"type\":\"multipleChoice\",\"customSettings\":[]},\"29\":{\"answer\":[\"Apoyos para el aprendizaje (psicopedagogía)\",\"Acompañamiento en salud mental (psicología y/o psiquiatría)\",\"Terapia ocupacional\",\"Médicos especialistas\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Cuáles de los siguientes apoyos ha necesitado durante su vida? (Puede seleccionar más de una opción).\",\"es\":\"¿Cuáles de los siguientes apoyos ha necesitado durante su vida? (Puede seleccionar más de una opción).\"}},\"position\":29,\"type\":\"multipleChoice\",\"customSettings\":[]},\"30\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Tienes acceso a servicios de salud?\",\"es\":\"¿Tienes acceso a servicios de salud?\"}},\"position\":30,\"type\":\"multipleChoice\",\"customSettings\":[]},\"31\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Padece alguna enfermedad crónica o permanente para la que necesite atención especializada?\",\"es\":\"¿Padece alguna enfermedad crónica o permanente para la que necesite atención especializada?\"}},\"position\":31,\"type\":\"multipleChoice\",\"customSettings\":[]},\"32\":{\"answer\":[\"Test 2\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Si la respuesta anterior fue afirmativa especifique cual:\",\"es\":\"Si la respuesta anterior fue afirmativa especifique cual:\"}},\"position\":32,\"type\":\"openTextMultiline\",\"customSettings\":[]},\"33\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Tomas medicación regularmente?\",\"es\":\"¿Tomas medicación regularmente?\"}},\"position\":33,\"type\":\"multipleChoice\",\"customSettings\":[]},\"34\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Tiene alguna necesidad educativa especial soportada por un diagnóstico: (Asperger, discapacidad motora, trastornos del lenguaje, TDAH etc.)\",\"es\":\"Tiene alguna necesidad educativa especial soportada por un diagnóstico: (Asperger, discapacidad motora, trastornos del lenguaje, TDAH etc.)\"}},\"position\":34,\"type\":\"multipleChoice\",\"customSettings\":[]},\"35\":{\"answer\":[\"Test\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Si la respuesta anterior fue afirmativa especifique cual:\",\"es\":\"Si la respuesta anterior fue afirmativa especifique cual:\"}},\"position\":35,\"type\":\"openTextMultiline\",\"customSettings\":[]},\"36\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Tiene alguna necesidad emocional especial soportada por un diagnóstico: (depresión, ansiedad, trastorno bipolar etc.).\",\"es\":\"Tiene alguna necesidad emocional especial soportada por un diagnóstico: (depresión, ansiedad, trastorno bipolar etc.).\"}},\"position\":36,\"type\":\"multipleChoice\",\"customSettings\":[]},\"37\":{\"answer\":[\"Test\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Si la respuesta anterior fue afirmativa especifique cual:\",\"es\":\"Si la respuesta anterior fue afirmativa especifique cual:\"}},\"position\":37,\"type\":\"openTextMultiline\",\"customSettings\":[]},\"38\":{\"answer\":[\"Diariamente\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Con qué frecuencia realiza actividad física?\",\"es\":\"¿Con qué frecuencia realiza actividad física?\"}},\"position\":38,\"type\":\"multipleChoice\",\"customSettings\":[]},\"39\":{\"answer\":[\"Diariamente\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Con qué frecuencia dedica tiempo a sus hobbies o intereses fuera del horario académico?\",\"es\":\"¿Con qué frecuencia dedica tiempo a sus hobbies o intereses fuera del horario académico?\"}},\"position\":39,\"type\":\"multipleChoice\",\"customSettings\":[]},\"40\":{\"answer\":[\"Siempre\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Al tomar una decisión familiar ¿A usted lo tienen en cuenta?\",\"es\":\"Al tomar una decisión familiar ¿A usted lo tienen en cuenta?\"}},\"position\":40,\"type\":\"multipleChoice\",\"customSettings\":[]},\"41\":{\"answer\":[\"Siempre\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Cuando usted debe tomar decisiones importantes ¿Consulta la opinión de su familia?\",\"es\":\"Cuando usted debe tomar decisiones importantes ¿Consulta la opinión de su familia?\"}},\"position\":41,\"type\":\"multipleChoice\",\"customSettings\":[]},\"42\":{\"answer\":[\"Primaria\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Cuál es el nivel de escolaridad de sus padres?\",\"es\":\"¿Cuál es el nivel de escolaridad de sus padres?\"}},\"position\":42,\"type\":\"multipleChoice\",\"customSettings\":[]},\"43\":{\"answer\":[\"Malas relaciones familiares\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Actualmente en su familia se presentan algunas de las siguientes situaciones? (Puede escoger más de una opción).\",\"es\":\"¿Actualmente en su familia se presentan algunas de las siguientes situaciones? (Puede escoger más de una opción).\"}},\"position\":43,\"type\":\"multipleChoice\",\"customSettings\":[]},\"44\":{\"answer\":[\"Apoyo económico – gastos de sostenimiento\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"Los apoyos recibidos por su familia para realizar sus estudios están orientados a (puede seleccionar más de una opción):\",\"es\":\"Los apoyos recibidos por su familia para realizar sus estudios están orientados a (puede seleccionar más de una opción):\"}},\"position\":44,\"type\":\"multipleChoice\",\"customSettings\":[]},\"45\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Tiene hijos?\",\"es\":\"¿Tiene hijos?\"}},\"position\":45,\"type\":\"multipleChoice\",\"customSettings\":[]},\"46\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Usted o su pareja se encuentran en estado de embarazo?\",\"es\":\"¿Usted o su pareja se encuentran en estado de embarazo?\"}},\"position\":46,\"type\":\"multipleChoice\",\"customSettings\":[]},\"47\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Es usted el proveedor económico principal en su familia?\",\"es\":\"¿Es usted el proveedor económico principal en su familia?\"}},\"position\":47,\"type\":\"multipleChoice\",\"customSettings\":[]},\"48\":{\"answer\":[\"Sí\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Se encuentra trabajando actualmente?\",\"es\":\"¿Se encuentra trabajando actualmente?\"}},\"position\":48,\"type\":\"multipleChoice\",\"customSettings\":[]},\"49\":{\"answer\":[\"Computador y otros dispositivos.\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Cuáles de los siguientes gastos NO está en condiciones de cubrir con recursos propios o familiares? (Puede seleccionar más de una opción).\",\"es\":\"¿Cuáles de los siguientes gastos NO está en condiciones de cubrir con recursos propios o familiares? (Puede seleccionar más de una opción).\"}},\"position\":49,\"type\":\"multipleChoice\",\"customSettings\":[]},\"50\":{\"answer\":[\"Urbana\"],\"question\":{\"type\":\"text\",\"body\":{\"en\":\"¿Actualmente usted se encuentra viviendo en una zona?\",\"es\":\"¿Actualmente usted se encuentra viviendo en una zona?\"}},\"position\":50,\"type\":\"multipleChoice\",\"customSettings\":[]}},\"inventory\":{\"_id\":\"J9KgH2Q6MyaJGFj69\",\"name\":\"Encuesta de Caracterización\",\"key\":\"pvxc-vhaf-xcgv-lhch\",\"access\":\"private\"},\"owner\":{\"email\":\"eras.ju.project@gmail.com\",\"name\":\"Eras JU Project\"}},\"@meta\":{\"@selfLink\":\"/api/1.0/evaluations/qtPwvc3QbDoCwyEaB\"}}")
+                        new VariableDTO { Name = "Var1", Position = 1, Type = "text" }
                     }
                 }
             };
 
-            var mockHttpMessageHandler = new MockHttpMessageHandler(responses);
-            var httpClient = new HttpClient(mockHttpMessageHandler)
+            var cloned = CosmicLatteAPIService.CloneComponentsList(original);
+
+            Assert.Equal("Comp1", cloned[0].Name);
+            Assert.Equal("Var1", cloned[0].Variables.First().Name);
+
+            // Mutar el clon no debe afectar al original
+            cloned[0].Name = "Mutated";
+            Assert.Equal("Comp1", original[0].Name);
+        }
+
+        // ---------- CreateStudent / CreateAnswer ----------
+
+        [Fact]
+        public void CreateStudent_SetsNameEmailAndCohort()
+        {
+            var service = CreateService();
+
+            var student = service.CreateStudent("Ana", "ana@test.com", "Cohort A");
+
+            Assert.Equal("Ana", student.Name);
+            Assert.Equal("ana@test.com", student.Email);
+            Assert.NotNull(student.Cohort);
+            Assert.Equal("Cohort A", student.Cohort.Name);
+        }
+
+        [Fact]
+        public void CreateAnswer_OpenEndedQuestion_ScoreIsZero()
+        {
+            var service = CreateService();
+            var student = new StudentDTO();
+            var kvp = new KeyValuePair<int, Answers>(1, new Answers
             {
-                BaseAddress = new Uri("http://fakeurl.com")
+                AnswersList = new[] { "Free text answer" },
+                Question = new Question { Body = new Dictionary<string, string> { { "es", "q" } } },
+                Position = 1,
+                Type = "openTextSingleline"
+            });
+            var scoreItem = new Score { byPosition = new List<ByPosition>(), byTrait = new ByTrait() };
+
+            var answer = service.CreateAnswer(kvp, student, scoreItem);
+
+            Assert.Equal(0m, answer.Score);
+            Assert.Equal("Free text answer", answer.Answer);
+        }
+
+        [Fact]
+        public void CreateAnswer_MultipleChoice_UsesScoreByPosition()
+        {
+            var service = CreateService();
+            var student = new StudentDTO();
+            var kvp = new KeyValuePair<int, Answers>(1, new Answers
+            {
+                AnswersList = new[] { "Opción A" },
+                Question = new Question { Body = new Dictionary<string, string> { { "es", "q" } } },
+                Position = 5,
+                Type = "multipleChoice"
+            });
+            var scoreItem = new Score
+            {
+                byPosition = new List<ByPosition> { new ByPosition { position = 5, score = 8 } },
+                byTrait = new ByTrait()
             };
 
-            var mockHttpClientFactory = new Mock<IHttpClientFactory>();
-            mockHttpClientFactory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+            var answer = service.CreateAnswer(kvp, student, scoreItem);
 
-            var configuration = new Mock<IConfiguration>();
-            configuration.Setup(C => C.GetSection("CosmicLatte:ApiKey").Value).Returns("fake-api-key");
-            configuration.Setup(C => C.GetSection("CosmicLatte:BaseUrl").Value).Returns("http://fakeurl.com");
+            Assert.Equal(8m, answer.Score);
+        }
 
-            var service = new CosmicLatteAPIService(configuration.Object, mockHttpClientFactory.Object, mockLogger.Object, mockPollOrchestratorService.Object);
+        // ---------- GetComponentsAndVariablesAsync ----------
 
-            var result = await service.ImportAllPolls("Encuesta","","");
+        [Fact]
+        public async Task GetComponentsAndVariablesAsync_UnsuccessfulResponse_ReturnsEmptyList()
+        {
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError) { Content = new StringContent("error") };
+            var service = CreateService(response, "http://fakeurl.com/evaluations/exec/evaluationDetails");
 
-            Assert.NotNull(result);
-        }*/
+            var result = await service.GetComponentsAndVariablesAsync("pollId", new Dictionary<string, List<int>>(), "key", "http://fakeurl.com/");
+
+            Assert.Empty(result);
+        }
+
+        // ---------- GetPollsNameList ----------
+
+        [Fact]
+        public async Task GetPollsNameList_UnsuccessfulResponse_ReturnsEmptyList()
+        {
+            var response = new HttpResponseMessage(HttpStatusCode.NotFound) { Content = new StringContent("") };
+            var service = CreateService(response, "http://fakeurl.com/evaluationSets?$top=100");
+
+            var result = await service.GetPollsNameList("http://fakeurl.com/", "key");
+
+            Assert.Empty(result);
+        }
+
+        // ---------- GetComponentsAndVariablesAsync (happy path) ----------
+
+        [Fact]
+        public async Task GetComponentsAndVariablesAsync_SuccessResponse_BuildsComponentsWithVariables()
+        {
+            // Arrange
+            var json = """
+            {
+            "@data": {
+                "_id": "poll1",
+                "evaluationSet": { "_id": "es1", "name": "Set" },
+                "evaluator": { "name": "-", "email": "-" },
+                "evaluation": { "_id": "poll1", "startedAt": "2026-01-01T00:00:00Z", "finishedAt": "2026-01-01T00:10:00Z", "elapsedTimeInSeconds": 600, "name": "Encuesta" },
+                "scores": {},
+                "answers": {
+                "5": { "answer": "Opción A", "question": { "body": { "es": "Pregunta 5" } }, "position": 5, "score": 0, "type": "multipleChoice" }
+                },
+                "inventory": { "_id": "inv1", "name": "Inv", "key": "k", "access": "private" },
+                "owner": { "email": "o@test.com", "name": "Owner" }
+            },
+            "@meta": { "@selfLink": "/x" }
+            }
+            """;
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+            var service = CreateService(response, "http://fakeurl.com/evaluations/exec/evaluationDetails");
+            var variablesPositionByComponents = new Dictionary<string, List<int>> { { "academico", new List<int> { 5 } } };
+
+            // Act
+            var result = await service.GetComponentsAndVariablesAsync("poll1", variablesPositionByComponents, "key", "http://fakeurl.com/");
+
+            // Assert
+            Assert.Single(result);
+            Assert.Equal("academico", result[0].Name);
+            Assert.Single(result[0].Variables);
+            Assert.Equal("Pregunta 5", result[0].Variables.First().Name);
+            Assert.Equal(5, result[0].Variables.First().Position);
+        }
+
+        [Fact]
+        public async Task GetComponentsAndVariablesAsync_OpenEndedQuestionOutsideKnownPositions_GoesToPersonalDataAndIsSkipped()
+        {
+            // Arrange: pregunta abierta (posición 99) que no cae en el rango de ningún componente conocido
+            // -> DetermineComponentForOpenEndedQuestion la manda a "personalData", que el código
+            // descarta explícitamente (continue). Este test documenta ese comportamiento.
+            var json = """
+            {
+            "@data": {
+                "_id": "poll1",
+                "evaluationSet": { "_id": "es1", "name": "Set" },
+                "evaluator": { "name": "-", "email": "-" },
+                "evaluation": { "_id": "poll1", "startedAt": "2026-01-01T00:00:00Z", "finishedAt": "2026-01-01T00:10:00Z", "elapsedTimeInSeconds": 600, "name": "Encuesta" },
+                "scores": {},
+                "answers": {
+                "5": { "answer": "Opción A", "question": { "body": { "es": "Pregunta 5" } }, "position": 5, "score": 0, "type": "multipleChoice" },
+                "99": { "answer": "Texto libre", "question": { "body": { "es": "Pregunta abierta" } }, "position": 99, "score": 0, "type": "openTextSingleline" }
+                },
+                "inventory": { "_id": "inv1", "name": "Inv", "key": "k", "access": "private" },
+                "owner": { "email": "o@test.com", "name": "Owner" }
+            },
+            "@meta": { "@selfLink": "/x" }
+            }
+            """;
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+            var service = CreateService(response, "http://fakeurl.com/evaluations/exec/evaluationDetails");
+            var variablesPositionByComponents = new Dictionary<string, List<int>> { { "academico", new List<int> { 5 } } };
+
+            // Act
+            var result = await service.GetComponentsAndVariablesAsync("poll1", variablesPositionByComponents, "key", "http://fakeurl.com/");
+
+            // Assert: la pregunta abierta NO aparece en ningún componente (quedó en personalData y se descartó)
+            Assert.Single(result);
+            Assert.Single(result[0].Variables); // solo la de posición 5, no la 99
+        }
+
+        [Fact]
+        public async Task GetComponentsAndVariablesAsync_OpenEndedQuestionWithinComponentRange_IsAddedToThatComponent()
+        {
+            // Arrange: pregunta abierta en posición 6, dentro del rango [5,7] del componente "academico"
+            var json = """
+            {
+            "@data": {
+                "_id": "poll1",
+                "evaluationSet": { "_id": "es1", "name": "Set" },
+                "evaluator": { "name": "-", "email": "-" },
+                "evaluation": { "_id": "poll1", "startedAt": "2026-01-01T00:00:00Z", "finishedAt": "2026-01-01T00:10:00Z", "elapsedTimeInSeconds": 600, "name": "Encuesta" },
+                "scores": {},
+                "answers": {
+                "5": { "answer": "Opción A", "question": { "body": { "es": "Pregunta 5" } }, "position": 5, "score": 0, "type": "multipleChoice" },
+                "7": { "answer": "Opción B", "question": { "body": { "es": "Pregunta 7" } }, "position": 7, "score": 0, "type": "multipleChoice" },
+                "6": { "answer": "Texto libre", "question": { "body": { "es": "Pregunta abierta" } }, "position": 6, "score": 0, "type": "openTextSingleline" }
+                },
+                "inventory": { "_id": "inv1", "name": "Inv", "key": "k", "access": "private" },
+                "owner": { "email": "o@test.com", "name": "Owner" }
+            },
+            "@meta": { "@selfLink": "/x" }
+            }
+            """;
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+            var service = CreateService(response, "http://fakeurl.com/evaluations/exec/evaluationDetails");
+            var variablesPositionByComponents = new Dictionary<string, List<int>> { { "academico", new List<int> { 5, 7 } } };
+
+            // Act
+            var result = await service.GetComponentsAndVariablesAsync("poll1", variablesPositionByComponents, "key", "http://fakeurl.com/");
+
+            // Assert: ahora "academico" tiene 3 variables (5, 7, y la abierta 6 insertada), ordenadas por posición
+            Assert.Single(result);
+            Assert.Equal(3, result[0].Variables.Count);
+            Assert.Equal(new[] { 5, 6, 7 }, result[0].Variables.Select(v => v.Position));
+        }
+
+        // ---------- PopulateListOfComponentsByIdPollInstanceAsync (happy path + errores) ----------
+
+        [Fact]
+        public async Task PopulateListOfComponentsByIdPollInstanceAsync_SuccessWithinDateRange_PopulatesAnswers()
+        {
+            // Arrange
+            var json = """
+            {
+            "@data": {
+                "_id": "poll1",
+                "evaluationSet": { "_id": "es1", "name": "Set" },
+                "evaluator": { "name": "-", "email": "-" },
+                "evaluation": { "_id": "poll1", "startedAt": "2026-06-01T00:00:00Z", "finishedAt": "2026-06-15T00:00:00Z", "elapsedTimeInSeconds": 600, "name": "Encuesta" },
+                "scores": {},
+                "answers": {
+                "1": { "answer": "Juan Pérez", "question": { "body": { "es": "Nombre" } }, "position": 1, "score": 0, "type": "openTextSingleline" },
+                "2": { "answer": "juan@test.com", "question": { "body": { "es": "Email" } }, "position": 2, "score": 0, "type": "openTextSingleline" },
+                "3": { "answer": "Cohort A", "question": { "body": { "es": "Cohorte" } }, "position": 3, "score": 0, "type": "openTextSingleline" },
+                "5": { "answer": "Nombre", "question": { "body": { "es": "Nombre" } }, "position": 5, "score": 0, "type": "openTextSingleline" }
+                },
+                "inventory": { "_id": "inv1", "name": "Inv", "key": "k", "access": "private" },
+                "owner": { "email": "o@test.com", "name": "Owner" }
+            },
+            "@meta": { "@selfLink": "/x" }
+            }
+            """;
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+            var service = CreateService(response, "http://fakeurl.com/evaluations/exec/evaluationDetails");
+
+            var components = new List<ComponentDTO>
+            {
+                new ComponentDTO
+                {
+                    Name = "academico",
+                    Variables = new List<VariableDTO> { new VariableDTO { Name = "Nombre", Position = 5, Type = "openTextSingleline" } }
+                }
+            };
+            var scoreItem = new Score { byPosition = new List<ByPosition> { new ByPosition { position = 5, score = 10 } }, byTrait = new ByTrait() };
+
+            // Act: rango de fechas que SI contiene el 2026-06-15
+            var result = await service.PopulateListOfComponentsByIdPollInstanceAsync(
+                components, "poll1", scoreItem, "key", "http://fakeurl.com/", "2026-06-01", "2026-06-30");
+
+            // Assert
+            Assert.Single(result);
+            var answer = result[0].Variables.First().Answer;
+            Assert.NotNull(answer);
+            Assert.Equal("Nombre", answer!.Answer);
+            Assert.Equal("academico", result[0].Name); // vino de CloneComponentsList, no del original
+        }
+
+        [Fact]
+        public async Task PopulateListOfComponentsByIdPollInstanceAsync_OutsideDateRange_ReturnsComponentsWithoutClonedAnswers()
+        {
+            // Arrange: misma respuesta pero pedimos un rango de fechas que NO contiene el finishedAt
+            var json = """
+            {
+            "@data": {
+                "_id": "poll1",
+                "evaluationSet": { "_id": "es1", "name": "Set" },
+                "evaluator": { "name": "-", "email": "-" },
+                "evaluation": { "_id": "poll1", "startedAt": "2026-01-01T00:00:00Z", "finishedAt": "2026-01-15T00:00:00Z", "elapsedTimeInSeconds": 600, "name": "Encuesta" },
+                "scores": {},
+                "answers": {
+                "answers": {
+                "1": { "answer": "Juan Pérez", "question": { "body": { "es": "Nombre" } }, "position": 1, "score": 0, "type": "openTextSingleline" },
+                "2": { "answer": "juan@test.com", "question": { "body": { "es": "Email" } }, "position": 2, "score": 0, "type": "openTextSingleline" },
+                "3": { "answer": "Cohort A", "question": { "body": { "es": "Cohorte" } }, "position": 3, "score": 0, "type": "openTextSingleline" },
+                "5": { "answer": "Nombre", "question": { "body": { "es": "Nombre" } }, "position": 5, "score": 0, "type": "openTextSingleline" }
+                },
+                "inventory": { "_id": "inv1", "name": "Inv", "key": "k", "access": "private" },
+                "owner": { "email": "o@test.com", "name": "Owner" }
+            },
+            "@meta": { "@selfLink": "/x" }
+            }
+            """;
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+            var service = CreateService(response, "http://fakeurl.com/evaluations/exec/evaluationDetails");
+
+            var components = new List<ComponentDTO>
+            {
+                new ComponentDTO { Name = "academico", Variables = new List<VariableDTO> { new VariableDTO { Name = "Nombre", Position = 5 } } }
+            };
+            var scoreItem = new Score { byPosition = new List<ByPosition>(), byTrait = new ByTrait() };
+
+            // Act: rango de fechas de junio, evaluación es de enero -> fuera de rango
+            var result = await service.PopulateListOfComponentsByIdPollInstanceAsync(
+                components, "poll1", scoreItem, "key", "http://fakeurl.com/", "2026-06-01", "2026-06-30");
+
+            // Assert: clonedListComponents queda vacío porque isEvaluationWithinRange es false
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task PopulateListOfComponentsByIdPollInstanceAsync_UnsuccessfulResponse_ReturnsEmptyListAndLogsError()
+        {
+            // Arrange
+            var response = new HttpResponseMessage(HttpStatusCode.InternalServerError) { Content = new StringContent("error") };
+            var service = CreateService(response, "http://fakeurl.com/evaluations/exec/evaluationDetails");
+            var scoreItem = new Score { byPosition = new List<ByPosition>(), byTrait = new ByTrait() };
+
+            // Act
+            var result = await service.PopulateListOfComponentsByIdPollInstanceAsync(
+                new List<ComponentDTO>(), "poll1", scoreItem, "key", "http://fakeurl.com/", "", "");
+
+            // Assert
+            Assert.Empty(result);
+            _loggerMock.Verify(
+                l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), null, It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.AtLeastOnce);
+        }
+
+        // ---------- GetPollsNameList (happy path) ----------
+
+        [Fact]
+        public async Task GetPollsNameList_SuccessResponse_ReturnsMappedList()
+        {
+            // Arrange
+            var json = """
+            {
+            "@data": [
+                { "id": "p1", "parent": "evaluationSets:es1", "name": "Encuesta A", "status": "validated" },
+                { "id": "p2", "parent": "evaluationSets:es1", "name": "Encuesta B", "status": "started" }
+            ],
+            "@meta": { "@totalCount": 2, "@count": 2 }
+            }
+            """;
+            var response = new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(json) };
+            var service = CreateService(response, "http://fakeurl.com/evaluationSets?$top=100");
+
+            // Act
+            var result = await service.GetPollsNameList("http://fakeurl.com/", "key");
+
+            // Assert
+            Assert.Equal(2, result.Count);
+            Assert.Contains(result, p => p.name == "Encuesta A");
+            
+        }
+
+        // ---------- GetListOfVariablePositionByComponents (rama de excepción) ----------
+
+        [Fact]
+        public void GetListOfVariablePositionByComponents_MalformedTraits_ThrowsInvalidCastException()
+        {
+            // Arrange: traits con una forma que rompe la deserialización interna a TraitData
+            var service = CreateService();
+            var malformedTraitsJson = """{ "academico": "esto no es un objeto valido" }""";
+            var traits = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(malformedTraitsJson)!;
+
+            var dataItem = new DataItem
+            {
+                name = "x", parent = "x", configuration = new Configuration(), access = "x",
+                inventoryKey = "x", inventoryAccess = "x", inventoryId = "x", owner = "x",
+                customFieldsSchema = new List<string>(), TenantName = "x", changeHistory = new List<ChangeHistoryItem>(),
+                customFields = new List<string>(), status = "x", accessToken = "x",
+                score = new Score { byPosition = new List<ByPosition>(), byTrait = new ByTrait { Traits = traits } }
+            };
+
+            // Act & Assert
+            Assert.Throws<InvalidCastException>(() => service.GetListOfVariablePositionByComponents(dataItem));
+        }
     }
 }

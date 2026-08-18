@@ -19,7 +19,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Infrastructure.External.CosmicLatteClient
 {
-    [ExcludeFromCodeCoverage]
     public class CosmicLatteAPIService : ICosmicLatteAPIService
     {
         private const string PathEvaluationSet = "evaluationSets";

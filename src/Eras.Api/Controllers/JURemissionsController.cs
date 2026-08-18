@@ -15,7 +15,6 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/remissions")]
-[ExcludeFromCodeCoverage]
 
 public class RemissionsController(IMediator Mediator, ILogger<RemissionsController> Logger) : ControllerBase
 {

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
-    [ExcludeFromCodeCoverage]
     public sealed class UnitOfWork(AppDbContext Context) : IUnitOfWork
     {
         private readonly AppDbContext _context = Context;

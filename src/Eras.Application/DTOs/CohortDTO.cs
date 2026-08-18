@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Eras.Application.DTOs;
 
-[ExcludeFromCodeCoverage]
 public class CohortDTO
 {
     [Required(ErrorMessage = "Cohort name is required.")]
