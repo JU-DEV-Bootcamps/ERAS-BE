@@ -723,7 +723,7 @@ public class EvaluationRepositoryTest : RepositoryTestBase
 
         // Act
         var result = (await _repository!
-            .GetExpiredWithPendingStatusAsync(["Pending", "Completed"], endDateBefore))
+            .GetExpiredWithPendingStatusAsync(["Pending", "Completed"], endDateBefore, CancellationToken.None))
             .ToList();
 
         // Assert
@@ -752,7 +752,7 @@ public class EvaluationRepositoryTest : RepositoryTestBase
 
         // Act
         var result = await _repository!
-            .GetExpiredWithPendingStatusAsync(["Pending"], new DateTime(2026, 1, 1));
+            .GetExpiredWithPendingStatusAsync(["Pending"], new DateTime(2026, 1, 1), CancellationToken.None);
 
         // Assert
         Assert.Empty(result);

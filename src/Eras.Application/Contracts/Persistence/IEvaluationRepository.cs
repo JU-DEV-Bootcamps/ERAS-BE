@@ -11,7 +11,7 @@ namespace Eras.Application.Contracts.Persistence
         new Task<List<Evaluation>> GetAllAsync();
         Task<List<Evaluation>> GetByDateRange(DateTime startDate, DateTime endDate);
         new Task<int> CountByDateRangeAsync(DateTime startDate, DateTime endDate);
-        Task<IEnumerable<Evaluation>> GetExpiredWithPendingStatusAsync(IEnumerable<string> status, DateTime endDateBefore);
+        Task<IEnumerable<Evaluation>> GetExpiredWithPendingStatusAsync(IEnumerable<string> status, DateTime endDateBefore, CancellationToken ct);
         Task UpdateStatusAsync(int evaluationId, string status);
     }
 }

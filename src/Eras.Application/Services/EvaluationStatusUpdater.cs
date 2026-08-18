@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Services;
 
-public class EvaluationStatusUpdater
+public class EvaluationStatusUpdater : IEvaluationStatusUpdater
 {
    private readonly IEvaluationRepository _repository;
     

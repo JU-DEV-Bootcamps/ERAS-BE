@@ -27,12 +27,12 @@ namespace Eras.Application.Services
             Services.AddScoped<IPollService, PollService>();
             Services.AddScoped<IAnswerService, AnswerService>();
             Services.AddScoped<PollOrchestratorService>();
-            Services.AddScoped<PollOrchestratorServiceV2>();
+            Services.AddScoped<IPollOrchestratorServiceV2, PollOrchestratorServiceV2>();
             Services.AddScoped<PollStructureImporter>();
             Services.AddScoped<StudentImporter>();
             Services.AddScoped<PollInstanceImporter>();
             Services.AddScoped<IImportJobService, ImportJobService>();
-            Services.AddScoped<EvaluationStatusUpdater>();
+            Services.AddScoped<IEvaluationStatusUpdater, EvaluationStatusUpdater>();
             Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
             Services.ConfigureMappers();
             Services.ConfigureValidators();

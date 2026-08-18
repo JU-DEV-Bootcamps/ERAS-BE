@@ -1,4 +1,5 @@
-﻿using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.Events;
@@ -23,7 +24,7 @@ namespace Eras.Application.Services
     /// Coordinates the Cosmic Latte import: wraps the whole operation in a single transaction and
     /// delegates the work to focused collaborators (poll structure, students, instances + answers).
     /// </summary>
-    public class PollOrchestratorServiceV2
+    public class PollOrchestratorServiceV2 : IPollOrchestratorServiceV2
     {
         private readonly IMediator _mediator;
         private readonly ILogger<PollOrchestratorServiceV2> _logger;
