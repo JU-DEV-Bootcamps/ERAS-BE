@@ -4,9 +4,8 @@ namespace Eras.Application.Contracts.Services;
 
 /// <summary>
 /// Generic, entity-agnostic attachment upload/list/download/delete service backing the
-/// `attachments` table and <c>IFileStorageService</c> (User Story 1.4). Any entity type on the
-/// <c>AttachmentEntityTypeRegistry</c> whitelist can use this — no entity owns its own storage
-/// logic.
+/// `attachments` table and <c>IFileStorageService</c>. Any entity type on the
+/// <c>AttachmentEntityTypeRegistry</c> whitelist can use this
 /// </summary>
 public interface IAttachmentService
 {
@@ -17,16 +16,18 @@ public interface IAttachmentService
     /// failure after a successful physical save by deleting the orphaned file.
     /// </summary>
     /// <exception cref="Eras.Error.Bussiness.BussinessException">
-    /// `entityType` is not on the whitelist (400), the file extension isn't allowed (400), or the
-    /// entity is already at its max-attachment count (409).
+    /// `entityType` is not on the whitelist (400); the file extension isn't allowed (400); the
+    /// file exceeds `FileStorageSettings.MaxFileSizeBytes` (400); the file's actual content
+    /// (magic bytes) doesn't match what its extension claims (400) — extension alone is never the
+    /// sole validation signal; or the entity is already at its max-attachment count (409).
     /// </exception>
     Task<AttachmentDto> UploadAttachmentAsync(
-        string entityType,
-        int entityId,
-        Stream fileStream,
-        string fileName,
-        string createdBy,
-        CancellationToken cancellationToken = default);
+        string EntityType,
+        int EntityId,
+        Stream FileStream,
+        string FileName,
+        string CreatedBy,
+        CancellationToken CancellationToken = default);
 
     /// <summary>
     /// Uploads multiple files for the same entity as one batch. Unlike calling
@@ -37,32 +38,34 @@ public interface IAttachmentService
     /// the max-attachment check for later files in the same batch.
     /// </summary>
     /// <exception cref="Eras.Error.Bussiness.BussinessException">
-    /// `entityType` is not on the whitelist (400), any file's extension isn't allowed (400), or the
-    /// entity would exceed its configured max-attachment count partway through the batch (409).
+    /// `entityType` is not on the whitelist (400); any file's extension isn't allowed (400), checked
+    /// up front for the whole batch before any file is saved; a per-file failure partway through
+    /// (oversized file, content/extension mismatch, or the entity reaching its max-attachment count)
+    /// triggers the rollback described above before re-throwing.
     /// </exception>
     Task<IReadOnlyCollection<AttachmentDto>> UploadAttachmentsAsync(
-        string entityType,
-        int entityId,
-        IReadOnlyCollection<(Stream Stream, string FileName)> files,
-        string createdBy,
-        CancellationToken cancellationToken = default);
+        string EntityType,
+        int EntityId,
+        IReadOnlyCollection<(Stream FileStream, string FileName)> Files,
+        string CreatedBy,
+        CancellationToken CancellationToken = default);
 
     /// <exception cref="Eras.Error.Bussiness.BussinessException">`entityType` is not on the whitelist (400).</exception>
     Task<IReadOnlyCollection<AttachmentDto>> ListAttachmentsAsync(
-        string entityType,
-        int entityId,
-        CancellationToken cancellationToken = default);
+        string EntityType,
+        int EntityId,
+        CancellationToken CancellationToken = default);
 
     /// <summary>Streams the attachment's content directly. Prefer <see cref="GetAttachmentUrlAsync"/> when a direct URL is available.</summary>
     /// <exception cref="Eras.Error.Bussiness.NotFoundException">No attachment exists for <paramref name="attachmentId"/>.</exception>
     Task<(Stream Stream, string? MimeType, string? OriginalFileName)> DownloadAttachmentAsync(
-        int attachmentId,
-        CancellationToken cancellationToken = default);
+        int AttachmentId,
+        CancellationToken CancellationToken = default);
 
     /// <summary>Direct-access URL for the attachment's content, or null if the active storage provider has no such concept (see <c>IFileStorageService.GetUrlAsync</c>).</summary>
     /// <exception cref="Eras.Error.Bussiness.NotFoundException">No attachment exists for <paramref name="attachmentId"/>.</exception>
-    Task<string?> GetAttachmentUrlAsync(int attachmentId, CancellationToken cancellationToken = default);
+    Task<string?> GetAttachmentUrlAsync(int AttachmentId, CancellationToken CancellationToken = default);
 
     /// <exception cref="Eras.Error.Bussiness.NotFoundException">No attachment exists for <paramref name="attachmentId"/>.</exception>
-    Task DeleteAttachmentAsync(int attachmentId, CancellationToken cancellationToken = default);
+    Task DeleteAttachmentAsync(int AttachmentId, CancellationToken CancellationToken = default);
 }

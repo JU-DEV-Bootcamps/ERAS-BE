@@ -36,21 +36,21 @@ public class AttachmentsControllerTests
         };
     }
 
-    private static AttachmentDto BuildDto(int id = 1) => new()
+    private static AttachmentDto BuildDto(int Id = 1) => new()
     {
-        Id = id,
+        Id = Id,
         EntityType = "interventions",
         EntityId = 1,
         ContentHash = new string('a', 64),
         CreatedBy = "user-1"
     };
 
-    private static Mock<IFormFile> BuildFormFile(string fileName, string content)
+    private static Mock<IFormFile> BuildFormFile(string FileName, string Content)
     {
         var mock = new Mock<IFormFile>();
-        var bytes = System.Text.Encoding.UTF8.GetBytes(content);
-        mock.Setup(f => f.FileName).Returns(fileName);
-        mock.Setup(f => f.OpenReadStream()).Returns(() => new MemoryStream(bytes));
+        var bytes = System.Text.Encoding.UTF8.GetBytes(Content);
+        mock.Setup(F => F.FileName).Returns(FileName);
+        mock.Setup(F => F.OpenReadStream()).Returns(() => new MemoryStream(bytes));
         return mock;
     }
 
@@ -61,17 +61,17 @@ public class AttachmentsControllerTests
         var formFiles = new FormFileCollection { BuildFormFile("report.pdf", "content").Object };
 
         _mockAttachmentService
-            .Setup(x => x.UploadAttachmentsAsync(
+            .Setup(X => X.UploadAttachmentsAsync(
                 "interventions", 1,
-                It.Is<IReadOnlyCollection<(Stream Stream, string FileName)>>(f => f.Count == 1 && f.First().FileName == "report.pdf"),
+                It.Is<IReadOnlyCollection<(Stream Stream, string FileName)>>(F => F.Count == 1 && F.First().FileName == "report.pdf"),
                 "user-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AttachmentDto> { BuildDto() });
 
         // Act
-        var result = await _controller.Upload("interventions", 1, formFiles, CancellationToken.None);
+        ActionResult<IReadOnlyCollection<AttachmentDto>> result = await _controller.UploadAsync("interventions", 1, formFiles, CancellationToken.None);
 
         // Assert
-        var createdResult = Assert.IsType<CreatedResult>(result.Result);
+        CreatedResult createdResult = Assert.IsType<CreatedResult>(result.Result);
         Assert.Equal(StatusCodes.Status201Created, createdResult.StatusCode);
     }
 
@@ -87,21 +87,21 @@ public class AttachmentsControllerTests
         };
 
         _mockAttachmentService
-            .Setup(x => x.UploadAttachmentsAsync(
+            .Setup(X => X.UploadAttachmentsAsync(
                 "interventions", 1, It.IsAny<IReadOnlyCollection<(Stream Stream, string FileName)>>(),
                 "user-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AttachmentDto> { BuildDto(1), BuildDto(2) });
 
         // Act
-        var result = await _controller.Upload("interventions", 1, formFiles, CancellationToken.None);
+        ActionResult<IReadOnlyCollection<AttachmentDto>> result = await _controller.UploadAsync("interventions", 1, formFiles, CancellationToken.None);
 
         // Assert
-        var createdResult = Assert.IsType<CreatedResult>(result.Result);
-        var attachments = Assert.IsAssignableFrom<IReadOnlyCollection<AttachmentDto>>(createdResult.Value);
+        CreatedResult createdResult = Assert.IsType<CreatedResult>(result.Result);
+        IReadOnlyCollection<AttachmentDto> attachments = Assert.IsAssignableFrom<IReadOnlyCollection<AttachmentDto>>(createdResult.Value);
         Assert.Equal(2, attachments.Count);
         _mockAttachmentService.Verify(
-            x => x.UploadAttachmentsAsync(
-                "interventions", 1, It.Is<IReadOnlyCollection<(Stream Stream, string FileName)>>(f => f.Count == 2),
+            X => X.UploadAttachmentsAsync(
+                "interventions", 1, It.Is<IReadOnlyCollection<(Stream Stream, string FileName)>>(F => F.Count == 2),
                 "user-1", It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -110,12 +110,12 @@ public class AttachmentsControllerTests
     public async Task Upload_Should_ReturnBadRequest_When_NoFilesProvidedAsync()
     {
         // Act
-        var result = await _controller.Upload("interventions", 1, new FormFileCollection(), CancellationToken.None);
+        ActionResult<IReadOnlyCollection<AttachmentDto>> result = await _controller.UploadAsync("interventions", 1, new FormFileCollection(), CancellationToken.None);
 
         // Assert
         Assert.IsType<BadRequestObjectResult>(result.Result);
         _mockAttachmentService.Verify(
-            x => x.UploadAttachmentsAsync(
+            X => X.UploadAttachmentsAsync(
                 It.IsAny<string>(), It.IsAny<int>(), It.IsAny<IReadOnlyCollection<(Stream Stream, string FileName)>>(),
                 It.IsAny<string>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -126,15 +126,15 @@ public class AttachmentsControllerTests
     {
         // Arrange
         _mockAttachmentService
-            .Setup(x => x.ListAttachmentsAsync("interventions", 1, It.IsAny<CancellationToken>()))
+            .Setup(X => X.ListAttachmentsAsync("interventions", 1, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AttachmentDto> { BuildDto() });
 
         // Act
-        var result = await _controller.List("interventions", 1, CancellationToken.None);
+        ActionResult<IReadOnlyCollection<AttachmentDto>> result = await _controller.ListAsync("interventions", 1, CancellationToken.None);
 
         // Assert
-        var okResult = Assert.IsType<OkObjectResult>(result.Result);
-        var attachments = Assert.IsAssignableFrom<IReadOnlyCollection<AttachmentDto>>(okResult.Value);
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result.Result);
+        IReadOnlyCollection<AttachmentDto> attachments = Assert.IsAssignableFrom<IReadOnlyCollection<AttachmentDto>>(okResult.Value);
         Assert.Single(attachments);
     }
 
@@ -143,16 +143,16 @@ public class AttachmentsControllerTests
     {
         // Arrange
         _mockAttachmentService
-            .Setup(x => x.GetAttachmentUrlAsync(1, It.IsAny<CancellationToken>()))
-            .ReturnsAsync("https://example.com/signed-url");
+            .Setup(X => X.GetAttachmentUrlAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync("https://eras.jala.com/download-url");
 
         // Act
-        var result = await _controller.Download(1, CancellationToken.None);
+        IActionResult result = await _controller.DownloadAsync(1, CancellationToken.None);
 
         // Assert
-        var redirect = Assert.IsType<RedirectResult>(result);
-        Assert.Equal("https://example.com/signed-url", redirect.Url);
-        _mockAttachmentService.Verify(x => x.DownloadAttachmentAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
+        RedirectResult redirect = Assert.IsType<RedirectResult>(result);
+        Assert.Equal("https://eras.jala.com/download-url", redirect.Url);
+        _mockAttachmentService.Verify(X => X.DownloadAttachmentAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
@@ -160,17 +160,17 @@ public class AttachmentsControllerTests
     {
         // Arrange
         _mockAttachmentService
-            .Setup(x => x.GetAttachmentUrlAsync(1, It.IsAny<CancellationToken>()))
+            .Setup(X => X.GetAttachmentUrlAsync(1, It.IsAny<CancellationToken>()))
             .ReturnsAsync((string?)null);
         _mockAttachmentService
-            .Setup(x => x.DownloadAttachmentAsync(1, It.IsAny<CancellationToken>()))
+            .Setup(X => X.DownloadAttachmentAsync(1, It.IsAny<CancellationToken>()))
             .ReturnsAsync((new MemoryStream([1, 2, 3]), "application/pdf", "report.pdf"));
 
         // Act
-        var result = await _controller.Download(1, CancellationToken.None);
+        IActionResult result = await _controller.DownloadAsync(1, CancellationToken.None);
 
         // Assert
-        var fileResult = Assert.IsType<FileStreamResult>(result);
+        FileStreamResult fileResult = Assert.IsType<FileStreamResult>(result);
         Assert.Equal("application/pdf", fileResult.ContentType);
     }
 
@@ -179,11 +179,11 @@ public class AttachmentsControllerTests
     {
         // Arrange
         _mockAttachmentService
-            .Setup(x => x.DeleteAttachmentAsync(1, It.IsAny<CancellationToken>()))
+            .Setup(X => X.DeleteAttachmentAsync(1, It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await _controller.Delete(1, CancellationToken.None);
+        IActionResult result = await _controller.DeleteAsync(1, CancellationToken.None);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -194,12 +194,12 @@ public class AttachmentsControllerTests
     {
         // Arrange
         _mockAttachmentService
-            .Setup(x => x.DeleteAttachmentAsync(999, It.IsAny<CancellationToken>()))
+            .Setup(X => X.DeleteAttachmentAsync(999, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new NotFoundException("Attachment '999' not found."));
 
         // Act & Assert — relies on the global ErrorFilter to translate IErasException to its
         // StatusCode; the controller itself doesn't catch it (unlike AssessmentsController's
         // manual try/catch style elsewhere).
-        await Assert.ThrowsAsync<NotFoundException>(() => _controller.Delete(999, CancellationToken.None));
+        await Assert.ThrowsAsync<NotFoundException>(() => _controller.DeleteAsync(999, CancellationToken.None));
     }
 }
