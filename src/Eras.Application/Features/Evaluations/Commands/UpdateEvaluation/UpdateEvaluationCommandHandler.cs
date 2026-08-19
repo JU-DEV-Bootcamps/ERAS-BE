@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
 {
-    internal class UpdateEvaluationCommandHandler : IRequestHandler<UpdateEvaluationCommand, CreateCommandResponse<Evaluation>>
+    public class UpdateEvaluationCommandHandler : IRequestHandler<UpdateEvaluationCommand, CreateCommandResponse<Evaluation>>
     {
         private readonly IEvaluationRepository _evaluationRepository;
         private readonly ILogger<UpdateEvaluationCommandHandler> _logger;
