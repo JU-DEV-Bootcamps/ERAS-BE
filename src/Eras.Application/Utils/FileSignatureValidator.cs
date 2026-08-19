@@ -38,36 +38,36 @@ namespace Eras.Application.Utils
         /// <see langword="true"/> if it matches the extension's known signature, or the extension
         /// has no known signature (e.g. `.txt`) and the content passes a binary-content heuristic.
         /// </returns>
-        public static bool IsContentValidForExtension(ReadOnlySpan<byte> header, string extension)
+        public static bool IsContentValidForExtension(ReadOnlySpan<byte> Header, string Extension)
         {
-            if (StartsWithAny(header, BlockedSignatures))
+            if (StartsWithAny(Header, BlockedSignatures))
                 return false;
 
-            if (KnownSignatures.TryGetValue(extension, out byte[][]? validSignatures))
-                return StartsWithAny(header, validSignatures);
+            if (KnownSignatures.TryGetValue(Extension, out byte[][]? validSignatures))
+                return StartsWithAny(Header, validSignatures);
 
             // No fixed signature exists for this extension (plain text has none) — fall back to a
             // "does this look like binary junk" heuristic instead of trusting the extension alone.
-            return LooksLikeText(header);
+            return LooksLikeText(Header);
         }
 
-        private static bool StartsWithAny(ReadOnlySpan<byte> header, byte[][] signatures)
+        private static bool StartsWithAny(ReadOnlySpan<byte> Header, byte[][] Signatures)
         {
-            foreach (byte[] signature in signatures)
+            foreach (byte[] signature in Signatures)
             {
-                if (header.Length >= signature.Length && header[..signature.Length].SequenceEqual(signature))
+                if (Header.Length >= signature.Length && Header[..signature.Length].SequenceEqual(signature))
                     return true;
             }
             return false;
         }
 
-        private static bool LooksLikeText(ReadOnlySpan<byte> header)
+        private static bool LooksLikeText(ReadOnlySpan<byte> Header)
         {
-            if (header.IsEmpty)
+            if (Header.IsEmpty)
                 return true;
 
             int suspiciousBytes = 0;
-            foreach (byte b in header)
+            foreach (byte b in Header)
             {
                 // A NUL byte is the strongest single signal of binary content.
                 if (b == 0x00)
@@ -80,7 +80,7 @@ namespace Eras.Application.Utils
 
             // Tolerate a small fraction of control/high bytes (e.g. UTF-8 multi-byte sequences),
             // but a header dominated by them is very unlikely to be genuine text.
-            return suspiciousBytes <= header.Length / 4;
+            return suspiciousBytes <= Header.Length / 4;
         }
     }
 }
