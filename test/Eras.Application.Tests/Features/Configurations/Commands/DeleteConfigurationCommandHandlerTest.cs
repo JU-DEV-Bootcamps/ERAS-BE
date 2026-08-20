@@ -77,7 +77,7 @@ public class DeleteConfigurationCommandHandlerTest
 
         _configurationsRepository
             .Setup(x => x.GetByIdAsyncNoTracking(1))
-            .ReturnsAsync((Domain.Entities.Configurations)null);
+            .ReturnsAsync((Domain.Entities.Configurations)null!);
 
         // Act
         var result = await _handler.Handle(

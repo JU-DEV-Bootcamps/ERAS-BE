@@ -79,14 +79,10 @@ public class CreateConfigurationCommandHandlerTest
             .ReturnsAsync(existingConfiguration);
 
         // Act
-        var result = await _handler.Handle(
-            request,
-            CancellationToken.None);
+        var result = await _handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        //Assert.Same(existingConfiguration, result.Data);
-        //Assert.Equal(0, result.Count);
         Assert.Equal("Success", result.Message);
         Assert.True(result.Success);
 
@@ -139,14 +135,11 @@ public class CreateConfigurationCommandHandlerTest
             .ReturnsAsync(createdConfiguration);
 
         // Act
-        var result = await _handler.Handle(
-            request,
-            CancellationToken.None);
+        var result = await _handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Same(createdConfiguration, result.Entity);
-        //Assert.Equal(1, result.Count);
         Assert.Equal("Success", result.Message);
         Assert.True(result.Success);
 
