@@ -1,46 +1,106 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
 using Eras.Application.Mappers;
+using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace Eras.Application.Tests.Features.PollInstances.Commands
+namespace Eras.Application.Tests.Features.PollInstances.Commands;
+public class CreatePollInstanceCommandHandlerTests
 {
-    public class CreatePollInstanceCommandHandlerTests
+    private readonly Mock<IPollInstanceRepository> _mockPollInstanceRepository;
+    private readonly Mock<ILogger<CreatePollInstanceCommandHandler>> _mockLogger;
+    private readonly CreatePollInstanceCommandHandler _handler;
+
+    public CreatePollInstanceCommandHandlerTests()
     {
-        private readonly Mock<IPollInstanceRepository> _mockPollInstanceRepository;
-        private readonly Mock<ILogger<CreatePollInstanceCommandHandler>> _mockLogger;
-        private readonly CreatePollInstanceCommandHandler _handler;
+        _mockPollInstanceRepository = new Mock<IPollInstanceRepository>();
+        _mockLogger = new Mock<ILogger<CreatePollInstanceCommandHandler>>();
+        _handler = new CreatePollInstanceCommandHandler(_mockPollInstanceRepository.Object, _mockLogger.Object);
+    }
 
-        public CreatePollInstanceCommandHandlerTests()
+    [Fact]
+    public async Task Handler_CreatesNewPollInstanceAsync()
+    {
+        var newStudent = new StudentDTO
         {
-            _mockPollInstanceRepository = new Mock<IPollInstanceRepository>();
-            _mockLogger = new Mock<ILogger<CreatePollInstanceCommandHandler>>();
-            _handler = new CreatePollInstanceCommandHandler(_mockPollInstanceRepository.Object, _mockLogger.Object);
-        }
+            Id = 1,
+        };
+        var newPollInstanceDTO = new PollInstanceDTO() { Uuid= "Uuid1" , Student = newStudent};
+        var command = new CreatePollInstanceCommand { PollInstance = newPollInstanceDTO };
+        PollInstance newPoll = newPollInstanceDTO.ToDomain();
 
-        [Fact]
-        public async Task HandlePollInstanceCreatesNewPollInstanceAsync()
+        _mockPollInstanceRepository.Setup(Repo => Repo.AddAsync(It.IsAny<PollInstance>()))
+            .ReturnsAsync(newPoll);
+
+        CreateCommandResponse<PollInstance> result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.NotNull(result.Entity);
+        Assert.Equal(newPoll, result.Entity);
+        Assert.True(result.Success);
+        Assert.Equal(1, result.SuccessfullImports);
+        Assert.Equal("Success", result.Message);
+    }
+
+    [Fact]
+    public async Task Handler_ReturnsExistingEntityId()
+    {
+        var newStudent = new StudentDTO
         {
-            var newStudent = new StudentDTO
-            {
-                Id = 1,
-            };
-            var newPollIsntanceDto = new PollInstanceDTO() { Uuid= "Uuid1" , Student = newStudent};
-            var command = new CreatePollInstanceCommand { PollInstance = newPollIsntanceDto };
-            var newPoll = newPollIsntanceDto.ToDomain;
+            Id = 1,
+        };
+        var newPollInstanceDTO = new PollInstanceDTO() { Uuid= "Uuid1" , Student = newStudent};
+        var command = new CreatePollInstanceCommand { PollInstance = newPollInstanceDTO };
+        PollInstance existingEntity = newPollInstanceDTO.ToDomain();
 
-            _mockPollInstanceRepository.Setup(Repo => Repo.AddAsync(It.IsAny<PollInstance>()))
-                .ReturnsAsync(newPoll);
+        _mockPollInstanceRepository.Setup(Repo => Repo.GetByUuidAndStudentIdAsync(
+            It.IsAny<string>(),
+            It.IsAny<int>(),
+            It.IsAny<int>())
+        ).ReturnsAsync(existingEntity);
 
-            var result = await _handler.Handle(command, CancellationToken.None);
+        CreateCommandResponse<PollInstance> result = await _handler.Handle(command, CancellationToken.None);
 
-            Assert.NotNull(result);
-            Assert.Equal("Uuid1", result.Entity?.Uuid);
-        }
+        Assert.NotNull(result.Entity);
+        Assert.Equal(existingEntity, result.Entity);
+        Assert.True(result.Success);
+        Assert.Equal(0, result.SuccessfullImports);
+        Assert.Equal("Success", result.Message);
+    }
 
+    [Fact]
+    public async Task Handler_ShouldReturnFailureResponse_WhenNoPollInstanceIsProvided()
+    {
+        var command = new CreatePollInstanceCommand { PollInstance = null };
+
+        CreateCommandResponse<PollInstance> result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Null(result.Entity);
+        Assert.False(result.Success);
+        Assert.Equal(0, result.SuccessfullImports);
+        Assert.Equal("Error", result.Message);
+    }
+
+    [Fact]
+    public async Task Handler_ShouldReturnFailureResponse_WhenExceptionIsThrown()
+    {
+        var newStudent = new StudentDTO
+        {
+            Id = 1,
+        };
+        var newPollInstanceDTO = new PollInstanceDTO() { Uuid= "Uuid1" , Student = newStudent};
+        var command = new CreatePollInstanceCommand { PollInstance = newPollInstanceDTO };
+
+        _mockPollInstanceRepository.Setup(Repo => Repo.AddAsync(It.IsAny<PollInstance>()))
+            .ThrowsAsync(new Exception("DB Error"));
+
+        CreateCommandResponse<PollInstance> result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Null(result.Entity);
+        Assert.False(result.Success);
+        Assert.Equal(0, result.SuccessfullImports);
+        Assert.Equal("Error", result.Message);
     }
 }
