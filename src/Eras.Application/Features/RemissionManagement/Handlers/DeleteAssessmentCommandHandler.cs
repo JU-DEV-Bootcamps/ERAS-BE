@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Eras.Application.Features.RemissionManagement.Handlers;
 
-public sealed class DeleteAssessmentCommandHandler
+public class DeleteAssessmentCommandHandler
     : IRequestHandler<DeleteAssessmentCommand>
 {
     private readonly IAssessmentRepository _repository;
