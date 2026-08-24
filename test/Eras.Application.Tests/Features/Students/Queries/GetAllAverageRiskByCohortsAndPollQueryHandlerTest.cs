@@ -8,17 +8,17 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Queries;
-public class GetAllAverageRiskByCohortAndPollQueryHandlerTest
+public class GetAllAverageRiskByCohortsAndPollQueryHandlerTest
 {
     private readonly Mock<IStudentRepository> _mockStudentRepository;
-    private readonly Mock<ILogger<GetAllAverageRiskByCohortAndPollQueryHandler>> _mockLogger;
-    private readonly GetAllAverageRiskByCohortAndPollQueryHandler _handler;
+    private readonly Mock<ILogger<GetAllAverageRiskByCohortsAndPollQueryHandler>> _mockLogger;
+    private readonly GetAllAverageRiskByCohortsAndPollQueryHandler _handler;
 
-    public GetAllAverageRiskByCohortAndPollQueryHandlerTest()
+    public GetAllAverageRiskByCohortsAndPollQueryHandlerTest()
     {
         _mockStudentRepository = new Mock<IStudentRepository>();
-        _mockLogger = new Mock<ILogger<GetAllAverageRiskByCohortAndPollQueryHandler>>();
-        _handler = new GetAllAverageRiskByCohortAndPollQueryHandler(_mockStudentRepository.Object, _mockLogger.Object);
+        _mockLogger = new Mock<ILogger<GetAllAverageRiskByCohortsAndPollQueryHandler>>();
+        _handler = new GetAllAverageRiskByCohortsAndPollQueryHandler(_mockStudentRepository.Object, _mockLogger.Object);   
     }
 
     private static StudentAverageRiskDto BuildStudentAverageRiskDTO(
@@ -51,7 +51,7 @@ public class GetAllAverageRiskByCohortAndPollQueryHandlerTest
             It.IsAny<int?>()
         )).ReturnsAsync(response);
 
-        var query = new GetAllAverageRiskByCohortAndPollQuery(
+        var query = new GetAllAverageRiskByCohortsAndPollQuery(
             new Pagination(),
             [1, 2],
             "mock-Uu1D",
@@ -82,7 +82,7 @@ public class GetAllAverageRiskByCohortAndPollQueryHandlerTest
             It.IsAny<int?>()
         )).ReturnsAsync(response);
 
-        var query = new GetAllAverageRiskByCohortAndPollQuery(
+        var query = new GetAllAverageRiskByCohortsAndPollQuery(
             new Pagination(),
             [1, 2],
             "mock-Uu1D",
