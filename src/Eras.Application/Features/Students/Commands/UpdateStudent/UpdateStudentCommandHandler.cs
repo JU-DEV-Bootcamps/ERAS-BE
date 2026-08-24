@@ -8,12 +8,12 @@ using Eras.Application.Mappers;
 
 namespace Eras.Application.Features.Students.Commands.UpdateStudent
 {
-    internal class UpdateStudentCommandHandler : IRequestHandler<UpdateStudentCommand, CreateCommandResponse<Student>>
+    public class UpdateStudentCommandHandler : IRequestHandler<UpdateStudentCommand, CreateCommandResponse<Student>>
     {
         private readonly IStudentRepository _studentRepository;
-        private readonly ILogger<CreateStudentCommandHandler> _logger;
+        private readonly ILogger<UpdateStudentCommandHandler> _logger;
 
-        public UpdateStudentCommandHandler(IStudentRepository StudentRepository, ILogger<CreateStudentCommandHandler> Logger)
+        public UpdateStudentCommandHandler(IStudentRepository StudentRepository, ILogger<UpdateStudentCommandHandler> Logger)
         {
             _studentRepository = StudentRepository;
             _logger = Logger;
