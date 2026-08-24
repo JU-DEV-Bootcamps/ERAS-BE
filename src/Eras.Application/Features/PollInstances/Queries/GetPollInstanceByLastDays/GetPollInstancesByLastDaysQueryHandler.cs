@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.PollInstances.Queries.GetPollInstanceByLastDays
 {
-    internal class GetPollInstancesByLastDaysQueryHandler : IRequestHandler<GetPollInstancesByLastDaysQuery, GetQueryResponse<List<PollInstance>>>
+    public class GetPollInstancesByLastDaysQueryHandler : IRequestHandler<GetPollInstancesByLastDaysQuery, GetQueryResponse<List<PollInstance>>>
     {
         private readonly IPollInstanceRepository _pollInstanceRepository;
         private readonly ILogger<GetPollInstancesByLastDaysQueryHandler> _logger;

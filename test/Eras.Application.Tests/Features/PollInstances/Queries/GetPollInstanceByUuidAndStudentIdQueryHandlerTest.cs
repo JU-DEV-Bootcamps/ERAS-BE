@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.PollInstances.Queries.GetByUuidAndStudentId;
-using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
+using Eras.Application.Models.Enums;
+using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -25,23 +20,48 @@ public class GetPollInstanceByUuidAndStudentIdQueryHandlerTest
         _handler = new GetPollInstanceByUuidAndStudentIdQueryHandler(_mockPollRepository.Object, _mockLogger.Object);
     }
 
+    private static PollInstance BuildPollInstance(int Id = 1, string Uuid = "m0ck-Uu1D")
+        => new ()
+        {
+            Id = Id,
+            Uuid = Uuid,
+            LastVersion = 1,
+            LastVersionDate = DateTime.Now,
+            FinishedAt = DateTime.Now
+        };
+
     [Fact]
-    public async Task Handle_Should_Return_Success_ResponseAsync()
+    public async Task Handler_ShouldReturnSuccessResponse()
     {
-        // Arrange
+        PollInstance pollInstance = BuildPollInstance();
+
         var query = new GetPollInstanceByUuidAndStudentIdQuery() { PollUuid = "uuid1", StudentId = 1, EvaluationId = 1 };
-        var pollInstance = new PollInstance { Id=1,Uuid = "uuid1", FinishedAt = DateTime.UtcNow,
-            LastVersionDate = DateTime.Now, LastVersion = 1 , Answers = new List<Answer>()};
+
         _mockPollRepository
-        .Setup(Repo => Repo.GetByUuidAndStudentIdAsync(It.IsAny<string>(), It.IsAny<int>()))
-        .ReturnsAsync(pollInstance);
+            .Setup(Repo => Repo.GetByUuidAndStudentIdAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(pollInstance);
 
-        // Act
-        var result = await _handler.Handle(query, CancellationToken.None);
+        GetQueryResponse<PollInstance> result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
         Assert.True(result.Success);
         Assert.Equal("Poll Found", result.Message);
-        Assert.Equal("uuid1", result.Body!.Uuid);
+        Assert.NotNull(result.Body);
+        Assert.Equal(pollInstance, result.Body);
+    }
+
+    [Fact]
+    public async Task Handler_ShouldReturnNotFoundResponseIfPollInstanceNotFound()
+    {
+        var query = new GetPollInstanceByUuidAndStudentIdQuery { PollUuid = "uuid1", StudentId = 1, EvaluationId = 1 };
+        _mockPollRepository
+            .Setup(Repo => Repo.GetByUuidAndStudentIdAsync(It.IsAny<string>(), It.IsAny<int>()))
+            .ReturnsAsync(value: null);
+        
+        GetQueryResponse<PollInstance> result = await _handler.Handle(query, CancellationToken.None);
+
+        Assert.True(result.Success);
+        Assert.Equal("Not Found", result.Message);
+        Assert.NotNull(result.Body);
+        Assert.Equal(QueryEnums.QueryResultStatus.NotFound, result.Status);
     }
 }
