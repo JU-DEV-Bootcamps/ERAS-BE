@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Dashboard.Queries.GetDashboardKpis;
 
-class GetDashboardKpisQueryHandler(
+public class GetDashboardKpisQueryHandler(
     IStudentRepository StudentRepository,
     IPollInstanceRepository PollInstanceRepository,
     IEvaluationRepository EvaluationRepository,
@@ -29,7 +29,7 @@ class GetDashboardKpisQueryHandler(
     private readonly IEvaluationRepository _evaluationRepository = EvaluationRepository;
     private readonly ILogger<GetDashboardKpisQueryHandler> _logger = Logger;
 
-    async Task<GetQueryResponse<DashboardKpiDto>> IRequestHandler<GetDashboardKpisQuery, GetQueryResponse<DashboardKpiDto>>.Handle(GetDashboardKpisQuery Request, CancellationToken CancellationToken)
+    public async Task<GetQueryResponse<DashboardKpiDto>> Handle(GetDashboardKpisQuery Request, CancellationToken CancellationToken)
     {
         try
         {

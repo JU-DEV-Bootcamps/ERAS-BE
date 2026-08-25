@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 using MediatR;
 
-namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAndPoll
+namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohortAndPoll
 {
     public class GetAllAverageRiskByCohortAndPollQueryHandler : IRequestHandler<GetAllAverageRiskByCohortAndPollQuery, PagedResult<StudentAverageRiskDto>>
     {
