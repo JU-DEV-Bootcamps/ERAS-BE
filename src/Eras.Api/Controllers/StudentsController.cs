@@ -8,7 +8,7 @@ using Eras.Application.Features.Cohorts.Queries.GetCohortTopRiskStudents;
 using Eras.Application.Features.Cohorts.Queries.GetCohortTopRiskStudentsByComponent;
 using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Features.Students.Queries.GetAll;
-using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAndPoll;
+using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohortAndPoll;
 using Eras.Application.Features.Students.Queries.GetAllByPollAndDate;
 using Eras.Application.Features.Students.Queries.GetStudentDetails;
 using Eras.Application.Models.Response.Calculations;
