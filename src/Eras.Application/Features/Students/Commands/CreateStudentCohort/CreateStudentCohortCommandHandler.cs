@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudentCohort
 {
-    internal class CreateStudentCohortCommandHandler : IRequestHandler<CreateStudentCohortCommand, CreateCommandResponse<Student>>
+    public class CreateStudentCohortCommandHandler : IRequestHandler<CreateStudentCohortCommand, CreateCommandResponse<Student>>
     {
         private readonly IStudentCohortRepository _studentCohortRepository;
         private readonly ILogger<CreateStudentCohortCommandHandler> _logger;

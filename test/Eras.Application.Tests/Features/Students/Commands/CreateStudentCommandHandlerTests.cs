@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
-using Eras.Application.Features.Components.Commands.CreateCommand;
-using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Features.Students.Commands.CreateStudent;
-using Eras.Application.Features.Variables.Commands.CreateVariable;
 using Eras.Application.Mappers;
+using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -32,20 +23,54 @@ namespace Eras.Application.Tests.Features.Students.Commands
         }
 
         [Fact]
-        public async Task HandleStudentCreatesNewStudentAsync()
+        public async Task Handler_ShouldCreatesNewStudentAndReturnSuccessResponse()
         {
             var newStudentDto = new StudentDTO() { Name= "newStudent" };
             var command = new CreateStudentCommand { StudentDTO = newStudentDto };
-            var newStudent = newStudentDto.ToDomain;
+            Student newStudent = newStudentDto.ToDomain();
 
             _mockStudentRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Student>()))
                 .ReturnsAsync(newStudent);
 
-            var result = await _handler.Handle(command, CancellationToken.None);
+            CreateCommandResponse<Student> result = await _handler.Handle(command, CancellationToken.None);
 
-            Assert.NotNull(result);
-            Assert.Equal("newStudent", result.Entity?.Name);
+            Assert.NotNull(result.Entity);
+            Assert.Equal("newStudent", result.Entity.Name);
         }
 
+        [Fact]
+        public async Task Handler_ShouldReturnFailureResponse_WhenStudentAlreadyExists()
+        {
+            var studentDTO = new StudentDTO { Email = "student@test.com" };
+            Student existingStudent = studentDTO.ToDomain();
+
+            _mockStudentRepository.Setup(Repo => Repo.GetByEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync(existingStudent);
+
+            var command = new CreateStudentCommand { StudentDTO = studentDTO };
+
+            CreateCommandResponse<Student> result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.Null(result.Entity);
+            Assert.False(result.Success);
+            Assert.Equal("Student Already Exists", result.Message);
+        }
+
+        [Fact]
+        public async Task Handler_ShouldCatchExceptionAndReturnErrorResponse()
+        {
+            var studentDTO = new StudentDTO { Email = "student@test.com" };
+
+            _mockStudentRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Student>()))
+                .ThrowsAsync(new Exception("DB Error."));
+
+            var command = new CreateStudentCommand { StudentDTO = studentDTO };
+
+            CreateCommandResponse<Student> result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.Null(result.Entity);
+            Assert.False(result.Success);
+            Assert.Equal("Error", result.Message);
+        }
     }
 }
