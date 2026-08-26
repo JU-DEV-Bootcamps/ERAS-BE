@@ -53,22 +53,14 @@ var app = builder.Build();
 // Automitcally log HTTP requests
 app.UseSerilogRequestLogging();
 
-// Apply schema migrations and recreate the SQL views that depend on them — IDataBase.MigrateAsync,
-// implemented by AppDbContext (src/Eras.Infrastructure/Persistence/PostgreSQL/AppDbContext.cs).
-// Previously three near-identical inline blocks living directly in this file (drop views, migrate,
-// recreate views, each manually opening/closing a raw DbConnection); consolidated into the
-// DbContext itself since "bring the schema and its views up to date" is squarely that class's own
-// responsibility, not something Program.cs should be doing by hand.
+// Apply schema migrations and recreate the SQL views that depend on them 
 using (var scope = app.Services.CreateScope())
 {
     var database = scope.ServiceProvider.GetRequiredService<IDataBase>();
     await database.MigrateAsync();
 }
 
-// Legacy Intervention attachment data migration (Attachments Refactor) — kept out of Program.cs
-// itself; see IInterventionAttachmentMigrationStartupTask for why (completion-marker gating,
-// logging, deciding when to mark done) and IInterventionAttachmentMigrationService for the
-// migration algorithm itself.
+// Legacy Intervention attachment data migration
 using (var migrationScope = app.Services.CreateScope())
 {
     var migrationTask = migrationScope.ServiceProvider.GetRequiredService<IInterventionAttachmentMigrationStartupTask>();
