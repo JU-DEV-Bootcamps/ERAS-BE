@@ -34,7 +34,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasIndex("StudentsId");
 
-                    b.ToTable("CohortEntityStudentEntity");
+                    b.ToTable("CohortEntityStudentEntity", (string)null);
                 });
 
             modelBuilder.Entity("Eras.Domain.Entities.AssessmentManagement.Assessment", b =>
@@ -192,87 +192,41 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasIndex("remission_id");
 
-                    b.ToTable("Interventions");
+                    b.ToTable("Interventions", (string)null);
 
                     b.HasDiscriminator().HasValue("Intervention");
 
                     b.UseTphMappingStrategy();
                 });
 
-            //modelBuilder.Entity("Eras.Domain.Entities.Attachment", b =>
-            //    {
-            //        b.Property<int>("Id")
-            //            .ValueGeneratedOnAdd()
-            //            .HasColumnType("integer")
-            //            .HasColumnName("id");
+            modelBuilder.Entity("Eras.Domain.Entities.DataMigrationCompletion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
-            //        NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-            //        b.Property<string>("ContentHash")
-            //            .IsRequired()
-            //            .HasMaxLength(64)
-            //            .HasColumnType("character varying(64)")
-            //            .HasColumnName("content_hash");
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
 
-            //        b.Property<DateTime>("CreatedAt")
-            //            .HasColumnType("timestamp with time zone")
-            //            .HasColumnName("created_at");
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("name");
 
-            //        b.Property<string>("CreatedBy")
-            //            .IsRequired()
-            //            .HasMaxLength(200)
-            //            .HasColumnType("character varying(200)")
-            //            .HasColumnName("created_by");
+                    b.HasKey("Id");
 
-            //        b.Property<int>("EntityId")
-            //            .HasColumnType("integer")
-            //            .HasColumnName("entity_id");
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("idx_data_migration_completions_name");
 
-            //        b.Property<string>("EntityType")
-            //            .IsRequired()
-            //            .HasMaxLength(100)
-            //            .HasColumnType("character varying(100)")
-            //            .HasColumnName("entity_type");
+                    b.ToTable("data_migration_completions", (string)null);
+                });
 
-            //        b.Property<string>("MimeType")
-            //            .HasMaxLength(255)
-            //            .HasColumnType("character varying(255)")
-            //            .HasColumnName("mime_type");
-
-            //        b.Property<string>("OriginalFileName")
-            //            .HasMaxLength(500)
-            //            .HasColumnType("character varying(500)")
-            //            .HasColumnName("original_file_name");
-
-            //        b.Property<long?>("SizeBytes")
-            //            .HasColumnType("bigint")
-            //            .HasColumnName("size_bytes");
-
-            //        b.Property<string>("StorageKey")
-            //            .IsRequired()
-            //            .HasMaxLength(1000)
-            //            .HasColumnType("character varying(1000)")
-            //            .HasColumnName("storage_key");
-
-            //        b.Property<string>("StorageProvider")
-            //            .IsRequired()
-            //            .ValueGeneratedOnAdd()
-            //            .HasMaxLength(50)
-            //            .HasColumnType("character varying(50)")
-            //            .HasDefaultValue("LocalFileSystem")
-            //            .HasColumnName("storage_provider");
-
-            //        b.Property<DateTime?>("StorageRelocationPendingAt")
-            //            .HasColumnType("timestamp with time zone")
-            //            .HasColumnName("storage_relocation_pending_at");
-
-            //        b.HasKey("Id");
-
-            //        b.HasIndex("EntityType", "EntityId")
-            //            .HasDatabaseName("idx_attachments_entity_type_entity_id");
-
-            //        b.ToTable("attachments", (string)null);
-            //    });
 
             modelBuilder.Entity("Eras.Domain.Entities.DataMigrationCompletion", b =>
                 {
@@ -1423,7 +1377,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("AssessmentId");
 
-                            b1.ToTable("remissions");
+                            b1.ToTable("remissions", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AssessmentId");
@@ -1469,7 +1423,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("FeatureFlagId");
 
-                            b1.ToTable("feature_flag");
+                            b1.ToTable("feature_flag", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("FeatureFlagId");
@@ -1519,7 +1473,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("AnswerEntityId");
 
-                            b1.ToTable("answers");
+                            b1.ToTable("answers", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AnswerEntityId");
@@ -1540,7 +1494,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("AnswerEntityId");
 
-                            b1.ToTable("answers");
+                            b1.ToTable("answers", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("AnswerEntityId");
@@ -1585,7 +1539,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("CohortEntityId");
 
-                            b1.ToTable("cohorts");
+                            b1.ToTable("cohorts", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CohortEntityId");
@@ -1623,7 +1577,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("ComponentEntityId");
 
-                            b1.ToTable("components");
+                            b1.ToTable("components", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ComponentEntityId");
@@ -1667,7 +1621,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("ConfigurationsEntityId");
 
-                            b1.ToTable("configurations");
+                            b1.ToTable("configurations", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ConfigurationsEntityId");
@@ -1713,7 +1667,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("EvaluationEntityId");
 
-                            b1.ToTable("evaluation");
+                            b1.ToTable("evaluation", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("EvaluationEntityId");
@@ -1753,7 +1707,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("JUProfessionalEntityId");
 
-                            b1.ToTable("ju_professionals");
+                            b1.ToTable("ju_professionals", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("JUProfessionalEntityId");
@@ -1791,7 +1745,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("JUServiceEntityId");
 
-                            b1.ToTable("ju_services");
+                            b1.ToTable("ju_services", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("JUServiceEntityId");
@@ -1829,7 +1783,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("PollEntityId");
 
-                            b1.ToTable("polls");
+                            b1.ToTable("polls", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PollEntityId");
@@ -1878,7 +1832,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("PollInstanceEntityId");
 
-                            b1.ToTable("poll_instances");
+                            b1.ToTable("poll_instances", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PollInstanceEntityId");
@@ -1920,7 +1874,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("ServiceProvidersEntityId");
 
-                            b1.ToTable("serviceProviders");
+                            b1.ToTable("serviceProviders", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ServiceProvidersEntityId");
@@ -1973,7 +1927,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("StudentDetailEntityId");
 
-                            b1.ToTable("student_details");
+                            b1.ToTable("student_details", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("StudentDetailEntityId");
@@ -2013,7 +1967,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("StudentEntityId");
 
-                            b1.ToTable("students");
+                            b1.ToTable("students", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("StudentEntityId");
@@ -2063,7 +2017,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("UserPollsEntityId");
 
-                            b1.ToTable("userPolls");
+                            b1.ToTable("userPolls", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("UserPollsEntityId");
@@ -2111,7 +2065,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("VariableEntityId");
 
-                            b1.ToTable("variables");
+                            b1.ToTable("variables", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("VariableEntityId");
@@ -2171,7 +2125,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.HasKey("PollVariableJoinId");
 
-                            b1.ToTable("poll_variable");
+                            b1.ToTable("poll_variable", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PollVariableJoinId");
