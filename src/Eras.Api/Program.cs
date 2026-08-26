@@ -3,8 +3,10 @@ using System.Text.Json.Serialization;
 using Eras.Api;
 using Eras.Api.Filters;
 using Eras.Api.Middleware;
+using Eras.Application.Contracts.Services;
 using Eras.Application.Services;
 using Eras.Infrastructure;
+using Eras.Infrastructure.Persistence;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +20,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers(
     options => options.Filters.Add<ErrorFilter>())
-    .AddJsonOptions(options => 
+    .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.Converters
         .Add(new JsonStringEnumConverter());
@@ -51,56 +53,26 @@ var app = builder.Build();
 // Automitcally log HTTP requests
 app.UseSerilogRequestLogging();
 
-// Apply database migrations
+// Apply schema migrations and recreate the SQL views that depend on them — IDataBase.MigrateAsync,
+// implemented by AppDbContext (src/Eras.Infrastructure/Persistence/PostgreSQL/AppDbContext.cs).
+// Previously three near-identical inline blocks living directly in this file (drop views, migrate,
+// recreate views, each manually opening/closing a raw DbConnection); consolidated into the
+// DbContext itself since "bring the schema and its views up to date" is squarely that class's own
+// responsibility, not something Program.cs should be doing by hand.
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    var dropsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Persistence/PostgreSQL/Views/Drops");
-
-    if (Directory.Exists(dropsPath))
-    {
-        var files = Directory.GetFiles(dropsPath, "*.sql").OrderBy(f => f);
-        using (var connection = dbContext.Database.GetDbConnection())
-        {
-            connection.Open();
-            foreach (var file in files)
-            {
-                var sql = File.ReadAllText(file);
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = sql;
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
-    }
+    var database = scope.ServiceProvider.GetRequiredService<IDataBase>();
+    await database.MigrateAsync();
 }
 
-// Start migrations and views Creation
-using (var scope = app.Services.CreateScope())
+// Legacy Intervention attachment data migration (Attachments Refactor) — kept out of Program.cs
+// itself; see IInterventionAttachmentMigrationStartupTask for why (completion-marker gating,
+// logging, deciding when to mark done) and IInterventionAttachmentMigrationService for the
+// migration algorithm itself.
+using (var migrationScope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
-
-    var upsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Persistence/PostgreSQL/Views/Ups");
-
-    if (Directory.Exists(upsPath))
-    {
-        var files = Directory.GetFiles(upsPath, "*.sql").OrderBy(f => f);
-        using (var connection = dbContext.Database.GetDbConnection())
-        {
-            connection.Open();
-            foreach (var file in files)
-            {
-                var sql = File.ReadAllText(file);
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = sql;
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
-    }
+    var migrationTask = migrationScope.ServiceProvider.GetRequiredService<IInterventionAttachmentMigrationStartupTask>();
+    await migrationTask.RunAsync();
 }
 
 // Enable CORS

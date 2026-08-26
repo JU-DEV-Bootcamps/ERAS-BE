@@ -36,6 +36,8 @@ namespace Eras.Application.Services
             Services.AddScoped<IEvaluationStatusUpdater, EvaluationStatusUpdater>();
             Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
             Services.AddScoped<IAttachmentService, AttachmentService>();
+            Services.AddScoped<IInterventionAttachmentMigrationService, InterventionAttachmentMigrationService>();
+            Services.AddScoped<IInterventionAttachmentMigrationStartupTask, InterventionAttachmentMigrationStartupTask>();
             Services.ConfigureMappers();
             Services.ConfigureValidators();
             return Services;
