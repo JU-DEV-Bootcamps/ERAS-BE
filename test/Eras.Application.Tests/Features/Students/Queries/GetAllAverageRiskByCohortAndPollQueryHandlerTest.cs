@@ -1,6 +1,6 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Student;
-using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohorAndPoll;
+using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohortAndPoll;
 using Eras.Application.Utils;
 
 using Microsoft.Extensions.Logging;

@@ -231,30 +231,6 @@ public class CreateStudentsCommandHandlerTests
         _mockMediator.Verify(m => m.Send(It.IsAny<CreateStudentDetailCommand>(), CancellationToken.None), Times.Never);
     }
 
-    // // ---------- Created vs updated bucketing ----------
-
-    // [Fact]
-    // public async Task Handle_SuccessfullImportsZero_AddsToUpdatedStudents()
-    // {
-    //     // Arrange
-    //     StudentImportDto dto = ValidDto();
-    //     Student existing = new Student { Name = dto.Name, Email = dto.Email, StudentDetail = new StudentDetail { Id = 1 } };
-
-    //     SetupStudentFound(dto.Email, existing);
-    //     _mockMediator
-    //         .Setup(m => m.Send(It.IsAny<UpdateStudentCommand>(), CancellationToken.None))
-    //         .ReturnsAsync(new CreateCommandResponse<Student>(existing, 0, "updated", true));
-
-    //     CreateStudentsCommand command = new CreateStudentsCommand { students = new[] { dto } };
-
-    //     // Act
-    //     CreateCommandResponse<Student[]> result = await _handler.Handle(command, CancellationToken.None);
-
-    //     // Assert: updated students are not included in the returned Entity array, only reflected in the message
-    //     Assert.Equal(0, result.Entity.Length);
-    //     Assert.Contains("1 updated", result.Message);
-    // }
-
     [Fact]
     public async Task Handler_ShouldCountMixOfCreatedUpdatedAndErrorStudents()
     {
