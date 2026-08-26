@@ -10,18 +10,33 @@ using Microsoft.AspNetCore.Mvc;
 namespace Eras.Api.Controllers;
 
 /// <summary>
-/// Generic, entity-agnostic attachment endpoints (User Story 1.4) — upload/list/download/delete
-/// for any entity type on <c>AttachmentEntityTypeRegistry</c>'s whitelist. Does not replace the
-/// existing Intervention-specific endpoints on <c>AssessmentsController</c>; that migration is
-/// User Story 1.6.
+/// Generic, entity-agnostic attachment endpoints (upload/list/download/delete)
+/// for any entity type on <c>AttachmentEntityTypeRegistry</c>'s whitelist.
 /// </summary>
 [ApiController]
 [Route("api/v1/attachments")]
 [Authorize]
-public class AttachmentsController(IAttachmentService AttachmentService, ILogger<AttachmentsController> Logger) : ControllerBase
+public class AttachmentsController(
+    IAttachmentService AttachmentService,
+    IAttachmentDraftSessionService AttachmentDraftSessionService,
+    ILogger<AttachmentsController> Logger) : ControllerBase
 {
     private readonly IAttachmentService _attachmentService = AttachmentService;
+    private readonly IAttachmentDraftSessionService _attachmentDraftSessionService = AttachmentDraftSessionService;
     private readonly ILogger<AttachmentsController> _logger = Logger;
+
+    /// <summary>
+    /// Hands out a real <c>int</c> id for a not-yet-existing owning entity to reference, so files
+    /// can be staged ahead of it.
+    /// </summary>
+    [HttpPost("drafts")]
+    [ProducesResponseType(typeof(DraftSessionDto), StatusCodes.Status201Created)]
+    public async Task<ActionResult<DraftSessionDto>> CreateDraftSessionAsync(CancellationToken CancellationToken)
+    {
+        string createdBy = GetCurrentUserId();
+        DraftSessionDto result = await _attachmentDraftSessionService.CreateDraftSessionAsync(createdBy, CancellationToken);
+        return Created(string.Empty, result);
+    }
 
     [HttpPost]
     [Consumes("multipart/form-data")]

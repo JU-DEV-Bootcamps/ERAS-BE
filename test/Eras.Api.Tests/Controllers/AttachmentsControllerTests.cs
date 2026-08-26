@@ -16,14 +16,16 @@ namespace Eras.Api.Tests.Controllers;
 public class AttachmentsControllerTests
 {
     private readonly Mock<IAttachmentService> _mockAttachmentService;
+    private readonly Mock<IAttachmentDraftSessionService> _mockAttachmentDraftSessionService;
     private readonly Mock<ILogger<AttachmentsController>> _mockLogger;
     private readonly AttachmentsController _controller;
 
     public AttachmentsControllerTests()
     {
         _mockAttachmentService = new Mock<IAttachmentService>();
+        _mockAttachmentDraftSessionService = new Mock<IAttachmentDraftSessionService>();
         _mockLogger = new Mock<ILogger<AttachmentsController>>();
-        _controller = new AttachmentsController(_mockAttachmentService.Object, _mockLogger.Object)
+        _controller = new AttachmentsController(_mockAttachmentService.Object, _mockAttachmentDraftSessionService.Object, _mockLogger.Object)
         {
             ControllerContext = new ControllerContext
             {
@@ -52,6 +54,25 @@ public class AttachmentsControllerTests
         mock.Setup(F => F.FileName).Returns(FileName);
         mock.Setup(F => F.OpenReadStream()).Returns(() => new MemoryStream(bytes));
         return mock;
+    }
+
+    [Fact]
+    public async Task CreateDraftSessionAsync_Should_ReturnCreated_WithDraftIdScopedToTheCallerAsync()
+    {
+        // Arrange
+        _mockAttachmentDraftSessionService
+            .Setup(X => X.CreateDraftSessionAsync("user-1", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DraftSessionDto { DraftId = 42 });
+
+        // Act
+        ActionResult<DraftSessionDto> result = await _controller.CreateDraftSessionAsync(CancellationToken.None);
+
+        // Assert
+        CreatedResult createdResult = Assert.IsType<CreatedResult>(result.Result);
+        DraftSessionDto dto = Assert.IsType<DraftSessionDto>(createdResult.Value);
+        Assert.Equal(42, dto.DraftId);
+        _mockAttachmentDraftSessionService.Verify(
+            X => X.CreateDraftSessionAsync("user-1", It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
