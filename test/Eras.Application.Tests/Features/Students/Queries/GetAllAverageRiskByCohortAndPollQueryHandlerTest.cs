@@ -1,4 +1,4 @@
-﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohortAndPoll;
 using Eras.Application.Utils;
@@ -8,66 +8,91 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Queries;
-
 public class GetAllAverageRiskByCohortAndPollQueryHandlerTest
 {
-    private readonly Mock<ILogger<GetAllAverageRiskByCohortAndPollQueryHandler>> _logger;
-    private readonly Mock<IStudentRepository> _repository;
+    private readonly Mock<IStudentRepository> _mockStudentRepository;
+    private readonly Mock<ILogger<GetAllAverageRiskByCohortAndPollQueryHandler>> _mockLogger;
     private readonly GetAllAverageRiskByCohortAndPollQueryHandler _handler;
 
     public GetAllAverageRiskByCohortAndPollQueryHandlerTest()
     {
-        _logger = new Mock<ILogger<GetAllAverageRiskByCohortAndPollQueryHandler>>();
-        _repository = new Mock<IStudentRepository>();
-        _handler = new GetAllAverageRiskByCohortAndPollQueryHandler(_repository.Object, _logger.Object);
+        _mockStudentRepository = new Mock<IStudentRepository>();
+        _mockLogger = new Mock<ILogger<GetAllAverageRiskByCohortAndPollQueryHandler>>();
+        _handler = new GetAllAverageRiskByCohortAndPollQueryHandler(_mockStudentRepository.Object, _mockLogger.Object);
+    }
+
+    private static StudentAverageRiskDto BuildStudentAverageRiskDTO(
+        int StudentId = 1,
+        string StudentName = "Andres Soto",
+        string Email = "andres.soto@test.com"
+    )
+        => new () {
+            StudentId = StudentId,
+            StudentName = StudentName,
+            Email = Email,
+            AvgRiskLevel = 3
+        };
+
+    [Fact]
+    public async Task Handler_ShouldReturnSuccessResponse()
+    {
+        List<StudentAverageRiskDto> responseItems =
+            [
+                BuildStudentAverageRiskDTO(),
+                BuildStudentAverageRiskDTO(2, "Carla Buendia", "carla.buendia@test.com")
+            ];
+        var response = new PagedResult<StudentAverageRiskDto>(responseItems.Count, responseItems);
+
+        _mockStudentRepository.Setup(Repo => Repo.GetStudentAverageRiskByCohortsAsync(
+            It.IsAny<Pagination>(),
+            It.IsAny<List<int>>(),
+            It.IsAny<string>(),
+            It.IsAny<bool>(),
+            It.IsAny<int?>()
+        )).ReturnsAsync(response);
+
+        var query = new GetAllAverageRiskByCohortAndPollQuery(
+            new Pagination(),
+            [1, 2],
+            "mock-Uu1D",
+            true,
+            1
+        );
+
+        PagedResult<StudentAverageRiskDto> result = await _handler.Handle(query, CancellationToken.None);
+
+        Assert.Equal(response.Count, result.Count);
+        Assert.Equal(response.Items.Count, result.Items.Count);
+        Assert.Collection(result.Items,
+            item => Assert.Equal(response.Items[0].StudentName, item.StudentName),
+            item => Assert.Equal(response.Items[1].StudentName, item.StudentName)
+        );
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnSuccess_ResponseAsync()
+    public async Task Handler_ShouldReturnEmptyPagedResult_WhenNoItemsInRepo()
     {
-        // Arrange
-        var items = new List<StudentAverageRiskDto>
-        {
-            new StudentAverageRiskDto
-            {
-                StudentId = 1,
-                StudentName = "Blair",
-                Email = "blair@f.com"
-            },
-            new StudentAverageRiskDto
-            {
-                StudentId = 2,
-                StudentName = "Cyan",
-                Email = "cyan@f.com"
-            },
-        };
-        var data = new PagedResult<StudentAverageRiskDto>(2, items);
-        var request = new GetAllAverageRiskByCohortAndPollQuery(
-            new Pagination { Page = 0, PageSize = 5 }, 
-            new List<int>() { 2 }, "2", true, 32);
+        var response = new PagedResult<StudentAverageRiskDto>(0, []);
 
-        _repository
-            .Setup(x => x.GetStudentAverageRiskByCohortsAsync(
-                It.IsAny<Pagination>(),
-                It.IsAny<List<int>>(),
-                It.IsAny<string>(),
-                It.IsAny<bool>(),
-                It.IsAny<int>())
-                )
-            .ReturnsAsync(data);
+        _mockStudentRepository.Setup(Repo => Repo.GetStudentAverageRiskByCohortsAsync(
+            It.IsAny<Pagination>(),
+            It.IsAny<List<int>>(),
+            It.IsAny<string>(),
+            It.IsAny<bool>(),
+            It.IsAny<int?>()
+        )).ReturnsAsync(response);
 
-        // Act
-        var result = await _handler.Handle(request, CancellationToken.None);
+        var query = new GetAllAverageRiskByCohortAndPollQuery(
+            new Pagination(),
+            [1, 2],
+            "mock-Uu1D",
+            true,
+            1
+        );
 
-        // Assert
-        Assert.Equal(2, result.Count);
+        PagedResult<StudentAverageRiskDto> result = await _handler.Handle(query, CancellationToken.None);
 
-        var mappedStudent1 = result.Items.Single(x => x.StudentId == 1);
-        Assert.Equal("Blair", mappedStudent1.StudentName);
-        Assert.Equal("blair@f.com", mappedStudent1.Email);
-
-        var mappedStudent2 = result.Items.Single(x => x.StudentId == 2);
-        Assert.Equal("Cyan", mappedStudent2.StudentName);
-        Assert.Equal("cyan@f.com", mappedStudent2.Email);
+        Assert.Equal(response.Count, result.Count);
+        Assert.Empty(result.Items);
     }
 }
