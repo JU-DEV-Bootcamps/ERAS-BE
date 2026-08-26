@@ -68,7 +68,7 @@ public class AttachmentsControllerTests
             .ReturnsAsync(new List<AttachmentDto> { BuildDto() });
 
         // Act
-        var result = await _controller.Upload("interventions", 1, formFiles, CancellationToken.None);
+        var result = await _controller.UploadAsync("interventions", 1, formFiles, CancellationToken.None);
 
         // Assert
         var createdResult = Assert.IsType<CreatedResult>(result.Result);
@@ -93,7 +93,7 @@ public class AttachmentsControllerTests
             .ReturnsAsync(new List<AttachmentDto> { BuildDto(1), BuildDto(2) });
 
         // Act
-        var result = await _controller.Upload("interventions", 1, formFiles, CancellationToken.None);
+        var result = await _controller.UploadAsync("interventions", 1, formFiles, CancellationToken.None);
 
         // Assert
         var createdResult = Assert.IsType<CreatedResult>(result.Result);
@@ -110,7 +110,7 @@ public class AttachmentsControllerTests
     public async Task Upload_Should_ReturnBadRequest_When_NoFilesProvidedAsync()
     {
         // Act
-        var result = await _controller.Upload("interventions", 1, new FormFileCollection(), CancellationToken.None);
+        var result = await _controller.UploadAsync("interventions", 1, new FormFileCollection(), CancellationToken.None);
 
         // Assert
         Assert.IsType<BadRequestObjectResult>(result.Result);
@@ -130,7 +130,7 @@ public class AttachmentsControllerTests
             .ReturnsAsync(new List<AttachmentDto> { BuildDto() });
 
         // Act
-        var result = await _controller.List("interventions", 1, CancellationToken.None);
+        var result = await _controller.ListAsync("interventions", 1, CancellationToken.None);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result.Result);
@@ -147,7 +147,7 @@ public class AttachmentsControllerTests
             .ReturnsAsync("https://example.com/signed-url");
 
         // Act
-        var result = await _controller.Download(1, CancellationToken.None);
+        var result = await _controller.DownloadAsync(1, CancellationToken.None);
 
         // Assert
         var redirect = Assert.IsType<RedirectResult>(result);
@@ -167,7 +167,7 @@ public class AttachmentsControllerTests
             .ReturnsAsync((new MemoryStream([1, 2, 3]), "application/pdf", "report.pdf"));
 
         // Act
-        var result = await _controller.Download(1, CancellationToken.None);
+        var result = await _controller.DownloadAsync(1, CancellationToken.None);
 
         // Assert
         var fileResult = Assert.IsType<FileStreamResult>(result);
@@ -183,7 +183,7 @@ public class AttachmentsControllerTests
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await _controller.Delete(1, CancellationToken.None);
+        var result = await _controller.DeleteAsync(1, CancellationToken.None);
 
         // Assert
         Assert.IsType<NoContentResult>(result);
@@ -200,6 +200,6 @@ public class AttachmentsControllerTests
         // Act & Assert — relies on the global ErrorFilter to translate IErasException to its
         // StatusCode; the controller itself doesn't catch it (unlike AssessmentsController's
         // manual try/catch style elsewhere).
-        await Assert.ThrowsAsync<NotFoundException>(() => _controller.Delete(999, CancellationToken.None));
+        await Assert.ThrowsAsync<NotFoundException>(() => _controller.DeleteAsync(999, CancellationToken.None));
     }
 }

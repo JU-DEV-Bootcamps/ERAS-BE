@@ -137,7 +137,7 @@ public sealed class AttachmentService(
                 EntityId = EntityId,
                 OriginalFileName = FileName,
                 StorageKey = storageKey,
-                MimeType = ResolveContentType(FileName),
+                MimeType = ContentTypeResolver.Resolve(FileName),
                 SizeBytes = sizeBytes,
                 ContentHash = contentHash,
                 CreatedBy = CreatedBy
@@ -258,14 +258,4 @@ public sealed class AttachmentService(
         return (Convert.ToHexString(hashBytes), Stream.Position);
     }
 
-    private static string ResolveContentType(string FileName) =>
-        Path.GetExtension(FileName).ToLowerInvariant() switch
-        {
-            ".pdf" => "application/pdf",
-            ".jpg" or ".jpeg" => "image/jpeg",
-            ".png" => "image/png",
-            ".docx" => "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            ".txt" => "text/plain",
-            _ => "application/octet-stream"
-        };
 }
