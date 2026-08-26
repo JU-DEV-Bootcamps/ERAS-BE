@@ -1,3 +1,4 @@
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
@@ -12,6 +13,7 @@ namespace Eras.Application.Services;
 public sealed class InterventionAttachmentMigrationService(
     IAssessmentRepository AssessmentRepository,
     IAttachmentRepository AttachmentRepository,
+    IFileStorageService FileStorage,
     ILogger<InterventionAttachmentMigrationService> Logger) : IInterventionAttachmentMigrationService
 {
     /// <summary>
@@ -76,7 +78,9 @@ public sealed class InterventionAttachmentMigrationService(
                 // `MimeType` and `OriginalFileName` were never originally captured historically, so
                 // both are derived from `path` instead — `OriginalFileName` is really the GUID
                 // SaveAsync generated (not the user's true original name), and `MimeType` is guessed
-                // from that same path's extension, which SaveAsync did preserve verbatim.
+                // from that same path's extension, which SaveAsync did preserve verbatim. `SizeBytes`
+                // was never captured either, but — unlike those two — the real value is actually
+                // recoverable: it's read off the physical file itself, below.
                 var attachment = new Attachment
                 {
                     EntityType = InterventionConstants.AttachmentEntityType,
@@ -85,7 +89,7 @@ public sealed class InterventionAttachmentMigrationService(
                     ContentHash = hash,
                     OriginalFileName = Path.GetFileName(path),
                     MimeType = ContentTypeResolver.Resolve(path),
-                    SizeBytes = null,
+                    SizeBytes = await TryGetSizeBytesAsync(path, intervention.Id),
                     CreatedBy = MigrationCreatedBy,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -94,7 +98,7 @@ public sealed class InterventionAttachmentMigrationService(
                 created++;
                 createdForThisIntervention++;
             }
-            
+
             int projectedCount = alreadyMigratedHashes.Count + createdForThisIntervention;
             if (projectedCount != paths.Count)
                 validationFailures.Add(new InterventionAttachmentMigrationValidationFailure(intervention.Id, paths.Count, projectedCount));
@@ -107,5 +111,28 @@ public sealed class InterventionAttachmentMigrationService(
             InterventionsSkippedDueToMismatchedArrays = mismatchedArrays,
             ValidationFailures = validationFailures
         };
+    }
+
+    /// <summary>
+    /// Reads the physical file's real (decrypted) size off disk — unlike `OriginalFileName`'s GUID
+    /// and `MimeType`'s extension guess, this isn't a fallback derived from the path string, it's
+    /// the actual value. Returns null, with a warning logged, if the file itself is no longer
+    /// present in storage (plausible for old legacy data — moved, cleaned up, or lost independently
+    /// of the database row) rather than failing the whole migration over one missing file.
+    /// </summary>
+    private async Task<long?> TryGetSizeBytesAsync(string Path, int InterventionId)
+    {
+        try
+        {
+            await using Stream stream = await FileStorage.ReadAsync(Path);
+            return stream.Length;
+        }
+        catch (FileNotFoundException)
+        {
+            Logger.LogWarning(
+                "Intervention {InterventionId}: file '{Path}' not found in storage — SizeBytes left null for this attachment.",
+                InterventionId, Path);
+            return null;
+        }
     }
 }

@@ -1,3 +1,4 @@
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Services;
@@ -14,15 +15,22 @@ public class InterventionAttachmentMigrationServiceTest
 {
     private readonly Mock<IAssessmentRepository> _mockAssessmentRepository;
     private readonly Mock<IAttachmentRepository> _mockAttachmentRepository;
+    private readonly Mock<IFileStorageService> _mockFileStorage;
     private readonly InterventionAttachmentMigrationService _service;
 
     public InterventionAttachmentMigrationServiceTest()
     {
         _mockAssessmentRepository = new Mock<IAssessmentRepository>();
         _mockAttachmentRepository = new Mock<IAttachmentRepository>();
+        _mockFileStorage = new Mock<IFileStorageService>();
+        // Default: every file "exists" with a 100-byte body — a fresh stream per call, since
+        // TryGetSizeBytesAsync disposes what it reads. Tests that care about a specific size or a
+        // missing file override this per-call.
+        _mockFileStorage.Setup(x => x.ReadAsync(It.IsAny<string>())).ReturnsAsync(() => new MemoryStream(new byte[100]));
         _service = new InterventionAttachmentMigrationService(
             _mockAssessmentRepository.Object,
             _mockAttachmentRepository.Object,
+            _mockFileStorage.Object,
             Mock.Of<ILogger<InterventionAttachmentMigrationService>>());
     }
 
@@ -76,8 +84,49 @@ public class InterventionAttachmentMigrationServiceTest
             && a.ContentHash == "hash-a"
             && a.OriginalFileName == "a.pdf" // Path.GetFileName(path) — the GUID-based name path itself carried, not the true original name
             && a.MimeType == "application/pdf" // ContentTypeResolver.Resolve(path) — extension is trustworthy even though the base name isn't
-            && a.SizeBytes == null)), Times.Once);
+            && a.SizeBytes == 100)), Times.Once); // real size read off the (mocked) physical file
         _mockAttachmentRepository.Verify(x => x.AddAsync(It.Is<Attachment>(a => a.StorageKey == "interventions/1/b.pdf")), Times.Once);
+    }
+
+    [Fact]
+    public async Task MigrateAsync_Should_UseTheFileSActualByteLength_AsSizeBytesAsync()
+    {
+        // Arrange — unlike OriginalFileName/MimeType (both derived from the path string alone),
+        // SizeBytes is the one field the migration can recover for real, by reading the file.
+        var intervention = BuildIntervention(1, ["interventions/1/a.pdf"], ["hash-a"]);
+        SetupAssessments(intervention);
+        SetupNoExistingAttachments();
+        _mockFileStorage
+            .Setup(x => x.ReadAsync("interventions/1/a.pdf"))
+            .ReturnsAsync(() => new MemoryStream(new byte[54321]));
+
+        // Act
+        await _service.MigrateAsync();
+
+        // Assert
+        _mockAttachmentRepository.Verify(x => x.AddAsync(It.Is<Attachment>(a => a.SizeBytes == 54321)), Times.Once);
+    }
+
+    [Fact]
+    public async Task MigrateAsync_Should_LeaveSizeBytesNull_When_TheFileIsMissingFromStorageAsync()
+    {
+        // Arrange — legacy data: the DB still references a path, but the physical file is gone
+        // (moved, cleaned up, or lost independently of the row). The migration should still create
+        // the Attachment row rather than fail the whole run over one missing file.
+        var intervention = BuildIntervention(1, ["interventions/1/a.pdf"], ["hash-a"]);
+        SetupAssessments(intervention);
+        SetupNoExistingAttachments();
+        _mockFileStorage
+            .Setup(x => x.ReadAsync("interventions/1/a.pdf"))
+            .ThrowsAsync(new FileNotFoundException("Attachment not found.", "interventions/1/a.pdf"));
+
+        // Act
+        var result = await _service.MigrateAsync();
+
+        // Assert
+        Assert.Equal(1, result.AttachmentsCreated);
+        Assert.True(result.IsValid);
+        _mockAttachmentRepository.Verify(x => x.AddAsync(It.Is<Attachment>(a => a.SizeBytes == null)), Times.Once);
     }
 
     [Fact]
