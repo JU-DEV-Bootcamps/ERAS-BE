@@ -13,6 +13,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     /// <inheritdoc />
     [DbContext(typeof(AppDbContext))]
     [Migration("20260630190000_AddExtractionFields")]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public partial class AddExtractionFields : Migration
     {
         /// <inheritdoc />

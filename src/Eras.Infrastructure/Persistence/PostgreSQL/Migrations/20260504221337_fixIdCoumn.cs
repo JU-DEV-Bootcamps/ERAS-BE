@@ -8,6 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public partial class fixIdCoumn : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

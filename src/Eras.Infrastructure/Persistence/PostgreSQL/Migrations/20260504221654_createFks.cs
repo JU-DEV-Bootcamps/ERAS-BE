@@ -4,6 +4,7 @@
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public partial class createFks : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

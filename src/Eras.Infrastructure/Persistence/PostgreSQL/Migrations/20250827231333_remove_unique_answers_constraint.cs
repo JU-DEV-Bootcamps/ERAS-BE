@@ -5,6 +5,7 @@
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     /// <inheritdoc />
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public partial class remove_unique_answers_constraint : Migration
     {
         /// <inheritdoc />

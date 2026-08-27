@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Eras.Application.Services
 {
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public static class ApplicationServiceRegistration
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection Services)
