@@ -1,6 +1,7 @@
 ﻿using Eras.Application.DTOs;
 using Eras.Domain.Entities;
 using Eras.Application.Mappers;
+using Eras.Domain.Common;
 namespace Eras.Application.Tests.Mappers;
 public class StudentDetailMapperTest
 {
@@ -18,6 +19,7 @@ public class StudentDetailMapperTest
             PureScoreDiff = 10,
             StandardScoreDiff = 5,
             LastAccessDays = 12,
+            Audit = new AuditInfo()
 
         };
         var result = dto.ToDomain();
@@ -60,5 +62,28 @@ public class StudentDetailMapperTest
         Assert.Equal(model.PureScoreDiff, result.PureScoreDiff);
         Assert.Equal(model.LastAccessDays, result.LastAccessDays);
         Assert.Equal(model.StandardScoreDiff, result.StandardScoreDiff);
+    }
+
+    [Fact]
+    public void ToDomain_ShouldCreateAutomaticAudit_WhenAuditIsNull()
+    {
+        var dto = new StudentDetailDTO
+        {
+            StudentId = 123,
+            EnrolledCourses = 5,
+            GradedCourses = 4,
+            TimeDeliveryRate = 90,
+            AvgScore = 85,
+            CoursesUnderAvg = 2,
+            PureScoreDiff = 10,
+            StandardScoreDiff = 5,
+            LastAccessDays = 3,
+            Audit = null
+        };
+
+        var result = dto.ToDomain();
+
+        Assert.NotNull(result.Audit);
+        Assert.Equal("Automatic mapper", result.Audit.CreatedBy);
     }
 }

@@ -121,6 +121,7 @@ public class StudentMapperTest
             Uuid = "Uuid",
             Name = "Name",
             Email = "Email",
+            Cohort = new CohortDTO(),
             Audit = null,
         };
 
