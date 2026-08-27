@@ -5,6 +5,7 @@
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     /// <inheritdoc />
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public partial class fix_decimals_scale : Migration
     {
         /// <inheritdoc />

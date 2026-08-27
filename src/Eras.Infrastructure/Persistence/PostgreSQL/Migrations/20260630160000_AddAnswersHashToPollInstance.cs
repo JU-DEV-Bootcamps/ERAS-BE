@@ -11,6 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     /// <inheritdoc />
     [DbContext(typeof(AppDbContext))]
     [Migration("20260630160000_AddAnswersHashToPollInstance")]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public partial class AddAnswersHashToPollInstance : Migration
     {
         /// <inheritdoc />

@@ -15,6 +15,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     /// <inheritdoc />
     [DbContext(typeof(AppDbContext))]
     [Migration("20260630170000_AddImportJobs")]
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public partial class AddImportJobs : Migration
     {
         /// <inheritdoc />

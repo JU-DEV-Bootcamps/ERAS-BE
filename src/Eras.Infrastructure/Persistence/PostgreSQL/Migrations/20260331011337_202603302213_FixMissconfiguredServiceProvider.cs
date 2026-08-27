@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     /// <inheritdoc />
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public partial class _202603302213_FixMissconfiguredServiceProvider : Migration
     {
         /// <inheritdoc />
