@@ -1,5 +1,7 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL;
+﻿using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
@@ -15,7 +17,7 @@ public class ConfigurationsRepositoryTests : RepositoryTestBase
     public async Task GetByIdAsyncNoTracking_WhenConfigurationExists_ReturnsConfigurationAsync()
     {
         await using var context = CreateContext();
-        context.Configurations.Add(new ConfigurationsEntity
+        var dto = new Configurations
         {
             Id = 1,
             UserId = "user-1",
@@ -24,7 +26,8 @@ public class ConfigurationsRepositoryTests : RepositoryTestBase
             BaseURL = "https://example.com",
             EncryptedKey = "encrypted-key",
             IsDeleted = false
-        });
+        };
+        context.Configurations.Add(dto.ToPersistence());
         await context.SaveChangesAsync();
         var repository = new ConfigurationsRepository(context);
         var result = await repository.GetByIdAsyncNoTracking(1);
@@ -52,7 +55,8 @@ public class ConfigurationsRepositoryTests : RepositoryTestBase
     public async Task GetByNameAsync_WhenConfigurationExists_ReturnsConfigurationAsync()
     {
         await using var context = CreateContext();
-        context.Configurations.Add(new ConfigurationsEntity
+
+        var config = new ConfigurationsEntity
         {
             Id = 1,
             UserId = "user-1",
@@ -61,14 +65,17 @@ public class ConfigurationsRepositoryTests : RepositoryTestBase
             BaseURL = "https://example.com",
             EncryptedKey = "encrypted-key",
             IsDeleted = false
-        });
+        };
+        context.Configurations.Add(config);
+        var dto = config.ToDomain();
         await context.SaveChangesAsync();
         var repository = new ConfigurationsRepository(context);
         var result = await repository.GetByNameAsync("Configuration 1");
 
         Assert.NotNull(result);
         Assert.Equal(1, result.Id);
-        Assert.Equal("Configuration 1", result.ConfigurationName);
+        Assert.Equal(dto.EncryptedKey, result.EncryptedKey);
+        Assert.Equal(dto.ConfigurationName, result.ConfigurationName);
     }
 
     [Fact]

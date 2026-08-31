@@ -1,5 +1,7 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL;
+﻿using Eras.Domain.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
 
@@ -17,13 +19,13 @@ public class ServiceProvidersRepositoryTest : RepositoryTestBase
     {
         // Arrange
         await using var context = CreateContext();
-
-        context.ServiceProviders.Add(new ServiceProvidersEntity
+        var dto = new ServiceProviders
         {
             Id = 1,
             ServiceProviderName = "Test Provider",
             ServiceProviderLogo = "logo"
-        });
+        };
+        context.ServiceProviders.Add(dto.ToPersistence());
 
         await context.SaveChangesAsync();
 
@@ -43,13 +45,15 @@ public class ServiceProvidersRepositoryTest : RepositoryTestBase
         // Arrange
         await using var context = CreateContext();
 
-        context.ServiceProviders.Add(new ServiceProvidersEntity
+        var service = new ServiceProvidersEntity
         {
             Id = 1,
             ServiceProviderName = "Test Provider",
             ServiceProviderLogo = "logo"
-        });
+        };
 
+        context.ServiceProviders.Add(service);
+        service.ToDomain();
         await context.SaveChangesAsync();
 
         var repository = new ServiceProvidersRepository(context);
