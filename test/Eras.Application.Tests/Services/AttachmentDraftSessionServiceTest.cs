@@ -1,4 +1,5 @@
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AttachmentManagement;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
@@ -10,12 +11,15 @@ namespace Eras.Application.Tests.Services;
 public class AttachmentDraftSessionServiceTest
 {
     private readonly Mock<IAttachmentDraftSessionRepository> _mockRepository;
+    private readonly Mock<IUserIdentityProvider> _mockUserIdentityProvider;
     private readonly AttachmentDraftSessionService _service;
 
     public AttachmentDraftSessionServiceTest()
     {
         _mockRepository = new Mock<IAttachmentDraftSessionRepository>();
-        _service = new AttachmentDraftSessionService(_mockRepository.Object);
+        _mockUserIdentityProvider = new Mock<IUserIdentityProvider>();
+        _mockUserIdentityProvider.Setup(X => X.UserId).Returns("user-1");
+        _service = new AttachmentDraftSessionService(_mockRepository.Object, _mockUserIdentityProvider.Object);
     }
 
     [Fact]
@@ -32,7 +36,7 @@ public class AttachmentDraftSessionServiceTest
             });
 
         // Act
-        DraftSessionDto result = await _service.CreateDraftSessionAsync("user-1");
+        DraftSessionDto result = await _service.CreateDraftSessionAsync();
 
         // Assert
         Assert.Equal(42, result.DraftId);
@@ -53,9 +57,30 @@ public class AttachmentDraftSessionServiceTest
             });
 
         // Act
-        DraftSessionDto result = await _service.CreateDraftSessionAsync("user-2");
+        DraftSessionDto result = await _service.CreateDraftSessionAsync();
 
         // Assert
         Assert.Equal(7, result.DraftId);
+    }
+
+    [Fact]
+    public async Task CreateDraftSessionAsync_Should_UseTheCurrentUserFromTheIdentityProviderAsync()
+    {
+        // Arrange
+        _mockUserIdentityProvider.Setup(X => X.UserId).Returns("user-2");
+        _mockRepository
+            .Setup(X => X.AddAsync(It.IsAny<AttachmentDraftSession>()))
+            .ReturnsAsync((AttachmentDraftSession Session) => new AttachmentDraftSession
+            {
+                Id = 1,
+                CreatedBy = Session.CreatedBy,
+                CreatedAt = Session.CreatedAt
+            });
+
+        // Act
+        await _service.CreateDraftSessionAsync();
+
+        // Assert
+        _mockRepository.Verify(X => X.AddAsync(It.Is<AttachmentDraftSession>(S => S.CreatedBy == "user-2")), Times.Once);
     }
 }

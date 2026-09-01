@@ -1,6 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Security.Claims;
-
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AttachmentManagement;
 
@@ -33,8 +30,7 @@ public class AttachmentsController(
     [ProducesResponseType(typeof(DraftSessionDto), StatusCodes.Status201Created)]
     public async Task<ActionResult<DraftSessionDto>> CreateDraftSessionAsync(CancellationToken CancellationToken)
     {
-        string createdBy = GetCurrentUserId();
-        DraftSessionDto result = await _attachmentDraftSessionService.CreateDraftSessionAsync(createdBy, CancellationToken);
+        DraftSessionDto result = await _attachmentDraftSessionService.CreateDraftSessionAsync(CancellationToken);
         return Created(string.Empty, result);
     }
 
@@ -52,8 +48,6 @@ public class AttachmentsController(
         if (Files.Count == 0)
             return BadRequest("No files provided.");
 
-        string createdBy = GetCurrentUserId();
-
         var openedFiles = Files
             .Select(File => (Stream: (Stream)File.OpenReadStream(), File.FileName))
             .ToList();
@@ -61,7 +55,7 @@ public class AttachmentsController(
         try
         {
             IReadOnlyCollection<AttachmentDto> results = await _attachmentService.UploadAttachmentsAsync(
-                EntityType, EntityId, openedFiles, createdBy, CancellationToken);
+                EntityType, EntityId, openedFiles, CancellationToken);
             return Created(string.Empty, results);
         }
         finally
@@ -111,9 +105,4 @@ public class AttachmentsController(
         _logger.LogInformation("Attachment {AttachmentId} deleted.", Id);
         return NoContent();
     }
-
-    private string GetCurrentUserId() =>
-        User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? User.FindFirstValue("sub")
-        ?? "unknown";
 }

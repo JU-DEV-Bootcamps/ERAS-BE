@@ -89,6 +89,10 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Captures the authenticated caller into the request-scoped IUserIdentityProvider — must run
+// after UseAuthentication, which is what populates HttpContext.User.
+app.UseMiddleware<UserIdentityMiddleware>();
+
 // To handle all the exceptions in the API
 app.UseMiddleware<ExceptionHandlerMiddleware>();
 

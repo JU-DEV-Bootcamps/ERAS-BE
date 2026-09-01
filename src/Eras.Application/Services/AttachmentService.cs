@@ -18,11 +18,13 @@ public sealed class AttachmentService(
     IAttachmentRepository Repository,
     IFileStorageService FileStorage,
     IOptions<FileStorageSettings> Settings,
+    IUserIdentityProvider UserIdentityProvider,
     ILogger<AttachmentService> Logger) : IAttachmentService
 {
     private readonly IAttachmentRepository _repository = Repository;
     private readonly IFileStorageService _fileStorage = FileStorage;
     private readonly FileStorageSettings _settings = Settings.Value;
+    private readonly IUserIdentityProvider _userIdentityProvider = UserIdentityProvider;
     private readonly ILogger<AttachmentService> _logger = Logger;
 
     public async Task<AttachmentDto> UploadAttachmentAsync(
@@ -30,10 +32,9 @@ public sealed class AttachmentService(
         int EntityId,
         Stream FileStream,
         string FileName,
-        string CreatedBy,
         CancellationToken CancellationToken = default)
     {
-        (AttachmentDto dto, _) = await UploadSingleAsync(EntityType, EntityId, FileStream, FileName, CreatedBy, CancellationToken);
+        (AttachmentDto dto, _) = await UploadSingleAsync(EntityType, EntityId, FileStream, FileName, CancellationToken);
         return dto;
     }
 
@@ -41,7 +42,6 @@ public sealed class AttachmentService(
         string EntityType,
         int EntityId,
         IReadOnlyCollection<(Stream FileStream, string FileName)> Files,
-        string CreatedBy,
         CancellationToken CancellationToken = default)
     {
         // Fail before any I/O if the whole batch is doomed anyway — same fail-fast behavior the
@@ -59,7 +59,7 @@ public sealed class AttachmentService(
             foreach ((Stream stream, var fileName) in Files)
             {
                 (AttachmentDto dto, bool wasCreated) =
-                    await UploadSingleAsync(EntityType, EntityId, stream, fileName, CreatedBy, CancellationToken);
+                    await UploadSingleAsync(EntityType, EntityId, stream, fileName, CancellationToken);
 
                 uploaded.Add(dto);
                 if (wasCreated)
@@ -102,7 +102,6 @@ public sealed class AttachmentService(
         int EntityId,
         Stream FileStream,
         string FileName,
-        string CreatedBy,
         CancellationToken CancellationToken)
     {
         EnsureEntityTypeIsRegistered(EntityType);
@@ -142,7 +141,7 @@ public sealed class AttachmentService(
                 MimeType = ContentTypeResolver.Resolve(FileName),
                 SizeBytes = sizeBytes,
                 ContentHash = contentHash,
-                CreatedBy = CreatedBy
+                CreatedBy = _userIdentityProvider.UserId
             };
 
             Attachment persisted = await _repository.AddAsync(attachment);

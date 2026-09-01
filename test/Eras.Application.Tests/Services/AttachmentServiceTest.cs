@@ -3,6 +3,7 @@ using System.Text;
 
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AttachmentManagement;
 using Eras.Application.Models;
 using Eras.Application.Services;
@@ -22,6 +23,7 @@ public class AttachmentServiceTest
     private readonly Mock<IAttachmentRepository> _mockRepository;
     private readonly Mock<IFileStorageService> _mockFileStorage;
     private readonly Mock<IOptions<FileStorageSettings>> _mockSettings;
+    private readonly Mock<IUserIdentityProvider> _mockUserIdentityProvider;
     private readonly Mock<ILogger<AttachmentService>> _mockLogger;
     private readonly AttachmentService _service;
 
@@ -32,6 +34,8 @@ public class AttachmentServiceTest
         _mockRepository = new Mock<IAttachmentRepository>();
         _mockFileStorage = new Mock<IFileStorageService>();
         _mockSettings = new Mock<IOptions<FileStorageSettings>>();
+        _mockUserIdentityProvider = new Mock<IUserIdentityProvider>();
+        _mockUserIdentityProvider.Setup(X => X.UserId).Returns("user-1");
         _mockLogger = new Mock<ILogger<AttachmentService>>();
 
         _mockSettings
@@ -47,6 +51,7 @@ public class AttachmentServiceTest
             _mockRepository.Object,
             _mockFileStorage.Object,
             _mockSettings.Object,
+            _mockUserIdentityProvider.Object,
             _mockLogger.Object);
     }
 
@@ -54,7 +59,8 @@ public class AttachmentServiceTest
     {
         var mockSettings = new Mock<IOptions<FileStorageSettings>>();
         mockSettings.Setup(X => X.Value).Returns(Settings);
-        return new AttachmentService(_mockRepository.Object, _mockFileStorage.Object, mockSettings.Object, _mockLogger.Object);
+        return new AttachmentService(
+            _mockRepository.Object, _mockFileStorage.Object, mockSettings.Object, _mockUserIdentityProvider.Object, _mockLogger.Object);
     }
 
     private static MemoryStream ContentStream(string Content) => new(Encoding.UTF8.GetBytes(Content));
@@ -87,7 +93,7 @@ public class AttachmentServiceTest
 
         // Act
         AttachmentDto result = await _service.UploadAttachmentAsync(
-            EntityType, 1, ContentStream("hello"), "report.txt", "user-1", CancellationToken.None);
+            EntityType, 1, ContentStream("hello"), "report.txt", CancellationToken.None);
 
         // Assert
         Assert.Equal(EntityType, result.EntityType);
@@ -122,7 +128,7 @@ public class AttachmentServiceTest
 
         // Act
         AttachmentDto result = await _service.UploadAttachmentAsync(
-            EntityType, 1, ContentStream("duplicate-content"), "dup.txt", "user-1", CancellationToken.None);
+            EntityType, 1, ContentStream("duplicate-content"), "dup.txt", CancellationToken.None);
 
         // Assert
         Assert.Equal(99, result.Id);
@@ -142,7 +148,7 @@ public class AttachmentServiceTest
 
         // Act
         var exception = await Assert.ThrowsAsync<BussinessException>(
-            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("x"), "x.txt", "user-1", CancellationToken.None));
+            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("x"), "x.txt", CancellationToken.None));
 
         // Assert
         Assert.Equal(409, exception.StatusCode);
@@ -166,7 +172,7 @@ public class AttachmentServiceTest
 
         // Act
         await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("hello"), "report.txt", "user-1", CancellationToken.None));
+            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("hello"), "report.txt", CancellationToken.None));
 
         // Assert: the orphaned physical file is cleaned up
         _mockFileStorage.Verify(X => X.DeleteAsync("interventions/1/generated.txt"), Times.Once);
@@ -177,7 +183,7 @@ public class AttachmentServiceTest
     {
         // Act
         var exception = await Assert.ThrowsAsync<BussinessException>(
-            () => _service.UploadAttachmentAsync("unregistered-entity", 1, ContentStream("x"), "x.pdf", "user-1", CancellationToken.None));
+            () => _service.UploadAttachmentAsync("unregistered-entity", 1, ContentStream("x"), "x.pdf", CancellationToken.None));
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
@@ -189,7 +195,7 @@ public class AttachmentServiceTest
     {
         // Act
         var exception = await Assert.ThrowsAsync<BussinessException>(
-            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("x"), "malware.exe", "user-1", CancellationToken.None));
+            () => _service.UploadAttachmentAsync(EntityType, 1, ContentStream("x"), "malware.exe", CancellationToken.None));
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
@@ -204,7 +210,7 @@ public class AttachmentServiceTest
         // Act
         var exception = await Assert.ThrowsAsync<BussinessException>(
             () => _service.UploadAttachmentAsync(
-                EntityType, 1, FakeExecutableStream(), "photo.jpg", "user-1", CancellationToken.None));
+                EntityType, 1, FakeExecutableStream(), "photo.jpg", CancellationToken.None));
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
@@ -221,7 +227,7 @@ public class AttachmentServiceTest
         // Act
         var exception = await Assert.ThrowsAsync<BussinessException>(
             () => _service.UploadAttachmentAsync(
-                EntityType, 1, FakeExecutableStream(), "notes.txt", "user-1", CancellationToken.None));
+                EntityType, 1, FakeExecutableStream(), "notes.txt", CancellationToken.None));
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
@@ -242,7 +248,7 @@ public class AttachmentServiceTest
 
         // Act
         var result = await _service.UploadAttachmentAsync(
-            EntityType, 1, RealPdfStream(), "real.pdf", "user-1", CancellationToken.None);
+            EntityType, 1, RealPdfStream(), "real.pdf", CancellationToken.None);
 
         // Assert
         Assert.Equal("real.pdf", result.OriginalFileName);
@@ -258,7 +264,7 @@ public class AttachmentServiceTest
         // Act
         BussinessException exception = await Assert.ThrowsAsync<BussinessException>(
             () => _service.UploadAttachmentAsync(
-                EntityType, 1, ContentStream("not actually a pdf"), "fake.pdf", "user-1", CancellationToken.None));
+                EntityType, 1, ContentStream("not actually a pdf"), "fake.pdf", CancellationToken.None));
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
@@ -280,7 +286,7 @@ public class AttachmentServiceTest
 
         // Act
         BussinessException exception = await Assert.ThrowsAsync<BussinessException>(
-            () => service.UploadAttachmentAsync(EntityType, 1, oversized, "big.txt", "user-1", CancellationToken.None));
+            () => service.UploadAttachmentAsync(EntityType, 1, oversized, "big.txt", CancellationToken.None));
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
@@ -310,7 +316,7 @@ public class AttachmentServiceTest
         _mockFileStorage.Setup(X => X.GetUrlAsync(It.IsAny<string>())).ReturnsAsync((string?)null);
 
         // Act
-        AttachmentDto result = await service.UploadAttachmentAsync(EntityType, 1, exactlyAtLimit, "ok.txt", "user-1", CancellationToken.None);
+        AttachmentDto result = await service.UploadAttachmentAsync(EntityType, 1, exactlyAtLimit, "ok.txt", CancellationToken.None);
 
         // Assert
         Assert.Equal(10, result.SizeBytes);
@@ -340,7 +346,7 @@ public class AttachmentServiceTest
         };
 
         // Act
-        IReadOnlyCollection<AttachmentDto> result = await _service.UploadAttachmentsAsync(EntityType, 1, files, "user-1", CancellationToken.None);
+        IReadOnlyCollection<AttachmentDto> result = await _service.UploadAttachmentsAsync(EntityType, 1, files, CancellationToken.None);
 
         // Assert
         Assert.Equal(2, result.Count);
@@ -383,7 +389,7 @@ public class AttachmentServiceTest
 
         // Act
         var exception = await Assert.ThrowsAsync<BussinessException>(
-            () => _service.UploadAttachmentsAsync(EntityType, 1, files, "user-1", CancellationToken.None));
+            () => _service.UploadAttachmentsAsync(EntityType, 1, files, CancellationToken.None));
 
         // Assert
         Assert.Equal(409, exception.StatusCode);
@@ -409,7 +415,7 @@ public class AttachmentServiceTest
 
         // Act
         BussinessException exception = await Assert.ThrowsAsync<BussinessException>(
-            () => _service.UploadAttachmentsAsync(EntityType, 1, files, "user-1", CancellationToken.None));
+            () => _service.UploadAttachmentsAsync(EntityType, 1, files, CancellationToken.None));
 
         // Assert
         Assert.Equal(400, exception.StatusCode);
