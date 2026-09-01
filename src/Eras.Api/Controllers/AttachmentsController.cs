@@ -1,6 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-using System.Security.Claims;
-
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AttachmentManagement;
 
@@ -10,18 +7,32 @@ using Microsoft.AspNetCore.Mvc;
 namespace Eras.Api.Controllers;
 
 /// <summary>
-/// Generic, entity-agnostic attachment endpoints (User Story 1.4) — upload/list/download/delete
-/// for any entity type on <c>AttachmentEntityTypeRegistry</c>'s whitelist. Does not replace the
-/// existing Intervention-specific endpoints on <c>AssessmentsController</c>; that migration is
-/// User Story 1.6.
+/// Generic, entity-agnostic attachment endpoints (upload/list/download/delete)
+/// for any entity type on <c>AttachmentEntityTypeRegistry</c>'s whitelist.
 /// </summary>
 [ApiController]
 [Route("api/v1/attachments")]
 [Authorize]
-public class AttachmentsController(IAttachmentService AttachmentService, ILogger<AttachmentsController> Logger) : ControllerBase
+public class AttachmentsController(
+    IAttachmentService AttachmentService,
+    IAttachmentDraftSessionService AttachmentDraftSessionService,
+    ILogger<AttachmentsController> Logger) : ControllerBase
 {
     private readonly IAttachmentService _attachmentService = AttachmentService;
+    private readonly IAttachmentDraftSessionService _attachmentDraftSessionService = AttachmentDraftSessionService;
     private readonly ILogger<AttachmentsController> _logger = Logger;
+
+    /// <summary>
+    /// Hands out a real <c>int</c> id for a not-yet-existing owning entity to reference, so files
+    /// can be staged ahead of it.
+    /// </summary>
+    [HttpPost("drafts")]
+    [ProducesResponseType(typeof(DraftSessionDto), StatusCodes.Status201Created)]
+    public async Task<ActionResult<DraftSessionDto>> CreateDraftSessionAsync(CancellationToken CancellationToken)
+    {
+        DraftSessionDto result = await _attachmentDraftSessionService.CreateDraftSessionAsync(CancellationToken);
+        return Created(string.Empty, result);
+    }
 
     [HttpPost]
     [Consumes("multipart/form-data")]
@@ -37,8 +48,6 @@ public class AttachmentsController(IAttachmentService AttachmentService, ILogger
         if (Files.Count == 0)
             return BadRequest("No files provided.");
 
-        string createdBy = GetCurrentUserId();
-
         var openedFiles = Files
             .Select(File => (Stream: (Stream)File.OpenReadStream(), File.FileName))
             .ToList();
@@ -46,7 +55,7 @@ public class AttachmentsController(IAttachmentService AttachmentService, ILogger
         try
         {
             IReadOnlyCollection<AttachmentDto> results = await _attachmentService.UploadAttachmentsAsync(
-                EntityType, EntityId, openedFiles, createdBy, CancellationToken);
+                EntityType, EntityId, openedFiles, CancellationToken);
             return Created(string.Empty, results);
         }
         finally
@@ -96,9 +105,4 @@ public class AttachmentsController(IAttachmentService AttachmentService, ILogger
         _logger.LogInformation("Attachment {AttachmentId} deleted.", Id);
         return NoContent();
     }
-
-    private string GetCurrentUserId() =>
-        User.FindFirstValue(ClaimTypes.NameIdentifier)
-        ?? User.FindFirstValue("sub")
-        ?? "unknown";
 }

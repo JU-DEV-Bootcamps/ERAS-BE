@@ -1,5 +1,3 @@
-using System.Security.Claims;
-
 using Eras.Api.Controllers;
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AttachmentManagement;
@@ -16,23 +14,18 @@ namespace Eras.Api.Tests.Controllers;
 public class AttachmentsControllerTests
 {
     private readonly Mock<IAttachmentService> _mockAttachmentService;
+    private readonly Mock<IAttachmentDraftSessionService> _mockAttachmentDraftSessionService;
     private readonly Mock<ILogger<AttachmentsController>> _mockLogger;
     private readonly AttachmentsController _controller;
 
     public AttachmentsControllerTests()
     {
         _mockAttachmentService = new Mock<IAttachmentService>();
+        _mockAttachmentDraftSessionService = new Mock<IAttachmentDraftSessionService>();
         _mockLogger = new Mock<ILogger<AttachmentsController>>();
-        _controller = new AttachmentsController(_mockAttachmentService.Object, _mockLogger.Object)
+        _controller = new AttachmentsController(_mockAttachmentService.Object, _mockAttachmentDraftSessionService.Object, _mockLogger.Object)
         {
-            ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext
-                {
-                    User = new ClaimsPrincipal(new ClaimsIdentity(
-                        [new Claim(ClaimTypes.NameIdentifier, "user-1")]))
-                }
-            }
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
     }
 
@@ -55,6 +48,24 @@ public class AttachmentsControllerTests
     }
 
     [Fact]
+    public async Task CreateDraftSessionAsync_Should_ReturnCreated_WithDraftIdScopedToTheCallerAsync()
+    {
+        // Arrange
+        _mockAttachmentDraftSessionService
+            .Setup(X => X.CreateDraftSessionAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new DraftSessionDto { DraftId = 42 });
+
+        // Act
+        ActionResult<DraftSessionDto> result = await _controller.CreateDraftSessionAsync(CancellationToken.None);
+
+        // Assert
+        CreatedResult createdResult = Assert.IsType<CreatedResult>(result.Result);
+        DraftSessionDto dto = Assert.IsType<DraftSessionDto>(createdResult.Value);
+        Assert.Equal(42, dto.DraftId);
+        _mockAttachmentDraftSessionService.Verify(X => X.CreateDraftSessionAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
     public async Task Upload_Should_ReturnCreated_When_FilesProvidedAsync()
     {
         // Arrange
@@ -64,7 +75,7 @@ public class AttachmentsControllerTests
             .Setup(X => X.UploadAttachmentsAsync(
                 "interventions", 1,
                 It.Is<IReadOnlyCollection<(Stream Stream, string FileName)>>(F => F.Count == 1 && F.First().FileName == "report.pdf"),
-                "user-1", It.IsAny<CancellationToken>()))
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AttachmentDto> { BuildDto() });
 
         // Act
@@ -89,7 +100,7 @@ public class AttachmentsControllerTests
         _mockAttachmentService
             .Setup(X => X.UploadAttachmentsAsync(
                 "interventions", 1, It.IsAny<IReadOnlyCollection<(Stream Stream, string FileName)>>(),
-                "user-1", It.IsAny<CancellationToken>()))
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<AttachmentDto> { BuildDto(1), BuildDto(2) });
 
         // Act
@@ -102,7 +113,7 @@ public class AttachmentsControllerTests
         _mockAttachmentService.Verify(
             X => X.UploadAttachmentsAsync(
                 "interventions", 1, It.Is<IReadOnlyCollection<(Stream Stream, string FileName)>>(F => F.Count == 2),
-                "user-1", It.IsAny<CancellationToken>()),
+                It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -117,7 +128,7 @@ public class AttachmentsControllerTests
         _mockAttachmentService.Verify(
             X => X.UploadAttachmentsAsync(
                 It.IsAny<string>(), It.IsAny<int>(), It.IsAny<IReadOnlyCollection<(Stream Stream, string FileName)>>(),
-                It.IsAny<string>(), It.IsAny<CancellationToken>()),
+                It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
