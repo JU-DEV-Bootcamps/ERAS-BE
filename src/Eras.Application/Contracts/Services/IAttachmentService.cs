@@ -5,7 +5,8 @@ namespace Eras.Application.Contracts.Services;
 /// <summary>
 /// Generic, entity-agnostic attachment upload/list/download/delete service backing the
 /// `attachments` table and <c>IFileStorageService</c>. Any entity type on the
-/// <c>AttachmentEntityTypeRegistry</c> whitelist can use this
+/// <c>AttachmentEntityTypeRegistry</c> whitelist can use this. Attributes every upload it creates
+/// to the caller reported by <c>IUserIdentityProvider</c> — never passed in by callers.
 /// </summary>
 public interface IAttachmentService
 {
@@ -26,7 +27,6 @@ public interface IAttachmentService
         int EntityId,
         Stream FileStream,
         string FileName,
-        string CreatedBy,
         CancellationToken CancellationToken = default);
 
     /// <summary>
@@ -47,7 +47,6 @@ public interface IAttachmentService
         string EntityType,
         int EntityId,
         IReadOnlyCollection<(Stream FileStream, string FileName)> Files,
-        string CreatedBy,
         CancellationToken CancellationToken = default);
 
     /// <exception cref="Eras.Error.Bussiness.BussinessException">`entityType` is not on the whitelist (400).</exception>
