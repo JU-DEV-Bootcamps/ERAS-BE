@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Components.Queries.GetByName;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
 using Eras.Domain.Entities;
@@ -45,5 +39,24 @@ public class GetComponentByNameQueryHandlerTest
         // Assert
         Assert.True(result.Success);
         Assert.Equal("Component", result.Body!.Name);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_NotFoundComponent()
+    {
+        // Arrange
+        var query = new GetComponentByNameQuery() { componentName = "Component" };
+
+        _mockComponentRepository
+            .Setup(Repo => Repo.GetByNameAsync(It.Is<string>(Name => Name == "Component")))
+            .ReturnsAsync((Component)null!);
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.Equal("Component Found0", result.Message);
+        Assert.Equal(Models.Enums.QueryEnums.QueryResultStatus.NotFound, result.Status);
     }
 }
