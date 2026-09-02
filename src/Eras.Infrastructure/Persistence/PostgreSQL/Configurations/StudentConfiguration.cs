@@ -47,10 +47,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasMany(Student => Student.PollInstances)
                 .WithOne(PollInstance => PollInstance.Student)
                 .HasForeignKey(PollInstance => PollInstance.StudentId);
-
-            Builder.HasMany(S => S.Remissions)
-                .WithMany(R => R.Students)
-                .UsingEntity(J => J.ToTable("student_remissions"));
         }
     }
 }
