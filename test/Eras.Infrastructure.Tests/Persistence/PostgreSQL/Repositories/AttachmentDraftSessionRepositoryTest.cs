@@ -1,5 +1,6 @@
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 using Microsoft.EntityFrameworkCore;
@@ -125,7 +126,7 @@ public class AttachmentDraftSessionRepositoryTest
 
         AttachmentDraftSession stillHasAttachments = await repository.AddAsync(
             new AttachmentDraftSession { CreatedBy = "user-1", CreatedAt = DateTime.UtcNow.AddHours(-30) });
-        context.Attachments.Add(new Attachment
+        context.Attachments.Add(new AttachmentEntity
         {
             EntityType = AttachmentDraftSession.AttachmentEntityType,
             EntityId = stillHasAttachments.Id,

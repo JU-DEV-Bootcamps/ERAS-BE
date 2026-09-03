@@ -191,7 +191,7 @@ public sealed class AttachmentService(
         Attachment attachment = await GetOrThrowAsync(AttachmentId);
 
         // Delete metadata first so a failure here is safely retryable.
-        await _repository.DeleteAsync(attachment);
+        await _repository.DeleteByIdAsync(AttachmentId);
 
         try
         {

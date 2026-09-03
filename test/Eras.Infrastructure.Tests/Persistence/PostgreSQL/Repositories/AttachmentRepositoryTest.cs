@@ -8,15 +8,18 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
 public class AttachmentRepositoryTest
 {
-    private static AttachmentRepository CreateRepository(out AppDbContext context)
+    private static AttachmentRepository CreateRepository(string databaseName, out AppDbContext context)
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(databaseName)
             .Options;
 
         context = new AppDbContext(options);
         return new AttachmentRepository(context);
     }
+
+    private static AttachmentRepository CreateRepository(out AppDbContext context) =>
+        CreateRepository(Guid.NewGuid().ToString(), out context);
 
     private static Attachment BuildAttachment(
         string entityType,
@@ -193,16 +196,51 @@ public class AttachmentRepositoryTest
     [Fact]
     public async Task DeleteAsync_Should_RemoveAttachmentAsync()
     {
-        // Arrange
-        var repository = CreateRepository(out _);
-        Attachment persisted = await repository.AddAsync(
+        // Arrange — a fresh DbContext for the delete, same as a real request would get its own
+        // scoped context; reusing the AddAsync context here would hand DeleteAsync's freshly
+        // mapped persistence instance to a change tracker that still has the original AddAsync
+        // instance tracked under the same key, which EF rejects as a duplicate.
+        string databaseName = Guid.NewGuid().ToString();
+        var addRepository = CreateRepository(databaseName, out _);
+        Attachment persisted = await addRepository.AddAsync(
             BuildAttachment("Intervention", 1, "Intervention/1/a.bin", new string('m', 64)));
+        var deleteRepository = CreateRepository(databaseName, out _);
 
         // Act
-        await repository.DeleteAsync(persisted);
+        await deleteRepository.DeleteAsync(persisted);
+
+        // Assert
+        var verifyRepository = CreateRepository(databaseName, out _);
+        Assert.Null(await verifyRepository.GetByIdAsync(persisted.Id));
+    }
+
+    [Fact]
+    public async Task DeleteByIdAsync_Should_RemoveAttachment_EvenAfterAPriorGetByIdInTheSameContextAsync()
+    {
+        // Arrange — reproduces a real request: GetByIdAsync tracks the attachment, then it's
+        // deleted in that same DbContext. DeleteAsync(entity) would conflict here (see the test
+        // above); DeleteByIdAsync reuses the already-tracked instance instead.
+        var repository = CreateRepository(out _);
+        Attachment persisted = await repository.AddAsync(
+            BuildAttachment("Intervention", 1, "Intervention/1/a.bin", new string('t', 64)));
+        Attachment? loaded = await repository.GetByIdAsync(persisted.Id);
+        Assert.NotNull(loaded);
+
+        // Act
+        await repository.DeleteByIdAsync(persisted.Id);
 
         // Assert
         Assert.Null(await repository.GetByIdAsync(persisted.Id));
+    }
+
+    [Fact]
+    public async Task DeleteByIdAsync_Should_BeANoOp_When_NoAttachmentExistsForIdAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out _);
+
+        // Act & Assert — no throw
+        await repository.DeleteByIdAsync(999);
     }
 
     [Fact]
