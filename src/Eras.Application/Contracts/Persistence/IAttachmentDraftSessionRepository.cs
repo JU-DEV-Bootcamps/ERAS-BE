@@ -11,4 +11,13 @@ public interface IAttachmentDraftSessionRepository : IBaseRepository<AttachmentD
     /// instance and conflicts with the one already tracked from that earlier read.
     /// </summary>
     Task DeleteByIdAsync(int Id);
+
+    /// <summary>
+    /// Returns draft sessions created before <paramref name="OlderThan"/> with no attachments
+    /// currently staged under them — either never uploaded to, already claimed (though a claim
+    /// deletes its own session row already), or cleaned up earlier in the same sweep. This is the
+    /// set the temp-attachment cleanup sweep deletes each run.
+    /// </summary>
+    Task<IReadOnlyCollection<AttachmentDraftSession>> GetOrphanedAsync(
+        DateTime OlderThan, CancellationToken CancellationToken = default);
 }

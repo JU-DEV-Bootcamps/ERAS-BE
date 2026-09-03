@@ -204,4 +204,58 @@ public class AttachmentRepositoryTest
         // Assert
         Assert.Null(await repository.GetByIdAsync(persisted.Id));
     }
+
+    [Fact]
+    public async Task GetStaleByEntityTypeAsync_Should_ReturnOnlyMatchingTypeOlderThanCutoffAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out _);
+        DateTime cutoff = DateTime.UtcNow.AddHours(-24);
+
+        var staleTemp = new Attachment
+        {
+            EntityType = "Temp", EntityId = 1, StorageKey = "Temp/1/old.bin", ContentHash = new string('n', 64),
+            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow.AddHours(-30)
+        };
+        var freshTemp = new Attachment
+        {
+            EntityType = "Temp", EntityId = 2, StorageKey = "Temp/2/new.bin", ContentHash = new string('o', 64),
+            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow.AddHours(-1)
+        };
+        var staleOtherType = new Attachment
+        {
+            EntityType = "Intervention", EntityId = 3, StorageKey = "Intervention/3/old.bin", ContentHash = new string('p', 64),
+            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow.AddHours(-30)
+        };
+
+        await repository.AddAsync(staleTemp);
+        await repository.AddAsync(freshTemp);
+        await repository.AddAsync(staleOtherType);
+
+        // Act
+        IReadOnlyCollection<Attachment> result = await repository.GetStaleByEntityTypeAsync("Temp", cutoff, CancellationToken.None);
+
+        // Assert
+        Attachment onlyResult = Assert.Single(result);
+        Assert.Equal(staleTemp.StorageKey, onlyResult.StorageKey);
+    }
+
+    [Fact]
+    public async Task GetStaleByEntityTypeAsync_Should_ReturnEmpty_When_NothingIsStaleAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out _);
+        await repository.AddAsync(new Attachment
+        {
+            EntityType = "Temp", EntityId = 1, StorageKey = "Temp/1/new.bin", ContentHash = new string('r', 64),
+            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow
+        });
+
+        // Act
+        IReadOnlyCollection<Attachment> result = await repository.GetStaleByEntityTypeAsync(
+            "Temp", DateTime.UtcNow.AddHours(-24), CancellationToken.None);
+
+        // Assert
+        Assert.Empty(result);
+    }
 }

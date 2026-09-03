@@ -21,4 +21,12 @@ public interface IAttachmentRepository : IBaseRepository<Attachment>
         string ToEntityType,
         int ToEntityId,
         DateTime RelocationPendingAt);
+
+    /// <summary>
+    /// Returns every attachment of <paramref name="EntityType"/> created before
+    /// <paramref name="OlderThan"/> — used by the temp-attachment cleanup sweep to find expired,
+    /// never-claimed draft uploads.
+    /// </summary>
+    Task<IReadOnlyCollection<Attachment>> GetStaleByEntityTypeAsync(
+        string EntityType, DateTime OlderThan, CancellationToken CancellationToken = default);
 }
