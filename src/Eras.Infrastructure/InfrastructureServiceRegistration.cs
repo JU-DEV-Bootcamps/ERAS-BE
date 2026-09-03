@@ -29,7 +29,7 @@ namespace Eras.Infrastructure
             Services.AddScoped<IApiKeyEncryptor, AesApiKeyEncryptor>();
             Services.AddScoped<IAnswerRiskValidator, AnswerRiskValidator>();
             Services.AddHostedService<EvaluationStatusSyncJob>();
-            Services.AddHostedService<TempAttachmentCleanupJob>();
+            Services.AddHostedService<BackgroundProcessing.TempAttachmentCleanupJob>();
             Services.AddSingleton<IImportJobQueue, BackgroundProcessing.ImportJobQueue>();
             Services.AddHostedService<BackgroundProcessing.ImportQueueBackgroundService>();
 

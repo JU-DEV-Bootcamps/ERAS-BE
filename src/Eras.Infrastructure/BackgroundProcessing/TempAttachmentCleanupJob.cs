@@ -6,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Eras.Infrastructure.Persistence.PostgreSQL.Jobs;
+namespace Eras.Infrastructure.BackgroundProcessing;
 
 /// <summary>
 /// Runs at boot and then on a configurable interval (default hourly — see
