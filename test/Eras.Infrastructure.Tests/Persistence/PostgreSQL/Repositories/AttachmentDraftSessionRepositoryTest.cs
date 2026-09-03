@@ -84,4 +84,32 @@ public class AttachmentDraftSessionRepositoryTest
         var verifyRepository = CreateRepository(databaseName, out _);
         Assert.Null(await verifyRepository.GetByIdAsync(persisted.Id));
     }
+
+    [Fact]
+    public async Task DeleteByIdAsync_Should_RemoveDraftSession_EvenAfterAPriorGetByIdInTheSameContextAsync()
+    {
+        // Arrange — reproduces a real request: GetByIdAsync tracks the session, then it's deleted
+        // in that same DbContext. DeleteAsync(entity) would conflict here (see the test above);
+        // DeleteByIdAsync reuses the already-tracked instance instead.
+        var repository = CreateRepository(out _);
+        AttachmentDraftSession persisted = await repository.AddAsync(new AttachmentDraftSession { CreatedBy = "user-1" });
+        AttachmentDraftSession? loaded = await repository.GetByIdAsync(persisted.Id);
+        Assert.NotNull(loaded);
+
+        // Act
+        await repository.DeleteByIdAsync(persisted.Id);
+
+        // Assert
+        Assert.Null(await repository.GetByIdAsync(persisted.Id));
+    }
+
+    [Fact]
+    public async Task DeleteByIdAsync_Should_BeANoOp_When_NoSessionExistsForIdAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out _);
+
+        // Act & Assert — no throw
+        await repository.DeleteByIdAsync(999);
+    }
 }

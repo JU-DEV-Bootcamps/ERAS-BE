@@ -14,7 +14,6 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 
 [ApiController]
 [Route("api/v1/assessments")]
-[Authorize]
 [ExcludeFromCodeCoverage]
 public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsController> Logger, IOptions<FileStorageSettings> FileStorageOptions, IFileStorageService FileStorage) : ControllerBase 
 {
@@ -142,7 +141,8 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
         [FromBody] AddInterventionDto dto,
         CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(new AddInterventionCommand(dto.AssessmentId, dto.Intervention), cancellationToken);
+        var response = await Mediator.Send(
+            new AddInterventionCommand(dto.AssessmentId, dto.Intervention, dto.DraftSessionId), cancellationToken);
         return Created(string.Empty, response);
     }
 

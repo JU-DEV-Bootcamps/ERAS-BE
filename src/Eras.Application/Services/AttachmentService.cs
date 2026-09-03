@@ -16,12 +16,14 @@ namespace Eras.Application.Services;
 
 public sealed class AttachmentService(
     IAttachmentRepository Repository,
+    IAttachmentDraftSessionRepository DraftSessionRepository,
     IFileStorageService FileStorage,
     IOptions<FileStorageSettings> Settings,
     IUserIdentityProvider UserIdentityProvider,
     ILogger<AttachmentService> Logger) : IAttachmentService
 {
     private readonly IAttachmentRepository _repository = Repository;
+    private readonly IAttachmentDraftSessionRepository _draftSessionRepository = DraftSessionRepository;
     private readonly IFileStorageService _fileStorage = FileStorage;
     private readonly FileStorageSettings _settings = Settings.Value;
     private readonly IUserIdentityProvider _userIdentityProvider = UserIdentityProvider;
@@ -44,9 +46,7 @@ public sealed class AttachmentService(
         IReadOnlyCollection<(Stream FileStream, string FileName)> Files,
         CancellationToken CancellationToken = default)
     {
-        // Fail before any I/O if the whole batch is doomed anyway — same fail-fast behavior the
-        // legacy per-entity handler had, avoided per-file since UploadSingleAsync also checks
-        // these (a standalone single-file call still needs them), just redundant-but-cheap here.
+        // Fail fast before any I/O; UploadSingleAsync re-checks these per file.
         EnsureEntityTypeIsRegistered(EntityType);
         foreach ((_, var fileName) in Files)
             EnsureExtensionIsAllowed(fileName);
@@ -70,10 +70,7 @@ public sealed class AttachmentService(
         }
         catch
         {
-            // A later file in the batch failed — roll back every attachment *this call* newly
-            // created so the batch behaves atomically from the caller's point of view. Attachments
-            // returned via dedup-match are deliberately left alone: this call didn't create them,
-            // so it has no business deleting them.
+            // Roll back attachments created by this call; leave dedup-matched ones alone.
             _logger.LogWarning(
                 "Batch upload for {EntityType}/{EntityId} failed partway through; rolling back {Count} attachment(s) created by this request.",
                 EntityType, EntityId, createdAttachmentIds.Count);
@@ -95,8 +92,8 @@ public sealed class AttachmentService(
         }
     }
 
-    /// <summary>Core single-file upload, shared by <see cref="UploadAttachmentAsync"/> and <see cref="UploadAttachmentsAsync"/>.</summary>
-    /// <returns>The resulting DTO, and whether this call newly created it (false for a dedup match).</returns>
+    /// <summary>Shared single-file upload logic.</summary>
+    /// <returns>The DTO, and whether it was newly created (false if dedup-matched).</returns>
     private async Task<(AttachmentDto Dto, bool WasCreated)> UploadSingleAsync(
         string EntityType,
         int EntityId,
@@ -149,9 +146,7 @@ public sealed class AttachmentService(
         }
         catch
         {
-            // Metadata write failed after the physical file was already saved — compensate so no
-            // orphaned file is left behind (the AC's "upload is transactional" requirement; disk
-            // and Postgres can't share a real ACID transaction, so this is a best-effort rollback).
+            // Metadata write failed after the file was saved — delete it to avoid an orphan.
             _logger.LogWarning(
                 "Attachment metadata write failed for {EntityType}/{EntityId}; deleting orphaned file {StorageKey}.",
                 EntityType, EntityId, storageKey);
@@ -195,9 +190,7 @@ public sealed class AttachmentService(
     {
         Attachment attachment = await GetOrThrowAsync(AttachmentId);
 
-        // Delete the metadata row first: if this fails, nothing has happened yet and the caller
-        // can safely retry. Deleting the physical file first would risk a worse failure mode — a
-        // metadata row pointing at a file that no longer exists, breaking future downloads.
+        // Delete metadata first so a failure here is safely retryable.
         await _repository.DeleteAsync(attachment);
 
         try
@@ -206,12 +199,50 @@ public sealed class AttachmentService(
         }
         catch (Exception ex)
         {
-            // The user-visible part (the metadata row) is already gone; a leaked physical file is
-            // an ops/cleanup concern, not something to fail the delete operation over.
+            // Metadata is already gone; a leaked file is an ops concern, not a failure.
             _logger.LogWarning(ex,
                 "Attachment {AttachmentId} metadata deleted but physical file {StorageKey} could not be removed.",
                 AttachmentId, attachment.StorageKey);
         }
+    }
+
+    public async Task ClaimDraftAttachmentsAsync(
+        int DraftSessionId,
+        string ToEntityType,
+        int ToEntityId,
+        string RequestedBy,
+        CancellationToken CancellationToken = default)
+    {
+        EnsureEntityTypeIsRegistered(ToEntityType);
+
+        AttachmentDraftSession? session = await _draftSessionRepository.GetByIdAsync(DraftSessionId);
+        if (session is null || session.CreatedBy != RequestedBy)
+        {
+            throw new NotFoundException($"Draft session '{DraftSessionId}' was not found for the requesting user.");
+        }
+
+        int draftAttachmentCount =
+            await _repository.CountByEntityAsync(AttachmentDraftSession.AttachmentEntityType, DraftSessionId);
+        if (draftAttachmentCount == 0)
+        {
+            throw new NotFoundException($"Draft session '{DraftSessionId}' has no staged attachments to claim.");
+        }
+
+        int existingTargetCount = await _repository.CountByEntityAsync(ToEntityType, ToEntityId);
+        int maxAttachments = _settings.GetMaxAttachments(ToEntityType);
+        if (existingTargetCount + draftAttachmentCount > maxAttachments)
+        {
+            throw new BussinessException(
+                $"Entity '{ToEntityType}/{ToEntityId}' cannot accept {draftAttachmentCount} more attachment(s): " +
+                $"it already has {existingTargetCount} of a maximum {maxAttachments}.", 409);
+        }
+        // StorageKey is left untouched; physical relocation happens separately.
+        await _repository.ReassignEntityAsync(
+            AttachmentDraftSession.AttachmentEntityType, DraftSessionId,
+            ToEntityType, ToEntityId,
+            DateTime.UtcNow);
+
+        await _draftSessionRepository.DeleteByIdAsync(DraftSessionId);
     }
 
     private async Task<Attachment> GetOrThrowAsync(int AttachmentId)
@@ -253,18 +284,13 @@ public sealed class AttachmentService(
 
     private void EnsureSizeIsAllowed(Stream FileStream)
     {
-        // A metadata-only read (no content I/O), so this fails fast before wasting any work
-        // hashing/peeking an oversized upload.
+        // Metadata-only check — fails fast before hashing an oversized file.
         if (FileStream.Length > _settings.MaxFileSizeBytes)
             throw new BussinessException(
                 $"File size {FileStream.Length} bytes exceeds the maximum allowed size of {_settings.MaxFileSizeBytes} bytes.", 400);
     }
 
-    /// <summary>
-    /// Rejects content whose actual bytes don't match what <paramref name="FileName"/>'s extension
-    /// claims — extension alone is never the sole validation signal (User Story 1.5). Resets
-    /// <paramref name="FileStream"/> back to its start before returning.
-    /// </summary>
+    /// <summary>Rejects content whose bytes don't match <paramref name="FileName"/>'s extension. Resets <paramref name="FileStream"/> to its start.</summary>
     private static async Task EnsureContentMatchesExtensionAsync(Stream FileStream, string FileName, CancellationToken CancellationToken)
     {
         string extension = Path.GetExtension(FileName).ToLowerInvariant();

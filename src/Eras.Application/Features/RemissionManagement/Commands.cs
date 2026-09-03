@@ -36,7 +36,11 @@ public sealed record UpsertInterventionsCommand(int AssessmentId, IReadOnlyColle
 public sealed record GetInterventionsByAssessmentQuery(int AssessmentId)
     : IRequest<IReadOnlyCollection<InterventionDto>>;
 
-public sealed record AddInterventionCommand(int AssessmentId, InterventionDto Intervention)
+/// <param name="DraftSessionId">
+/// Optional id of a draft session (see <c>Eras.Domain.Entities.AttachmentDraftSession</c>) whose
+/// staged attachments should be claimed for this intervention as part of its creation.
+/// </param>
+public sealed record AddInterventionCommand(int AssessmentId, InterventionDto Intervention, int? DraftSessionId = null)
     : IRequest<InterventionDto>;
 
 public sealed record DeleteInterventionCommand(int AssessmentId, int InterventionId)
