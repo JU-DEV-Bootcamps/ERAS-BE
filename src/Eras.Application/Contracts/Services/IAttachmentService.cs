@@ -67,4 +67,27 @@ public interface IAttachmentService
 
     /// <exception cref="Eras.Error.Bussiness.NotFoundException">No attachment exists for <paramref name="attachmentId"/>.</exception>
     Task DeleteAttachmentAsync(int AttachmentId, CancellationToken CancellationToken = default);
+
+    /// <summary>
+    /// Claims every attachment staged under a draft session for its real owning entity
+    /// </summary>
+    /// <param name="RequestedBy">
+    /// The caller's identity, checked against the draft session's <c>CreatedBy</c>
+    /// </param>
+    /// <exception cref="Eras.Error.Bussiness.NotFoundException">
+    /// No draft session exists for <paramref name="DraftSessionId"/>, it wasn't created by
+    /// <paramref name="RequestedBy"/>, or it has no staged attachments left to claim — the caller
+    /// is told its staged files are gone rather than the call silently doing nothing.
+    /// </exception>
+    /// <exception cref="Eras.Error.Bussiness.BussinessException">
+    /// `ToEntityType` is not on the whitelist (400); claiming the drafted attachments would push
+    /// the target past its configured max-attachment count (409), counting its existing
+    /// attachments plus the ones being claimed.
+    /// </exception>
+    Task ClaimDraftAttachmentsAsync(
+        int DraftSessionId,
+        string ToEntityType,
+        int ToEntityId,
+        string RequestedBy,
+        CancellationToken CancellationToken = default);
 }

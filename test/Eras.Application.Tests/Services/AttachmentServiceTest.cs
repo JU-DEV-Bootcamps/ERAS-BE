@@ -21,6 +21,7 @@ namespace Eras.Application.Tests.Services;
 public class AttachmentServiceTest
 {
     private readonly Mock<IAttachmentRepository> _mockRepository;
+    private readonly Mock<IAttachmentDraftSessionRepository> _mockDraftSessionRepository;
     private readonly Mock<IFileStorageService> _mockFileStorage;
     private readonly Mock<IOptions<FileStorageSettings>> _mockSettings;
     private readonly Mock<IUserIdentityProvider> _mockUserIdentityProvider;
@@ -32,6 +33,7 @@ public class AttachmentServiceTest
     public AttachmentServiceTest()
     {
         _mockRepository = new Mock<IAttachmentRepository>();
+        _mockDraftSessionRepository = new Mock<IAttachmentDraftSessionRepository>();
         _mockFileStorage = new Mock<IFileStorageService>();
         _mockSettings = new Mock<IOptions<FileStorageSettings>>();
         _mockUserIdentityProvider = new Mock<IUserIdentityProvider>();
@@ -49,6 +51,7 @@ public class AttachmentServiceTest
 
         _service = new AttachmentService(
             _mockRepository.Object,
+            _mockDraftSessionRepository.Object,
             _mockFileStorage.Object,
             _mockSettings.Object,
             _mockUserIdentityProvider.Object,
@@ -60,7 +63,8 @@ public class AttachmentServiceTest
         var mockSettings = new Mock<IOptions<FileStorageSettings>>();
         mockSettings.Setup(X => X.Value).Returns(Settings);
         return new AttachmentService(
-            _mockRepository.Object, _mockFileStorage.Object, mockSettings.Object, _mockUserIdentityProvider.Object, _mockLogger.Object);
+            _mockRepository.Object, _mockDraftSessionRepository.Object, _mockFileStorage.Object, mockSettings.Object,
+            _mockUserIdentityProvider.Object, _mockLogger.Object);
     }
 
     private static MemoryStream ContentStream(string Content) => new(Encoding.UTF8.GetBytes(Content));
@@ -498,5 +502,121 @@ public class AttachmentServiceTest
         // Act & Assert
         await Assert.ThrowsAsync<NotFoundException>(
             () => _service.DeleteAttachmentAsync(999, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task ClaimDraftAttachmentsAsync_Should_ReassignDraftAttachmentsAndDeleteTheSessionAsync()
+    {
+        // Arrange
+        var session = new AttachmentDraftSession { Id = 5, CreatedBy = "user-1" };
+        _mockDraftSessionRepository.Setup(X => X.GetByIdAsync(5)).ReturnsAsync(session);
+        _mockRepository
+            .Setup(X => X.CountByEntityAsync(AttachmentDraftSession.AttachmentEntityType, 5))
+            .ReturnsAsync(2);
+        _mockRepository.Setup(X => X.CountByEntityAsync(EntityType, 10)).ReturnsAsync(0);
+
+        // Act
+        await _service.ClaimDraftAttachmentsAsync(5, EntityType, 10, "user-1", CancellationToken.None);
+
+        // Assert
+        _mockRepository.Verify(X => X.ReassignEntityAsync(
+            AttachmentDraftSession.AttachmentEntityType, 5, EntityType, 10, It.IsAny<DateTime>()), Times.Once);
+        _mockDraftSessionRepository.Verify(X => X.DeleteByIdAsync(5), Times.Once);
+    }
+
+    [Fact]
+    public async Task ClaimDraftAttachmentsAsync_Should_ThrowNotFound_When_SessionDoesNotExistAsync()
+    {
+        // Arrange
+        _mockDraftSessionRepository.Setup(X => X.GetByIdAsync(5)).ReturnsAsync((AttachmentDraftSession?)null);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<NotFoundException>(
+            () => _service.ClaimDraftAttachmentsAsync(5, EntityType, 10, "user-1", CancellationToken.None));
+        _mockRepository.Verify(X => X.ReassignEntityAsync(
+            It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ClaimDraftAttachmentsAsync_Should_ThrowNotFound_When_RequestedByDoesNotMatchSessionOwnerAsync()
+    {
+        // Arrange
+        var session = new AttachmentDraftSession { Id = 5, CreatedBy = "owner" };
+        _mockDraftSessionRepository.Setup(X => X.GetByIdAsync(5)).ReturnsAsync(session);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<NotFoundException>(
+            () => _service.ClaimDraftAttachmentsAsync(5, EntityType, 10, "someone-else", CancellationToken.None));
+        _mockDraftSessionRepository.Verify(X => X.DeleteByIdAsync(It.IsAny<int>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ClaimDraftAttachmentsAsync_Should_ThrowNotFound_When_SessionHasNoStagedAttachmentsAsync()
+    {
+        // Arrange
+        var session = new AttachmentDraftSession { Id = 5, CreatedBy = "user-1" };
+        _mockDraftSessionRepository.Setup(X => X.GetByIdAsync(5)).ReturnsAsync(session);
+        _mockRepository
+            .Setup(X => X.CountByEntityAsync(AttachmentDraftSession.AttachmentEntityType, 5))
+            .ReturnsAsync(0);
+
+        // Act & Assert — the caller must be told its staged files are gone, not lose them silently.
+        await Assert.ThrowsAsync<NotFoundException>(
+            () => _service.ClaimDraftAttachmentsAsync(5, EntityType, 10, "user-1", CancellationToken.None));
+        _mockDraftSessionRepository.Verify(X => X.DeleteByIdAsync(It.IsAny<int>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ClaimDraftAttachmentsAsync_Should_ThrowBadRequest_When_ToEntityTypeNotRegisteredAsync()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<BussinessException>(
+            () => _service.ClaimDraftAttachmentsAsync(5, "unregistered-entity", 10, "user-1", CancellationToken.None));
+        Assert.Equal(400, exception.StatusCode);
+        _mockDraftSessionRepository.Verify(X => X.GetByIdAsync(It.IsAny<int>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ClaimDraftAttachmentsAsync_Should_ThrowConflict_When_ClaimWouldExceedMaxAttachmentsAsync()
+    {
+        // Arrange
+        var session = new AttachmentDraftSession { Id = 5, CreatedBy = "user-1" };
+        _mockDraftSessionRepository.Setup(X => X.GetByIdAsync(5)).ReturnsAsync(session);
+        _mockRepository
+            .Setup(X => X.CountByEntityAsync(AttachmentDraftSession.AttachmentEntityType, 5))
+            .ReturnsAsync(2);
+        _mockRepository.Setup(X => X.CountByEntityAsync(EntityType, 10)).ReturnsAsync(4); // 4 + 2 > max of 5
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<BussinessException>(
+            () => _service.ClaimDraftAttachmentsAsync(5, EntityType, 10, "user-1", CancellationToken.None));
+        Assert.Equal(409, exception.StatusCode);
+        _mockRepository.Verify(X => X.ReassignEntityAsync(
+            It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<DateTime>()), Times.Never);
+        _mockDraftSessionRepository.Verify(X => X.DeleteByIdAsync(It.IsAny<int>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task ClaimDraftAttachmentsAsync_Should_StampCurrentUtcTime_OnRelocationPendingAtAsync()
+    {
+        // Arrange
+        var session = new AttachmentDraftSession { Id = 5, CreatedBy = "user-1" };
+        _mockDraftSessionRepository.Setup(X => X.GetByIdAsync(5)).ReturnsAsync(session);
+        _mockRepository
+            .Setup(X => X.CountByEntityAsync(AttachmentDraftSession.AttachmentEntityType, 5))
+            .ReturnsAsync(1);
+        _mockRepository.Setup(X => X.CountByEntityAsync(EntityType, 10)).ReturnsAsync(0);
+
+        DateTime before = DateTime.UtcNow;
+
+        // Act
+        await _service.ClaimDraftAttachmentsAsync(5, EntityType, 10, "user-1", CancellationToken.None);
+
+        DateTime after = DateTime.UtcNow;
+
+        // Assert
+        _mockRepository.Verify(X => X.ReassignEntityAsync(
+            AttachmentDraftSession.AttachmentEntityType, 5, EntityType, 10,
+            It.Is<DateTime>(D => D >= before && D <= after)), Times.Once);
     }
 }
