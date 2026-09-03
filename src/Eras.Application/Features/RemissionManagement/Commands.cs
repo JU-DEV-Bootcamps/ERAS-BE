@@ -5,16 +5,6 @@ using MediatR;
 
 namespace Eras.Application.Features.RemissionManagement;
 
-public sealed record CreateStudentProfileCommand(StudentProfileDto StudentProfile) : IRequest<StudentProfileDto>;
-
-public sealed record UpdateStudentProfileCommand(StudentProfileDto StudentProfile) : IRequest<StudentProfileDto>;
-
-public sealed record GetStudentProfileByIdQuery(Guid Id) : IRequest<StudentProfileDto?>;
-
-public sealed record GetStudentProfileByStudentCodeQuery(string StudentCode) : IRequest<StudentProfileDto?>;
-
-public sealed record GetAllStudentProfilesQuery() : IRequest<IReadOnlyCollection<StudentProfileDto>>;
-
 public sealed record CreateRemissionCommand(AssessmentDto Remission) : IRequest<AssessmentDto>;
 
 public sealed record UpdateRemissionCommand(AssessmentDto Remission) : IRequest<AssessmentDto>;

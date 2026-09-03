@@ -24,8 +24,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<ConfigurationsEntity> Configurations { get; set; }
         public virtual DbSet<ServiceProvidersEntity> ServiceProviders { get; set; }
         public virtual DbSet<UserPollsEntity> UserPolls { get; set; }
-        public virtual DbSet<JURemissionEntity> JURemissions { get; set; }
-        public virtual DbSet<JUInterventionEntity> JUInterventions { get; set; }
         public virtual DbSet<JUProfessionalEntity> Professionals { get; set; }
         public virtual DbSet<JUServiceEntity> JUServices { get; set; }
         public virtual DbSet<ImportJobEntity> ImportJobs { get; set; }

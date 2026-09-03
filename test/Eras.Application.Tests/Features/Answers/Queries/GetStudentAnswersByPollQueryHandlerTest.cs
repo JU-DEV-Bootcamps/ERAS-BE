@@ -9,8 +9,11 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Answers.Queries;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
+
 using Xunit; 
 
 namespace Eras.Application.Tests.Features.Answers.Queries;
@@ -76,5 +79,31 @@ public class GetStudentAnswersByPollQueryHandlerTest
 
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_NotExistentStudentAnswers()
+    {
+        var query = new GetStudentAnswersByPollQuery() { PollId = 1, StudentId = 1 };
+
+        _mockStudentRepository
+            .Setup(r => r.GetByIdAsync(It.Is<int>(id => id == 1)))
+            .ReturnsAsync((Student)null!);
+
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => _handler.Handle(query, CancellationToken.None));
+
+        Assert.Equal("Student with ID 1 not found.", exception.Message);
+    }
+
+    [Fact]
+    public async Task Handle_Should_ThrowsException_WhenRequestEmpty()
+    {
+        var query = new GetStudentAnswersByPollQuery() {  };
+
+        var exception = await Assert.ThrowsAsync<ArgumentException>(
+            () => _handler.Handle(query, CancellationToken.None));
+
+        Assert.Equal("PollId and StudentId must be positive integers.", exception.Message);
     }
 }

@@ -48,5 +48,58 @@ namespace Eras.Application.Tests.Features.StudentDetails.Commands
             Assert.Equal(1010, result.Entity?.StudentId);
         }
 
+        [Fact]
+        public async Task HandleStudentDetail_WithoutStudentDetailDto()
+        {
+            var command = new CreateStudentDetailCommand { };
+
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.Null(result.Entity);
+            Assert.Equal(0, result.SuccessfullImports);
+            Assert.Equal("Error", result.Message);
+            Assert.False(result.Success);
+        }
+
+        [Fact]
+        public async Task HandleStudentDetailUpdatesNewStudentDetailAsync_Existent()
+        {
+            var studentDetailDto = new StudentDetailDTO() { StudentId = 1010 };
+            var command = new CreateStudentDetailCommand { StudentDetailDto = studentDetailDto };
+            var studentDetailDomain = studentDetailDto.ToDomain;
+            var studentDetail= new StudentDetail
+            {
+                StudentId = 1010,
+                EnrolledCourses = 5,
+                GradedCourses = 5,
+                TimeDeliveryRate = 20,
+                AvgScore = 2.5m,
+                CoursesUnderAvg = 5,
+                PureScoreDiff = 3,
+                StandardScoreDiff = 4.5m,
+                LastAccessDays = 3,
+                Audit = new Domain.Common.AuditInfo
+                {
+                    ModifiedAt = DateTime.Now,
+                }
+            };
+
+            _mockStudentDetailRepository.Setup(Repo => Repo.GetByStudentId(It.IsAny<int>()))
+                .ReturnsAsync(studentDetail);
+
+            _mockStudentDetailRepository.Setup(Repo => Repo.UpdateAsync(It.IsAny<StudentDetail>()))
+                .ReturnsAsync(studentDetail);
+
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.True(result.Success);
+            Assert.Equal(0, result.SuccessfullImports);
+            Assert.Equal(studentDetail.EnrolledCourses, result.Entity!.EnrolledCourses);
+            Assert.Equal(studentDetail.GradedCourses, result.Entity!.GradedCourses);
+            Assert.Equal(studentDetail.TimeDeliveryRate, result.Entity!.TimeDeliveryRate);
+            Assert.Equal(studentDetail.PureScoreDiff, result.Entity!.PureScoreDiff);
+            Assert.Equal(studentDetail.AvgScore, result.Entity!.AvgScore);
+        }
     }
 }
