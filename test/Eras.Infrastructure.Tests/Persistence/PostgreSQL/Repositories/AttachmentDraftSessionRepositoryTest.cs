@@ -112,4 +112,52 @@ public class AttachmentDraftSessionRepositoryTest
         // Act & Assert — no throw
         await repository.DeleteByIdAsync(999);
     }
+
+    [Fact]
+    public async Task GetOrphanedAsync_Should_ReturnOnlySessions_OlderThanCutoff_WithNoRemainingAttachmentsAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out AppDbContext context);
+        DateTime cutoff = DateTime.UtcNow.AddHours(-24);
+
+        AttachmentDraftSession orphaned = await repository.AddAsync(
+            new AttachmentDraftSession { CreatedBy = "user-1", CreatedAt = DateTime.UtcNow.AddHours(-30) });
+
+        AttachmentDraftSession stillHasAttachments = await repository.AddAsync(
+            new AttachmentDraftSession { CreatedBy = "user-1", CreatedAt = DateTime.UtcNow.AddHours(-30) });
+        context.Attachments.Add(new Attachment
+        {
+            EntityType = AttachmentDraftSession.AttachmentEntityType,
+            EntityId = stillHasAttachments.Id,
+            StorageKey = "Temp/x/a.bin",
+            ContentHash = new string('s', 64),
+            CreatedBy = "user-1"
+        });
+        await context.SaveChangesAsync();
+
+        AttachmentDraftSession tooFresh = await repository.AddAsync(
+            new AttachmentDraftSession { CreatedBy = "user-1", CreatedAt = DateTime.UtcNow.AddHours(-1) });
+
+        // Act
+        IReadOnlyCollection<AttachmentDraftSession> result = await repository.GetOrphanedAsync(cutoff, CancellationToken.None);
+
+        // Assert
+        AttachmentDraftSession onlyResult = Assert.Single(result);
+        Assert.Equal(orphaned.Id, onlyResult.Id);
+    }
+
+    [Fact]
+    public async Task GetOrphanedAsync_Should_ReturnEmpty_When_NoSessionIsPastTheCutoffAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out _);
+        await repository.AddAsync(new AttachmentDraftSession { CreatedBy = "user-1", CreatedAt = DateTime.UtcNow });
+
+        // Act
+        IReadOnlyCollection<AttachmentDraftSession> result =
+            await repository.GetOrphanedAsync(DateTime.UtcNow.AddHours(-24), CancellationToken.None);
+
+        // Assert
+        Assert.Empty(result);
+    }
 }

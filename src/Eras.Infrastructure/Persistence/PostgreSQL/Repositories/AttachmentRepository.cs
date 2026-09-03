@@ -33,6 +33,14 @@ public sealed class AttachmentRepository(AppDbContext Context) : BaseRepository<
         );
     }
 
+    public async Task<IReadOnlyCollection<Attachment>> GetStaleByEntityTypeAsync(
+        string EntityType, DateTime OlderThan, CancellationToken CancellationToken = default)
+    {
+        return await _context.Attachments
+            .Where(Attachment => Attachment.EntityType == EntityType && Attachment.CreatedAt < OlderThan)
+            .ToListAsync(CancellationToken);
+    }
+
     public async Task<int> ReassignEntityAsync(
         string FromEntityType,
         int FromEntityId,
