@@ -17,6 +17,15 @@ public sealed class FileStorageSettings
 
     public int DefaultMaxAttachmentsPerEntity { get; init; } = 5;
 
+    /// <summary>
+    /// How long a "Temp" (draft-session-staged, never-claimed) attachment may sit before
+    /// the cleanup sweep deletes it — e.g. a user closed the create/edit form without saving.
+    /// </summary>
+    public int TempAttachmentTtlHours { get; init; } = 24;
+
+    /// <summary>How often the cleanup sweep runs.</summary>
+    public int TempAttachmentCleanupIntervalHours { get; init; } = 1;
+
     public int GetMaxAttachments(string entityType) =>
         MaxAttachmentsPerEntityType.TryGetValue(entityType, out int max) ? max : DefaultMaxAttachmentsPerEntity;
 }
