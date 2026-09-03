@@ -400,7 +400,7 @@ public class AttachmentServiceTest
 
         // "a.txt" was saved, then rolled back once "b.txt" failed the batch
         _mockRepository.Verify(X => X.AddAsync(It.IsAny<Attachment>()), Times.Once);
-        _mockRepository.Verify(X => X.DeleteAsync(createdAttachment), Times.Once);
+        _mockRepository.Verify(X => X.DeleteByIdAsync(42), Times.Once);
         _mockFileStorage.Verify(X => X.DeleteAsync("interventions/1/a-generated.txt"), Times.Once);
 
         // "b.txt" never reached physical storage — it failed the max-count check first
@@ -472,7 +472,7 @@ public class AttachmentServiceTest
         await _service.DeleteAttachmentAsync(1, CancellationToken.None);
 
         // Assert
-        _mockRepository.Verify(X => X.DeleteAsync(attachment), Times.Once);
+        _mockRepository.Verify(X => X.DeleteByIdAsync(1), Times.Once);
         _mockFileStorage.Verify(X => X.DeleteAsync("interventions/1/x.pdf"), Times.Once);
     }
 
@@ -490,7 +490,7 @@ public class AttachmentServiceTest
 
         // Act & Assert (should not throw despite physical delete failure)
         await _service.DeleteAttachmentAsync(1, CancellationToken.None);
-        _mockRepository.Verify(X => X.DeleteAsync(attachment), Times.Once);
+        _mockRepository.Verify(X => X.DeleteByIdAsync(1), Times.Once);
     }
 
     [Fact]
