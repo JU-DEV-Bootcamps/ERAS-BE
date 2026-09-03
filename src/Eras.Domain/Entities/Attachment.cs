@@ -50,4 +50,12 @@ public class Attachment : BaseEntity
 
     /// <summary>Identifier of the user who uploaded the file.</summary>
     public required string CreatedBy { get; init; }
+
+    /// <summary>
+    /// Set when this row's <see cref="EntityType"/>/<see cref="EntityId"/> were just reassigned
+    /// but the physical file at <see cref="StorageKey"/> still lives under its old
+    /// location — relocation is a separate, out-of-band step. Set to Null once the file has been moved
+    /// (or for a row that was never reassigned).
+    /// </summary>
+    public DateTime? StorageRelocationPendingAt { get; init; }
 }

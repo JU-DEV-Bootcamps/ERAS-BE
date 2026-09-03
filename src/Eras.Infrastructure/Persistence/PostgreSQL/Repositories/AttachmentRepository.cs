@@ -32,4 +32,19 @@ public sealed class AttachmentRepository(AppDbContext Context) : BaseRepository<
             Attachment => Attachment.EntityType == EntityType && Attachment.EntityId == EntityId
         );
     }
+
+    public async Task<int> ReassignEntityAsync(
+        string FromEntityType,
+        int FromEntityId,
+        string ToEntityType,
+        int ToEntityId,
+        DateTime RelocationPendingAt)
+    {
+        return await _context.Attachments
+            .Where(Attachment => Attachment.EntityType == FromEntityType && Attachment.EntityId == FromEntityId)
+            .ExecuteUpdateAsync(Setters => Setters
+                .SetProperty(Attachment => Attachment.EntityType, ToEntityType)
+                .SetProperty(Attachment => Attachment.EntityId, ToEntityId)
+                .SetProperty(Attachment => Attachment.StorageRelocationPendingAt, RelocationPendingAt));
+    }
 }
