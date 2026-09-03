@@ -139,7 +139,8 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
         [FromBody] AddInterventionDto dto,
         CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(new AddInterventionCommand(dto.AssessmentId, dto.Intervention), cancellationToken);
+        var response = await Mediator.Send(
+            new AddInterventionCommand(dto.AssessmentId, dto.Intervention, dto.DraftSessionId), cancellationToken);
         return Created(string.Empty, response);
     }
 
