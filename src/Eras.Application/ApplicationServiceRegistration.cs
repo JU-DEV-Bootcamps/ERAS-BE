@@ -37,6 +37,7 @@ namespace Eras.Application.Services
             Services.AddScoped<IAttachmentService, AttachmentService>();
             Services.AddScoped<IAttachmentDraftSessionService, AttachmentDraftSessionService>();
             Services.AddScoped<ITempAttachmentCleanupService, TempAttachmentCleanupService>();
+            Services.AddScoped<IAttachmentRelocationService, AttachmentRelocationService>();
 
             Services.AddScoped<UserIdentityProvider>();
             Services.AddScoped<IUserIdentityProvider>(Sp => Sp.GetRequiredService<UserIdentityProvider>());

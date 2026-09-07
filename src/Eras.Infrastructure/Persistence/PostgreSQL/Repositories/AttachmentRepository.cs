@@ -74,4 +74,24 @@ public sealed class AttachmentRepository(AppDbContext Context) : BaseRepository<
                 .SetProperty(Attachment => Attachment.EntityId, ToEntityId)
                 .SetProperty(Attachment => Attachment.StorageRelocationPendingAt, RelocationPendingAt));
     }
+
+    public async Task<IReadOnlyCollection<Attachment>> GetPendingRelocationAsync(int BatchSize) 
+    {
+        List<AttachmentEntity> entities = await _context.Attachments
+            .Where(Attachment => Attachment.StorageRelocationPendingAt != null)
+            .OrderBy(Attachment => Attachment.StorageRelocationPendingAt)
+            .Take(BatchSize)
+            .ToListAsync();
+
+        return entities.Select(Attachment => Attachment.ToDomain()).ToList();
+    }
+
+    public async Task<int> MarkRelocatedAsync(int Id, string NewKey)
+    {
+        return await _context.Attachments
+            .Where(Attachment => Attachment.Id == Id)
+            .ExecuteUpdateAsync(Setters => Setters
+                .SetProperty(Attachment => Attachment.StorageKey, NewKey)
+                .SetProperty(Attachment => Attachment.StorageRelocationPendingAt, (DateTime?)null));
+    }
 }

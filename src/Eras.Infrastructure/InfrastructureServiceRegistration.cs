@@ -30,6 +30,8 @@ namespace Eras.Infrastructure
             Services.AddScoped<IAnswerRiskValidator, AnswerRiskValidator>();
             Services.AddHostedService<EvaluationStatusSyncJob>();
             Services.AddHostedService<BackgroundProcessing.TempAttachmentCleanupJob>();
+            Services.AddHostedService<BackgroundProcessing.AttachmentRelocationJob>();
+
             Services.AddSingleton<IImportJobQueue, BackgroundProcessing.ImportJobQueue>();
             Services.AddHostedService<BackgroundProcessing.ImportQueueBackgroundService>();
 
