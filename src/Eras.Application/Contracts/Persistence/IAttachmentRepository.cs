@@ -21,4 +21,20 @@ public interface IAttachmentRepository : IBaseRepository<Attachment>
         string ToEntityType,
         int ToEntityId,
         DateTime RelocationPendingAt);
+
+    /// <summary>
+    /// Returns every attachment of <paramref name="EntityType"/> created before
+    /// <paramref name="OlderThan"/> — used by the temp-attachment cleanup sweep to find expired,
+    /// never-claimed draft uploads.
+    /// </summary>
+    Task<IReadOnlyCollection<Attachment>> GetStaleByEntityTypeAsync(
+        string EntityType, DateTime OlderThan, CancellationToken CancellationToken = default);
+
+    /// <summary>
+    /// Deletes the attachment row by id. Unlike the inherited <c>DeleteAsync(entity)</c>, this is
+    /// safe to call after a prior <c>GetByIdAsync</c> for the same id in the same
+    /// <c>AppDbContext</c> — <c>DeleteAsync</c> re-maps the domain object into a fresh persistence
+    /// instance and conflicts with the one already tracked from that earlier read.
+    /// </summary>
+    Task DeleteByIdAsync(int Id);
 }

@@ -8,15 +8,18 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
 public class AttachmentRepositoryTest
 {
-    private static AttachmentRepository CreateRepository(out AppDbContext context)
+    private static AttachmentRepository CreateRepository(string databaseName, out AppDbContext context)
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .UseInMemoryDatabase(databaseName)
             .Options;
 
         context = new AppDbContext(options);
         return new AttachmentRepository(context);
     }
+
+    private static AttachmentRepository CreateRepository(out AppDbContext context) =>
+        CreateRepository(Guid.NewGuid().ToString(), out context);
 
     private static Attachment BuildAttachment(
         string entityType,
@@ -193,15 +196,104 @@ public class AttachmentRepositoryTest
     [Fact]
     public async Task DeleteAsync_Should_RemoveAttachmentAsync()
     {
-        // Arrange
-        var repository = CreateRepository(out _);
-        Attachment persisted = await repository.AddAsync(
+        // Arrange — a fresh DbContext for the delete, same as a real request would get its own
+        // scoped context; reusing the AddAsync context here would hand DeleteAsync's freshly
+        // mapped persistence instance to a change tracker that still has the original AddAsync
+        // instance tracked under the same key, which EF rejects as a duplicate.
+        string databaseName = Guid.NewGuid().ToString();
+        var addRepository = CreateRepository(databaseName, out _);
+        Attachment persisted = await addRepository.AddAsync(
             BuildAttachment("Intervention", 1, "Intervention/1/a.bin", new string('m', 64)));
+        var deleteRepository = CreateRepository(databaseName, out _);
 
         // Act
-        await repository.DeleteAsync(persisted);
+        await deleteRepository.DeleteAsync(persisted);
+
+        // Assert
+        var verifyRepository = CreateRepository(databaseName, out _);
+        Assert.Null(await verifyRepository.GetByIdAsync(persisted.Id));
+    }
+
+    [Fact]
+    public async Task DeleteByIdAsync_Should_RemoveAttachment_EvenAfterAPriorGetByIdInTheSameContextAsync()
+    {
+        // Arrange — reproduces a real request: GetByIdAsync tracks the attachment, then it's
+        // deleted in that same DbContext. DeleteAsync(entity) would conflict here (see the test
+        // above); DeleteByIdAsync reuses the already-tracked instance instead.
+        var repository = CreateRepository(out _);
+        Attachment persisted = await repository.AddAsync(
+            BuildAttachment("Intervention", 1, "Intervention/1/a.bin", new string('t', 64)));
+        Attachment? loaded = await repository.GetByIdAsync(persisted.Id);
+        Assert.NotNull(loaded);
+
+        // Act
+        await repository.DeleteByIdAsync(persisted.Id);
 
         // Assert
         Assert.Null(await repository.GetByIdAsync(persisted.Id));
+    }
+
+    [Fact]
+    public async Task DeleteByIdAsync_Should_BeANoOp_When_NoAttachmentExistsForIdAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out _);
+
+        // Act & Assert — no throw
+        await repository.DeleteByIdAsync(999);
+    }
+
+    [Fact]
+    public async Task GetStaleByEntityTypeAsync_Should_ReturnOnlyMatchingTypeOlderThanCutoffAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out _);
+        DateTime cutoff = DateTime.UtcNow.AddHours(-24);
+
+        var staleTemp = new Attachment
+        {
+            EntityType = "Temp", EntityId = 1, StorageKey = "Temp/1/old.bin", ContentHash = new string('n', 64),
+            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow.AddHours(-30)
+        };
+        var freshTemp = new Attachment
+        {
+            EntityType = "Temp", EntityId = 2, StorageKey = "Temp/2/new.bin", ContentHash = new string('o', 64),
+            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow.AddHours(-1)
+        };
+        var staleOtherType = new Attachment
+        {
+            EntityType = "Intervention", EntityId = 3, StorageKey = "Intervention/3/old.bin", ContentHash = new string('p', 64),
+            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow.AddHours(-30)
+        };
+
+        await repository.AddAsync(staleTemp);
+        await repository.AddAsync(freshTemp);
+        await repository.AddAsync(staleOtherType);
+
+        // Act
+        IReadOnlyCollection<Attachment> result = await repository.GetStaleByEntityTypeAsync("Temp", cutoff, CancellationToken.None);
+
+        // Assert
+        Attachment onlyResult = Assert.Single(result);
+        Assert.Equal(staleTemp.StorageKey, onlyResult.StorageKey);
+    }
+
+    [Fact]
+    public async Task GetStaleByEntityTypeAsync_Should_ReturnEmpty_When_NothingIsStaleAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out _);
+        await repository.AddAsync(new Attachment
+        {
+            EntityType = "Temp", EntityId = 1, StorageKey = "Temp/1/new.bin", ContentHash = new string('r', 64),
+            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow
+        });
+
+        // Act
+        IReadOnlyCollection<Attachment> result = await repository.GetStaleByEntityTypeAsync(
+            "Temp", DateTime.UtcNow.AddHours(-24), CancellationToken.None);
+
+        // Assert
+        Assert.Empty(result);
     }
 }

@@ -202,7 +202,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.UseTphMappingStrategy();
                 });
 
-            modelBuilder.Entity("Eras.Domain.Entities.Attachment", b =>
+            modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.AttachmentEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
