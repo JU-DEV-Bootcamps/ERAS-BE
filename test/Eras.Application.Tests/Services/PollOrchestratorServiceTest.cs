@@ -45,9 +45,6 @@ using Variable = Domain.Entities.Variable;
     private readonly Mock<IEvaluationRepository> _evaluationRepository;
     private readonly Mock<IPollInstanceRepository> _pollInstanceRepository;
     private readonly PollOrchestratorService _service;
-    private bool IsNewPoll;
-    private int VersionNumber;
-    private bool IsNewVersion = false;
     private DateTime InitDate = DateTime.Now;
     public PollOrchestratorServiceTest()
     {
