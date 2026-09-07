@@ -25,7 +25,7 @@ public abstract class FileStorageServiceContractTests
     }
 
     [Fact]
-    public async Task SaveAsync_Should_ReturnKey_ThatReadAsyncRetrievesTheSameContentFrom()
+    public async Task SaveAsync_Should_ReturnKey_ThatReadAsyncRetrievesTheSameContentFromAsync()
     {
         IFileStorageService sut = CreateSut();
 
@@ -36,7 +36,7 @@ public abstract class FileStorageServiceContractTests
     }
 
     [Fact]
-    public async Task SaveAsync_Should_NotPreserveOriginalFileName_InTheReturnedKey()
+    public async Task SaveAsync_Should_NotPreserveOriginalFileName_InTheReturnedKeyAsync()
     {
         IFileStorageService sut = CreateSut();
 
@@ -47,7 +47,7 @@ public abstract class FileStorageServiceContractTests
     }
 
     [Fact]
-    public async Task ReadAsync_Should_ThrowFileNotFoundException_ForAnUnknownKey()
+    public async Task ReadAsync_Should_ThrowFileNotFoundException_ForAnUnknownKeyAsync()
     {
         IFileStorageService sut = CreateSut();
 
@@ -66,7 +66,7 @@ public abstract class FileStorageServiceContractTests
     }
 
     [Fact]
-    public async Task ExistsAsync_Should_ReturnFalse_ForAnUnknownKey()
+    public async Task ExistsAsync_Should_ReturnFalse_ForAnUnknownKeyAsync()
     {
         IFileStorageService sut = CreateSut();
 
@@ -74,7 +74,7 @@ public abstract class FileStorageServiceContractTests
     }
 
     [Fact]
-    public async Task DeleteAsync_Should_RemoveTheFile_SoExistsAsyncThenReturnsFalse()
+    public async Task DeleteAsync_Should_RemoveTheFile_SoExistsAsyncThenReturnsFalseAsync()
     {
         IFileStorageService sut = CreateSut();
 
@@ -85,7 +85,7 @@ public abstract class FileStorageServiceContractTests
     }
 
     [Fact]
-    public async Task DeleteAsync_Should_NotThrow_ForAnUnknownKey()
+    public async Task DeleteAsync_Should_NotThrow_ForAnUnknownKeyAsync()
     {
         IFileStorageService sut = CreateSut();
 
@@ -93,7 +93,7 @@ public abstract class FileStorageServiceContractTests
     }
 
     [Fact]
-    public async Task GetUrlAsync_Should_NotThrow_AndReturnEitherNullOrAnAbsoluteUri()
+    public async Task GetUrlAsync_Should_NotThrow_AndReturnEitherNullOrAnAbsoluteUriAsync()
     {
         IFileStorageService sut = CreateSut();
         string key = await sut.SaveAsync(ContentStream("data"), "file.bin", "contract-tests");
@@ -104,12 +104,37 @@ public abstract class FileStorageServiceContractTests
     }
 
     [Fact]
-    public async Task GetUrlAsync_Should_NotThrow_ForAnUnknownKey()
+    public async Task GetUrlAsync_Should_NotThrow_ForAnUnknownKeyAsync()
     {
         IFileStorageService sut = CreateSut();
 
         string? url = await sut.GetUrlAsync("contract-tests/does-not-exist.bin");
 
         Assert.True(url is null || Uri.IsWellFormedUriString(url, UriKind.Absolute));
+    }
+
+    [Fact]
+    public async Task MoveAsync_Should_RelocateTheFile_SoReadAsyncFromTheNewKeyReturnsTheSameContentAsync()
+    {
+        IFileStorageService sut = CreateSut();
+
+        string sourceKey = await sut.SaveAsync(ContentStream("hello world"), "file.txt", "contract-tests/source");
+        string destinationKey = sourceKey.Replace("contract-tests/source", "contract-tests/destination");
+
+        await sut.MoveAsync(sourceKey, destinationKey);
+
+        Assert.False(await sut.ExistsAsync(sourceKey));
+        Assert.True(await sut.ExistsAsync(destinationKey));
+        string content = await ReadAllTextAsync(await sut.ReadAsync(destinationKey));
+        Assert.Equal("hello world", content);
+    }
+
+    [Fact]
+    public async Task MoveAsync_Should_ThrowFileNotFoundException_ForAnUnknownSourceKeyAsync()
+    {
+        IFileStorageService sut = CreateSut();
+
+        await Assert.ThrowsAsync<FileNotFoundException>(
+            () => sut.MoveAsync("contract-tests/does-not-exist.bin", "contract-tests/destination.bin"));
     }
 }
