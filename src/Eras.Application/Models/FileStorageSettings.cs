@@ -28,4 +28,10 @@ public sealed class FileStorageSettings
 
     public int GetMaxAttachments(string entityType) =>
         MaxAttachmentsPerEntityType.TryGetValue(entityType, out int max) ? max : DefaultMaxAttachmentsPerEntity;
+
+    /// <summary>Max attachments relocated per sweep tick.</summary>
+    public int StorageRelocationBatchSize { get; init; } = 100;
+
+    /// <summary>How often the storage relocation sweep runs.</summary>
+    public int StorageRelocationIntervalMinutes { get; init; } = 30;
 }

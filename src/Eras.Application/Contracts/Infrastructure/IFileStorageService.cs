@@ -55,4 +55,13 @@ public interface IFileStorageService
     /// handle a failed download at the returned URL.
     /// </returns>
     Task<string?> GetUrlAsync(string key);
+
+    /// <summary>
+    /// Moves the file identified by <paramref name="sourceKey"/> to <paramref name="destinationKey"/>,
+    /// without touching its content (no decrypt/re-encrypt — only the physical location changes).
+    /// </summary>
+    /// <param name="sourceKey">The storage key currently identifying the file.</param>
+    /// <param name="destinationKey">The storage key the file should be identified by afterwards.</param>
+    /// <exception cref="FileNotFoundException">No file exists for <paramref name="sourceKey"/>.</exception>
+    Task MoveAsync(string sourceKey, string destinationKey);
 }

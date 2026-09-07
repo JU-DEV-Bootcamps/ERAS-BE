@@ -78,11 +78,11 @@ public class AttachmentsController(
         return Ok(attachments);
     }
 
-    [HttpGet("{id:int}/download")]
+    [HttpGet("{Id:int}/download")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status302Found)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DownloadAsync(int Id, CancellationToken CancellationToken)
+    public async Task<IActionResult> DownloadAsync([FromRoute] int Id, CancellationToken CancellationToken)
     {
         // Prefer a direct-access URL when the active storage provider offers one (e.g. a future
         // Swift Temporary URL) so the file doesn't have to be streamed through this server.
@@ -96,10 +96,10 @@ public class AttachmentsController(
         return File(stream, mimeType ?? "application/octet-stream", originalFileName, enableRangeProcessing: false);
     }
 
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{Id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteAsync(int Id, CancellationToken CancellationToken)
+    public async Task<IActionResult> DeleteAsync([FromRoute] int Id, CancellationToken CancellationToken)
     {
         await _attachmentService.DeleteAttachmentAsync(Id, CancellationToken);
         _logger.LogInformation("Attachment {AttachmentId} deleted.", Id);
