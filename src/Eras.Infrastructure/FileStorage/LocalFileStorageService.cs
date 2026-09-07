@@ -87,4 +87,29 @@ public sealed class LocalFileStorageService : IFileStorageService
     /// this is not an error, callers should treat it as "no direct URL available".
     /// </remarks>
     public Task<string?> GetUrlAsync(string key) => Task.FromResult<string?>(null);
+
+    public Task MoveAsync(string SourceKey, string DestinationKey)
+    {
+        string sourceFullPath = Path.Combine(_basePath, SourceKey);
+        string destinationFullPath = Path.Combine(_basePath, DestinationKey);
+
+        if (!File.Exists(sourceFullPath))
+            throw new FileNotFoundException("Attachment not found.", sourceFullPath);
+
+        string destinationDirectory = Path.GetDirectoryName(destinationFullPath)!;
+        Directory.CreateDirectory(destinationDirectory);
+
+        if (OperatingSystem.IsLinux())
+        {
+            File.SetUnixFileMode(destinationDirectory,
+                UnixFileMode.UserRead |
+                UnixFileMode.UserWrite |
+                UnixFileMode.UserExecute);
+        }
+
+        File.Move(sourceFullPath, destinationFullPath, overwrite: false);
+
+        _logger.LogInformation("File moved: {Source} -> {Destination}", sourceFullPath, destinationFullPath);
+        return Task.CompletedTask;
+    }
 }
