@@ -32,7 +32,7 @@ public sealed class AttachmentRelocationJob : BackgroundService
                 await RunAsync(StoppingToken);
             }
             catch (Exception ex) {
-                _logger.LogError(ex, "Storage relocation sweep failed.")
+                _logger.LogError(ex, "Storage relocation sweep failed.");
             }
             try
             {

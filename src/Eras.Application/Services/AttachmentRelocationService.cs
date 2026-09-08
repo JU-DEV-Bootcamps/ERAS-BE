@@ -44,10 +44,10 @@ public sealed class AttachmentRelocationService : IAttachmentRelocationService
         }
     }
 
-    private async Task RelocateOneAsync(Attachment attachment)
+    private async Task RelocateOneAsync(Attachment Attachment)
     {
-        string oldKey = attachment.StorageKey;
-        string newKey = BuildDestinationKey(attachment);
+        string oldKey = Attachment.StorageKey;
+        string newKey = BuildDestinationKey(Attachment);
 
         try
         {
@@ -55,22 +55,22 @@ public sealed class AttachmentRelocationService : IAttachmentRelocationService
             {
                 await _fileStorage.MoveAsync(oldKey, newKey);
                 _logger.LogInformation(
-                    "Attachment {AttachmentId} relocated: {OldKey} -> {NewKey}", attachment.Id, oldKey, newKey);
+                    "Attachment {AttachmentId} relocated: {OldKey} -> {NewKey}", Attachment.Id, oldKey, newKey);
             }
             else
             {
                 _logger.LogWarning(
                     "Attachment {AttachmentId}: source key {OldKey} not found — treating relocation as already done.",
-                    attachment.Id, oldKey);
+                    Attachment.Id, oldKey);
             }
 
-            await _repository.MarkRelocatedAsync(attachment.Id, newKey);
+            await _repository.MarkRelocatedAsync(Attachment.Id, newKey);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex,
                 "Attachment {AttachmentId}: relocation from {OldKey} to {NewKey} failed; left pending.",
-                attachment.Id, oldKey, newKey);
+                Attachment.Id, oldKey, newKey);
         }
     }
 
