@@ -48,4 +48,5 @@ public interface IAttachmentRepository : IBaseRepository<Attachment>
     /// at least one id didn't belong to this entity (error condition).
     /// </summary>
     Task<int> DeleteByIdsAndEntityAsync(int[] AttachmentIds, string EntityType, int EntityId);
+    Task<int> DeleteByIdsAsync(int[] Ids);
 }
