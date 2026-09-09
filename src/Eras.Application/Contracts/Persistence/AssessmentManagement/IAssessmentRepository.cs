@@ -28,4 +28,6 @@ public interface IAssessmentRepository : IBaseRepository<Assessment>
     Task RemoveAttachmentAsync(int interventionId, string relativePath);
 
     Task<IEnumerable<Intervention>> GetInterventionsContainingStudentAsync(Assessment entity, IReadOnlyCollection<int> studentToRemoveIds);
+
+    Task<Intervention> UpdateInterventionAsync(int AssessmentId, Intervention Intervention);
 }
