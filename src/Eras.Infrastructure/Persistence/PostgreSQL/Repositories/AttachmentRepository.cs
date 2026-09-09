@@ -94,4 +94,20 @@ public sealed class AttachmentRepository(AppDbContext Context) : BaseRepository<
                 .SetProperty(Attachment => Attachment.StorageKey, NewKey)
                 .SetProperty(Attachment => Attachment.StorageRelocationPendingAt, (DateTime?)null));
     }
+
+    public async Task<int> DeleteByIdsAndEntityAsync(int[] AttachmentIds, string EntityType, int EntityId)
+    {
+        return await _context.Attachments
+            .Where(A => AttachmentIds.Contains(A.Id)
+                && A.EntityType == EntityType
+                && A.EntityId == EntityId)
+            .ExecuteDeleteAsync();
+    }
+
+    public async Task<int> DeleteByIdsAsync(int[] Ids)
+    {
+        return await _context.Attachments
+            .Where(A => Ids.Contains(A.Id))
+            .ExecuteDeleteAsync();
+    }
 }

@@ -5,25 +5,25 @@ namespace Eras.Domain.Entities.AssessmentManagement;
 public class Intervention : BaseEntity
 {
     public required DateTime DateUtc { get; init; }
-    public string? Activity { get; init; }
-    public string? Area { get; init; }
-    public int? NumberOfParticipants { get; init; }
-    public string? Professional { get; init; }
-    public string? Comments { get; init; }
-    public required IReadOnlyCollection<int> StudentIds { get; init; } = Array.Empty<int>();
+    public string? Activity { get; set; }
+    public string? Area { get; set; }
+    public int? NumberOfParticipants { get; set; }
+    public string? Professional { get; set; }
+    public string? Comments { get; set; }
+    public required IReadOnlyCollection<int> StudentIds { get; set; } = Array.Empty<int>();
 
-    public IReadOnlyDictionary<int, bool> Attendance { get; init; } = new Dictionary<int, bool>();
+    public IReadOnlyDictionary<int, bool> Attendance { get; set; } = new Dictionary<int, bool>();
 
-    public InterventionMode Mode { get; init; }
-    public InterventionStatus Status { get; init; } = InterventionStatus.Remitted;
-    public string? Remarks { get; init; }
+    public InterventionMode Mode { get; set; }
+    public InterventionStatus Status { get; set; } = InterventionStatus.Remitted;
+    public string? Remarks { get; set; }
 
-    public virtual InterventionKind Kind { get; }
+    public virtual InterventionKind Kind { get; set; }
 
-    public IReadOnlyCollection<string> Attachments { get; init; } = Array.Empty<string>();
+    public IReadOnlyCollection<string> Attachments { get; set; } = Array.Empty<string>();
 
-    public IReadOnlyCollection<string> AttachmentHashes { get; init; } = Array.Empty<string>();
-    public double? RiskLevel { get; init; }
-    public InterventionLevel RiskLevelName { get; init; } = InterventionLevel.Medium;
-    public InterventionLevel? EndRiskLevelName { get; init; }
+    public IReadOnlyCollection<string> AttachmentHashes { get; set; } = Array.Empty<string>();
+    public double? RiskLevel { get; set; }
+    public InterventionLevel RiskLevelName { get; set; } = InterventionLevel.Medium;
+    public InterventionLevel? EndRiskLevelName { get; set; }
 }

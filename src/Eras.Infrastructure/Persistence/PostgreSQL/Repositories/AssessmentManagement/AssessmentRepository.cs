@@ -195,4 +195,33 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
             throw;
         }
     }
+
+    public async Task<Intervention> UpdateInterventionAsync(int AssessmentId, Intervention Intervention)
+    {
+        Intervention? existing = await _context.Set<Intervention>()
+            .FirstOrDefaultAsync(i =>
+                i.Id == Intervention.Id &&
+                EF.Property<int?>(i, "remission_id") == AssessmentId);
+
+        if (existing == null)
+            throw new KeyNotFoundException($"Intervention '{Intervention.Id}' not found for assessment '{AssessmentId}'.");
+
+        existing.Kind = Intervention.Kind;
+        existing.Activity = Intervention.Activity;
+        existing.Area = Intervention.Area;
+        existing.NumberOfParticipants = Intervention.NumberOfParticipants;
+        existing.Professional = Intervention.Professional;
+        existing.StudentIds = Intervention.StudentIds;
+        existing.Attendance = Intervention.Attendance;
+        existing.Mode = Intervention.Mode;
+        existing.Status = Intervention.Status;
+        existing.Remarks = Intervention.Remarks;
+        existing.Comments = Intervention.Comments;
+        existing.RiskLevel = Intervention.RiskLevel;
+        existing.RiskLevelName = Intervention.RiskLevelName;
+        existing.EndRiskLevelName = Intervention.EndRiskLevelName;
+
+        await _context.SaveChangesAsync();
+        return existing;
+    }
 }

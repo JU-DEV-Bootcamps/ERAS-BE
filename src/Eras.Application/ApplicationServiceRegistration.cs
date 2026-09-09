@@ -66,6 +66,7 @@ namespace Eras.Application.Services
 
             services.AddScoped<IMapper<AssessmentDto, Assessment>, AssessmentMapper>();
             services.AddScoped<IMapper<Assessment, AssessmentDto>, AssessmentToDtoMapper>();
+            services.AddScoped<IMapper<UpdateInterventionDto, Intervention>, UpdateInterventionMapper>();
 
             return services;
         }
