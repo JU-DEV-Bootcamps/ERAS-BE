@@ -1,5 +1,6 @@
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
 using Microsoft.EntityFrameworkCore;
@@ -295,5 +296,64 @@ public class AttachmentRepositoryTest
 
         // Assert
         Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetPendingRelocationAsync_Should_ReturnPendingAttachmentsInRelocationOrderAsync()
+    {
+        // Arrange
+        var repository = CreateRepository(out _);
+
+        DateTime firstPendingAt = DateTime.UtcNow.AddHours(-3);
+        DateTime secondPendingAt = DateTime.UtcNow.AddHours(-2);
+        DateTime thirdPendingAt = DateTime.UtcNow.AddHours(-1);
+
+        var first = new Attachment
+        {
+            EntityType = "Temp",
+            EntityId = 1,
+            StorageKey = "Temp/1/first.bin",
+            ContentHash = new string('v', 64),
+            CreatedBy = "user-uuid-1",
+            CreatedAt = DateTime.UtcNow,
+            StorageRelocationPendingAt = firstPendingAt
+        };
+
+        var second = new Attachment
+        {
+            EntityType = "Temp",
+            EntityId = 2,
+            StorageKey = "Temp/2/second.bin",
+            ContentHash = new string('w', 64),
+            CreatedBy = "user-uuid-1",
+            CreatedAt = DateTime.UtcNow,
+            StorageRelocationPendingAt = secondPendingAt
+        };
+
+        var third = new Attachment
+        {
+            EntityType = "Temp",
+            EntityId = 3,
+            StorageKey = "Temp/3/third.bin",
+            ContentHash = new string('x', 64),
+            CreatedBy = "user-uuid-1",
+            CreatedAt = DateTime.UtcNow,
+            StorageRelocationPendingAt = thirdPendingAt
+        };
+
+        await repository.AddAsync(first);
+        await repository.AddAsync(second);
+        await repository.AddAsync(third);
+
+        // Act
+        IReadOnlyCollection<Attachment> result = await repository.GetPendingRelocationAsync(10);
+
+        // Assert
+        Assert.Equal(3, result.Count);
+        Attachment[] ordered = result.ToArray();
+
+        Assert.Equal(first.StorageKey, ordered[0].StorageKey);
+        Assert.Equal(second.StorageKey, ordered[1].StorageKey);
+        Assert.Equal(third.StorageKey, ordered[2].StorageKey);
     }
 }

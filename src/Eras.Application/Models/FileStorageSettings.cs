@@ -26,6 +26,12 @@ public sealed class FileStorageSettings
     /// <summary>How often the cleanup sweep runs.</summary>
     public int TempAttachmentCleanupIntervalHours { get; init; } = 1;
 
-    public int GetMaxAttachments(string entityType) =>
-        MaxAttachmentsPerEntityType.TryGetValue(entityType, out int max) ? max : DefaultMaxAttachmentsPerEntity;
+    public int GetMaxAttachments(string EntityType) =>
+        MaxAttachmentsPerEntityType.TryGetValue(EntityType, out int max) ? max : DefaultMaxAttachmentsPerEntity;
+
+    /// <summary>Max attachments relocated per sweep tick.</summary>
+    public int StorageRelocationBatchSize { get; init; } = 100;
+
+    /// <summary>How often the storage relocation sweep runs.</summary>
+    public int StorageRelocationIntervalMinutes { get; init; } = 30;
 }

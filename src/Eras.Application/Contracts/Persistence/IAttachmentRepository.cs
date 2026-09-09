@@ -37,4 +37,8 @@ public interface IAttachmentRepository : IBaseRepository<Attachment>
     /// instance and conflicts with the one already tracked from that earlier read.
     /// </summary>
     Task DeleteByIdAsync(int Id);
+
+    Task<IReadOnlyCollection<Attachment>> GetPendingRelocationAsync(int BatchSize);
+
+    Task<int> MarkRelocatedAsync(int Id, string NewKey);
 }
