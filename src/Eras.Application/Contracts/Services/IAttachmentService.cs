@@ -90,4 +90,6 @@ public interface IAttachmentService
         int ToEntityId,
         string RequestedBy,
         CancellationToken CancellationToken = default);
+
+    Task DeleteByStorageKeyAsync(string StorageKey, CancellationToken CancellationToken = default);
 }

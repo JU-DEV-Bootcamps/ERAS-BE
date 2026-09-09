@@ -206,7 +206,6 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
         if (existing == null)
             throw new KeyNotFoundException($"Intervention '{Intervention.Id}' not found for assessment '{AssessmentId}'.");
 
-        existing.Kind = Intervention.Kind;
         existing.Activity = Intervention.Activity;
         existing.Area = Intervention.Area;
         existing.NumberOfParticipants = Intervention.NumberOfParticipants;

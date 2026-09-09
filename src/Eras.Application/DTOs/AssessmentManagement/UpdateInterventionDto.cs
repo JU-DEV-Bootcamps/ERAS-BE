@@ -1,4 +1,5 @@
 ﻿
+using Eras.Application.DTOs.AttachmentManagement;
 using Eras.Domain.Entities.AssessmentManagement;
 
 namespace Eras.Application.DTOs.AssessmentManagement;
@@ -16,8 +17,9 @@ public sealed record UpdateInterventionDto(
     InterventionKind Kind,
     InterventionStatus Status,
     string? Remarks,
-    IReadOnlyCollection<string> Attachments,
+    IReadOnlyCollection<AttachmentDto> Attachments,
     double? RiskLevel,
     InterventionLevel RiskLevelName,
-    InterventionLevel? EndRiskLevelName
+    InterventionLevel? EndRiskLevelName,
+    int? Id
 );

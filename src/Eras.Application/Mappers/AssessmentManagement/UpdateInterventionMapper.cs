@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.DTOs.AssessmentManagement;
+﻿using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Domain.Entities.AssessmentManagement;
 
 namespace Eras.Application.Mappers.AssessmentManagement;

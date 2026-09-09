@@ -1,14 +1,17 @@
 using System.Diagnostics.CodeAnalysis;
+
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Features.RemissionManagement;
+using Eras.Application.Features.RemissionManagement.Handlers;
+using Eras.Application.Models;
 using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Eras.Application.Models;
 using Microsoft.Extensions.Options;
-using Eras.Application.Contracts.Infrastructure;
 
 namespace Eras.Api.Controllers.AssessmentManagement;
 
@@ -271,6 +274,27 @@ public class AssessmentsController(IMediator Mediator, ILogger<AssessmentsContro
             return NoContent();
         }
         catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPut("{assessmentId:int}/interventions/{interventionId:int}")]
+    [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateInterventionAsync(
+        int assessmentId, int interventionId,
+        [FromBody] UpdateInterventionRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await Mediator.Send(
+                new UpdateInterventionCommand(assessmentId, interventionId, request.UpdateInterventionDto, request.AttachmentIdsToRemove, request.DraftSessionId));
+            return Ok(response);
+        }
+        catch (KeyNotFoundException) 
         {
             return NotFound();
         }
