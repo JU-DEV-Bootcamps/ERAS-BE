@@ -311,4 +311,22 @@ public sealed class AttachmentService(
         return (Convert.ToHexString(hashBytes), Stream.Position);
     }
 
+    /// <summary>
+    /// Deletes the physical file at <paramref name="StorageKey"/> directly, without a DB lookup.
+    /// Only call this after the corresponding <c>Attachment</c> row has already been removed from
+    /// the database — this is purely a best-effort physical cleanup step.
+    /// </summary>
+    public async Task DeleteByStorageKeyAsync(string StorageKey, CancellationToken CancellationToken = default)
+    {
+        try
+        {
+            await _fileStorage.DeleteAsync(StorageKey);
+            _logger.LogInformation("Physical file deleted for storage key '{StorageKey}'.", StorageKey);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Failed to physically delete file at '{StorageKey}'; file may be orphaned.", StorageKey);
+        }
+    }
 }

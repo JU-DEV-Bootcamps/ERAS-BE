@@ -18,7 +18,7 @@ public class Intervention : BaseEntity
     public InterventionStatus Status { get; set; } = InterventionStatus.Remitted;
     public string? Remarks { get; set; }
 
-    public virtual InterventionKind Kind { get; set; }
+    public virtual InterventionKind Kind { get; }
 
     public IReadOnlyCollection<string> Attachments { get; set; } = Array.Empty<string>();
 
