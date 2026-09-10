@@ -276,4 +276,32 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
             return NotFound();
         }
     }
+
+    [HttpPut("{assessmentId:int}/interventions/{interventionId:int}")]
+    [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateInterventionAsync(
+        int assessmentId, int interventionId,
+        [FromBody] UpdateInterventionRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await Mediator.Send(
+                new UpdateInterventionCommand(assessmentId, interventionId, request.UpdateInterventionDto, request.AttachmentIdsToRemove, request.DraftSessionId));
+            return Ok(response);
+        }
+        catch (KeyNotFoundException) 
+        {
+            return NotFound();
+        }
+        catch (OperationCanceledException ex)
+        {
+            return Conflict(new
+            {
+                message = ex.Message
+            });
+        }
+    }
 }
