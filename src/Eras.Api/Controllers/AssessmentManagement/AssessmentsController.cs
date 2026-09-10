@@ -297,5 +297,12 @@ public class AssessmentsController(IMediator Mediator, IOptions<FileStorageSetti
         {
             return NotFound();
         }
+        catch (OperationCanceledException ex)
+        {
+            return Conflict(new
+            {
+                message = ex.Message
+            });
+        }
     }
 }
