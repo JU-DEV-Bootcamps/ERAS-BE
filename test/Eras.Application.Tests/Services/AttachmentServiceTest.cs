@@ -619,4 +619,44 @@ public class AttachmentServiceTest
             AttachmentDraftSession.AttachmentEntityType, 5, EntityType, 10,
             It.Is<DateTime>(D => D >= before && D <= after)), Times.Once);
     }
+
+    [Fact]
+    public async Task DeleteByStorageKeyAsync_Should_DeletePhysicalFileAsync()
+    {
+        // Arrange
+        const string storageKey = "interventions/1/file.pdf";
+
+        _mockFileStorage
+            .Setup(x => x.DeleteAsync(storageKey))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _service.DeleteByStorageKeyAsync(storageKey);
+
+        // Assert
+        _mockFileStorage.Verify(
+            x => x.DeleteAsync(storageKey),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteByStorageKeyAsync_Should_NotThrow_When_PhysicalDeleteFailsAsync()
+    {
+        // Arrange
+        const string storageKey = "interventions/1/file.pdf";
+
+        _mockFileStorage
+            .Setup(x => x.DeleteAsync(storageKey))
+            .ThrowsAsync(new IOException("disk error"));
+
+        // Act & Assert
+        var exception = await Record.ExceptionAsync(
+            () => _service.DeleteByStorageKeyAsync(storageKey));
+
+        Assert.Null(exception);
+
+        _mockFileStorage.Verify(
+            x => x.DeleteAsync(storageKey),
+            Times.Once);
+    }
 }

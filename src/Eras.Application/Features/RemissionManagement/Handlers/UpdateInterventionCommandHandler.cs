@@ -1,10 +1,7 @@
-﻿using System.Text;
-
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AssessmentManagement;
-using Eras.Application.DTOs.AttachmentManagement;
 using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Application.Validation;
 using Eras.Domain.Entities;
@@ -128,9 +125,6 @@ public sealed class UpdateInterventionCommandHandler : IRequestHandler<UpdateInt
                 }
             }
 
-            IEnumerable<Attachment> currentAttachments = await _attachmentRepository.GetByEntityAsync(
-                InterventionConstants.AttachmentEntityType, Request.InterventionId);
-
             return new UpdateInterventionDto(
                  DateUtc: persisted.DateUtc,
                  Activity: persisted.Activity!,
@@ -144,7 +138,6 @@ public sealed class UpdateInterventionCommandHandler : IRequestHandler<UpdateInt
                  Kind: persisted.Kind,
                  Status: persisted.Status,
                  Remarks: persisted.Remarks,
-                 Attachments: currentAttachments.Select(A => A.StorageKey).ToList(),
                  RiskLevel: persisted.RiskLevel,
                  RiskLevelName: persisted.RiskLevelName,
                  EndRiskLevelName: persisted.EndRiskLevelName,
