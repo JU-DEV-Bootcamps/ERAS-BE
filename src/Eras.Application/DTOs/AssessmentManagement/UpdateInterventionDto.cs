@@ -17,7 +17,6 @@ public sealed record UpdateInterventionDto(
     InterventionKind Kind,
     InterventionStatus Status,
     string? Remarks,
-    IReadOnlyCollection<string> Attachments,
     double? RiskLevel,
     InterventionLevel RiskLevelName,
     InterventionLevel? EndRiskLevelName,

@@ -863,4 +863,124 @@ public class AssessmentRepositoryTest : RepositoryTestBase
         Assert.NotNull(result);
         Assert.Equal(intervention.Id, result.Id);
     }
+
+    [Fact]
+    public async Task UpdateInterventionAsync_Should_UpdateInterventionAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            Activity = "Original Activity",
+            Area = "Original Area",
+            NumberOfParticipants = 2,
+            Professional = "John",
+            StudentIds = [1, 2],
+            Attendance = { },
+            Mode = InterventionMode.InPlace,
+            Status = InterventionStatus.Remitted,
+            Remarks = "Old Remarks",
+            Comments = "Old Comments",
+            RiskLevel = 1,
+            RiskLevelName = InterventionLevel.Low,
+            EndRiskLevelName = InterventionLevel.Low
+        };
+
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Smth",
+            Status = AssessmentStatus.InProgress,
+            StudentIds = [1, 2],
+            Interventions = new List<Intervention> { intervention }
+        };
+
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        var update = new TestIntervention
+        {
+            Id = intervention.Id,
+            DateUtc = DateTime.UtcNow,
+            Activity = "Updated Activity",
+            Area = "Updated Area",
+            NumberOfParticipants = 5,
+            Professional = "Jane",
+            StudentIds = [10, 20],
+            Attendance = {},
+            Mode = InterventionMode.Remote,
+            Status = InterventionStatus.Finalized,
+            Remarks = "New Remarks",
+            Comments = "New Comments",
+            RiskLevel = 3,
+            RiskLevelName = InterventionLevel.Medium,
+            EndRiskLevelName = InterventionLevel.High
+        };
+
+        // Act
+        var result = await repository.UpdateInterventionAsync(
+            assessment.Id,
+            update);
+
+        // Assert
+        Assert.NotNull(result);
+
+        Assert.Equal("Updated Activity", result.Activity);
+        Assert.Equal("Updated Area", result.Area);
+        Assert.Equal(5, result.NumberOfParticipants);
+        Assert.Equal("Jane", result.Professional);
+        Assert.Equal([10, 20], result.StudentIds);
+        Assert.Equal(InterventionMode.Remote, result.Mode);
+        Assert.Equal(InterventionStatus.Finalized, result.Status);
+        Assert.Equal("New Remarks", result.Remarks);
+        Assert.Equal("New Comments", result.Comments);
+        Assert.Equal(3, result.RiskLevel);
+        Assert.Equal(InterventionLevel.Medium, result.RiskLevelName);
+        Assert.Equal(InterventionLevel.High, result.EndRiskLevelName);
+
+        var saved = await context.Set<Intervention>()
+            .FirstAsync(i => i.Id == intervention.Id);
+
+        Assert.Equal("Updated Activity", saved.Activity);
+        Assert.Equal("Updated Area", saved.Area);
+    }
+
+    [Fact]
+    public async Task UpdateInterventionAsync_Should_ThrowKeyNotFoundException_When_InterventionNotFoundAsync()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+
+        await using var context = new AppDbContext(options);
+
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        var intervention = new TestIntervention
+        {
+            Id = 999,
+            Activity = "Updated Activity",
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1]
+        };
+
+        // Act
+        var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
+            () => repository.UpdateInterventionAsync(1, intervention));
+
+        // Assert
+        Assert.Equal(
+            "Intervention '999' not found for assessment '1'.",
+            exception.Message);
+    }
 }
