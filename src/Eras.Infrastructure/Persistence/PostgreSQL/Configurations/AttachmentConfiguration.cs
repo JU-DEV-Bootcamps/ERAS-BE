@@ -78,6 +78,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .HasColumnName("created_by")
                 .HasMaxLength(200)
                 .IsRequired();
+
+            builder.Property(a => a.StorageRelocationPendingAt)
+                .HasColumnName("storage_relocation_pending_at")
+                .HasConversion(
+                    valueToInsert => valueToInsert.HasValue ? valueToInsert.Value.ToUniversalTime() : (DateTime?)null,
+                    valueToReturn => valueToReturn.HasValue ? DateTime.SpecifyKind(valueToReturn.Value, DateTimeKind.Utc) : (DateTime?)null)
+                .IsRequired(false);
         }
     }
 }

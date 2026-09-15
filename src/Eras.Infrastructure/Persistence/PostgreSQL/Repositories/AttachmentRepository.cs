@@ -40,11 +40,25 @@ public sealed class AttachmentRepository(AppDbContext Context) : BaseRepository<
     public async Task<IReadOnlyCollection<Attachment>> GetStaleByEntityTypeAsync(
         string EntityType, DateTime OlderThan, CancellationToken CancellationToken = default)
     {
-        return await _context.Attachments
-            .Where(Attachment => Attachment.EntityType == EntityType && Attachment.CreatedAt < OlderThan)
-            .ToListAsync(CancellationToken);
+        List<AttachmentEntity> entities = await _context.Attachments
+           .Where(Attachment => Attachment.EntityType == EntityType && Attachment.CreatedAt < OlderThan)
+           .ToListAsync(CancellationToken);
+
+        return entities.Select(Attachment => Attachment.ToDomain()).ToList();
     }
 
+    public async Task DeleteByIdAsync(int Id)
+    {
+        // FindAsync returns the same already-tracked instance if one exists (e.g. from a prior
+        // GetByIdAsync in this request), instead of the fresh instance DeleteAsync(entity) would
+        // build via the mapper — avoiding EF's "already tracked" conflict on the same key.
+        AttachmentEntity? entity = await _context.Set<AttachmentEntity>().FindAsync(Id);
+        if (entity is not null)
+        {
+            _context.Set<AttachmentEntity>().Remove(entity);
+            await _context.SaveChangesAsync();
+        }
+    }
     public async Task<int> ReassignEntityAsync(
         string FromEntityType,
         int FromEntityId,
