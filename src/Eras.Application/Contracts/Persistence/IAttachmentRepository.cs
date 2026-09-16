@@ -41,4 +41,12 @@ public interface IAttachmentRepository : IBaseRepository<Attachment>
     Task<IReadOnlyCollection<Attachment>> GetPendingRelocationAsync(int BatchSize);
 
     Task<int> MarkRelocatedAsync(int Id, string NewKey);
+
+    /// <summary>
+    /// Verify every id in <paramref name="AttachmentIds"/> belongs to the given entity,
+    /// then delete their rows. Returns count deleted; if count != AttachmentIds.Count,
+    /// at least one id didn't belong to this entity (error condition).
+    /// </summary>
+    Task<int> DeleteByIdsAndEntityAsync(int[] AttachmentIds, string EntityType, int EntityId);
+    Task<int> DeleteByIdsAsync(int[] Ids);
 }
