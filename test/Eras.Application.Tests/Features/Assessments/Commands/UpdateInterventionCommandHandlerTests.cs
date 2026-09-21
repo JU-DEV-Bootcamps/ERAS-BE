@@ -72,7 +72,6 @@ public sealed class UpdateInterventionCommandHandlerTests
         Kind: InterventionKind.Individual,
         Status: Status,
         Remarks: null,
-        Attachments: Array.Empty<string>(),
         RiskLevel: null,
         RiskLevelName: InterventionLevel.Medium,
         EndRiskLevelName: null,
@@ -284,33 +283,6 @@ public sealed class UpdateInterventionCommandHandlerTests
             It.IsAny<It.IsAnyType>(),
             It.IsAny<IOException>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_Should_ReturnEnrichedAttachments_FromRepositoryAfterCommitAsync()
-    {
-        var existing = MakeIntervention(1);
-        var persisted = MakeIntervention(1);
-        var currentAttachment = MakeAttachment(20, 1, "interventions/1/new.pdf");
-
-        _assessmentRepository
-            .Setup(R => R.GetByIdWithInterventionsAsync(1))
-            .ReturnsAsync(MakeAssessment(existing));
-        //SetupValidatorPass();
-        _mapper
-            .Setup(M => M.Map(It.IsAny<UpdateInterventionDto>()))
-            .Returns(persisted);
-        SetupTransaction(persisted);
-        _attachmentRepository
-            .Setup(R => R.GetByEntityAsync(InterventionConstants.AttachmentEntityType, 1))
-            .ReturnsAsync(new[] { currentAttachment });
-
-        var command = new UpdateInterventionCommand(1, 1, MakeDto(), null, null);
-
-        UpdateInterventionDto result = await _handler.Handle(command, CancellationToken.None);
-
-        Assert.Single(result.Attachments);
-        Assert.Contains("interventions/1/new.pdf", result.Attachments);
     }
 
 }

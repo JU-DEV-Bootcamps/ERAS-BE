@@ -32,7 +32,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             SizeBytes = Model.SizeBytes,
             ContentHash = Model.ContentHash,
             CreatedAt = Model.CreatedAt,
-            CreatedBy = Model.CreatedBy
+            CreatedBy = Model.CreatedBy,
+            StorageRelocationPendingAt = Model.StorageRelocationPendingAt
         };
     }
 }
