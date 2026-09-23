@@ -307,19 +307,28 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
 
 
     [HttpPut("{assessmentId:int}/interventions/{interventionId:int}/replace-type")]
+    [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> ReplaceInterventionType(
         int assessmentId, int interventionId,
         [FromBody] UpdateInterventionRequestDto Request,
         CancellationToken CancellationToken)
     {
-        var command = new ReplaceInterventionCommand(
-            assessmentId,
-            interventionId,
-            Request.UpdateInterventionDto,
-            Request.AttachmentIdsToRemove,
-            Request.DraftSessionId);
+        try
+        {
+            var command = new ReplaceInterventionCommand(
+                assessmentId,
+                interventionId,
+                Request.UpdateInterventionDto,
+                Request.AttachmentIdsToRemove,
+                Request.DraftSessionId);
 
-        UpdateInterventionDto result = await Mediator.Send(command, CancellationToken);
-        return Ok(result);
+            UpdateInterventionDto result = await Mediator.Send(command, CancellationToken);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException) 
+        {
+            return NotFound();
+        }
     }
 }
