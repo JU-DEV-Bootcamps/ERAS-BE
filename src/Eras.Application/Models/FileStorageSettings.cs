@@ -33,5 +33,5 @@ public sealed class FileStorageSettings
     public int StorageRelocationBatchSize { get; init; } = 100;
 
     /// <summary>How often the storage relocation sweep runs.</summary>
-    public int StorageRelocationIntervalMinutes { get; init; } = 30;
+    public int StorageRelocationIntervalMinutes { get; init; } = 5;
 }
