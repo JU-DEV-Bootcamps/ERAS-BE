@@ -863,4 +863,152 @@ public class AssessmentRepositoryTest : RepositoryTestBase
         Assert.NotNull(result);
         Assert.Equal(intervention.Id, result.Id);
     }
+
+    [Fact]
+    public async Task GetByCreator_Should_ReturnListofAssessmentsAsync()
+    {
+        var assessments = new List<Assessment>
+        {
+            new() {
+                 Id = 1,
+                CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [1, 2]
+            },
+            new() {
+                 Id = 2,
+                CreatedBy = "bec8bcf9-9824-4524-952c-f4e728ca0daa",
+                Service = "",
+                Status = AssessmentStatus.InProgress,
+                StudentIds = [5, 8]
+            },
+            new() {
+                 Id = 3,
+                CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [10, 20]
+            },
+        };
+
+        Mock<DbSet<Assessment>> mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
+
+        IEnumerable<Assessment> result = await _repository.GetByCreatorAsync("1e9f0af2-e3e7-4069-8e14-764d7e7b7526");
+
+        Assert.Equal(2, result.Count());
+        Assert.Contains(result, I => I.Id == 1);
+        Assert.Contains(result, I => I.Id == 3);
+    }
+
+    [Fact]
+    public async Task GetByCreator_Should_ReturnEmptyListAsync()
+    {
+        var assessments = new List<Assessment>
+        {
+            new () {
+                 Id = 1,
+                CreatedBy = "bec8bcf9-9824-4524-952c-f4e728ca0daa",
+                Service = "",
+                Status = AssessmentStatus.InProgress,
+                StudentIds = [1, 2]
+            },
+            new () {
+                 Id = 3,
+                CreatedBy = "bec8bcf9-9824-4524-952c-f4e728ca0daa",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [10, 20]
+            },
+        };
+
+        Mock<DbSet<Assessment>> mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
+
+        IEnumerable<Assessment> result = await _repository.GetByCreatorAsync("1e9f0af2-e3e7-4069-8e14-764d7e7b7526");
+
+        Assert.Empty(result);
+    }
+
+    [Fact]
+    public async Task GetByProfessional_Should_ReturnListofAssessmentsAsync()
+    {
+        var assessments = new List<Assessment>
+        {
+            new() {
+                 Id = 1,
+                CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [1, 2],
+                AssignedProfessional = "bec8bcf9-9824-4524-952c-f4e728ca0daa"
+            },
+            new() {
+                 Id = 2,
+                CreatedBy = "bec8bcf9-9824-4524-952c-f4e728ca0daa",
+                Service = "",
+                Status = AssessmentStatus.InProgress,
+                StudentIds = [5, 8],
+                AssignedProfessional = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526"
+            },
+            new() {
+                 Id = 3,
+                CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [10, 20],
+                AssignedProfessional = "bec8bcf9-9824-4524-952c-f4e728ca0daa"
+            },
+        };
+
+        Mock<DbSet<Assessment>> mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
+
+        IEnumerable<Assessment> result = await _repository.GetByAssignedProfessionalAsync("bec8bcf9-9824-4524-952c-f4e728ca0daa");
+
+        Assert.Equal(2, result.Count());
+        Assert.Contains(result, I => I.Id == 1);
+        Assert.Contains(result, I => I.Id == 3);
+    }
+
+    [Fact]
+    public async Task GetByProfessional_Should_ReturnEmptyListAsync()
+    {
+        var assessments = new List<Assessment>
+        {
+            new() {
+                 Id = 1,
+                CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [1, 2],
+                AssignedProfessional = "bec8bcf9-9824-4524-952c-f4e728ca0daa"
+            },
+            new() {
+                 Id = 3,
+                CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [10, 20],
+                AssignedProfessional = "bec8bcf9-9824-4524-952c-f4e728ca0daa"
+            },
+        };
+
+        Mock<DbSet<Assessment>> mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
+
+        IEnumerable<Assessment> result = await _repository.GetByAssignedProfessionalAsync("1e9f0af2-e3e7-4069-8e14-764d7e7b7526");
+
+        Assert.Empty(result);
+    }
 }
+
+// public async Task<IEnumerable<Assessment>> GetByCreatorAsync(string creatorSub)
+//         => await _context.Set<Assessment>()
+//             .Where(A => A.CreatedBy == creatorSub)
+//             .ToListAsync();
+//     public async Task<IEnumerable<Assessment>> GetByAssignedProfessionalAsync(string assignedProfessionalSub)
+//         => await _context.Set<Assessment>()
+//             .Where(A => A.AssignedProfessional == assignedProfessionalSub)
+//             .ToListAsync();
