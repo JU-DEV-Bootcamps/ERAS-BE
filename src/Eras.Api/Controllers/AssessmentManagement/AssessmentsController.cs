@@ -304,4 +304,22 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
             });
         }
     }
+
+
+    [HttpPut("{assessmentId:int}/interventions/{interventionId:int}/replace-type")]
+    public async Task<ActionResult> ReplaceInterventionType(
+        int assessmentId, int interventionId,
+        [FromBody] UpdateInterventionRequestDto Request,
+        CancellationToken CancellationToken)
+    {
+        var command = new ReplaceInterventionCommand(
+            assessmentId,
+            interventionId,
+            Request.UpdateInterventionDto,
+            Request.AttachmentIdsToRemove,
+            Request.DraftSessionId);
+
+        UpdateInterventionDto result = await Mediator.Send(command, CancellationToken);
+        return Ok(result);
+    }
 }

@@ -48,3 +48,6 @@ public sealed record DeleteInterventionAttachmentCommand(
 
 public sealed record UpdateInterventionCommand(int AssessmentId, int InterventionId,
     UpdateInterventionDto Intervention, int[]? AttachmentIdsToRemove, int? DraftSessionId) : IRequest<UpdateInterventionDto>;
+
+public sealed record ReplaceInterventionCommand(int AssessmentId, int OldInterventionId,
+    UpdateInterventionDto NewIntervention, int[]? AttachmentIdsToRemove, int? DraftSessionId) : IRequest<UpdateInterventionDto>;
