@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Features.RemissionManagement;
 using Eras.Domain.Entities.AssessmentManagement;
@@ -15,9 +14,8 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 [ApiController]
 [Route("api/v1/assessments")]
 [Authorize]
-public class AssessmentsController(IMediator Mediator, IOptions<FileStorageSettings> FileStorageOptions, IFileStorageService FileStorage) : ControllerBase 
+public class AssessmentsController(IMediator Mediator, IFileStorageService FileStorage) : ControllerBase 
 {
-    private readonly FileStorageSettings _fileStorageSettings = FileStorageOptions.Value;
     private readonly IFileStorageService _fileStorage = FileStorage;
 
     [HttpGet("{id:int}")]
@@ -272,5 +270,29 @@ public class AssessmentsController(IMediator Mediator, IOptions<FileStorageSetti
         {
             return NotFound();
         }
+    }
+
+    [HttpGet("by-creator/{creatorSub}")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByCreatorSub(
+        string creatorSub,
+        CancellationToken cancellationToken)
+    {
+        IEnumerable<AssessmentDto> response =
+            await Mediator.Send(new GetAssessmentsByCreatorQuery(creatorSub), cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("by-professional/{professionalSub}")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByProfessionalSub(
+        string professionalSub,
+        CancellationToken cancellationToken)
+    {
+        IEnumerable<AssessmentDto> response =
+            await Mediator.Send(new GetAssessmentsByAssignedProfessionalQuery(professionalSub), cancellationToken);
+
+        return Ok(response);
     }
 }
