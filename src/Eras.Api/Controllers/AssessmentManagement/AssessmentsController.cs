@@ -274,6 +274,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
 
     [HttpGet("by-creator/{creatorSub}")]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByCreatorSub(
         string creatorSub,
         CancellationToken cancellationToken)
@@ -286,6 +287,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
 
     [HttpGet("by-professional/{professionalSub}")]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByProfessionalSub(
         string professionalSub,
         CancellationToken cancellationToken)

@@ -2,16 +2,12 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Features.RemissionManagement;
-using Eras.Application.Models;
 using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using Moq;
 
@@ -27,11 +23,9 @@ public class AssessmentsControllerTests
     {
         _mediatorMock = new Mock<IMediator>();
         _storageMock = new Mock<IFileStorageService>();
-        IOptions<FileStorageSettings> options = Options.Create(new FileStorageSettings() { AllowedExtensions = [], BasePath = "" });
 
         _controller = new AssessmentsController(
             _mediatorMock.Object,
-            options,
             _storageMock.Object);
     }
 
@@ -409,5 +403,31 @@ public class AssessmentsControllerTests
         var result = await _controller.DeleteAttachment(1, "missing.pdf", CancellationToken.None);
 
         Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task GetByCreatorSub_ReturnsOkAsync()
+    {
+        _mediatorMock
+            .Setup(X => X.Send(It.IsAny<GetAssessmentsByCreatorQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        ActionResult<IReadOnlyCollection<AssessmentDto>> result =
+            await _controller.GetByCreatorSub("d8398ece-a6d0-4474-9607-dc5854115229", CancellationToken.None);
+
+        Assert.IsType<OkObjectResult>(result.Result);
+    }
+
+    [Fact]
+    public async Task GetByProfessionalSub_ReturnsOkAsync()
+    {
+        _mediatorMock
+            .Setup(X => X.Send(It.IsAny<GetAssessmentsByAssignedProfessionalQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        ActionResult<IReadOnlyCollection<AssessmentDto>> result =
+            await _controller.GetByProfessionalSub("d8398ece-a6d0-4474-9607-dc5854115229", CancellationToken.None);
+
+        Assert.IsType<OkObjectResult>(result.Result);
     }
 }
