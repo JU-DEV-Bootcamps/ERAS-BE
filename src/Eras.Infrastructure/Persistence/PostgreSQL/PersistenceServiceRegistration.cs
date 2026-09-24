@@ -67,6 +67,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             Services.AddScoped<IFeatureFlagRepository, FeatureFlagRepository>();
             Services.AddScoped<IImportJobRepository, ImportJobRepository>();
             Services.AddScoped<IImportJobItemRepository, ImportJobItemRepository>();
+            Services.AddScoped<IErasUsersRepository, ErasUsersRepository>();
             return Services;
         }
     }

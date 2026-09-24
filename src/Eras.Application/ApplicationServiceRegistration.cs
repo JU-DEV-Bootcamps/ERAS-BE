@@ -9,6 +9,7 @@ using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Domain.Entities.AssessmentManagement.StatusManagement;
 using Eras.Domain.Entities.AssessmentManagement.Validators;
 using Eras.Domain.Entities.FeatureFlagManagement;
+using Eras.Domain.Entities.UserManagement;
 
 using FluentValidation;
 
@@ -69,6 +70,7 @@ namespace Eras.Application.Services
             Services.AddScoped<IValidator<StatusTransitionRequest<InterventionStatus>>, InterventionStatusTransitionValidator>();
             Services.AddScoped<IValidator<StatusTransitionRequest<AssessmentStatus>>, AssessmentStatusTransitionValidator>();
             Services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
+            Services.AddScoped<IValidator<ErasUser>, ErasUserValidator>();
 
             return Services;  
         }
