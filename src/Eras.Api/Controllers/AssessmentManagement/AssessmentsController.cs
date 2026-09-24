@@ -1,13 +1,17 @@
+using System.Diagnostics.CodeAnalysis;
+
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Features.RemissionManagement;
+using Eras.Application.Features.RemissionManagement.Handlers;
+using Eras.Application.Models;
 using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Eras.Application.Models;
 using Microsoft.Extensions.Options;
-using Eras.Application.Contracts.Infrastructure;
 
 namespace Eras.Api.Controllers.AssessmentManagement;
 
@@ -139,7 +143,8 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
         [FromBody] AddInterventionDto dto,
         CancellationToken cancellationToken)
     {
-        var response = await Mediator.Send(new AddInterventionCommand(dto.AssessmentId, dto.Intervention), cancellationToken);
+        var response = await Mediator.Send(
+            new AddInterventionCommand(dto.AssessmentId, dto.Intervention, dto.DraftSessionId), cancellationToken);
         return Created(string.Empty, response);
     }
 
@@ -267,6 +272,61 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
             return NoContent();
         }
         catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    [HttpPut("{assessmentId:int}/interventions/{interventionId:int}")]
+    [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateInterventionAsync(
+        int assessmentId, int interventionId,
+        [FromBody] UpdateInterventionRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await Mediator.Send(
+                new UpdateInterventionCommand(assessmentId, interventionId, request.UpdateInterventionDto, request.AttachmentIdsToRemove, request.DraftSessionId));
+            return Ok(response);
+        }
+        catch (KeyNotFoundException) 
+        {
+            return NotFound();
+        }
+        catch (OperationCanceledException ex)
+        {
+            return Conflict(new
+            {
+                message = ex.Message
+            });
+        }
+    }
+
+
+    [HttpPut("{assessmentId:int}/interventions/{interventionId:int}/replace-type")]
+    [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> ReplaceInterventionType(
+        int assessmentId, int interventionId,
+        [FromBody] UpdateInterventionRequestDto Request,
+        CancellationToken CancellationToken)
+    {
+        try
+        {
+            var command = new ReplaceInterventionCommand(
+                assessmentId,
+                interventionId,
+                Request.UpdateInterventionDto,
+                Request.AttachmentIdsToRemove,
+                Request.DraftSessionId);
+
+            UpdateInterventionDto result = await Mediator.Send(command, CancellationToken);
+            return Ok(result);
+        }
+        catch (KeyNotFoundException) 
         {
             return NotFound();
         }

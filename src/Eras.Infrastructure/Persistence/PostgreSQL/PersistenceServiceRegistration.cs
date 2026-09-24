@@ -65,8 +65,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             Services.AddScoped<IErasEvaluationDetailsViewRepository, ErasEvaluationDetailsViewRepository>();
             Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
             Services.AddScoped<IFeatureFlagRepository, FeatureFlagRepository>();
+            Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            Services.AddScoped<IAttachmentDraftSessionRepository, AttachmentDraftSessionRepository>();
+            Services.AddScoped<IDataMigrationCompletionRepository, DataMigrationCompletionRepository>();
             Services.AddScoped<IImportJobRepository, ImportJobRepository>();
             Services.AddScoped<IImportJobItemRepository, ImportJobItemRepository>();
+            Services.AddScoped<IDataBase, AppDbContext>();
             return Services;
         }
     }

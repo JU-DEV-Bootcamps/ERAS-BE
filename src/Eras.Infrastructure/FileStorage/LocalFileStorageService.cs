@@ -50,9 +50,9 @@ public sealed class LocalFileStorageService : IFileStorageService
         return Path.Combine(folder, safeFileName).Replace('\\', '/');
     }
 
-    public async Task<Stream> ReadAsync(string relativePath)
+    public async Task<Stream> ReadAsync(string key)
     {
-        string fullPath = Path.Combine(_basePath, relativePath);
+        string fullPath = Path.Combine(_basePath, key);
 
         if (!File.Exists(fullPath))
             throw new FileNotFoundException("Attachment not found.", fullPath);
@@ -64,14 +64,52 @@ public sealed class LocalFileStorageService : IFileStorageService
         return decrypted;
     }
 
-    public Task DeleteAsync(string relativePath)
+    public Task DeleteAsync(string key)
     {
-        string fullPath = Path.Combine(_basePath, relativePath);
+        string fullPath = Path.Combine(_basePath, key);
         if (File.Exists(fullPath))
         {
             File.Delete(fullPath);
             _logger.LogInformation("File deleted: {Path}", fullPath);
         }
+        return Task.CompletedTask;
+    }
+
+    public Task<bool> ExistsAsync(string key)
+    {
+        string fullPath = Path.Combine(_basePath, key);
+        return Task.FromResult(File.Exists(fullPath));
+    }
+
+    /// <remarks>
+    /// Local disk has no direct-access URL concept — files are only reachable by streaming
+    /// through the application via <see cref="ReadAsync"/>. Always returns <see langword="null"/>;
+    /// this is not an error, callers should treat it as "no direct URL available".
+    /// </remarks>
+    public Task<string?> GetUrlAsync(string key) => Task.FromResult<string?>(null);
+
+    public Task MoveAsync(string SourceKey, string DestinationKey)
+    {
+        string sourceFullPath = Path.Combine(_basePath, SourceKey);
+        string destinationFullPath = Path.Combine(_basePath, DestinationKey);
+
+        if (!File.Exists(sourceFullPath))
+            throw new FileNotFoundException("Attachment not found.", sourceFullPath);
+
+        string destinationDirectory = Path.GetDirectoryName(destinationFullPath)!;
+        Directory.CreateDirectory(destinationDirectory);
+
+        if (OperatingSystem.IsLinux())
+        {
+            File.SetUnixFileMode(destinationDirectory,
+                UnixFileMode.UserRead |
+                UnixFileMode.UserWrite |
+                UnixFileMode.UserExecute);
+        }
+
+        File.Move(sourceFullPath, destinationFullPath, overwrite: false);
+
+        _logger.LogInformation("File moved: {Source} -> {Destination}", sourceFullPath, destinationFullPath);
         return Task.CompletedTask;
     }
 }

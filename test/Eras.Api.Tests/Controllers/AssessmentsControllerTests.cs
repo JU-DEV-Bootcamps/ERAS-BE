@@ -430,4 +430,88 @@ public class AssessmentsControllerTests
 
         Assert.IsType<OkObjectResult>(result.Result);
     }
+
+    [Fact]
+    public async Task UpdateInterventionAsync_ReturnsOkAsync()
+    {
+        var intervention = new UpdateInterventionDto(
+            DateTime.Now, "act", "Dream", 1, "trish", "", [1], new Dictionary<int, bool> { { 2, true } }, InterventionMode.Remote, InterventionKind.Individual,
+            InterventionStatus.InProgress, "", 2.0, InterventionLevel.Medium, InterventionLevel.Low, 1);
+        var dto = new UpdateInterventionRequestDto(intervention, [], 1);
+        
+        _mediatorMock
+            .Setup(X => X.Send(It.IsAny<UpdateInterventionCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(intervention);
+
+        var result = await _controller.UpdateInterventionAsync(5, 1, dto, CancellationToken.None);
+
+        Assert.IsType<OkObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateInterventionAsync_ReturnsBadRequest_WhenNullResponseAsync()
+    {
+        var intervention = new UpdateInterventionDto(
+            DateTime.Now, "act", "Dream", 1, "trish", "", [1], new Dictionary<int, bool> { { 2, true } }, InterventionMode.Remote, InterventionKind.Individual,
+            InterventionStatus.InProgress, "", 2.0, InterventionLevel.Medium, InterventionLevel.Low, 1);
+        var dto = new UpdateInterventionRequestDto(intervention, [], 1);
+
+        _mediatorMock
+            .Setup(X => X.Send(It.IsAny<UpdateInterventionCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new KeyNotFoundException());
+
+        var result = await _controller.UpdateInterventionAsync(1, 10, dto, CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateInterventionAsync_ReturnsConflictResponseAsync()
+    {
+        var intervention = new UpdateInterventionDto(
+            DateTime.Now, "act", "Dream", 1, "trish", "", [1], new Dictionary<int, bool> { { 2, true } }, InterventionMode.Remote, InterventionKind.Individual,
+            InterventionStatus.InProgress, "", 2.0, InterventionLevel.Medium, InterventionLevel.Low, 1);
+        var dto = new UpdateInterventionRequestDto(intervention, [], 1);
+
+        _mediatorMock
+            .Setup(X => X.Send(It.IsAny<UpdateInterventionCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new OperationCanceledException("busy"));
+        var result = await _controller.UpdateInterventionAsync(1, 1, dto, CancellationToken.None);
+
+        Assert.IsType<ConflictObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task ReplaceInterventionAsync_ReturnsOkAsync()
+    {
+        var intervention = new UpdateInterventionDto(
+            DateTime.Now, "act", "Dream", 1, "trish", "", [1], new Dictionary<int, bool> { { 2, true } }, InterventionMode.Remote, InterventionKind.Individual,
+            InterventionStatus.InProgress, "", 2.0, InterventionLevel.Medium, InterventionLevel.Low, 1);
+        var dto = new UpdateInterventionRequestDto(intervention, [], 1);
+
+        _mediatorMock
+            .Setup(X => X.Send(It.IsAny<ReplaceInterventionCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(intervention);
+
+        var result = await _controller.ReplaceInterventionType(5, 1, dto, CancellationToken.None);
+
+        Assert.IsType<OkObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task ReplaceInterventionAsync_ReturnsBadRequest_WhenNullResponseAsync()
+    {
+        var intervention = new UpdateInterventionDto(
+            DateTime.Now, "act", "Dream", 1, "trish", "", [1], new Dictionary<int, bool> { { 2, true } }, InterventionMode.Remote, InterventionKind.Individual,
+            InterventionStatus.InProgress, "", 2.0, InterventionLevel.Medium, InterventionLevel.Low, 1);
+        var dto = new UpdateInterventionRequestDto(intervention, [], 1);
+
+        _mediatorMock
+            .Setup(X => X.Send(It.IsAny<ReplaceInterventionCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new KeyNotFoundException());
+
+        var result = await _controller.ReplaceInterventionType(1, 10, dto, CancellationToken.None);
+
+        Assert.IsType<NotFoundResult>(result);
+    }
 }
