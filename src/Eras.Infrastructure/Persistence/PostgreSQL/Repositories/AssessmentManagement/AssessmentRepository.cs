@@ -1,7 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence.AssessmentManagement;
-using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
-using Eras.Error.Critical;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -196,4 +194,13 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
             throw;
         }
     }
+
+    public async Task<IEnumerable<Assessment>> GetByCreatorAsync(string creatorSub)
+        => await _context.Set<Assessment>()
+            .Where(A => A.CreatedBy == creatorSub)
+            .ToListAsync();
+    public async Task<IEnumerable<Assessment>> GetByAssignedProfessionalAsync(string assignedProfessionalSub)
+        => await _context.Set<Assessment>()
+            .Where(A => A.AssignedProfessional == assignedProfessionalSub)
+            .ToListAsync();
 }
