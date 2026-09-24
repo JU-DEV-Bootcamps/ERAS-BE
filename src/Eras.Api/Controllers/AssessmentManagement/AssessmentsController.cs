@@ -331,4 +331,30 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
             return NotFound();
         }
     }
+
+    [HttpGet("by-creator/{creatorSub}")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByCreatorSub(
+        string creatorSub,
+        CancellationToken cancellationToken)
+    {
+        IEnumerable<AssessmentDto> response =
+            await Mediator.Send(new GetAssessmentsByCreatorQuery(creatorSub), cancellationToken);
+
+        return Ok(response);
+    }
+
+    [HttpGet("by-professional/{professionalSub}")]
+    [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByProfessionalSub(
+        string professionalSub,
+        CancellationToken cancellationToken)
+    {
+        IEnumerable<AssessmentDto> response =
+            await Mediator.Send(new GetAssessmentsByAssignedProfessionalQuery(professionalSub), cancellationToken);
+
+        return Ok(response);
+    }
 }
