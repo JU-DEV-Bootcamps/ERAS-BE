@@ -1,4 +1,6 @@
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
+using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Domain.Entities.AssessmentManagement;
@@ -13,31 +15,57 @@ public sealed class AddInterventionCommandHandler
     private readonly IAssessmentRepository _repository;
     private readonly IMapper<IndividualInterventionDto, IndividualIntervention> _individualMapper;
     private readonly IMapper<GroupInterventionDto, GroupIntervention> _groupMapper;
+    private readonly IAttachmentService _attachmentService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUserIdentityProvider _userIdentityProvider;
 
     public AddInterventionCommandHandler(
-        IAssessmentRepository repository,
-        IMapper<IndividualInterventionDto, IndividualIntervention> individualMapper,
-        IMapper<GroupInterventionDto, GroupIntervention> groupMapper)
+        IAssessmentRepository Repository,
+        IMapper<IndividualInterventionDto, IndividualIntervention> IndividualMapper,
+        IMapper<GroupInterventionDto, GroupIntervention> GroupMapper,
+        IAttachmentService AttachmentService,
+        IUnitOfWork UnitOfWork,
+        IUserIdentityProvider UserIdentityProvider)
     {
-        _repository = repository;
-        _individualMapper = individualMapper;
-        _groupMapper = groupMapper;
+        _repository = Repository;
+        _individualMapper = IndividualMapper;
+        _groupMapper = GroupMapper;
+        _attachmentService = AttachmentService;
+        _unitOfWork = UnitOfWork;
+        _userIdentityProvider = UserIdentityProvider;
     }
 
     public async Task<InterventionDto> Handle(
-        AddInterventionCommand request,
-        CancellationToken cancellationToken)
+        AddInterventionCommand Request,
+        CancellationToken CancellationToken)
     {
-        Assessment? assessment = await _repository.GetByIdWithInterventionsAsync(request.AssessmentId);
+        Assessment? assessment = await _repository.GetByIdWithInterventionsAsync(Request.AssessmentId);
 
         if (assessment is null)
-            throw new KeyNotFoundException($"Assessment '{request.AssessmentId}' not found.");
+            throw new KeyNotFoundException($"Assessment '{Request.AssessmentId}' not found.");
 
-        Intervention newIntervention = MapIntervention(request.Intervention);
+        Intervention newIntervention = MapIntervention(Request.Intervention);
 
-        Intervention persisted = await _repository.AddInterventionAsync(request.AssessmentId, newIntervention);
+        // Creating the intervention and claiming its drafted attachments (when requested) are one
+        // unit of work: either both persist or neither does.
+        Intervention persisted = await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        {
+            Intervention created = await _repository.AddInterventionAsync(Request.AssessmentId, newIntervention);
 
-        return request.Intervention switch
+            if (Request.DraftSessionId.HasValue)
+            {
+                await _attachmentService.ClaimDraftAttachmentsAsync(
+                    Request.DraftSessionId.Value,
+                    InterventionConstants.AttachmentEntityType,
+                    created.Id,
+                    _userIdentityProvider.UserId,
+                    CancellationToken);
+            }
+
+            return created;
+        });
+
+        return Request.Intervention switch
         {
             IndividualInterventionDto => new IndividualInterventionDto
             {
@@ -76,18 +104,18 @@ public sealed class AddInterventionCommandHandler
                 RiskLevelName = persisted.RiskLevelName
             },
             _ => throw new NotSupportedException(
-                $"Intervention DTO type '{request.Intervention.GetType().Name}' is not supported.")
+                $"Intervention DTO type '{Request.Intervention.GetType().Name}' is not supported.")
         };
     }
 
-    private Intervention MapIntervention(InterventionDto dto)
+    private Intervention MapIntervention(InterventionDto Dto)
     {
-        return dto switch
+        return Dto switch
         {
             IndividualInterventionDto individual => _individualMapper.Map(individual),
             GroupInterventionDto group => _groupMapper.Map(group),
             _ => throw new NotSupportedException(
-                $"Intervention DTO type '{dto.GetType().Name}' is not supported.")
+                $"Intervention DTO type '{Dto.GetType().Name}' is not supported.")
         };
     }
 }

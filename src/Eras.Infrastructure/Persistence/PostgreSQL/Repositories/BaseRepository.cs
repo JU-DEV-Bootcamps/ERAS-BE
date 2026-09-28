@@ -97,8 +97,21 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         }
         public async Task DeleteAsync(TDomain Entity)
         {
-            _context.Set<TPersist>().Remove(_toPersistence(Entity));
-            await _context.SaveChangesAsync();
+            TPersist persistEntity = _toPersistence(Entity);
+
+            object? keyValue = _context.Model
+                .FindEntityType(typeof(TPersist))!
+                .FindPrimaryKey()!
+                .Properties[0]
+                .GetGetter()
+                .GetClrValue(persistEntity);
+
+            TPersist? tracked = await _context.Set<TPersist>().FindAsync(keyValue);
+            if (tracked is not null)
+            {
+                _context.Set<TPersist>().Remove(tracked);
+                await _context.SaveChangesAsync();
+            }
         }
 
         public async Task<TDomain?> GetByIdAsync(int Id)

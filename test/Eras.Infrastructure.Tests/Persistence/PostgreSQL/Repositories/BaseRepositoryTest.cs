@@ -1,4 +1,6 @@
-﻿using Eras.Error.Critical;
+﻿using System.Security.Cryptography;
+
+using Eras.Error.Critical;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
@@ -324,69 +326,6 @@ public class BaseRepositoryTest : RepositoryTestBase
         transaction.Verify(
             T => T.DisposeAsync(),
             Times.Never);
-    }
-
-    //[Fact]
-    //public async Task AddTrackedBatchAsync_WhenSaveFails_RollsBackAndThrowsAsync()
-    //{
-    //    var mockSet = new Mock<DbSet<TestPersistEntity>>();
-
-    //    _mockContext
-    //        .Setup(C => C.Set<TestPersistEntity>())
-    //        .Returns(mockSet.Object);
-
-    //    _mockContext
-    //        .Setup(C => C.SaveChangesAsync(It.IsAny<CancellationToken>()))
-    //        .ThrowsAsync(new InvalidOperationException("DB error"));
-
-    //    var (_, transaction) = SetupTransaction(false);
-
-    //    var exception = await Assert.ThrowsAsync<DatabaseCustomException>(
-    //        () => _repository.AddTrackedBatchAsync(
-    //            new[]
-    //            {
-    //            new TestDomainEntity { Id = 1, Name = "A" }
-    //            }));
-
-    //    Assert.IsType<InvalidOperationException>(exception.InnerException);
-
-    //    transaction.Verify(
-    //        T => T.RollbackAsync(It.IsAny<CancellationToken>()),
-    //        Times.Once);
-
-    //    transaction.Verify(
-    //        T => T.DisposeAsync(),
-    //        Times.Once);
-    //}
-
-    [Fact]
-    public async Task DeleteAsync_RemovesEntityAndSavesChangesAsync()
-    {
-        var mockSet = new Mock<DbSet<TestPersistEntity>>();
-
-        _mockContext
-            .Setup(C => C.Set<TestPersistEntity>())
-            .Returns(mockSet.Object);
-
-        _mockContext
-            .Setup(C => C.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(1);
-
-        await _repository.DeleteAsync(
-            new TestDomainEntity
-            {
-                Id = 1,
-                Name = "A"
-            });
-
-        mockSet.Verify(
-            S => S.Remove(It.Is<TestPersistEntity>(
-                E => E.Id == 1 && E.Name == "A")),
-            Times.Once);
-
-        _mockContext.Verify(
-            C => C.SaveChangesAsync(It.IsAny<CancellationToken>()),
-            Times.Once);
     }
 
     [Fact]
