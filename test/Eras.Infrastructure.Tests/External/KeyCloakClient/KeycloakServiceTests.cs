@@ -1,8 +1,9 @@
 using System.Net;
 using System.Text.Json;
 
-using Eras.Application.Contracts.Persistence;
 using Eras.Infrastructure.External.KeycloakClient;
+
+using MediatR;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -19,7 +20,7 @@ namespace Eras.Infrastructure.Tests.External.KeycloakClient
         private const string Realm = "eras-realm";
         private const string TokenEndpoint = BaseUrl + "/realms/" + Realm + "/protocol/openid-connect/token";
         private readonly Mock<ILogger<KeycloakAuthService>> _serviceLoggerMock = new();
-        private readonly Mock<IErasUsersRepository> _erasUserRepoMock = new();
+        private readonly Mock<IMediator> _mediatorMock = new();
 
         private Mock<IConfiguration> CreateConfig()
         {
@@ -45,7 +46,7 @@ namespace Eras.Infrastructure.Tests.External.KeycloakClient
                 (config ?? CreateConfig()).Object,
                 factoryMock.Object,
                 _serviceLoggerMock.Object,
-                _erasUserRepoMock.Object);
+                _mediatorMock.Object);
         }
 
         [Fact]
