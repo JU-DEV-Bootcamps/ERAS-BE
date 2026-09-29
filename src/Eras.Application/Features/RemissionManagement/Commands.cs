@@ -26,6 +26,21 @@ public sealed record UpsertInterventionsCommand(int AssessmentId, IReadOnlyColle
 public sealed record GetInterventionsByAssessmentQuery(int AssessmentId)
     : IRequest<IReadOnlyCollection<InterventionDto>>;
 
+/// <summary>
+/// Interventions of the assessment, but only when the assessment was created by
+/// <paramref name="CreatorSub"/> — otherwise empty (#545, Student Services Officer scope).
+/// </summary>
+public sealed record GetInterventionsByAssessmentAndCreatorQuery(int AssessmentId, string CreatorSub)
+    : IRequest<IReadOnlyCollection<InterventionDto>>;
+
+/// <summary>
+/// Interventions of the assessment created by <paramref name="ProfessionalSub"/>, but only when
+/// that professional is the one assigned to the assessment — otherwise empty (#545, Professional
+/// scope: "interventions created by them, on assessments they're assigned to").
+/// </summary>
+public sealed record GetInterventionsByAssessmentAndAssignedProfessionalQuery(int AssessmentId, string ProfessionalSub)
+    : IRequest<IReadOnlyCollection<InterventionDto>>;
+
 /// <param name="DraftSessionId">
 /// Optional id of a draft session (see <c>Eras.Domain.Entities.AttachmentDraftSession</c>) whose
 /// staged attachments should be claimed for this intervention as part of its creation.
