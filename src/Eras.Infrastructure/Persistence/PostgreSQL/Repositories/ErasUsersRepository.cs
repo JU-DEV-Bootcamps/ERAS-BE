@@ -27,4 +27,19 @@ public sealed class ErasUsersRepository(AppDbContext Context) : BaseRepository<E
 
         return erasUser?.ToDTO();
     }
+
+    public async Task<IEnumerable<ErasUserDTO>> GetErasUsersByRoleAsync(string? Role)
+    {
+        IQueryable<ErasUser> query = _context.ErasUsers.AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(Role))
+            query = query.Where(User => User.Role == Role);
+
+        List<ErasUser> erasUsers = await query
+            .OrderBy(User => User.FirstName)
+            .ThenBy(User => User.LastName)
+            .ToListAsync();
+
+        return erasUsers.Select(User => User.ToDTO());
+    }
 }

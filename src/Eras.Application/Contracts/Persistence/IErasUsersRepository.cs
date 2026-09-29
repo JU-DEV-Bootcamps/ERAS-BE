@@ -6,4 +6,5 @@ public interface IErasUsersRepository : IBaseRepository<ErasUser>
 {
     Task<ErasUserDTO?> GetErasUserByEmailAsync(string Email);
     Task<ErasUserDTO?> GetErasUserBySubAsync(string Sub);
+    Task<IEnumerable<ErasUserDTO>> GetErasUsersByRoleAsync(string? Role);
 }

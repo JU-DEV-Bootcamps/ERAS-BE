@@ -1,6 +1,7 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Features.ErasUsers;
 using Eras.Domain.Entities.UserManagement;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -52,5 +53,18 @@ public class UsersController(IMediator Mediator, ICurrentUserService CurrentUser
     {
         var role = ErasRole.Resolve(_currentUserService.Roles);
         return Ok(new { role });
+    }
+
+    /// <summary>
+    /// Lists real ERAS users, optionally filtered by role (e.g. to populate an "assigned
+    /// professional" picker with actual Keycloak-synced accounts, or — with no role — to
+    /// resolve any user's sub back to a display name when rendering assessments/interventions).
+    /// </summary>
+    [HttpGet]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
+    public async Task<IActionResult> GetByRole([FromQuery] string? role)
+    {
+        var result = await _mediator.Send(new GetErasUsersByRoleQuery(role));
+        return Ok(result);
     }
 }

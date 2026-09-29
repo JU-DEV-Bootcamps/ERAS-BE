@@ -31,53 +31,7 @@ public sealed class GetAllRemissionsQueryHandler
     {
         IEnumerable<Assessment> entities = await _repository.GetAllAsync();
 
-        var uniqueIds = entities
-            .SelectMany(e => e.StudentIds ?? Array.Empty<int>())
-            .Distinct()
-            .ToList();
-
-        var students = uniqueIds.Any()
-            ? await _studentRepository.GetByIdsAsync(uniqueIds, cancellationToken)
-            : Array.Empty<Student>();
-
-        var avgRisks = uniqueIds.Any()
-            ? await _studentRepository.GetAverageRiskByStudentIdsAsync(uniqueIds)
-            : new Dictionary<int, double>();
-
-        var studentDict = students.ToDictionary(s => s.Id);
-
-        return entities.Select(entity =>
-        {
-            var dto = _mapper.Map(entity);
-            var studentDtos = entity.StudentIds
-                .Select(id =>
-                {
-                    if (studentDict.TryGetValue(id, out var student))
-                    {
-                        var avgRisk = avgRisks.TryGetValue(id, out var risk) ? risk : 0;
-                        return new StudentProfileDto
-                        {
-                            Id = student.Id,
-                            Name = student.Name,
-                            Email = student.Email,
-                            AvgRiskLevel = avgRisk,
-
-                        };
-                    }
-
-                    return new StudentProfileDto
-                    {
-                        Id = id,
-                        Name = $"ID {id}",
-                        Email = string.Empty,
-                        AvgRiskLevel = 0,
-                    };
-                })
-                .ToArray();
-            return dto with
-            {
-                Students = studentDtos,
-            };
-        }).ToArray();
+        return await AssessmentStudentEnricher.EnrichWithStudentsAsync(
+            entities, _mapper, _studentRepository, cancellationToken);
     }
 }
