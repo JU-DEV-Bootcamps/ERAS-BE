@@ -14,4 +14,18 @@ public sealed class ErasRole
     }
 
     public static IEnumerable<string> ListLabels() => [Administrator.Label, Officer.Label, Professional.Label, Guest.Label];
+
+    /// <summary>
+    /// Resolves the effective ERAS role from a set of Keycloak client role names,
+    /// prioritizing Administrator over any other assigned role.
+    /// </summary>
+    public static string Resolve(IEnumerable<string> Roles)
+    {
+        var roleList = Roles as ICollection<string> ?? Roles.ToList();
+
+        if (roleList.Contains(Administrator.Label))
+            return Administrator.Label;
+
+        return roleList.FirstOrDefault(Role => ListLabels().Contains(Role)) ?? Guest.Label;
+    }
 }
