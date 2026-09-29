@@ -6,6 +6,7 @@ using Eras.Application.Features.RemissionManagement;
 using Eras.Application.Features.RemissionManagement.Handlers;
 using Eras.Application.Models;
 using Eras.Domain.Entities.AssessmentManagement;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -15,14 +16,20 @@ using Microsoft.Extensions.Options;
 
 namespace Eras.Api.Controllers.AssessmentManagement;
 
+/// <summary>
+/// Endpoints under interventions/attachments are gated with AnyErasRole (role-only)
+/// rather than restricted to the resource's own creator/assigned professional:
+/// ownership-scoped enforcement is tracked separately (#545).
+/// </summary>
 [ApiController]
 [Route("api/v1/assessments")]
 [Authorize]
-public class AssessmentsController(IMediator Mediator, IFileStorageService FileStorage) : ControllerBase 
+public class AssessmentsController(IMediator Mediator, IFileStorageService FileStorage) : ControllerBase
 {
     private readonly IFileStorageService _fileStorage = FileStorage;
 
     [HttpGet("{id:int}")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<AssessmentDto>> GetById(int id, CancellationToken cancellationToken)
@@ -35,6 +42,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpGet]
+    [Authorize(Policy = ErasPolicies.AdminOnly)]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetAll(CancellationToken cancellationToken)
     {
@@ -43,6 +51,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpGet("by-student/{studentId:int}")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByStudentId(
@@ -57,6 +66,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpGet("by-status/{status}")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByStatus(
@@ -71,6 +81,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpPost]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AssessmentDto>> Create(
@@ -83,6 +94,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(typeof(AssessmentDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AssessmentDto>> Update(
@@ -108,6 +120,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(
@@ -125,6 +138,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
 
 
     [HttpGet("{id:int}/interventions")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IReadOnlyCollection<InterventionDto>>> GetInterventions(
@@ -136,6 +150,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpPost("interventions")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -149,6 +164,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpPut("{id:int}/interventions")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -172,6 +188,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpDelete("{id:int}/interventions/{interventionId:int}")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteIntervention(
@@ -190,6 +207,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpPost("interventions/{interventionId}/attachments")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [Consumes("multipart/form-data")]
     [ProducesResponseType(typeof(IReadOnlyCollection<string>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -222,6 +240,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpGet("interventions/{interventionId}/attachments/{fileName}")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DownloadAttachment(
@@ -257,6 +276,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
 
 
     [HttpDelete("interventions/{interventionId:int}/attachments/{fileName}")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAttachment(
@@ -278,6 +298,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpPut("{assessmentId:int}/interventions/{interventionId:int}")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -307,6 +328,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
 
 
     [HttpPut("{assessmentId:int}/interventions/{interventionId:int}/replace-type")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> ReplaceInterventionType(
@@ -333,6 +355,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpGet("by-creator/{creatorSub}")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByCreatorSub(
@@ -346,6 +369,7 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     [HttpGet("by-professional/{professionalSub}")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyCollection<AssessmentDto>>> GetByProfessionalSub(

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Eras.Application.DTOs;
 using Eras.Application.Features.FeatureFlags;
 using Eras.Error.Bussiness;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -11,9 +12,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 
+/// <summary>
+/// Reads require only an ERAS role (the FE checks flags for any logged-in user);
+/// mutations are narrowed to Admin via a stricter policy on top of the class one
+/// ("Manage application version displayed to users").
+/// </summary>
 [ApiController]
 [Route("api/v1/feature-flags")]
-[Authorize]
+[Authorize(Policy = ErasPolicies.AnyErasRole)]
 public class FeatureFlagController(IMediator Mediator, ILogger<FeatureFlagController> Logger): ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
@@ -46,6 +52,7 @@ public class FeatureFlagController(IMediator Mediator, ILogger<FeatureFlagContro
     }
 
     [HttpPost]
+    [Authorize(Policy = ErasPolicies.AdminOnly)]
     [ProducesResponseType(typeof(FeatureFlagDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -63,6 +70,7 @@ public class FeatureFlagController(IMediator Mediator, ILogger<FeatureFlagContro
     }
 
     [HttpPut("{Id:int}")]
+    [Authorize(Policy = ErasPolicies.AdminOnly)]
     [ProducesResponseType(typeof(FeatureFlagDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<FeatureFlagDTO>> UpdatedFeatureFlagAsync(int Id, [FromBody] FeatureFlagDTO DTO)
@@ -73,6 +81,7 @@ public class FeatureFlagController(IMediator Mediator, ILogger<FeatureFlagContro
     }
 
     [HttpDelete("{Id:int}")]
+    [Authorize(Policy = ErasPolicies.AdminOnly)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> DeleteFeatureFlagAsync(int Id)

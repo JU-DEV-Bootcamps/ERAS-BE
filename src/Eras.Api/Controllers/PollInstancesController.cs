@@ -4,6 +4,7 @@ using Eras.Application.Utils;
 using Eras.Application.Features.Cohorts.Queries.GetCohortComponentsByPoll;
 using Eras.Application.Features.Components.Queries;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -14,6 +15,7 @@ namespace Eras.Api.Controllers;
 
 [Route("api/v1/poll-instances")]
 [ApiController]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class PollInstancesController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {
 
@@ -21,7 +23,6 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
     private readonly ILogger<StudentsController> _logger = Logger;
 
     [HttpGet("{PollUuid}")]
-    [Authorize]
     public async Task<IActionResult> GetPollInstancesByCohortIdAndDaysAsync(
             [FromQuery] int[] CohortId,
             [FromQuery] int Days,
@@ -35,7 +36,6 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
     }
 
     [HttpGet("{Uuid}/cohorts/avg")]
-    [Authorize]
     public async Task<IActionResult> GetComponentsAvgGroupedByCohortAsync([FromRoute] string Uuid, [FromQuery] bool LastVersion)
     {
         var getCohortComponentsByPollQuery = new GetCohortComponentsByPollQuery() { PollUuid = Uuid, LastVersion = LastVersion };
@@ -56,7 +56,6 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
     }
 
     [HttpGet("{Id}/avg")]
-    [Authorize]
     public async Task<IActionResult> GetComponentsRiskAvgByStudentAsync([FromQuery] int StudentId, [FromRoute] int Id)
     {
         var getComponentsRiskAvgByStudent = new GetComponentsAvgByStudentQuery()

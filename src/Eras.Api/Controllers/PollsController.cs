@@ -6,15 +6,18 @@ using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using Eras.Application.Features.Polls.Queries.GetPollsByStudent;
 using Eras.Application.Features.Variables.Queries.GetVariablesByPollUuidAndComponent;
 using Eras.Domain.Entities;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/polls")]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class PollsController(IMediator Mediator, ILogger<PollsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

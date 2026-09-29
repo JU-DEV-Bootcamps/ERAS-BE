@@ -2,6 +2,7 @@ using Eras.Application.DTOs;
 using Eras.Application.Features.JUServices.Commands.CreateJUService;
 using Eras.Application.Features.JUServices.Queries.GetJUServices;
 using Eras.Application.Utils;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -13,11 +14,12 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/ju_services")]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class JUServiceController(IMediator Mediator, ILogger<JUServiceController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<JUServiceController> _logger = Logger;
-    
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -27,7 +29,7 @@ public class JUServiceController(IMediator Mediator, ILogger<JUServiceController
     }
 
     [HttpPost]
-    [Authorize]
+    [Authorize(Policy = ErasPolicies.AdminOnly)]
     public async Task<IActionResult> CreateServiceAsync([FromBody] JUServiceDTO Service)
     {
         if (Service == null)

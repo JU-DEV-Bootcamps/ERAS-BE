@@ -17,6 +17,7 @@ using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Application.Features.Students.Queries.GetAllLight;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -27,7 +28,7 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/students")]
-[Authorize]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class StudentsController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

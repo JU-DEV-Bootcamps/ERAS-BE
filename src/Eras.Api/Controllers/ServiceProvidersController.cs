@@ -3,9 +3,11 @@ using Eras.Application.Features.Configurations.Command.CreateConfiguration;
 using Eras.Application.Features.Configurations.Queries.GetAllConfigurations;
 using Eras.Application.Features.ServiceProviders.Command;
 using Eras.Application.Features.ServiceProviders.Queries;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics.CodeAnalysis;
 
@@ -13,6 +15,7 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/service-providers")]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class ServiceProvidersController(IMediator Mediator, ILogger<ServiceProvidersController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

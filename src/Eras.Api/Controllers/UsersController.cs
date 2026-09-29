@@ -1,7 +1,6 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Features.ErasUsers;
 using Eras.Domain.Entities.UserManagement;
-using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -44,12 +43,11 @@ public class UsersController(IMediator Mediator, ICurrentUserService CurrentUser
     }
 
     /// <summary>
-    /// Returns the current user's ERAS role. Requires an assigned ERAS role
-    /// (Administrator, Student Services Officer or Professional) — exercises the
-    /// Keycloak client-role authorization policy end to end.
+    /// Returns the current user's ERAS role. No role restriction beyond being
+    /// authenticated: even a Guest (no ERAS role assigned yet) should be able to
+    /// check their own role.
     /// </summary>
     [HttpGet("me/role")]
-    [Authorize(Policy = ErasPolicies.AnyErasRole)]
     public IActionResult GetMyRole()
     {
         var role = ErasRole.Resolve(_currentUserService.Roles);

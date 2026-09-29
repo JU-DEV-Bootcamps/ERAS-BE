@@ -4,15 +4,18 @@ using Eras.Application.Features.Configurations.Command.DeleteConfiguration;
 using Eras.Application.Features.Configurations.Command.EditConfiguration;
 using Eras.Application.Features.Configurations.Queries.GetAllConfigurations;
 using Eras.Application.Features.Configurations.Queries.GetUserConfigurations;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/configurations")]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class ConfigurationsController(IMediator Mediator, ILogger<ConfigurationsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

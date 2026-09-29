@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Features.Dashboard.Queries.GetDashboardKpis;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -10,7 +11,7 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/[controller]")]
-[Authorize] 
+[Authorize(Policy = ErasPolicies.AnyErasRole)]
 public class DashboardController(IMediator Mediator) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

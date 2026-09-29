@@ -9,6 +9,7 @@ using Eras.Infrastructure;
 using Eras.Infrastructure.Persistence;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 using Serilog;
@@ -47,6 +48,7 @@ builder.Services.AddApiServices(builder.Configuration);
 builder.Services.AddInfrastructureServices(builder.Configuration);
 builder.Services.AddPersistenceServices(builder.Configuration);
 builder.Services.AddApplicationServices();
+builder.Services.AddSingleton<IAuthorizationMiddlewareResultHandler, ErasAuthorizationMiddlewareResultHandler>();
 
 var app = builder.Build();
 
