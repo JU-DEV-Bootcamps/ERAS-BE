@@ -19,18 +19,21 @@ namespace Eras.Infrastructure.External.KeycloakClient
         private readonly IConfiguration _configuration;
         private readonly ILogger<KeycloakAuthService> _logger;
         private readonly IMediator _mediator;
+        private readonly KeycloakRoleNames _roleNames;
         private readonly JwtSecurityTokenHandler _jwtHandler = new ();
 
         public KeycloakAuthService(
             IConfiguration Configuration,
             IHttpClientFactory HttpClientFactory,
             ILogger<KeycloakAuthService> Logger,
-            IMediator Mediator)
+            IMediator Mediator,
+            KeycloakRoleNames RoleNames)
         {
             _httpClient = HttpClientFactory.CreateClient();
             _configuration = Configuration;
             _logger = Logger;
             _mediator = Mediator;
+            _roleNames = RoleNames;
         }
 
         public async Task<TokenResponse> LoginAsync(string Username, string Password)
@@ -105,7 +108,7 @@ namespace Eras.Infrastructure.External.KeycloakClient
                     keycloakClaims.Email,
                     keycloakClaims.GivenName,
                     keycloakClaims.FamilyName,
-                    ErasRole.Resolve(roles)
+                    ErasRole.Resolve(roles, _roleNames)
                 ));
             } catch(Exception Ex)
             {

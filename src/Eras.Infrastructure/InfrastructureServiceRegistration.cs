@@ -6,6 +6,7 @@ using Eras.Application.Models.Response.HeatMap;
 using Eras.Application.Services;
 using Eras.Application.Utils;
 using Eras.Domain.Common;
+using Eras.Domain.Entities.UserManagement;
 using Eras.Infrastructure.Authentication;
 using Eras.Infrastructure.Authorization;
 using Eras.Infrastructure.Cryptography;
@@ -120,13 +121,25 @@ namespace Eras.Infrastructure
             // because both clients have fullScopeAllowed enabled in the realm.
             string rolesResource = Configuration["Keycloak:RolesResource"] ?? "public-client";
 
+            // Every Keycloak instance ERAS talks to can name its own roles differently
+            // (e.g. staging/production instances managed outside this team). This section
+            // lets each environment's appsettings declare its own raw role names without
+            // needing anyone to rename roles in Keycloak; it defaults to the local/dev
+            // instance's names when unset.
+            var roleNames = new KeycloakRoleNames(
+                Administrator: Configuration["Keycloak:RoleNames:Administrator"] ?? new KeycloakRoleNames().Administrator,
+                Officer: Configuration["Keycloak:RoleNames:Officer"] ?? new KeycloakRoleNames().Officer,
+                Professional: Configuration["Keycloak:RoleNames:Professional"] ?? new KeycloakRoleNames().Professional);
+
+            Services.AddSingleton(roleNames);
+
             Services.AddKeycloakAuthorization(Options =>
             {
                 Options.EnableRolesMapping = RolesClaimTransformationSource.ResourceAccess;
                 Options.RolesResource = rolesResource;
             });
 
-            Services.AddAuthorization(Options => ErasPolicies.Configure(Options, rolesResource));
+            Services.AddAuthorization(Options => ErasPolicies.Configure(Options, rolesResource, roleNames));
         }
     }
 }

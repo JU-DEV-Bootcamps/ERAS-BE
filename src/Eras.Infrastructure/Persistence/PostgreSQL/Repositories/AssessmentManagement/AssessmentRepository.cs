@@ -197,10 +197,12 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
 
     public async Task<IEnumerable<Assessment>> GetByCreatorAsync(string creatorSub)
         => await _context.Set<Assessment>()
+            .Include(A => A.Interventions)
             .Where(A => A.CreatedBy == creatorSub)
             .ToListAsync();
     public async Task<IEnumerable<Assessment>> GetByAssignedProfessionalAsync(string assignedProfessionalSub)
         => await _context.Set<Assessment>()
+            .Include(A => A.Interventions)
             .Where(A => A.AssignedProfessional == assignedProfessionalSub)
             .ToListAsync();
 
