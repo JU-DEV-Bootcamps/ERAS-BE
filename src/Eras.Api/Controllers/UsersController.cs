@@ -13,10 +13,15 @@ namespace Eras.Api.Controllers;
 [Route("api/v1/users")]
 [ApiController]
 [Authorize]
-public class UsersController(IMediator Mediator, ICurrentUserService CurrentUserService) : ControllerBase
+public class UsersController(
+    IMediator Mediator,
+    ICurrentUserService CurrentUserService,
+    KeycloakRoleNames RoleNames
+) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
     private readonly ICurrentUserService _currentUserService = CurrentUserService;
+    private readonly KeycloakRoleNames _roleNames = RoleNames;
 
     /// <summary>
     /// Upserts the local ERAS user profile for the authenticated identity, from the
@@ -36,7 +41,7 @@ public class UsersController(IMediator Mediator, ICurrentUserService CurrentUser
             email,
             _currentUserService.FirstName ?? string.Empty,
             _currentUserService.LastName ?? string.Empty,
-            ErasRole.Resolve(_currentUserService.Roles)
+            ErasRole.Resolve(_currentUserService.Roles, _roleNames)
         );
 
         var result = await _mediator.Send(command);
@@ -51,7 +56,7 @@ public class UsersController(IMediator Mediator, ICurrentUserService CurrentUser
     [HttpGet("me/role")]
     public IActionResult GetMyRole()
     {
-        var role = ErasRole.Resolve(_currentUserService.Roles);
+        var role = ErasRole.Resolve(_currentUserService.Roles, _roleNames);
         return Ok(new { role });
     }
 

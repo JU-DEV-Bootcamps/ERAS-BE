@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 
+using Eras.Domain.Entities.UserManagement;
 using Eras.Infrastructure.Authorization;
 
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -25,7 +26,7 @@ public class ErasPoliciesTests
 {
     private const string RolesResource = "public-client";
 
-    private static IAuthorizationService BuildAuthorizationService()
+    private static IAuthorizationService BuildAuthorizationService(KeycloakRoleNames? roleNames = null)
     {
         var services = new ServiceCollection();
         services.AddLogging();
@@ -35,7 +36,7 @@ public class ErasPoliciesTests
             options.EnableRolesMapping = RolesClaimTransformationSource.ResourceAccess;
             options.RolesResource = RolesResource;
         });
-        services.AddAuthorization(options => ErasPolicies.Configure(options, RolesResource));
+        services.AddAuthorization(options => ErasPolicies.Configure(options, RolesResource, roleNames));
 
         return services.BuildServiceProvider().GetRequiredService<IAuthorizationService>();
     }
@@ -116,6 +117,36 @@ public class ErasPoliciesTests
         var user = BuildUser();
 
         var result = await service.AuthorizeAsync(user, ErasPolicies.AnyErasRole);
+
+        Assert.False(result.Succeeded);
+    }
+
+    [Fact]
+    public async Task AdminOnly_Succeeds_ForConfiguredEnvironmentSpecificAdminName()
+    {
+        var roleNames = new KeycloakRoleNames(
+            Administrator: "admin",
+            Officer: "Student Services Officer",
+            Professional: "Professional");
+        var service = BuildAuthorizationService(roleNames);
+        var user = BuildUser("admin");
+
+        var result = await service.AuthorizeAsync(user, ErasPolicies.AdminOnly);
+
+        Assert.True(result.Succeeded);
+    }
+
+    [Fact]
+    public async Task AdminOnly_Fails_ForLocalDevRoleName_WhenConfiguredWithDifferentNames()
+    {
+        var roleNames = new KeycloakRoleNames(
+            Administrator: "admin",
+            Officer: "Student Services Officer",
+            Professional: "Professional");
+        var service = BuildAuthorizationService(roleNames);
+        var user = BuildUser("ERAS Administrator");
+
+        var result = await service.AuthorizeAsync(user, ErasPolicies.AdminOnly);
 
         Assert.False(result.Succeeded);
     }

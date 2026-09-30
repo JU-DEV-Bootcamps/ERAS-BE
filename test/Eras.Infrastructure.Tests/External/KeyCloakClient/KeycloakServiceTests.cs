@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.Json;
 
+using Eras.Domain.Entities.UserManagement;
 using Eras.Infrastructure.External.KeycloakClient;
 
 using MediatR;
@@ -46,7 +47,8 @@ namespace Eras.Infrastructure.Tests.External.KeycloakClient
                 (config ?? CreateConfig()).Object,
                 factoryMock.Object,
                 _serviceLoggerMock.Object,
-                _mediatorMock.Object);
+                _mediatorMock.Object,
+                new KeycloakRoleNames());
         }
 
         [Fact]
