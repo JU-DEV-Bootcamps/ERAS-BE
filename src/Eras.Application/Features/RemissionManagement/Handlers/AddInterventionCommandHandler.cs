@@ -45,6 +45,7 @@ public sealed class AddInterventionCommandHandler
             throw new KeyNotFoundException($"Assessment '{Request.AssessmentId}' not found.");
 
         Intervention newIntervention = MapIntervention(Request.Intervention);
+        newIntervention.CreatedBy = _userIdentityProvider.UserId;
 
         // Creating the intervention and claiming its drafted attachments (when requested) are one
         // unit of work: either both persist or neither does.
@@ -76,6 +77,7 @@ public sealed class AddInterventionCommandHandler
                 NumberOfParticipants = persisted.NumberOfParticipants,
                 Professional = persisted.Professional,
                 Comments = persisted.Comments,
+                CreatedBy = persisted.CreatedBy,
                 StudentIds = persisted.StudentIds,
                 Attendance = persisted.Attendance,
                 Mode = persisted.Mode,
@@ -94,6 +96,7 @@ public sealed class AddInterventionCommandHandler
                 NumberOfParticipants = persisted.NumberOfParticipants,
                 Professional = persisted.Professional,
                 Comments = persisted.Comments,
+                CreatedBy = persisted.CreatedBy,
                 StudentIds = persisted.StudentIds,
                 Attendance = persisted.Attendance,
                 Mode = persisted.Mode,

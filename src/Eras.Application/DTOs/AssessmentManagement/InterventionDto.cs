@@ -18,6 +18,12 @@ public abstract record InterventionDto
     public int? NumberOfParticipants { get; init; }
     public string? Professional { get; init; }
     public string? Comments { get; init; }
+
+    /// <summary>
+    /// Keycloak sub of whoever created this intervention. Read-only: never accepted from a
+    /// client on create/update — the server stamps it from the authenticated identity.
+    /// </summary>
+    public string? CreatedBy { get; init; }
     public required IReadOnlyCollection<int> StudentIds { get; init; } = Array.Empty<int>();
 
     /// <summary>

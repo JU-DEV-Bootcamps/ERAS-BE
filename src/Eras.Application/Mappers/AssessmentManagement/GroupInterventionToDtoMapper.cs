@@ -16,6 +16,7 @@ public sealed class GroupInterventionToDtoMapper : IMapper<GroupIntervention, Gr
             Area = source.Area,
             NumberOfParticipants = source.NumberOfParticipants,
             Professional = source.Professional,
+            CreatedBy = source.CreatedBy,
             StudentIds = source.StudentIds,
             Attendance = source.Attendance,
             Mode = source.Mode,

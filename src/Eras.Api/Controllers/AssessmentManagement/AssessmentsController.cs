@@ -149,6 +149,42 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
         return Ok(response);
     }
 
+    /// <summary>
+    /// Interventions of the assessment, scoped to a Student Services Officer: only returned
+    /// when <paramref name="creatorSub"/> is the assessment's own creator (#545).
+    /// </summary>
+    [HttpGet("{id:int}/interventions/by-creator/{creatorSub}")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
+    [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyCollection<InterventionDto>>> GetInterventionsByCreator(
+        int id,
+        string creatorSub,
+        CancellationToken cancellationToken)
+    {
+        var response = await Mediator.Send(new GetInterventionsByAssessmentAndCreatorQuery(id, creatorSub), cancellationToken);
+        return Ok(response);
+    }
+
+    /// <summary>
+    /// Interventions of the assessment, scoped to a Professional: only the ones
+    /// <paramref name="professionalSub"/> created themselves, and only when they're the
+    /// assessment's assigned professional (#545).
+    /// </summary>
+    [HttpGet("{id:int}/interventions/by-professional/{professionalSub}")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
+    [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyCollection<InterventionDto>>> GetInterventionsByAssignedProfessional(
+        int id,
+        string professionalSub,
+        CancellationToken cancellationToken)
+    {
+        var response = await Mediator.Send(
+            new GetInterventionsByAssessmentAndAssignedProfessionalQuery(id, professionalSub), cancellationToken);
+        return Ok(response);
+    }
+
     [HttpPost("interventions")]
     [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(InterventionDto), StatusCodes.Status201Created)]

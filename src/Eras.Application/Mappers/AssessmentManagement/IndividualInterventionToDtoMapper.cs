@@ -16,6 +16,7 @@ public sealed class IndividualInterventionToDtoMapper : IMapper<IndividualInterv
             NumberOfParticipants = source.NumberOfParticipants,
             Professional = source.Professional,
             Comments = source.Comments,
+            CreatedBy = source.CreatedBy,
             StudentIds = source.StudentIds,
             Attendance = source.Attendance,
             Mode = source.Mode,

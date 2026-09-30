@@ -25,6 +25,10 @@ public sealed class InterventionConfiguration : IEntityTypeConfiguration<Interve
             .HasColumnName("professional")
             .HasMaxLength(200);
 
+        builder.Property(e => e.CreatedBy)
+            .HasColumnName("created_by")
+            .HasMaxLength(200);
+
         builder.Property(e => e.StudentIds)
             .HasColumnName("student_ids")
             .HasColumnType("integer[]");
