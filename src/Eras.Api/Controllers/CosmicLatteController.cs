@@ -10,11 +10,13 @@ using Microsoft.AspNetCore.Authorization;
 using Eras.Application.Features.FeatureFlags;
 using Eras.Application.Models;
 using Eras.Application.Contracts.Services;
+using Eras.Infrastructure.Authorization;
 
 namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/cosmic-latte")]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class CosmicLatteController(
     IMediator Mediator,
     ICosmicLatteAPIService CosmicLatteService,
@@ -76,7 +78,6 @@ public class CosmicLatteController(
         }
     }
 
-    [Authorize]
     [HttpPost("polls/{EvaluationId}")]
     public async Task<IActionResult> SavePreviewPollsAsync([FromBody] List<PollDTO> PollsInstances, int EvaluationId)
     {
@@ -104,7 +105,6 @@ public class CosmicLatteController(
         }
     }
 
-    [Authorize]
     [HttpPost("imports/extract")]
     public async Task<IActionResult> StartExtractionAsync([FromBody] StartExtractionRequest Request)
     {
@@ -126,7 +126,6 @@ public class CosmicLatteController(
         }
     }
 
-    [Authorize]
     [HttpPost("imports/{ImportJobId}/confirm")]
     public async Task<IActionResult> ConfirmImportAsync(int ImportJobId, [FromBody] ConfirmImportRequest Request)
     {
@@ -142,7 +141,6 @@ public class CosmicLatteController(
         return Accepted(new { importJobId = ImportJobId, status = "Importing" });
     }
 
-    [Authorize]
     [HttpGet("imports/{ImportJobId}")]
     public async Task<IActionResult> GetImportStatusAsync(int ImportJobId)
     {
@@ -154,7 +152,6 @@ public class CosmicLatteController(
         return Ok(status);
     }
 
-    [Authorize]
     [HttpGet("imports/{ImportJobId}/items")]
     public async Task<IActionResult> GetImportItemsAsync(int ImportJobId)
     {
@@ -166,7 +163,6 @@ public class CosmicLatteController(
         return Ok(await _importJobService.GetItemsAsync(ImportJobId));
     }
 
-    [Authorize]
     [HttpPost("imports/{ImportJobId}/retry")]
     public async Task<IActionResult> RetryImportItemsAsync(int ImportJobId, [FromBody] RetryImportItemsRequest Request)
     {

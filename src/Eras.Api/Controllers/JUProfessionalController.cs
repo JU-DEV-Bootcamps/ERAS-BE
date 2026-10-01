@@ -2,6 +2,7 @@ using Eras.Application.DTOs;
 using Eras.Application.Features.Professionals.Commands.CreateProfessional;
 using Eras.Application.Features.Professionals.Queries.GetProfessionals;
 using Eras.Application.Utils;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -13,11 +14,12 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/professionals")]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class ProfessionalsController(IMediator Mediator, ILogger<ProfessionalsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<ProfessionalsController> _logger = Logger;
-    
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -27,7 +29,7 @@ public class ProfessionalsController(IMediator Mediator, ILogger<ProfessionalsCo
     }
 
     [HttpPost]
-    [Authorize]
+    [Authorize(Policy = ErasPolicies.AdminOnly)]
     public async Task<IActionResult> CreateProfessionalAsync([FromBody] JUProfessionalDTO Professional)
     {
         if (Professional == null)

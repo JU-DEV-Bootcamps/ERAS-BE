@@ -10,6 +10,15 @@ public class Intervention : BaseEntity
     public int? NumberOfParticipants { get; set; }
     public string? Professional { get; set; }
     public string? Comments { get; set; }
+
+    /// <summary>
+    /// Keycloak sub of whoever created this intervention. Set once at creation time from
+    /// <c>IUserIdentityProvider</c> and preserved across edits/replacements; null for
+    /// interventions created before this field existed. Drives the by-creator/by-assigned
+    /// role-scoped queries (#545) — distinct from <see cref="Professional"/>, which is a
+    /// free-text display field, not an identity reference.
+    /// </summary>
+    public string? CreatedBy { get; set; }
     public required IReadOnlyCollection<int> StudentIds { get; set; } = Array.Empty<int>();
 
     public IReadOnlyDictionary<int, bool> Attendance { get; set; } = new Dictionary<int, bool>();

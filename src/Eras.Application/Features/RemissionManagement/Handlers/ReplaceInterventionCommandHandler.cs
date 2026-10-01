@@ -89,6 +89,9 @@ public sealed class ReplaceInterventionCommandHandler
 
             Intervention mapped = MapIntervention(Request.NewIntervention);
             mapped.Id = Request.OldInterventionId;
+            // Replacing the type deletes the old row and inserts a new one (see below) — carry
+            // the original creator over, since MapIntervention builds a fresh entity with none.
+            mapped.CreatedBy = oldIntervention.CreatedBy;
 
             Intervention persisted = await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {

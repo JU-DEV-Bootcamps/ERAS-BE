@@ -8,6 +8,7 @@ using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using Eras.Application.Utils;
 using Eras.Application.DTOs.Views;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -18,7 +19,7 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/reports")]
-[Authorize]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class ReportsController(IMediator Mediator) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;

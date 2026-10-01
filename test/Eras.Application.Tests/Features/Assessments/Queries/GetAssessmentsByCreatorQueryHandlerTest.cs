@@ -1,9 +1,11 @@
 
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Features.RemissionManagement;
 using Eras.Application.Features.RemissionManagement.Handlers.QueryHandlers;
 using Eras.Application.Mappers.AssessmentManagement;
+using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
 
 using Moq;
@@ -14,16 +16,26 @@ public class GetAssessmentsByCreatorQueryHandlerTests
 {
     private readonly Mock<IAssessmentRepository> _mockRepository;
     private readonly Mock<IMapper<Assessment, AssessmentDto>> _mockMapper;
+    private readonly Mock<IStudentRepository> _mockStudentRepository;
     private readonly GetAssessmentsByCreatorQueryHandler _handler;
 
     public GetAssessmentsByCreatorQueryHandlerTests()
     {
         _mockRepository = new Mock<IAssessmentRepository>();
         _mockMapper = new Mock<IMapper<Assessment, AssessmentDto>>();
+        _mockStudentRepository = new Mock<IStudentRepository>();
+
+        _mockStudentRepository
+            .Setup(r => r.GetByIdsAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Array.Empty<Student>());
+        _mockStudentRepository
+            .Setup(r => r.GetAverageRiskByStudentIdsAsync(It.IsAny<IEnumerable<int>>()))
+            .ReturnsAsync(new Dictionary<int, double>());
 
         _handler = new GetAssessmentsByCreatorQueryHandler(
             _mockRepository.Object,
-            _mockMapper.Object);
+            _mockMapper.Object,
+            _mockStudentRepository.Object);
     }
 
     [Fact]

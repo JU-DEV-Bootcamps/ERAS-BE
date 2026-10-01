@@ -1,5 +1,6 @@
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AttachmentManagement;
+using Eras.Infrastructure.Authorization;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,10 +10,13 @@ namespace Eras.Api.Controllers;
 /// <summary>
 /// Generic, entity-agnostic attachment endpoints (upload/list/download/delete)
 /// for any entity type on <c>AttachmentEntityTypeRegistry</c>'s whitelist.
+/// Gated with AnyErasRole (role-only): ownership-scoped enforcement (e.g. a
+/// Professional only touching their own interventions' attachments) is tracked
+/// separately (#545).
 /// </summary>
 [ApiController]
 [Route("api/v1/attachments")]
-[Authorize]
+[Authorize(Policy = ErasPolicies.AnyErasRole)]
 public class AttachmentsController(
     IAttachmentService AttachmentService,
     IAttachmentDraftSessionService AttachmentDraftSessionService,

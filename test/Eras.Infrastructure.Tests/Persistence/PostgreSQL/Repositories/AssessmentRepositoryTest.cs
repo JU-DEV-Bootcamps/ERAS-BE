@@ -683,6 +683,75 @@ public class AssessmentRepositoryTest : RepositoryTestBase
     }
 
     [Fact]
+    public async Task GetByCreatorAsync_Should_IncludeInterventions()
+    {
+        // Arrange
+        using var context = CreateContext();
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "creator-sub",
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.Remitted
+        };
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1],
+            Mode = InterventionMode.InPlace
+        };
+        context.Interventions.Add(intervention);
+        context.Entry(intervention).Property("remission_id").CurrentValue = assessment.Id;
+        await context.SaveChangesAsync();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        var result = await repository.GetByCreatorAsync("creator-sub");
+
+        // Assert
+        Assessment found = Assert.Single(result);
+        Assert.NotEmpty(found.Interventions);
+    }
+
+    [Fact]
+    public async Task GetByAssignedProfessionalAsync_Should_IncludeInterventions()
+    {
+        // Arrange
+        using var context = CreateContext();
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            AssignedProfessional = "professional-sub",
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.Remitted
+        };
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+        var intervention = new TestIntervention
+        {
+            DateUtc = DateTime.UtcNow,
+            StudentIds = [1],
+            Mode = InterventionMode.InPlace
+        };
+        context.Interventions.Add(intervention);
+        context.Entry(intervention).Property("remission_id").CurrentValue = assessment.Id;
+        await context.SaveChangesAsync();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act
+        var result = await repository.GetByAssignedProfessionalAsync("professional-sub");
+
+        // Assert
+        Assessment found = Assert.Single(result);
+        Assert.NotEmpty(found.Interventions);
+    }
+
+    [Fact]
     public async Task DeleteInterventionAsync_Should_Throw_WhenInterventionIsNotFoundAsync()
     {
         // Arrange
