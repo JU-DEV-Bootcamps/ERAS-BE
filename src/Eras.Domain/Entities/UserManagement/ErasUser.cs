@@ -9,6 +9,11 @@ public class ErasUser : BaseEntity, IAuditableEntity
     public required string LastName { get; set; } = string.Empty;
     public required string Role { get; set; } = ErasRole.Guest.Label;
     public bool IsSynced {get; set; } = false;
+    public string? EmployeeId { get; set; }
+    public string? Department { get; set; }
+    public string? Phone { get; set; }
+    public string? Position { get; set; }
+    public string? About { get; set; }
     public AuditInfo Audit { get; set; } = new AuditInfo()
     {
         CreatedAt = DateTime.UtcNow,

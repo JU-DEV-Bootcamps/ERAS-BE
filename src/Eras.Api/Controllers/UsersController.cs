@@ -1,6 +1,8 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Features.ErasUsers;
+using Eras.Application.Features.ErasUsers.Models;
 using Eras.Domain.Entities.UserManagement;
+using Eras.Error.Bussiness;
 using Eras.Infrastructure.Authorization;
 
 using MediatR;
@@ -71,5 +73,55 @@ public class UsersController(
     {
         var result = await _mediator.Send(new GetErasUsersByRoleQuery(role));
         return Ok(result);
+    }
+
+    /// <summary>
+    /// Returns the current user's own profile (name, email, role, and the admin-managed
+    /// employee fields). No role restriction beyond being authenticated.
+    /// </summary>
+    [HttpGet("me/profile")]
+    public async Task<IActionResult> GetMyProfileAsync()
+    {
+        if (_currentUserService.Email is not { } email)
+            return Unauthorized();
+
+        try
+        {
+            var result = await _mediator.Send(new GetMyProfileQuery(_currentUserService.Sub, email));
+            return Ok(result);
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
+    }
+
+    /// <summary>
+    /// Updates the admin-managed employee profile fields (Employee ID, department, phone,
+    /// position, about/bio) for a specific user. Restricted to admins; first name, last
+    /// name, email, and role stay exclusively Keycloak-sync-owned and are never editable here.
+    /// </summary>
+    [HttpPut("{userId}/profile")]
+    [Authorize(Policy = ErasPolicies.AdminOnly)]
+    public async Task<IActionResult> UpdateUserProfileAsync(int userId, [FromBody] UpdateUserProfileRequest request)
+    {
+        try
+        {
+            var command = new UpdateUserProfileCommand(
+                userId,
+                request.EmployeeId,
+                request.Department,
+                request.Phone,
+                request.Position,
+                request.About
+            );
+
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+        catch (NotFoundException)
+        {
+            return NotFound();
+        }
     }
 }

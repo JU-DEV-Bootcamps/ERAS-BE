@@ -16,6 +16,11 @@ public static class ErasUsersMapper
             LastName = Entity.LastName,
             Role = Entity.Role,
             IsSynced = Entity.IsSynced,
+            EmployeeId = Entity.EmployeeId,
+            Department = Entity.Department,
+            Phone = Entity.Phone,
+            Position = Entity.Position,
+            About = Entity.About,
             Audit = Entity.Audit
         };
     }
@@ -31,6 +36,11 @@ public static class ErasUsersMapper
             LastName = DTO.LastName,
             Role = DTO.Role,
             IsSynced = DTO.IsSynced,
+            EmployeeId = DTO.EmployeeId,
+            Department = DTO.Department,
+            Phone = DTO.Phone,
+            Position = DTO.Position,
+            About = DTO.About,
             Audit = DTO.Audit,
         };
 

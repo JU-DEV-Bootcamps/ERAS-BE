@@ -55,5 +55,25 @@ public sealed class ErasUserConfiguration : IEntityTypeConfiguration<ErasUser>
             .HasColumnName("is_synced")
             .HasDefaultValue(false)
             .IsRequired();
+
+        Builder.Property(entity => entity.EmployeeId)
+            .HasColumnName("employee_id")
+            .HasMaxLength(50);
+
+        Builder.Property(entity => entity.Department)
+            .HasColumnName("department")
+            .HasMaxLength(100);
+
+        Builder.Property(entity => entity.Phone)
+            .HasColumnName("phone")
+            .HasMaxLength(20);
+
+        Builder.Property(entity => entity.Position)
+            .HasColumnName("position")
+            .HasMaxLength(100);
+
+        Builder.Property(entity => entity.About)
+            .HasColumnName("about")
+            .HasMaxLength(2000);
     }
 }

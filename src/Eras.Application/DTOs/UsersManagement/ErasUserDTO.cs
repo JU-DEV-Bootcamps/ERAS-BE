@@ -10,5 +10,10 @@ public class ErasUserDTO
     public required string LastName { get; set; } = string.Empty;
     public required string Role { get; set; } = string.Empty;
     public bool IsSynced {get; set; } = false;
+    public string? EmployeeId { get; set; }
+    public string? Department { get; set; }
+    public string? Phone { get; set; }
+    public string? Position { get; set; }
+    public string? About { get; set; }
     public required AuditInfo Audit { get; set; }
 }
