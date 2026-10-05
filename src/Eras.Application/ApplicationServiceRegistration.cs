@@ -3,7 +3,9 @@
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Application.DTOs.Student;
 using Eras.Application.Mappers.AssessmentManagement;
+using Eras.Application.Validation;
 using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Domain.Entities.AssessmentManagement.StatusManagement;
@@ -81,6 +83,7 @@ namespace Eras.Application.Services
             Services.AddScoped<IValidator<StatusTransitionRequest<AssessmentStatus>>, AssessmentStatusTransitionValidator>();
             Services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
             Services.AddScoped<IValidator<ErasUser>, ErasUserValidator>();
+            Services.AddScoped<IValidator<StudentRegistrationDto>, StudentRegistrationDtoValidator>();
 
             return Services;  
         }
