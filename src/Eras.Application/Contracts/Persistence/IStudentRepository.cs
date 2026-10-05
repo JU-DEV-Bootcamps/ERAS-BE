@@ -24,9 +24,10 @@ namespace Eras.Application.Contracts.Persistence
         Task UpdateIdentityAsync(int StudentId, string Name, string Email, string ModifiedBy);
 
         /// <summary>
-        /// Hard-deletes the student; profile, details and cohort links go with it through cascades.
+        /// Soft-deletes the student and its profile: they are flagged and hidden everywhere
+        /// (global query filter) but the rows are kept.
         /// </summary>
-        Task DeleteByIdAsync(int StudentId);
+        Task SoftDeleteAsync(int StudentId, string ModifiedBy);
         new Task<int> CountAsync();
 
         Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByComponent(

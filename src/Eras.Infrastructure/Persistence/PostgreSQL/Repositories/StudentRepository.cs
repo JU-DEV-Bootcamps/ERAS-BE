@@ -49,6 +49,12 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return student?.ToDomain();
         }
 
+        public new async Task<Student?> GetByIdAsync(int Id)
+        {
+            StudentEntity? entity = await _context.Students.FirstOrDefaultAsync(Student => Student.Id == Id);
+            return entity?.ToDomain();
+        }
+
         public async Task<bool> HasRelatedDataAsync(int StudentId)
         {
             bool hasAnswers = await _context.PollInstances.AnyAsync(Instance => Instance.StudentId == StudentId);
@@ -67,10 +73,24 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteByIdAsync(int StudentId)
+        public async Task SoftDeleteAsync(int StudentId, string ModifiedBy)
         {
+            DateTime now = DateTime.UtcNow;
+
             StudentEntity entity = await _context.Students.FirstAsync(Student => Student.Id == StudentId);
-            _context.Students.Remove(entity);
+            entity.IsDeleted = true;
+            entity.Audit.ModifiedBy = ModifiedBy;
+            entity.Audit.ModifiedAt = now;
+
+            StudentProfile? profile = await _context.StudentProfiles
+                .FirstOrDefaultAsync(Profile => Profile.StudentId == StudentId);
+            if (profile is not null)
+            {
+                profile.IsDeleted = true;
+                profile.Audit.ModifiedBy = ModifiedBy;
+                profile.Audit.ModifiedAt = now;
+            }
+
             await _context.SaveChangesAsync();
         }
 
@@ -123,7 +143,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             string CohortId,
             int Limit)
         {
-            //comment
             if (!int.TryParse(CohortId, out int cohortInt))
             {
                 throw new ArgumentException("Invalid cohort Id format", nameof(CohortId));

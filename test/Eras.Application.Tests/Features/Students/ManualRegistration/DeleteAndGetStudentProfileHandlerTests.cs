@@ -1,3 +1,4 @@
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Features.Students.Commands.DeleteStudent;
@@ -13,12 +14,14 @@ public class DeleteStudentCommandHandlerTests
 {
     private readonly Mock<IStudentRepository> _students = new();
     private readonly Mock<IStudentProfileRepository> _profiles = new();
+    private readonly Mock<ICurrentUserService> _currentUser = new();
     private readonly DeleteStudentCommandHandler _handler;
 
     public DeleteStudentCommandHandlerTests()
     {
         _profiles.Setup(R => R.GetByStudentIdAsync(7)).ReturnsAsync(new StudentProfile { StudentId = 7 });
-        _handler = new DeleteStudentCommandHandler(_students.Object, _profiles.Object);
+        _currentUser.SetupGet(U => U.Sub).Returns("deleter-sub");
+        _handler = new DeleteStudentCommandHandler(_students.Object, _profiles.Object, _currentUser.Object);
     }
 
     private Task Run() => _handler.Handle(new DeleteStudentCommand(7), CancellationToken.None);
@@ -39,7 +42,7 @@ public class DeleteStudentCommandHandlerTests
         BussinessException error = await Assert.ThrowsAsync<BussinessException>(Run);
 
         Assert.Equal(409, error.StatusCode);
-        _students.Verify(R => R.DeleteByIdAsync(It.IsAny<int>()), Times.Never);
+        _students.Verify(R => R.SoftDeleteAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
@@ -51,7 +54,7 @@ public class DeleteStudentCommandHandlerTests
         BussinessException error = await Assert.ThrowsAsync<BussinessException>(Run);
 
         Assert.Equal(409, error.StatusCode);
-        _students.Verify(R => R.DeleteByIdAsync(It.IsAny<int>()), Times.Never);
+        _students.Verify(R => R.SoftDeleteAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
@@ -63,7 +66,19 @@ public class DeleteStudentCommandHandlerTests
         BussinessException error = await Assert.ThrowsAsync<BussinessException>(Run);
 
         Assert.Equal(409, error.StatusCode);
-        _students.Verify(R => R.DeleteByIdAsync(It.IsAny<int>()), Times.Never);
+        _students.Verify(R => R.SoftDeleteAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_NoAuthenticatedSub_FallsBackToSystemAuditUser()
+    {
+        _currentUser.SetupGet(U => U.Sub).Returns((string?)null);
+        _students.Setup(R => R.GetByIdAsync(7)).ReturnsAsync(new Student { Id = 7 });
+        _students.Setup(R => R.HasRelatedDataAsync(7)).ReturnsAsync(false);
+
+        await Run();
+
+        _students.Verify(R => R.SoftDeleteAsync(7, "System"), Times.Once);
     }
 
     [Fact]
@@ -74,7 +89,7 @@ public class DeleteStudentCommandHandlerTests
 
         await Run();
 
-        _students.Verify(R => R.DeleteByIdAsync(7), Times.Once);
+        _students.Verify(R => R.SoftDeleteAsync(7, "deleter-sub"), Times.Once);
     }
 }
 

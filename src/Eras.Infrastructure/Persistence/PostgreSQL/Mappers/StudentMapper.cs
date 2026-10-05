@@ -17,6 +17,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 StudentDetail = stDetail,
                 Email = Entity.Email,
                 IsImported = Entity.IsImported,
+                IsDeleted = Entity.IsDeleted,
                 Uuid = Entity.Uuid,
                 RemissionIds = Entity.RemissionIds,
                 Audit = Entity.Audit
@@ -33,6 +34,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
                 StudentDetail = Model.StudentDetail.ToPersistence(),
                 Email = Model.Email,
                 IsImported = Model.IsImported,
+                IsDeleted = Model.IsDeleted,
                 Uuid = Model.Uuid,
                 RemissionIds = Model.RemissionIds,
                 Audit = Model.Audit,

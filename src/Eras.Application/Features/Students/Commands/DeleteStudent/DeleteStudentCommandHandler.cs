@@ -1,3 +1,4 @@
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 using Eras.Error.Bussiness;
@@ -8,7 +9,8 @@ namespace Eras.Application.Features.Students.Commands.DeleteStudent;
 
 public sealed class DeleteStudentCommandHandler(
     IStudentRepository StudentRepository,
-    IStudentProfileRepository ProfileRepository)
+    IStudentProfileRepository ProfileRepository,
+    ICurrentUserService CurrentUserService)
     : IRequestHandler<DeleteStudentCommand>
 {
     public async Task Handle(DeleteStudentCommand Request, CancellationToken CancellationToken)
@@ -26,6 +28,6 @@ public sealed class DeleteStudentCommandHandler(
             throw new BussinessException(
                 "This student already has answers or assessments and cannot be deleted.", 409);
 
-        await StudentRepository.DeleteByIdAsync(student.Id);
+        await StudentRepository.SoftDeleteAsync(student.Id, CurrentUserService.Sub ?? "System");
     }
 }

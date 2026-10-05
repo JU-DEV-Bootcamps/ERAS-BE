@@ -34,5 +34,8 @@ public class StudentProfile : BaseEntity, IAuditableEntity
     public string? StudyModality { get; set; }
     public string? PreviousInstitution { get; set; }
 
+    /// <summary>Set when the student is soft-deleted; the profile is then hidden with it.</summary>
+    public bool IsDeleted { get; set; } = false;
+
     public AuditInfo Audit { get; set; } = default!;
 }

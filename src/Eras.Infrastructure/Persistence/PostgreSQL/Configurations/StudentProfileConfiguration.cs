@@ -49,11 +49,20 @@ public sealed class StudentProfileConfiguration : IEntityTypeConfiguration<Stude
         Builder.Property(Profile => Profile.StudyModality).HasColumnName("study_modality").HasMaxLength(100);
         Builder.Property(Profile => Profile.PreviousInstitution).HasColumnName("previous_institution").HasMaxLength(200);
 
+        Builder.Property(Profile => Profile.IsDeleted)
+            .HasColumnName("is_deleted")
+            .HasDefaultValue(false)
+            .IsRequired();
+
+        // A deleted student must not keep reserving its ID/passport number.
+        Builder.HasQueryFilter(Profile => !Profile.IsDeleted);
+
         Builder.HasIndex(Profile => Profile.StudentId)
             .IsUnique()
             .HasDatabaseName("ux_student_profiles_student_id");
         Builder.HasIndex(Profile => Profile.IdPassportNumber)
             .IsUnique()
+            .HasFilter("is_deleted = false")
             .HasDatabaseName("ux_student_profiles_id_passport_number");
     }
 

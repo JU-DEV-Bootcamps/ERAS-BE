@@ -34,6 +34,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Student => Student.IsImported)
                 .HasColumnName("is_imported")
                 .IsRequired();
+            Builder.Property(Student => Student.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
+                .IsRequired();
+
+            // Soft-deleted students disappear from every query.
+            Builder.HasQueryFilter(Student => !Student.IsDeleted);
 
             Builder.HasIndex(Student => Student.Name)
                 .HasDatabaseName("ix_students_name");
