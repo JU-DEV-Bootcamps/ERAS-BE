@@ -5,6 +5,7 @@ using Eras.Application.DTOs.HeatMap;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
@@ -46,6 +47,31 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             );
 
             return student?.ToDomain();
+        }
+
+        public async Task<bool> HasRelatedDataAsync(int StudentId)
+        {
+            bool hasAnswers = await _context.PollInstances.AnyAsync(Instance => Instance.StudentId == StudentId);
+            if (hasAnswers) return true;
+
+            return await _context.Set<Assessment>().AnyAsync(Item => Item.StudentIds.Contains(StudentId));
+        }
+
+        public async Task UpdateIdentityAsync(int StudentId, string Name, string Email, string ModifiedBy)
+        {
+            StudentEntity entity = await _context.Students.FirstAsync(Student => Student.Id == StudentId);
+            entity.Name = Name;
+            entity.Email = Email;
+            entity.Audit.ModifiedBy = ModifiedBy;
+            entity.Audit.ModifiedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteByIdAsync(int StudentId)
+        {
+            StudentEntity entity = await _context.Students.FirstAsync(Student => Student.Id == StudentId);
+            _context.Students.Remove(entity);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Student?> GetByEmailAsync(string Email)
