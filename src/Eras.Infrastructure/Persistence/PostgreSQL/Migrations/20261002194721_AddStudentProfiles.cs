@@ -12,6 +12,25 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // The AssessmentManagement migration created an unrelated table with this same name
+            // (id uuid, student_code, ...) that no later migration dropped and the model no longer
+            // maps. Databases built from the migration history still have it, so it is renamed
+            // (not dropped, nothing is lost) to free the name for the new table.
+            migrationBuilder.Sql(@"
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_schema = current_schema()
+          AND table_name = 'student_profiles'
+          AND column_name = 'student_code')
+    THEN
+        ALTER TABLE student_profiles RENAME TO student_profiles_legacy;
+        ALTER INDEX IF EXISTS ""PK_student_profiles"" RENAME TO ""PK_student_profiles_legacy"";
+        ALTER INDEX IF EXISTS ""IX_student_profiles_student_code"" RENAME TO ""IX_student_profiles_legacy_student_code"";
+    END IF;
+END $$;");
+
             migrationBuilder.CreateTable(
                 name: "student_profiles",
                 columns: table => new
@@ -72,6 +91,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
         {
             migrationBuilder.DropTable(
                 name: "student_profiles");
+
+            // Give the legacy table back its original name.
+            migrationBuilder.Sql(@"
+DO $$
+BEGIN
+    IF to_regclass('student_profiles_legacy') IS NOT NULL THEN
+        ALTER TABLE student_profiles_legacy RENAME TO student_profiles;
+        ALTER INDEX IF EXISTS ""PK_student_profiles_legacy"" RENAME TO ""PK_student_profiles"";
+        ALTER INDEX IF EXISTS ""IX_student_profiles_legacy_student_code"" RENAME TO ""IX_student_profiles_student_code"";
+    END IF;
+END $$;");
 
         }
     }
