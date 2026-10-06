@@ -21,17 +21,22 @@ public sealed class UpdateUserProfileCommandHandler(
 
     public async Task<ErasUserDTO> Handle(UpdateUserProfileCommand request, CancellationToken cancellationToken)
     {
-        ErasUser entity = await _repository.GetByIdAsync(request.UserId)
-            ?? throw new NotFoundException($"User {request.UserId} not found.");
+        ErasUserDTO? dto = request.Sub != null
+            ? await _repository.GetErasUserBySubAsync(request.Sub) ?? await _repository.GetErasUserByEmailAsync(request.Email)
+            : await _repository.GetErasUserByEmailAsync(request.Email);
 
-        entity.EmployeeId = request.EmployeeId;
-        entity.Department = request.Department;
-        entity.Phone = request.Phone;
-        entity.Position = request.Position;
-        entity.About = request.About;
-        entity.Audit.ModifiedAt = DateTime.UtcNow;
-        entity.Audit.ModifiedBy = "System";
+        if (dto is null)
+            throw new NotFoundException($"User {request.Email} not found.");
 
+        dto.EmployeeId = request.EmployeeId;
+        dto.Department = request.Department;
+        dto.Phone = request.Phone;
+        dto.Position = request.Position;
+        dto.About = request.About;
+        dto.Audit.ModifiedAt = DateTime.UtcNow;
+        dto.Audit.ModifiedBy = "System";
+
+        ErasUser entity = dto.ToDomain();
         await ValidationHelper.ValidateAndThrowAsync(_validator, entity, cancellationToken);
         ErasUser updated = await _repository.UpdateAsync(entity);
 

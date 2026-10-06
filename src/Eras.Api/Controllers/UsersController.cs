@@ -97,18 +97,23 @@ public class UsersController(
     }
 
     /// <summary>
-    /// Updates the admin-managed employee profile fields (Employee ID, department, phone,
-    /// position, about/bio) for a specific user. Restricted to admins; first name, last
-    /// name, email, and role stay exclusively Keycloak-sync-owned and are never editable here.
+    /// Updates the authenticated caller's own editable profile fields (Employee ID,
+    /// department, phone, position, about/bio). Only the same user can update these
+    /// attributes; first name, last name, email, and role stay exclusively
+    /// Keycloak-sync-owned and are never editable here.
     /// </summary>
-    [HttpPut("{userId}/profile")]
-    [Authorize(Policy = ErasPolicies.AdminOnly)]
-    public async Task<IActionResult> UpdateUserProfileAsync(int userId, [FromBody] UpdateUserProfileRequest request)
+    [HttpPut("me/profile")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
+    public async Task<IActionResult> UpdateUserProfileAsync([FromBody] UpdateUserProfileRequest request)
     {
+        if (_currentUserService.Email is not { } email)
+            return Unauthorized();
+
         try
         {
             var command = new UpdateUserProfileCommand(
-                userId,
+                _currentUserService.Sub,
+                email,
                 request.EmployeeId,
                 request.Department,
                 request.Phone,

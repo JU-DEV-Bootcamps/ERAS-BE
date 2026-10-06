@@ -82,27 +82,42 @@ public class UsersControllerTests
     [Fact]
     public async Task UpdateUserProfileAsync_ReturnsOk_WhenSuccessfulAsync()
     {
+        _currentUserServiceMock.Setup(C => C.Email).Returns("user@test.com");
+        _currentUserServiceMock.Setup(C => C.Sub).Returns("sub-123");
+
         var profile = CreateProfile();
         _mediatorMock
             .Setup(M => M.Send(It.IsAny<UpdateUserProfileCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);
 
         var request = new UpdateUserProfileRequest { EmployeeId = "E-1", Department = "IT" };
-        var result = await _controller.UpdateUserProfileAsync(1, request);
+        var result = await _controller.UpdateUserProfileAsync(request);
 
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.Same(profile, ok.Value);
     }
 
     [Fact]
+    public async Task UpdateUserProfileAsync_ReturnsUnauthorized_WhenCurrentUserHasNoEmailAsync()
+    {
+        _currentUserServiceMock.Setup(C => C.Email).Returns((string?)null);
+
+        var request = new UpdateUserProfileRequest { EmployeeId = "E-1" };
+        var result = await _controller.UpdateUserProfileAsync(request);
+
+        Assert.IsType<UnauthorizedResult>(result);
+    }
+
+    [Fact]
     public async Task UpdateUserProfileAsync_ReturnsNotFound_WhenUserDoesNotExistAsync()
     {
+        _currentUserServiceMock.Setup(C => C.Email).Returns("user@test.com");
         _mediatorMock
             .Setup(M => M.Send(It.IsAny<UpdateUserProfileCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new NotFoundException("not found"));
 
         var request = new UpdateUserProfileRequest { EmployeeId = "E-1" };
-        var result = await _controller.UpdateUserProfileAsync(99, request);
+        var result = await _controller.UpdateUserProfileAsync(request);
 
         Assert.IsType<NotFoundResult>(result);
     }

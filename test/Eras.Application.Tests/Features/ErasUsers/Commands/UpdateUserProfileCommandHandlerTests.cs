@@ -1,4 +1,5 @@
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.DTOs.UsersManagement;
 using Eras.Application.Features.ErasUsers;
 using Eras.Application.Features.ErasUsers.Handlers.CommandHandlers;
 using Eras.Domain.Common;
@@ -29,7 +30,7 @@ public class UpdateUserProfileCommandHandlerTests
         _handler = new UpdateUserProfileCommandHandler(_repositoryMock.Object, _validatorMock.Object);
     }
 
-    private static ErasUser CreateExistingUser() => new()
+    private static ErasUserDTO CreateExistingProfile() => new()
     {
         Id = 1,
         Sub = "sub-123",
@@ -43,11 +44,10 @@ public class UpdateUserProfileCommandHandlerTests
     [Fact]
     public async Task Handle_UpdatesOnlyEditableFields_AndLeavesIdentityFieldsUnchanged()
     {
-        var existing = CreateExistingUser();
-        _repositoryMock.Setup(R => R.GetByIdAsync(1)).ReturnsAsync(existing);
+        _repositoryMock.Setup(R => R.GetErasUserBySubAsync("sub-123")).ReturnsAsync(CreateExistingProfile());
         _repositoryMock.Setup(R => R.UpdateAsync(It.IsAny<ErasUser>())).ReturnsAsync((ErasUser Entity) => Entity);
 
-        var command = new UpdateUserProfileCommand(1, "E-1", "IT", "555-0100", "Engineer", "Bio text");
+        var command = new UpdateUserProfileCommand("sub-123", "user@test.com", "E-1", "IT", "555-0100", "Engineer", "Bio text");
         var result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Equal("E-1", result.EmployeeId);
@@ -63,11 +63,26 @@ public class UpdateUserProfileCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ThrowsNotFound_WhenUserIdDoesNotExist()
+    public async Task Handle_FallsBackToEmail_WhenSubLookupMisses()
     {
-        _repositoryMock.Setup(R => R.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((ErasUser?)null);
+        _repositoryMock.Setup(R => R.GetErasUserBySubAsync("sub-123")).ReturnsAsync((ErasUserDTO?)null);
+        _repositoryMock.Setup(R => R.GetErasUserByEmailAsync("user@test.com")).ReturnsAsync(CreateExistingProfile());
+        _repositoryMock.Setup(R => R.UpdateAsync(It.IsAny<ErasUser>())).ReturnsAsync((ErasUser Entity) => Entity);
 
-        var command = new UpdateUserProfileCommand(99, "E-1", "IT", "555-0100", "Engineer", "Bio text");
+        var command = new UpdateUserProfileCommand("sub-123", "user@test.com", "E-1", "IT", "555-0100", "Engineer", "Bio text");
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Equal("E-1", result.EmployeeId);
+        _repositoryMock.Verify(R => R.UpdateAsync(It.IsAny<ErasUser>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_ThrowsNotFound_WhenUserDoesNotExist()
+    {
+        _repositoryMock.Setup(R => R.GetErasUserBySubAsync(It.IsAny<string>())).ReturnsAsync((ErasUserDTO?)null);
+        _repositoryMock.Setup(R => R.GetErasUserByEmailAsync(It.IsAny<string>())).ReturnsAsync((ErasUserDTO?)null);
+
+        var command = new UpdateUserProfileCommand("sub-123", "user@test.com", "E-1", "IT", "555-0100", "Engineer", "Bio text");
 
         await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         _repositoryMock.Verify(R => R.UpdateAsync(It.IsAny<ErasUser>()), Times.Never);

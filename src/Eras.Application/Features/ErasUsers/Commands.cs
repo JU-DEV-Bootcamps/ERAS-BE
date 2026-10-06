@@ -8,11 +8,14 @@ public sealed record CreateErasUserCommand(ErasUserDTO ErasUser) : IRequest<Eras
 public sealed record UpdateErasUserCommand(ErasUserDTO ErasUser) : IRequest<ErasUserDTO>;
 
 /// <summary>
-/// Admin-only update of a specific user's editable profile fields. Does not touch
-/// first name, last name, email, or role — those stay exclusively Keycloak-sync-owned.
+/// Self-service update of the authenticated caller's own editable profile fields.
+/// Resolves the target user the same way GetMyProfileQuery does (Sub, falling back
+/// to Email). Does not touch first name, last name, email, or role — those stay
+/// exclusively Keycloak-sync-owned.
 /// </summary>
 public sealed record UpdateUserProfileCommand(
-    int UserId,
+    string? Sub,
+    string Email,
     string? EmployeeId,
     string? Department,
     string? Phone,
