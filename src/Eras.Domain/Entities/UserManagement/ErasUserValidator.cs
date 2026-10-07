@@ -32,6 +32,21 @@ public sealed class ErasUserValidator : AbstractValidator<ErasUser>
                     context.AddFailure($"{role} is not a valid Eras role.");
                 }
             });
+        RuleFor(U => U.EmployeeId)
+            .MaximumLength(50)
+            .WithMessage("Employee ID must be under 50 characters.");
+        RuleFor(U => U.Department)
+            .MaximumLength(100)
+            .WithMessage("Department must be under 100 characters.");
+        RuleFor(U => U.Phone)
+            .MaximumLength(20)
+            .WithMessage("Phone must be under 20 characters.");
+        RuleFor(U => U.Position)
+            .MaximumLength(100)
+            .WithMessage("Position must be under 100 characters.");
+        RuleFor(U => U.About)
+            .MaximumLength(2000)
+            .WithMessage("About must be under 2000 characters.");
         RuleFor(U => U.Audit)
             .NotEmpty()
             .WithMessage("Audit information is required");
