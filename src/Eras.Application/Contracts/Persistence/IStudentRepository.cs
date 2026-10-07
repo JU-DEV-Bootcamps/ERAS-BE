@@ -11,6 +11,23 @@ namespace Eras.Application.Contracts.Persistence
         Task<Student?> GetByNameAsync(string Name);
         Task<Student?> GetByUuidAsync(string Uuid);
         Task<Student?> GetByEmailAsync(string Email);
+
+        /// <summary>
+        /// True when the student already has answers (poll instances) or appears in an assessment,
+        /// i.e. deleting it would orphan history.
+        /// </summary>
+        Task<bool> HasRelatedDataAsync(int StudentId);
+
+        /// <summary>
+        /// Updates only the display name and email, leaving details, cohorts and answers untouched.
+        /// </summary>
+        Task UpdateIdentityAsync(int StudentId, string Name, string Email, string ModifiedBy);
+
+        /// <summary>
+        /// Soft-deletes the student and its profile: they are flagged and hidden everywhere
+        /// (global query filter) but the rows are kept.
+        /// </summary>
+        Task SoftDeleteAsync(int StudentId, string ModifiedBy);
         new Task<int> CountAsync();
 
         Task<List<StudentHeatMapDetailDto>> GetStudentHeatMapDetailsByComponent(

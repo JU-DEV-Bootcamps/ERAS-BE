@@ -11,14 +11,17 @@ namespace Eras.Application.Features.Students.Queries.GetAll
         : IRequestHandler<GetAllStudentsQuery, PagedResult<GetAllStudentsQueryResponse>>
     {
         private readonly IStudentRepository _studentRepository;
+        private readonly IStudentProfileRepository _profileRepository;
         private readonly ILogger<GetAllStudentsQueryHandler> _logger;
 
         public GetAllStudentsQueryHandler(
             IStudentRepository StudentRepository,
+            IStudentProfileRepository ProfileRepository,
             ILogger<GetAllStudentsQueryHandler> Logger
         )
         {
             _studentRepository = StudentRepository;
+            _profileRepository = ProfileRepository;
             _logger = Logger;
         }
 
@@ -34,6 +37,8 @@ namespace Eras.Application.Features.Students.Queries.GetAll
                     Request.Query.PageSize
                 );
                 var totalCount = await _studentRepository.CountAsync();
+                HashSet<int> studentsWithProfile = await _profileRepository
+                    .GetStudentIdsWithProfileAsync(students.Select(Student => Student.Id).ToList());
 
                 var studentsResponses = students.Select(Student => new GetAllStudentsQueryResponse 
                 {
@@ -42,6 +47,7 @@ namespace Eras.Application.Features.Students.Queries.GetAll
                     Email = Student.Email,
                     Uuid = Student.Uuid,
                     IsImported = Student.IsImported,
+                    HasProfile = studentsWithProfile.Contains(Student.Id),
                     StudentDetail = Student.StudentDetail
                 }).ToList();
 

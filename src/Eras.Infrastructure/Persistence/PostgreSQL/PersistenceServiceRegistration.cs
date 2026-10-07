@@ -71,6 +71,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             Services.AddScoped<IImportJobRepository, ImportJobRepository>();
             Services.AddScoped<IImportJobItemRepository, ImportJobItemRepository>();
             Services.AddScoped<IErasUsersRepository, ErasUsersRepository>();
+            Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
             Services.AddScoped<IDataBase, AppDbContext>();
             return Services;
         }

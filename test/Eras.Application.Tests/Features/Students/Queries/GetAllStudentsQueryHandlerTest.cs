@@ -13,6 +13,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
     public class GetAllStudentsQueryTest
     {
         private readonly Mock<IStudentRepository> _mockStudentRepository;
+        private readonly Mock<IStudentProfileRepository> _mockProfileRepository;
         private readonly Mock<ILogger<GetAllStudentsQueryHandler>> _mockLogger;
         private readonly GetAllStudentsQueryHandler _handler;
 
@@ -20,7 +21,33 @@ namespace Eras.Application.Tests.Features.Students.Queries
         {
             _mockStudentRepository = new Mock<IStudentRepository>();
             _mockLogger = new Mock<ILogger<GetAllStudentsQueryHandler>>();
-            _handler = new GetAllStudentsQueryHandler(_mockStudentRepository.Object, _mockLogger.Object);
+            _mockProfileRepository = new Mock<IStudentProfileRepository>();
+            _mockProfileRepository
+                .Setup(Repo => Repo.GetStudentIdsWithProfileAsync(It.IsAny<IReadOnlyCollection<int>>()))
+                .ReturnsAsync([]);
+            _handler = new GetAllStudentsQueryHandler(
+                _mockStudentRepository.Object, _mockProfileRepository.Object, _mockLogger.Object);
+        }
+
+        [Fact]
+        public async Task Handler_ShouldFlagStudentsThatHaveAProfile()
+        {
+            var students = new List<Student>()
+            {
+                new() {Id = 1, Email = "legacy"},
+                new() {Id = 2, Email = "manual"}
+            };
+            _mockStudentRepository
+                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(students);
+            _mockProfileRepository
+                .Setup(Repo => Repo.GetStudentIdsWithProfileAsync(It.IsAny<IReadOnlyCollection<int>>()))
+                .ReturnsAsync([2]);
+
+            PagedResult<GetAllStudentsQueryResponse> result =
+                await _handler.Handle(new GetAllStudentsQuery(new Pagination()), CancellationToken.None);
+
+            Assert.False(result.Items.Single(Item => Item.Id == 1).HasProfile);
+            Assert.True(result.Items.Single(Item => Item.Id == 2).HasProfile);
         }
 
         [Fact]
