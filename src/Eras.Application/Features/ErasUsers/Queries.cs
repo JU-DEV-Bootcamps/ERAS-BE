@@ -18,4 +18,4 @@ public sealed record GetErasUsersByRoleQuery(string? Role = null) : IRequest<IEn
 /// Keycloak "sub" claim and falling back to email, matching SyncErasUserCommand's
 /// resolution order.
 /// </summary>
-public sealed record GetMyProfileQuery(string? Sub, string Email) : IRequest<ErasUserDTO>;
+public sealed record GetMyProfileQuery(string? Sub, string Email) : IRequest<MyProfileDTO>;

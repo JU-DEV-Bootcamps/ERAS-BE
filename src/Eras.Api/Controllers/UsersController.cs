@@ -76,8 +76,9 @@ public class UsersController(
     }
 
     /// <summary>
-    /// Returns the current user's own profile (name, email, role, and the admin-managed
-    /// employee fields). No role restriction beyond being authenticated.
+    /// Returns the current user's own profile (name, email, role, the editable
+    /// employee fields and the read-only counters of their active assessments and
+    /// interventions). No role restriction beyond being authenticated.
     /// </summary>
     [HttpGet("me/profile")]
     public async Task<IActionResult> GetMyProfileAsync()

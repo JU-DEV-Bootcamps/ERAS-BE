@@ -45,7 +45,7 @@ public class UsersControllerTests
         _currentUserServiceMock.Setup(C => C.Email).Returns("user@test.com");
         _currentUserServiceMock.Setup(C => C.Sub).Returns("sub-123");
 
-        var profile = CreateProfile();
+        var profile = MyProfileDTO.From(CreateProfile(), ActiveAssessments: 4, ActiveInterventions: 2);
         _mediatorMock
             .Setup(M => M.Send(It.IsAny<GetMyProfileQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(profile);

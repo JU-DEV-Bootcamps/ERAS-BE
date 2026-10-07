@@ -206,6 +206,16 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
             .Where(A => A.AssignedProfessional == assignedProfessionalSub)
             .ToListAsync();
 
+    public async Task<int> CountActiveAssessmentsForUserAsync(string userSub)
+        => await _context.Set<Assessment>()
+            .CountAsync(A =>
+                (A.CreatedBy == userSub || A.AssignedProfessional == userSub)
+                && A.Status != AssessmentStatus.Finalized);
+
+    public async Task<int> CountActiveInterventionsForUserAsync(string userSub)
+        => await _context.Set<Intervention>()
+            .CountAsync(I => I.CreatedBy == userSub && I.Status != InterventionStatus.Finalized);
+
     public async Task<Intervention> UpdateInterventionAsync(int AssessmentId, Intervention Intervention)
     {
         Intervention? existing = await _context.Set<Intervention>()
