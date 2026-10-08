@@ -30,6 +30,26 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .HasColumnName("retry_count");
             Builder.Property(Job => Job.ErrorMessage)
                 .HasColumnName("error_message");
+            Builder.Property(Job => Job.ReturnedCount)
+                .HasColumnName("returned_count")
+                .HasDefaultValue(0)
+                .IsRequired();
+            Builder.Property(Job => Job.SkippedWithoutScore)
+                .HasColumnName("skipped_without_score")
+                .HasDefaultValue(0)
+                .IsRequired();
+            Builder.Property(Job => Job.SkippedRequestFailed)
+                .HasColumnName("skipped_request_failed")
+                .HasDefaultValue(0)
+                .IsRequired();
+            Builder.Property(Job => Job.SkippedOutsideDateRange)
+                .HasColumnName("skipped_outside_date_range")
+                .HasDefaultValue(0)
+                .IsRequired();
+            Builder.Property(Job => Job.SkippedInvalidAnswers)
+                .HasColumnName("skipped_invalid_answers")
+                .HasDefaultValue(0)
+                .IsRequired();
             Builder.Property(Job => Job.EvaluationSetName)
                 .HasColumnName("evaluation_set_name")
                 .HasMaxLength(200);

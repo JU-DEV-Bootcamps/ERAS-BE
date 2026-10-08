@@ -648,6 +648,8 @@ public class ImportQueueBackgroundServiceTests
                     await callback(
                         new PollDTO(),
                         true);
+
+                    return new ExtractionSummary(2, 2, 0, 0, 0, 0);
                 });
 
         SetupScope(
@@ -686,6 +688,10 @@ public class ImportQueueBackgroundServiceTests
 
         jobRepository.Verify(
             R => R.SetExtractedCountAsync(123, 2, It.IsAny<DateTime>()),
+            Times.Once);
+
+        jobRepository.Verify(
+            R => R.SetExtractionSummaryAsync(123, new ExtractionSummary(2, 2, 0, 0, 0, 0), It.IsAny<DateTime>()),
             Times.Once);
 
         jobRepository.Verify(

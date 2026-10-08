@@ -33,6 +33,13 @@ namespace Eras.Domain.Entities
         public int RetryCount { get; set; }
         public string? ErrorMessage { get; set; }
 
+        /// <summary>Responses Cosmic Latte returned during extraction, and how many were left out per reason.</summary>
+        public int ReturnedCount { get; set; }
+        public int SkippedWithoutScore { get; set; }
+        public int SkippedRequestFailed { get; set; }
+        public int SkippedOutsideDateRange { get; set; }
+        public int SkippedInvalidAnswers { get; set; }
+
         // Extraction parameters (used by the background extraction phase).
         public string? EvaluationSetName { get; set; }
         public int ConfigurationId { get; set; }

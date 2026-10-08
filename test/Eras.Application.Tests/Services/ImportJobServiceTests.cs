@@ -291,6 +291,43 @@ public class ImportJobServiceTests
     }
 
     [Fact]
+    public async Task GetStatusAsync_Should_Expose_The_Extraction_Summary_Async()
+    {
+        var job = new ImportJob
+        {
+            Id = 7,
+            ReturnedCount = 72,
+            ExtractedCount = 69,
+            SkippedWithoutScore = 3,
+            SkippedRequestFailed = 1,
+            SkippedOutsideDateRange = 2,
+            SkippedInvalidAnswers = 4,
+        };
+        _mockImportJobRepository.Setup(Repo => Repo.GetByIdAsync(7)).ReturnsAsync(job);
+
+        var result = await _service.GetStatusAsync(7);
+
+        Assert.NotNull(result);
+        Assert.Equal(72, result!.ReturnedCount);
+        Assert.Equal(3, result.SkippedWithoutScore);
+        Assert.Equal(1, result.SkippedRequestFailed);
+        Assert.Equal(2, result.SkippedOutsideDateRange);
+        Assert.Equal(4, result.SkippedInvalidAnswers);
+        Assert.Equal(10, result.SkippedCount);
+    }
+
+    [Fact]
+    public async Task GetStatusAsync_Should_Report_Zero_Skipped_For_Jobs_Without_A_Summary_Async()
+    {
+        _mockImportJobRepository.Setup(Repo => Repo.GetByIdAsync(8)).ReturnsAsync(new ImportJob { Id = 8 });
+
+        var result = await _service.GetStatusAsync(8);
+
+        Assert.Equal(0, result!.ReturnedCount);
+        Assert.Equal(0, result.SkippedCount);
+    }
+
+    [Fact]
     public async Task GetItemsAsync_Should_Map_Items_To_DTOsAsync()
     {
         // Arrange

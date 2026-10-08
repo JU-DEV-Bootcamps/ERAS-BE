@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
@@ -7,6 +8,7 @@ using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.CL;
 using Eras.Application.DTOs.CosmicLatte;
+using Eras.Application.Models;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Services;
 using Eras.Application.Utils;
@@ -24,6 +26,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private const string PathEvaluationSet = "evaluationSets";
         private const string PathEvaluation = "evaluations";
         private const string HeaderApiKey = "x-apikey";
+        private static readonly TimeSpan[] RespondentRetryDelays = [TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(400)];
         private readonly HttpClient _httpClient;
         private readonly ILogger<CosmicLatteAPIService> _logger;
         private readonly PollOrchestratorService _pollOrchestratorService;
@@ -190,7 +193,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
 
 
-        public async Task ExtractRespondentsAsync(
+        public async Task<ExtractionSummary> ExtractRespondentsAsync(
             string EvaluationSetName,
             string StartDate,
             string EndDate,
@@ -213,15 +216,22 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             var apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody)
                               ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
 
+            int returned = apiResponse.data.Count;
             var validatedEvaluations = apiResponse.data.Where(E => E.status == "validated").ToList();
             if (validatedEvaluations.Count == 0 || validatedEvaluations[0].Id == null)
-                return;
+            {
+                _logger.LogWarning("Cosmic Latte returned {Returned} responses for '{EvaluationSetName}' but none is validated; nothing to extract.", returned, EvaluationSetName);
+                return ExtractionSummary.Empty with { Returned = returned };
+            }
 
             var variablesPositionByComponents = GetListOfVariablePositionByComponents(validatedEvaluations[0]);
             var componentsAndVariables = await GetComponentsAndVariablesAsync(
                 validatedEvaluations[0].Id!, variablesPositionByComponents, decryptedApiKey, ApiUrl);
             if (componentsAndVariables.Count == 0)
-                return;
+            {
+                _logger.LogWarning("Could not read the questions of '{EvaluationSetName}' from Cosmic Latte; nothing to extract.", EvaluationSetName);
+                return ExtractionSummary.Empty with { Returned = returned };
+            }
 
             var alreadyImportedEmails = await _pollInstanceRepository.GetImportedStudentsEmailsByPollName(EvaluationSetName);
 
@@ -229,14 +239,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             // callback so the caller's scoped DbContext is never used concurrently.
             using var httpGate = new SemaphoreSlim(8);
             using var persistGate = new SemaphoreSlim(1, 1);
+            int extracted = 0, withoutScore = 0, requestFailed = 0, outsideRange = 0, invalidAnswers = 0;
 
             var tasks = apiResponse.data.Select(async dataItem =>
             {
                 await httpGate.WaitAsync();
-                List<ComponentDTO> populated;
+                RespondentFetch fetched;
                 try
                 {
-                    populated = await PopulateListOfComponentsByIdPollInstanceAsync(
+                    fetched = await FetchRespondentAsync(
                         componentsAndVariables, dataItem.Id, dataItem.score, decryptedApiKey, ApiUrl, StartDate, EndDate);
                 }
                 finally
@@ -244,7 +255,18 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     httpGate.Release();
                 }
 
-                if (populated.Count == 0) return;
+                List<ComponentDTO> populated = fetched.Components;
+                if (populated.Count == 0)
+                {
+                    switch (fetched.SkipReason)
+                    {
+                        case RespondentSkipReason.WithoutScore: Interlocked.Increment(ref withoutScore); break;
+                        case RespondentSkipReason.RequestFailed: Interlocked.Increment(ref requestFailed); break;
+                        case RespondentSkipReason.OutsideDateRange: Interlocked.Increment(ref outsideRange); break;
+                        default: Interlocked.Increment(ref invalidAnswers); break;
+                    }
+                    return;
+                }
 
                 var pollDto = new PollDTO
                 {
@@ -265,6 +287,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 try
                 {
                     await OnExtracted(pollDto, alreadyImported);
+                    Interlocked.Increment(ref extracted);
                 }
                 finally
                 {
@@ -273,6 +296,14 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             });
 
             await Task.WhenAll(tasks);
+
+            var summary = new ExtractionSummary(returned, extracted, withoutScore, requestFailed, outsideRange, invalidAnswers);
+            if (summary.Skipped > 0)
+                _logger.LogWarning("{Summary} Evaluation set '{EvaluationSetName}'.", summary, EvaluationSetName);
+            else
+                _logger.LogInformation("{Summary} Evaluation set '{EvaluationSetName}'.", summary, EvaluationSetName);
+
+            return summary;
         }
 
         public async Task<List<ComponentDTO>> PopulateListOfComponentsByIdPollInstanceAsync(
@@ -284,27 +315,52 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string StartDate,
                 string EndDate)
         {
+            RespondentFetch fetched = await FetchRespondentAsync(Components, PollId, ScoreItem, ApiKey, ApiUrl, StartDate, EndDate);
+            return fetched.Components;
+        }
+
+        private enum RespondentSkipReason
+        {
+            None,
+            WithoutScore,
+            RequestFailed,
+            OutsideDateRange,
+            InvalidAnswers
+        }
+
+        private sealed record RespondentFetch(List<ComponentDTO> Components, RespondentSkipReason SkipReason);
+
+        private async Task<RespondentFetch> FetchRespondentAsync(
+                List<ComponentDTO> Components,
+                string? PollId,
+                Score? ScoreItem,
+                string ApiKey,
+                string ApiUrl,
+                string StartDate,
+                string EndDate)
+        {
             if (PollId == null || ScoreItem == null)
             {
                 _logger.LogError("Cosmic latte PopulateList error: PollId or ScoreItem is null");
-                return new List<ComponentDTO>();
+                return new RespondentFetch([], RespondentSkipReason.WithoutScore);
             }
 
-            var content = new StringContent($"{{\"@data\":{{\"_id\":\"{PollId}\"}}}}", Encoding.UTF8, "application/json");
+            string path = $"{ApiUrl}{PathEvaluation}/exec/evaluationDetails";
+            string requestBody = $"{{\"@data\":{{\"_id\":\"{PollId}\"}}}}";
+
+            string responseBody;
+            try
+            {
+                responseBody = await SendRespondentRequestAsync(path, requestBody, ApiKey);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Cosmic latte server error: {e.Message}");
+                return new RespondentFetch([], RespondentSkipReason.RequestFailed);
+            }
 
             try
             {
-                string path = $"{ApiUrl}{PathEvaluation}/exec/evaluationDetails";
-                var request = new HttpRequestMessage(HttpMethod.Post, path);
-                request.Content = content;
-                request.Headers.Add(HeaderApiKey, ApiKey);
-
-                var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode)
-                    throw new Exception("Unsuccessful response from cosmic latte");
-
-                string responseBody = await response.Content.ReadAsStringAsync();
-
                 var apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody)
                                   ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
 
@@ -333,14 +389,56 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     }
                 }
 
-                return clonedListComponents;
+                if (clonedListComponents.Count > 0)
+                    return new RespondentFetch(clonedListComponents, RespondentSkipReason.None);
+
+                return new RespondentFetch(
+                    clonedListComponents,
+                    isEvaluationWithinRange ? RespondentSkipReason.InvalidAnswers : RespondentSkipReason.OutsideDateRange);
             }
             catch (Exception e)
             {
                 _logger.LogError($"Cosmic latte server error: {e.Message}");
-                return new List<ComponentDTO>();
+                return new RespondentFetch([], RespondentSkipReason.InvalidAnswers);
             }
         }
+
+        private async Task<string> SendRespondentRequestAsync(string Path, string Body, string ApiKey)
+        {
+            for (int attempt = 0; ; attempt++)
+            {
+                bool canRetry = attempt < RespondentRetryDelays.Length;
+                HttpResponseMessage response;
+                try
+                {
+                    var request = new HttpRequestMessage(HttpMethod.Post, Path)
+                    {
+                        Content = new StringContent(Body, Encoding.UTF8, "application/json")
+                    };
+                    request.Headers.Add(HeaderApiKey, ApiKey);
+                    response = await _httpClient.SendAsync(request);
+                }
+                catch (HttpRequestException) when (canRetry)
+                {
+                    await Task.Delay(RespondentRetryDelays[attempt]);
+                    continue;
+                }
+
+                if (response.IsSuccessStatusCode)
+                    return await response.Content.ReadAsStringAsync();
+
+                if (canRetry && IsTransient(response.StatusCode))
+                {
+                    await Task.Delay(RespondentRetryDelays[attempt]);
+                    continue;
+                }
+
+                throw new HttpRequestException($"Unsuccessful response from cosmic latte ({(int)response.StatusCode})");
+            }
+        }
+
+        private static bool IsTransient(HttpStatusCode Status) =>
+            Status == HttpStatusCode.TooManyRequests || (int)Status >= 500;
 
         public static List<ComponentDTO> CloneComponentsList(List<ComponentDTO> ComponentsList)
         {
