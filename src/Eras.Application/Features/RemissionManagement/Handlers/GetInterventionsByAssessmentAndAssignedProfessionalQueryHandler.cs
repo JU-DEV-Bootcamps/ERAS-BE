@@ -26,11 +26,9 @@ public sealed class GetInterventionsByAssessmentAndAssignedProfessionalQueryHand
         if (assessment is null)
             throw new KeyNotFoundException($"Assessment '{request.AssessmentId}' not found.");
 
-        if (assessment.AssignedProfessional != request.ProfessionalSub)
-            return Array.Empty<InterventionDto>();
-
         return _toDtoMapper.Map(assessment).Interventions
-            .Where(i => i.CreatedBy == request.ProfessionalSub)
+            .Where(i => i.CreatedBy == request.ProfessionalSub
+                     || (request.ProfessionalName is not null && i.Professional == request.ProfessionalName))
             .OrderBy(i => i.DateUtc)
             .ToList();
     }

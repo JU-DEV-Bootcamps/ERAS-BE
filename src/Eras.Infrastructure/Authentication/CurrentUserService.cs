@@ -30,6 +30,9 @@ public sealed class CurrentUserService(
     public string? LastName =>
         User?.FindFirst("family_name")?.Value ?? User?.FindFirst(ClaimTypes.Surname)?.Value;
 
+    public string? Name =>
+        User?.FindFirst("name")?.Value ?? User?.FindFirst(ClaimTypes.Name)?.Value;
+
     /// <summary>
     /// Reads the client roles directly from the `resource_access` claim, the same
     /// way ResourceAccessRequirementHandler (the authorization policy) does. This does

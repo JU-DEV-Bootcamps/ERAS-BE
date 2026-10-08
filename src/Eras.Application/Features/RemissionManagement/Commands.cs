@@ -34,11 +34,15 @@ public sealed record GetInterventionsByAssessmentAndCreatorQuery(int AssessmentI
     : IRequest<IReadOnlyCollection<InterventionDto>>;
 
 /// <summary>
-/// Interventions of the assessment created by <paramref name="ProfessionalSub"/>, but only when
-/// that professional is the one assigned to the assessment — otherwise empty (#545, Professional
-/// scope: "interventions created by them, on assessments they're assigned to").
+/// Interventions of the assessment scoped to a Professional: those created by
+/// <paramref name="ProfessionalSub"/> (<see cref="Eras.Domain.Entities.AssessmentManagement.Intervention.CreatedBy"/>)
+/// or assigned to them (<see cref="Eras.Domain.Entities.AssessmentManagement.Intervention.Professional"/> ==
+/// <paramref name="ProfessionalName"/>), combined with OR (#545).
 /// </summary>
-public sealed record GetInterventionsByAssessmentAndAssignedProfessionalQuery(int AssessmentId, string ProfessionalSub)
+public sealed record GetInterventionsByAssessmentAndAssignedProfessionalQuery(
+    int AssessmentId,
+    string ProfessionalSub,
+    string? ProfessionalName = null)
     : IRequest<IReadOnlyCollection<InterventionDto>>;
 
 /// <param name="DraftSessionId">

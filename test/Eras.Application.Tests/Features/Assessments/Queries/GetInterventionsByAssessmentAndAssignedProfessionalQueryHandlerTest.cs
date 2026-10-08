@@ -24,81 +24,148 @@ public class GetInterventionsByAssessmentAndAssignedProfessionalQueryHandlerTest
         _handler = new GetInterventionsByAssessmentAndAssignedProfessionalQueryHandler(_repository.Object, _mapper.Object);
     }
 
-    private static Assessment BuildAssessment(string? assignedProfessional) => new()
+    private static Assessment BuildAssessment() => new()
     {
         CreatedBy = "officer-sub",
-        AssignedProfessional = assignedProfessional,
+        AssignedProfessional = "professional-sub",
         Service = "workshop",
         Status = AssessmentStatus.Finalized,
         StudentIds = [1],
     };
 
-    [Fact]
-    public async Task Handle_WhenAssignedAndCreatedByProfessional_ReturnsOnlyTheirOwnInterventions()
+    private static AssessmentDto BuildAssessmentDto(IReadOnlyCollection<InterventionDto> interventions) => new()
     {
-        var assessmentId = 2;
-        var assessment = BuildAssessment("professional-sub");
+        CreatedBy = "officer-sub",
+        AssignedProfessional = "professional-sub",
+        Service = "workshop",
+        Status = AssessmentStatus.Finalized,
+        StudentIds = [1],
+        Interventions = interventions,
+    };
 
-        var own = new BuildInterventionForProfessionalTest
+    [Fact]
+    public async Task Handle_WhenCreatedByMatchesSub_ReturnsIntervention()
+    {
+        var assessmentId = 1;
+        var assessment = BuildAssessment();
+
+        var createdByMe = new BuildInterventionForProfessionalTest
         {
             DateUtc = new DateTime(2026, 1, 1),
             StudentIds = [1],
             CreatedBy = "professional-sub",
+            Professional = "Someone Else",
         };
-        var someoneElses = new BuildInterventionForProfessionalTest
+        var notMine = new BuildInterventionForProfessionalTest
         {
             DateUtc = new DateTime(2026, 2, 1),
             StudentIds = [1],
             CreatedBy = "officer-sub",
-        };
-
-        var assessmentDto = new AssessmentDto
-        {
-            CreatedBy = "officer-sub",
-            AssignedProfessional = "professional-sub",
-            Service = "workshop",
-            Status = AssessmentStatus.Finalized,
-            StudentIds = [1],
-            Interventions = [someoneElses, own],
+            Professional = "Officer Name",
         };
 
         _repository.Setup(x => x.GetByIdWithInterventionsAsync(assessmentId)).ReturnsAsync(assessment);
-        _mapper.Setup(x => x.Map(assessment)).Returns(assessmentDto);
+        _mapper.Setup(x => x.Map(assessment)).Returns(BuildAssessmentDto([createdByMe, notMine]));
 
         var result = await _handler.Handle(
             new GetInterventionsByAssessmentAndAssignedProfessionalQuery(assessmentId, "professional-sub"),
             CancellationToken.None);
 
         Assert.Single(result);
-        Assert.Same(own, result.ElementAt(0));
+        Assert.Same(createdByMe, result.ElementAt(0));
     }
 
     [Fact]
-    public async Task Handle_WhenNotTheAssignedProfessional_ReturnsEmpty()
+    public async Task Handle_WhenProfessionalNameMatches_ReturnsIntervention()
     {
-        var assessmentId = 2;
-        var assessment = BuildAssessment("someone-else");
+        var assessmentId = 1;
+        var assessment = BuildAssessment();
+
+        var assignedToMe = new BuildInterventionForProfessionalTest
+        {
+            DateUtc = new DateTime(2026, 1, 1),
+            StudentIds = [1],
+            CreatedBy = "officer-sub",
+            Professional = "Prof Name",
+        };
+        var notMine = new BuildInterventionForProfessionalTest
+        {
+            DateUtc = new DateTime(2026, 2, 1),
+            StudentIds = [1],
+            CreatedBy = "officer-sub",
+            Professional = "Another Prof",
+        };
 
         _repository.Setup(x => x.GetByIdWithInterventionsAsync(assessmentId)).ReturnsAsync(assessment);
+        _mapper.Setup(x => x.Map(assessment)).Returns(BuildAssessmentDto([assignedToMe, notMine]));
 
         var result = await _handler.Handle(
-            new GetInterventionsByAssessmentAndAssignedProfessionalQuery(assessmentId, "professional-sub"),
+            new GetInterventionsByAssessmentAndAssignedProfessionalQuery(assessmentId, "professional-sub", "Prof Name"),
             CancellationToken.None);
 
-        Assert.Empty(result);
-        _mapper.Verify(x => x.Map(It.IsAny<Assessment>()), Times.Never);
+        Assert.Single(result);
+        Assert.Same(assignedToMe, result.ElementAt(0));
     }
 
     [Fact]
-    public async Task Handle_WhenNoProfessionalAssigned_ReturnsEmpty()
+    public async Task Handle_WhenBothConditionsMatch_ReturnsBothInterventions()
     {
-        var assessmentId = 2;
-        var assessment = BuildAssessment(assignedProfessional: null);
+        var assessmentId = 1;
+        var assessment = BuildAssessment();
+
+        var createdByMe = new BuildInterventionForProfessionalTest
+        {
+            DateUtc = new DateTime(2026, 1, 1),
+            StudentIds = [1],
+            CreatedBy = "professional-sub",
+            Professional = "Another Prof",
+        };
+        var assignedToMe = new BuildInterventionForProfessionalTest
+        {
+            DateUtc = new DateTime(2026, 2, 1),
+            StudentIds = [1],
+            CreatedBy = "officer-sub",
+            Professional = "Prof Name",
+        };
+        var notMine = new BuildInterventionForProfessionalTest
+        {
+            DateUtc = new DateTime(2026, 3, 1),
+            StudentIds = [1],
+            CreatedBy = "officer-sub",
+            Professional = "Another Prof",
+        };
 
         _repository.Setup(x => x.GetByIdWithInterventionsAsync(assessmentId)).ReturnsAsync(assessment);
+        _mapper.Setup(x => x.Map(assessment)).Returns(BuildAssessmentDto([createdByMe, assignedToMe, notMine]));
 
         var result = await _handler.Handle(
-            new GetInterventionsByAssessmentAndAssignedProfessionalQuery(assessmentId, "professional-sub"),
+            new GetInterventionsByAssessmentAndAssignedProfessionalQuery(assessmentId, "professional-sub", "Prof Name"),
+            CancellationToken.None);
+
+        Assert.Equal(2, result.Count);
+        Assert.Contains(createdByMe, result);
+        Assert.Contains(assignedToMe, result);
+    }
+
+    [Fact]
+    public async Task Handle_WhenNeitherConditionMatches_ReturnsEmpty()
+    {
+        var assessmentId = 1;
+        var assessment = BuildAssessment();
+
+        var notMine = new BuildInterventionForProfessionalTest
+        {
+            DateUtc = new DateTime(2026, 1, 1),
+            StudentIds = [1],
+            CreatedBy = "officer-sub",
+            Professional = "Another Prof",
+        };
+
+        _repository.Setup(x => x.GetByIdWithInterventionsAsync(assessmentId)).ReturnsAsync(assessment);
+        _mapper.Setup(x => x.Map(assessment)).Returns(BuildAssessmentDto([notMine]));
+
+        var result = await _handler.Handle(
+            new GetInterventionsByAssessmentAndAssignedProfessionalQuery(assessmentId, "professional-sub", "Prof Name"),
             CancellationToken.None);
 
         Assert.Empty(result);
