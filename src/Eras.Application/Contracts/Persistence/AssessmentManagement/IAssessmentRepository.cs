@@ -31,5 +31,15 @@ public interface IAssessmentRepository : IBaseRepository<Assessment>
     Task<IEnumerable<Assessment>> GetByCreatorAsync(string creatorSub);
     Task<IEnumerable<Assessment>> GetByAssignedProfessionalAsync(string assignedProfessionalSub);
 
+    /// <summary>
+    /// Assessments created by or assigned to the user whose status is not <see cref="AssessmentStatus.Finalized"/>.
+    /// </summary>
+    Task<int> CountActiveAssessmentsForUserAsync(string userSub);
+
+    /// <summary>
+    /// Interventions created by the user whose status is not <see cref="InterventionStatus.Finalized"/>.
+    /// </summary>
+    Task<int> CountActiveInterventionsForUserAsync(string userSub);
+
     Task<Intervention> UpdateInterventionAsync(int AssessmentId, Intervention Intervention);
 }
