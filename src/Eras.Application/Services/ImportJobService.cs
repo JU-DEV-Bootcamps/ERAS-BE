@@ -146,6 +146,12 @@ namespace Eras.Application.Services
                 ExtractedCount = job.ExtractedCount,
                 RetryCount = job.RetryCount,
                 ErrorMessage = job.ErrorMessage,
+                ReturnedCount = job.ReturnedCount,
+                SkippedCount = job.SkippedWithoutScore + job.SkippedRequestFailed + job.SkippedOutsideDateRange + job.SkippedInvalidAnswers,
+                SkippedWithoutScore = job.SkippedWithoutScore,
+                SkippedRequestFailed = job.SkippedRequestFailed,
+                SkippedOutsideDateRange = job.SkippedOutsideDateRange,
+                SkippedInvalidAnswers = job.SkippedInvalidAnswers,
                 CreatedAtUtc = job.CreatedAtUtc,
                 UpdatedAtUtc = job.UpdatedAtUtc,
             };

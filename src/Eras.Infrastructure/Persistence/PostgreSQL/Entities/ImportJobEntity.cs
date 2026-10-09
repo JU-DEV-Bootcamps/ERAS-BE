@@ -12,6 +12,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
         public int ExtractedCount { get; set; }
         public int RetryCount { get; set; }
         public string? ErrorMessage { get; set; }
+        public int ReturnedCount { get; set; }
+        public int SkippedWithoutScore { get; set; }
+        public int SkippedRequestFailed { get; set; }
+        public int SkippedOutsideDateRange { get; set; }
+        public int SkippedInvalidAnswers { get; set; }
         public string? EvaluationSetName { get; set; }
         public int ConfigurationId { get; set; }
         public string? StartDate { get; set; }

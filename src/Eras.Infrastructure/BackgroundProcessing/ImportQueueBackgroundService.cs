@@ -5,6 +5,7 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Configurations.Queries.GetConfiguration;
+using Eras.Application.Models;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
 
@@ -101,7 +102,7 @@ namespace Eras.Infrastructure.BackgroundProcessing
             var configuration = await mediator.Send(new GetConfigurationQuery { ConfigurationId = job.ConfigurationId });
 
             int extracted = 0;
-            await cosmicLatte.ExtractRespondentsAsync(
+            ExtractionSummary summary = await cosmicLatte.ExtractRespondentsAsync(
                 job.EvaluationSetName ?? string.Empty,
                 job.StartDate ?? string.Empty,
                 job.EndDate ?? string.Empty,
@@ -128,6 +129,10 @@ namespace Eras.Infrastructure.BackgroundProcessing
                     await jobRepository.SetExtractedCountAsync(job.Id, extracted, now);
                 });
 
+            if (summary.Skipped > 0)
+                _logger.LogWarning("Import job {Id}: {Summary}", job.Id, summary);
+
+            await jobRepository.SetExtractionSummaryAsync(job.Id, summary, DateTime.UtcNow);
             await jobRepository.SetReadyAsync(job.Id, extracted, DateTime.UtcNow);
         }
 

@@ -1,3 +1,4 @@
+using Eras.Application.Models;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence
@@ -7,6 +8,7 @@ namespace Eras.Application.Contracts.Persistence
         Task SetStatusAsync(int Id, ImportJobStatus Status, DateTime UpdatedAtUtc);
         Task SetResultAsync(int Id, ImportJobStatus Status, int ProcessedCount, string? ErrorMessage, DateTime UpdatedAtUtc);
         Task SetExtractedCountAsync(int Id, int ExtractedCount, DateTime UpdatedAtUtc);
+        Task SetExtractionSummaryAsync(int Id, ExtractionSummary Summary, DateTime UpdatedAtUtc);
         Task SetReadyAsync(int Id, int TotalCount, DateTime UpdatedAtUtc);
         Task SetImportingAsync(int Id, int TotalCount, DateTime UpdatedAtUtc);
         Task<Dictionary<int, int>> GetLatestImportJobIdsByEvaluationIdsAsync(IEnumerable<int> EvaluationIds);

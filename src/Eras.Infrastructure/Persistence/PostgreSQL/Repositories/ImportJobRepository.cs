@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Models;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
@@ -40,6 +41,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Where(Job => Job.Id == Id)
                 .ExecuteUpdateAsync(S => S
                     .SetProperty(Job => Job.ExtractedCount, ExtractedCount)
+                    .SetProperty(Job => Job.UpdatedAtUtc, UpdatedAtUtc));
+        }
+
+        public async Task SetExtractionSummaryAsync(int Id, ExtractionSummary Summary, DateTime UpdatedAtUtc)
+        {
+            await _context.Set<ImportJobEntity>()
+                .Where(Job => Job.Id == Id)
+                .ExecuteUpdateAsync(S => S
+                    .SetProperty(Job => Job.ReturnedCount, Summary.Returned)
+                    .SetProperty(Job => Job.SkippedWithoutScore, Summary.SkippedWithoutScore)
+                    .SetProperty(Job => Job.SkippedRequestFailed, Summary.SkippedRequestFailed)
+                    .SetProperty(Job => Job.SkippedOutsideDateRange, Summary.SkippedOutsideDateRange)
+                    .SetProperty(Job => Job.SkippedInvalidAnswers, Summary.SkippedInvalidAnswers)
                     .SetProperty(Job => Job.UpdatedAtUtc, UpdatedAtUtc));
         }
 

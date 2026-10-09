@@ -80,4 +80,32 @@ public class ImportJobMapperTest
         Assert.Equal(job.UpdatedAtUtc, result.UpdatedAtUtc);
         Assert.Equal(job.PollId, result.PollId);
     }
+
+    [Fact]
+    public void Mappers_Should_Round_Trip_The_Extraction_Summary()
+    {
+        var job = new ImportJob
+        {
+            PollsPayload = "{}",
+            ReturnedCount = 72,
+            SkippedWithoutScore = 3,
+            SkippedRequestFailed = 1,
+            SkippedOutsideDateRange = 2,
+            SkippedInvalidAnswers = 4,
+        };
+
+        ImportJobEntity entity = ImportJobMapper.ToPersistence(job);
+        ImportJob roundTripped = ImportJobMapper.ToDomain(entity);
+
+        Assert.Equal(72, entity.ReturnedCount);
+        Assert.Equal(3, entity.SkippedWithoutScore);
+        Assert.Equal(1, entity.SkippedRequestFailed);
+        Assert.Equal(2, entity.SkippedOutsideDateRange);
+        Assert.Equal(4, entity.SkippedInvalidAnswers);
+        Assert.Equal(72, roundTripped.ReturnedCount);
+        Assert.Equal(3, roundTripped.SkippedWithoutScore);
+        Assert.Equal(1, roundTripped.SkippedRequestFailed);
+        Assert.Equal(2, roundTripped.SkippedOutsideDateRange);
+        Assert.Equal(4, roundTripped.SkippedInvalidAnswers);
+    }
 }
