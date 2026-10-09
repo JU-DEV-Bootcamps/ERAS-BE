@@ -9,5 +9,7 @@ namespace Eras.Application.Features.Cohorts.Queries
     {
         public string PollUuid { get; set; } = string.Empty;
         public bool LastVersion { get; set; } = true;
+        /// <summary>When set, cohorts of every poll of that evaluation are returned and PollUuid is ignored.</summary>
+        public int? EvaluationId { get; set; }
     }
 }

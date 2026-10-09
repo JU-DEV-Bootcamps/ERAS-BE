@@ -11,6 +11,7 @@ public interface ICohortRepository : IBaseRepository<Cohort>
     Task<IEnumerable<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponentAsync(string PollUuid, string ComponentName, int CohortId, bool LastVersion, int Page, int PageSize);
     Task<IEnumerable<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsAsync(string PollUuid, int CohortId, bool LastVersion, int Page, int PageSize);
     Task<List<Cohort>> GetCohortsByPollUuidAsync(string PollUuid, bool LastVersion);
+    Task<List<Cohort>> GetCohortsByEvaluationAsync(int EvaluationId, bool LastVersion);
     Task<List<Cohort>> GetCohortsByPollIdAsync(int PollId);
     Task<int> CountStudentsAsync(string PollUuid, int CohortId, bool LastVersion, string? ComponentName = null);
 }

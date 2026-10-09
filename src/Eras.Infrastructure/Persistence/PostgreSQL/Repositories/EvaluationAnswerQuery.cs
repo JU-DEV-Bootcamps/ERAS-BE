@@ -77,11 +77,26 @@ public static class EvaluationAnswerQuery
         return Query.Where(R => Context.StudentCohorts.Any(SC => SC.StudentId == R.StudentId && CohortIds.Contains(SC.CohortId)));
     }
 
-    /// <summary>Answers of the poll's latest version (true) or of previous versions (false).</summary>
+    /// <summary>
+    /// SQL part of the version rule. Only previous-version answers (<c>LastVersion = false</c>) are filtered here;
+    /// the "latest" case must not drop students, so it is resolved in memory with <see cref="LatestPerQuestion"/>.
+    /// </summary>
     public static IQueryable<EvaluationAnswerRow> ForVersion(this IQueryable<EvaluationAnswerRow> Query, bool LastVersion)
     {
         return LastVersion
-            ? Query.Where(R => R.AnswerVersion == R.PollLastVersion)
+            ? Query
             : Query.Where(R => R.AnswerVersion != R.PollLastVersion);
+    }
+
+    /// <summary>
+    /// Latest answer per student and question. A student imported before the poll's version went up only has
+    /// older-version answers; comparing with <c>poll.LastVersion</c> would remove the student from the
+    /// evaluation, so the newest version each student actually has is used instead.
+    /// </summary>
+    public static List<EvaluationAnswerRow> LatestPerQuestion(this IEnumerable<EvaluationAnswerRow> Rows)
+    {
+        return [.. Rows
+            .GroupBy(R => new { R.StudentId, R.ComponentName, R.VariableName, R.Position })
+            .Select(G => G.OrderByDescending(R => R.AnswerVersion).First())];
     }
 }

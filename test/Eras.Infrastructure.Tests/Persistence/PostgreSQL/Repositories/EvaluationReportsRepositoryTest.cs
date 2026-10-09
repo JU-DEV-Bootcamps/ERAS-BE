@@ -46,7 +46,11 @@ public class EvaluationReportsRepositoryTest : RepositoryTestBase
             new PollVariableJoin { Id = 2, PollId = 2, VariableId = 20, Version = version },
             new PollVariableJoin { Id = 3, PollId = 1, VariableId = 30, Version = version });
 
-        context.Cohorts.Add(new CohortEntity { Id = 100, Name = "Cohort A", CourseCode = "C", Audit = Audit() });
+        context.Cohorts.AddRange(
+            new CohortEntity { Id = 100, Name = "Cohort A", CourseCode = "C", Audit = Audit() },
+            new CohortEntity { Id = 200, Name = "Cohort B", CourseCode = "C", Audit = Audit() });
+        // student 2 (poll B only) is also in cohort B, which no student of poll A belongs to
+        context.StudentCohorts.Add(new StudentCohortJoin { StudentId = 2, CohortId = 200 });
         for (int id = 1; id <= 4; id++)
         {
             context.Students.Add(new StudentEntity { Id = id, Uuid = $"s{id}", Name = $"Student {id}", Email = $"s{id}@test.com" });
@@ -154,6 +158,88 @@ public class EvaluationReportsRepositoryTest : RepositoryTestBase
         Assert.Equal(3, result.Count);
         Assert.Equal(["s2@test.com", "s1@test.com", "s4@test.com"], result.Items.Select(I => I.StudentEmail).ToList());
         Assert.DoesNotContain(result.Items, I => I.StudentEmail == "s3@test.com");
+    }
+
+    [Fact]
+    public async Task GetCohortsByEvaluationAsync_ReturnsCohortsOfEveryPollOfTheEvaluationAsync()
+    {
+        await using var context = SeedContext();
+        var repository = new CohortRepository(context);
+
+        var evaluationCohorts = await repository.GetCohortsByEvaluationAsync(Evaluation, true);
+        var otherEvaluationCohorts = await repository.GetCohortsByEvaluationAsync(OtherEvaluation, true);
+
+        // cohort B only has a poll B student; asking by poll A's uuid alone would have missed it
+        Assert.Equal([100, 200], evaluationCohorts.Select(C => C.Id).Order().ToList());
+        Assert.Equal([100], otherEvaluationCohorts.Select(C => C.Id).ToList());
+    }
+
+    /// <summary>Student 5 was imported before the poll version went up: only version-0 answers, own cohort.</summary>
+    private static void AddStudentWithOnlyOldVersionAnswers(AppDbContext Context)
+    {
+        Context.Cohorts.Add(new CohortEntity { Id = 300, Name = "Cohort C", CourseCode = "C", Audit = Audit() });
+        Context.Students.Add(new StudentEntity { Id = 5, Uuid = "s5", Name = "Student 5", Email = "s5@test.com" });
+        Context.StudentCohorts.Add(new StudentCohortJoin { StudentId = 5, CohortId = 300 });
+        Context.StudentCohorts.Add(new StudentCohortJoin { StudentId = 5, CohortId = 100 });
+        Context.PollInstances.Add(new PollInstanceEntity { Id = 6, Uuid = "poll-a", StudentId = 5, EvaluationId = Evaluation, FinishedAt = DateTime.UtcNow, Audit = Audit() });
+        Context.Answers.AddRange(
+            new AnswerEntity { Id = 10, PollInstanceId = 6, PollVariableId = 1, AnswerText = "Old1", RiskLevel = 40, Audit = Audit(), Version = new VersionInfo { VersionNumber = 0, VersionDate = DateTime.UtcNow } },
+            new AnswerEntity { Id = 11, PollInstanceId = 6, PollVariableId = 3, AnswerText = "Old2", RiskLevel = 40, Audit = Audit(), Version = new VersionInfo { VersionNumber = 0, VersionDate = DateTime.UtcNow } });
+        Context.SaveChanges();
+    }
+
+    [Fact]
+    public async Task GetReportByPollCohortAsync_KeepsStudentsWhoseAnswersAreFromAnOlderPollVersionAsync()
+    {
+        await using var context = SeedContext();
+        AddStudentWithOnlyOldVersionAnswers(context);
+        var repository = new PollInstanceRepository(context);
+
+        var result = await repository.GetReportByPollCohortAsync(Evaluation, [100], true, Start, End);
+
+        Assert.Equal(4, result.PollCount);
+        var q1 = Assert.Single(Assert.Single(result.Components).Questions, Q => Q.Question == "Q1");
+        Assert.Contains(q1.AnswersDetails, D => D.StudentsEmails.Contains("s5@test.com"));
+    }
+
+    [Fact]
+    public async Task GetReportByPollCohortAsync_WithMixedVersions_UsesNewestAnswerPerQuestionAsync()
+    {
+        await using var context = SeedContext(WithOldVersionAnswers: true);
+        var repository = new PollInstanceRepository(context);
+
+        var result = await repository.GetReportByPollCohortAsync(Evaluation, [100], true, Start, End);
+
+        // student 2 has Q1 in version 1 ("Bad") and version 0 ("Old"): counted once, with the newest
+        Assert.Equal(3, result.PollCount);
+        var q1 = Assert.Single(Assert.Single(result.Components).Questions, Q => Q.Question == "Q1");
+        Assert.Equal(3, q1.AnswersDetails.Sum(D => D.StudentsEmails.Count()));
+        Assert.DoesNotContain(q1.AnswersDetails, D => D.AnswerText == "Old");
+    }
+
+    [Fact]
+    public async Task GetCountReportByVariablesAsync_KeepsStudentsWhoseAnswersAreFromAnOlderPollVersionAsync()
+    {
+        await using var context = SeedContext();
+        AddStudentWithOnlyOldVersionAnswers(context);
+        var repository = new PollInstanceRepository(context);
+
+        var result = await repository.GetCountReportByVariablesAsync([100], [1], true, Start, End, Evaluation);
+
+        var question = Assert.Single(Assert.Single(result.Components).Questions);
+        Assert.Equal(4, question.Answers.Sum(A => A.Count));
+    }
+
+    [Fact]
+    public async Task GetCohortsByEvaluationAsync_IncludesCohortsOfStudentsWithOlderVersionAnswersAsync()
+    {
+        await using var context = SeedContext();
+        AddStudentWithOnlyOldVersionAnswers(context);
+        var repository = new CohortRepository(context);
+
+        var cohorts = await repository.GetCohortsByEvaluationAsync(Evaluation, true);
+
+        Assert.Equal([100, 200, 300], cohorts.Select(C => C.Id).Order().ToList());
     }
 
     /// <summary>

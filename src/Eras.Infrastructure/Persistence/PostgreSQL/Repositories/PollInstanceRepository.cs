@@ -155,6 +155,11 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             .ForVersion(LastVersion)
             .ToListAsync();
 
+        if (LastVersion)
+        {
+            rows = rows.LatestPerQuestion();
+        }
+
         // Per-question average over this evaluation's valid answers.
         var variableAverages = rows
             .Where(R => IsValidAnswer(R.AnswerText))
@@ -262,6 +267,14 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
             where CohortIds.Contains(SC.CohortId)
             join Co in _context.Cohorts on SC.CohortId equals Co.Id
             select new { Row = R, CohortId = Co.Id, CohortName = Co.Name }).ToListAsync();
+
+        if (LastVersion)
+        {
+            // newest answer per student, cohort and question (see EvaluationAnswerQuery.LatestPerQuestion)
+            rows = [.. rows
+                .GroupBy(R => new { R.Row.StudentId, R.CohortId, R.Row.ComponentName, R.Row.VariableName, R.Row.Position })
+                .Select(G => G.OrderByDescending(R => R.Row.AnswerVersion).First())];
+        }
 
         var variableAverages = rows
             .Where(R => IsValidAnswer(R.Row.AnswerText))

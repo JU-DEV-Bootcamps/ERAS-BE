@@ -25,11 +25,12 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetCohortsAsync([FromQuery] string? PollUuid, [FromQuery] bool LastVersion)
+    public async Task<IActionResult> GetCohortsAsync([FromQuery] string? PollUuid, [FromQuery] bool LastVersion, [FromQuery] int? EvaluationId = null)
     {
         GetCohortsListQuery getCohortsListQuery = new();
 
         getCohortsListQuery.LastVersion = LastVersion;
+        getCohortsListQuery.EvaluationId = EvaluationId;
         if (!string.IsNullOrEmpty(PollUuid))
         {
             getCohortsListQuery.PollUuid = PollUuid;
