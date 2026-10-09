@@ -887,7 +887,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 
 
     [Fact]
-    public async Task GetStudentsByFilters_WhenVariableIdsAreNull_ReturnsMatchingStudentsAsync()
+    public async Task GetStudentsByFilters_WhenVariableIdsAreNull_ReturnsStudentsOfAllPollsAsync()
     {
         // Arrange
         var startDate = new DateTime(2026, 1, 1);
@@ -937,11 +937,10 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 
         // Act
         var result = (await _repository.GetStudentsByFilters(
-            "poll-1", ["Academic"], [20], null, null, 1, 10, startDate, endDate)).ToList();
+            ["Academic"], [20], null, null, 1, 10, startDate, endDate)).ToList();
 
-        // Assert
-        var student = Assert.Single(result);
-        Assert.Equal(1, student.StudentId);
+        // Assert: an evaluation can hold several polls, so students of all of them are returned
+        Assert.Equal([1, 2], result.Select(R => R.StudentId).Order().ToList());
     }
 
 
@@ -984,7 +983,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
                 StudentEmail = "st@mail.com",
                 Status = "1",
                 AnswerText = "I lN",
-                VariableName = "ofhr"
+                VariableName = "other"
             }
         }.AsQueryable().BuildMockDbSet();
 
@@ -995,13 +994,60 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
 
         // Act
-        var result = (await _repository.GetStudentsByFilters("poll-1",["Academic"], [20], [100],null,1, 10, startDate, endDate)).ToList();
+        var result = (await _repository.GetStudentsByFilters(["Academic"], [20], [100],null,1, 10, startDate, endDate)).ToList();
 
         // Assert
         var student = Assert.Single(result);
         Assert.Equal(1, student.StudentId);
     }
 
+
+    [Fact]
+    public async Task GetStudentsByFilters_WhenVariableIdsProvided_MatchesSameVariableNameAcrossPollsAsync()
+    {
+        // Arrange
+        var startDate = new DateTime(2026, 1, 1);
+        var endDate = new DateTime(2026, 1, 31);
+
+        ErasEvaluationDetailsViewEntity Row(int StudentId, string PollUuid, int VariableId, string VariableName) => new()
+        {
+            PollUuid = PollUuid,
+            EvaluationId = 10,
+            CohortId = 20,
+            ComponentName = "Academic",
+            VariableId = VariableId,
+            VariableName = VariableName,
+            FinishedAt = new DateTime(2026, 1, 15),
+            StudentId = StudentId,
+            StudentName = $"Student {StudentId}",
+            EvaluationName = "Eval1",
+            PollName = "Poll",
+            StudentEmail = "st@mail.com",
+            Status = "1",
+            AnswerText = "I lN"
+        };
+
+        var data = new List<ErasEvaluationDetailsViewEntity>
+        {
+            Row(1, "poll-1", 100, "Question A"),
+            Row(2, "poll-2", 300, "Question A"),
+            Row(3, "poll-2", 301, "Question B")
+        }.AsQueryable().BuildMockDbSet();
+
+        _mockContext
+            .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
+            .Returns(data.Object);
+
+        _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
+
+        // Act: only the id from the first poll is selected
+        var result = (await _repository.GetStudentsByFilters(["Academic"], [20], [100], null, 1, 10, startDate, endDate, 10)).ToList();
+        var count = await _repository.CountStudentsByFilters(["Academic"], [20], [100], null, startDate, endDate, 10);
+
+        // Assert: the student that answered the same question in another poll is included
+        Assert.Equal([1, 2], result.Select(R => R.StudentId).Order().ToList());
+        Assert.Equal(2, count);
+    }
 
     [Fact]
     public async Task GetStudentsByFilters_WhenEvaluationIdProvided_FiltersByEvaluationAsync()
@@ -1054,7 +1100,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 
         // Act
         var result = (await _repository.GetStudentsByFilters(
-            "poll-1", ["Academic"], [20], null, null, 1, 10,startDate, endDate, 10)).ToList();
+            ["Academic"], [20], null, null, 1, 10,startDate, endDate, 10)).ToList();
 
         // Assert
         var student = Assert.Single(result);
@@ -1113,7 +1159,6 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 
         // Act
         var result = (await _repository.GetStudentsByFilters(
-            "poll-1",
             ["Academic"],
             [20],
             null,
@@ -1178,7 +1223,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
 
         // Act
-        var result = (await _repository.GetStudentsByFilters("poll-1", ["Academic"], [20], null, [1], 1, 10, startDate, endDate)).ToList();
+        var result = (await _repository.GetStudentsByFilters(["Academic"], [20], null, [1], 1, 10, startDate, endDate)).ToList();
 
         // Assert
         var student = Assert.Single(result);
@@ -1236,7 +1281,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
 
         // Act
-        var result = (await _repository.GetStudentsByFilters("poll-1", ["Academic"], [20], null, [], 1, 10, startDate, endDate)).ToList();
+        var result = (await _repository.GetStudentsByFilters(["Academic"], [20], null, [], 1, 10, startDate, endDate)).ToList();
 
         // Assert
         Assert.Equal(2, result.Count);
@@ -1310,7 +1355,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 
         // Act
         var result = (await _repository.GetStudentsByFilters(
-            "poll-1", ["Academic"], [20], null, null, 1, 10, startDate, endDate)).ToList();
+            ["Academic"], [20], null, null, 1, 10, startDate, endDate)).ToList();
 
         // Assert
         Assert.Equal(2, result.Count);
@@ -1383,7 +1428,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 
         // Act
         var result = (await _repository.GetStudentsByFilters(
-            "poll-1", ["Academic"], [20], null, null, 2, 1, startDate, endDate)).ToList();
+            ["Academic"], [20], null, null, 2, 1, startDate, endDate)).ToList();
 
         // Assert
         Assert.Single(result);
@@ -1458,7 +1503,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 
         // Act
         var result = await _repository.CountStudentsByFilters(
-            "poll-1", ["Academic"], [20], null, null, startDate, endDate);
+            ["Academic"], [20], null, null, startDate, endDate);
 
         // Assert
         Assert.Equal(2, result);
@@ -1515,7 +1560,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
 
         // Act
-        var result = await _repository.CountStudentsByFilters("poll-1", ["Academic"], [20], null, [1], startDate, endDate);
+        var result = await _repository.CountStudentsByFilters(["Academic"], [20], null, [1], startDate, endDate);
 
         // Assert
         Assert.Equal(1, result);
@@ -1573,7 +1618,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 
         // Act
         var result = await _repository.CountStudentsByFilters(
-            "poll-1", ["Academic"], [20], null, null, startDate, endDate, 10);
+            ["Academic"], [20], null, null, startDate, endDate, 10);
 
         // Assert
         Assert.Equal(1, result);

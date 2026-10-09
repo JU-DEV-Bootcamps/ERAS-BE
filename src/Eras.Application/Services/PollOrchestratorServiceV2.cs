@@ -263,14 +263,19 @@ namespace Eras.Application.Services
         private async Task MarkEvaluationReadyAsync(int EvaluationId, int PollId)
         {
             var evaluation = await _evaluationRepository.GetStatusById(EvaluationId);
-            if (evaluation == null || !evaluation.Status.Equals(EvaluationConstants.EvaluationStatus.Pending.ToString()))
+            if (evaluation == null)
             {
                 return;
             }
 
-            evaluation.Status = EvaluationConstants.EvaluationStatus.Ready.ToString();
-            await _evaluationRepository.UpdateAsync(evaluation);
+            if (evaluation.Status.Equals(EvaluationConstants.EvaluationStatus.Pending.ToString()))
+            {
+                evaluation.Status = EvaluationConstants.EvaluationStatus.Ready.ToString();
+                await _evaluationRepository.UpdateAsync(evaluation);
+            }
 
+            // Every distinct poll imported into the evaluation must be linked, not only the first one;
+            // the command handler ignores polls that are already linked.
             var evaluationDto = evaluation.ToDto();
             evaluationDto.PollId = PollId;
             await _mediator.Send(new CreateEvaluationPollCommand() { EvaluationDTO = evaluationDto });

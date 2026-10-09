@@ -53,8 +53,7 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         var query = new GetStudentsByFiltersQuery
         {
-            EvaluationId = evaluationId,
-            PollUuid = "1234",
+            EvaluationId = evaluationId,
             ComponentNames = componentNames,
             CohortIds = cohortIds,
             VariableIds = variableIds,
@@ -116,7 +115,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock
             .Setup(x => x.GetStudentsByFilters(
-                "1234",
                 componentNames,
                 cohortIds,
                 variableIds,
@@ -130,7 +128,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock
             .Setup(x => x.CountStudentsByFilters(
-                "1234",
                 componentNames,
                 cohortIds,
                 variableIds,
@@ -165,8 +162,7 @@ public class GetStudentsByFiltersQueryHandlerTest
         var evaluationId = 999;
 
         var query = new GetStudentsByFiltersQuery
-        {
-            PollUuid = "1234",
+        {
             CohortIds = new List<int>(),
             ComponentNames = new List<string>(),
             EvaluationId = evaluationId,
@@ -191,7 +187,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock.Verify(
             x => x.GetStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
@@ -205,7 +200,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock.Verify(
             x => x.CountStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
@@ -237,8 +231,7 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         var query = new GetStudentsByFiltersQuery
         {
-            EvaluationId = evaluationId,
-            PollUuid = "1",
+            EvaluationId = evaluationId,
             ComponentNames = componentNames,
             CohortIds = cohortIds,
             VariableIds = variableIds,
@@ -256,7 +249,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock
             .Setup(x => x.GetStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
@@ -270,7 +262,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock
             .Setup(x => x.CountStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
@@ -286,7 +277,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock.Verify(
             x => x.CountStudentsByFilters(
-                "1",
                 componentNames,
                 cohortIds,
                 variableIds,
@@ -308,8 +298,7 @@ public class GetStudentsByFiltersQueryHandlerTest
             EndDate = new DateTime(2026, 1, 31)
         };
         var query = new GetStudentsByFiltersQuery
-        {
-            PollUuid = "1234",
+        {
             CohortIds = new List<int>(),
             ComponentNames = new List<string>(),
             EvaluationId = evaluationId,
@@ -340,7 +329,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock
             .Setup(x => x.GetStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
@@ -354,7 +342,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock
             .Setup(x => x.CountStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
@@ -389,8 +376,7 @@ public class GetStudentsByFiltersQueryHandlerTest
             EndDate = new DateTime(2026, 1, 31)
         };
         var query = new GetStudentsByFiltersQuery
-        {
-            PollUuid = "1234",
+        {
             CohortIds = new List<int>(),
             ComponentNames = new List<string>(),
             EvaluationId = evaluationId,
@@ -410,7 +396,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock
             .Setup(x => x.GetStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
@@ -434,7 +419,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock.Verify(
             x => x.CountStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
@@ -452,8 +436,7 @@ public class GetStudentsByFiltersQueryHandlerTest
         var evaluationId = 700;
 
         var query = new GetStudentsByFiltersQuery
-        {
-            PollUuid = "1234",
+        {
             CohortIds = new List<int>(),
             ComponentNames = new List<string>(),
             EvaluationId = evaluationId,
@@ -480,7 +463,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock.Verify(
             x => x.GetStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
@@ -494,7 +476,6 @@ public class GetStudentsByFiltersQueryHandlerTest
 
         _repositoryMock.Verify(
             x => x.CountStudentsByFilters(
-                It.IsAny<string>(),
                 It.IsAny<List<string>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),

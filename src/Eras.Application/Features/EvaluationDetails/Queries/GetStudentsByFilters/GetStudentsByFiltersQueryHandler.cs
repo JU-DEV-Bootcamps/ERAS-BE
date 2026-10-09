@@ -37,7 +37,6 @@ public class GetStudentsByFiltersQueryHandler :
                                 .AddTicks(-1); 
 
             var studentsList = await _repository.GetStudentsByFilters(
-                Request.PollUuid,
                 Request.ComponentNames, 
                 Request.CohortIds,
                 Request.VariableIds,
@@ -50,7 +49,7 @@ public class GetStudentsByFiltersQueryHandler :
             );
 
             var totalCount = await _repository.CountStudentsByFilters(
-                Request.PollUuid, Request.ComponentNames, Request.CohortIds,
+                Request.ComponentNames, Request.CohortIds,
                 Request.VariableIds, Request.RiskLevels, startDate, endDate, Request.EvaluationId
             );
 
