@@ -17,7 +17,7 @@ public class GetPollTopQueryHandler(
     private readonly IPollVariableRepository _pollVariableRepository = PollVariableRepository;
     public async Task<PagedResult<ErasCalculationsByPollDTO>?> Handle(GetPollTopQuery Request, CancellationToken CancellationToken)
     {
-        var result = await _pollVariableRepository.GetByPollUuidVariableIdAsync(Request.PollUuid.ToString(), Request.VariableIds, Request.Pagination);
+        var result = await _pollVariableRepository.GetByPollUuidVariableIdAsync(Request.PollUuid.ToString(), Request.VariableIds, Request.Pagination, Request.EvaluationId);
         return result;
     }
 

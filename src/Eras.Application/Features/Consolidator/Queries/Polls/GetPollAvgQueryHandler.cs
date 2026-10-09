@@ -36,7 +36,7 @@ public class PollAvgHandler(
                                 .AddDays(1)
                                 .AddTicks(-1); 
 
-            var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Request.PollUuid.ToString(), Request.CohortIds, Request.LastVersion, startDate, endDate)
+            var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Request.EvaluationId, Request.CohortIds, Request.LastVersion, startDate, endDate)
                 ?? throw new NotFoundException($"Error in query for filters: {Request.PollUuid}; {Request.CohortIds}");
 
             if (answersByFilters == null) // Returns empty response

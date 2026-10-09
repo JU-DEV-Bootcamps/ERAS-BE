@@ -36,7 +36,7 @@ public class GetPollAvgQueryTest
 
         // Mock the repository to return an empty list of Answers and map to AvgReportResponseVm
         _mockPollInstanceRepo
-            .Setup(Repo => Repo.GetReportByPollCohortAsync(query.PollUuid.ToString(), query.CohortIds, query.LastVersion, It.IsAny<DateTime>(), It.IsAny<DateTime>()))
+            .Setup(Repo => Repo.GetReportByPollCohortAsync(query.EvaluationId, query.CohortIds, query.LastVersion, It.IsAny<DateTime>(), It.IsAny<DateTime>()))
             .Returns(Task.FromResult(new AvgReportResponseVm())); // Simulate no data
 
         // Act

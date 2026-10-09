@@ -146,72 +146,31 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
     }
 
     public async Task<AvgReportResponseVm> GetReportByPollCohortAsync(
-        string PollUuid, List<int> CohortIds, bool LastVersion,
+        int EvaluationId, List<int> CohortIds, bool LastVersion,
         DateTime startDate, DateTime endDate)
     {
-        List<string> emailsInCohort = await _context.StudentCohorts
-            .Where(SC => CohortIds.Contains(SC.CohortId))
-            .Join(_context.Students,
-                SC => SC.StudentId,
-                S => S.Id,
-                (SC, S) => new { SC, S })
-            .Select(SC => SC.S.Email)
-            .Distinct()
+        List<EvaluationAnswerRow> rows = await EvaluationAnswerQuery
+            .Build(_context, EvaluationId, startDate, endDate)
+            .InCohorts(_context, CohortIds)
+            .ForVersion(LastVersion)
             .ToListAsync();
 
-        int pollVersion = _context.Polls
-            .Where(A => A.Uuid == PollUuid)
-            .Select(A => A.LastVersion)
-            .FirstOrDefault();
+        // Per-question average over this evaluation's valid answers.
+        var variableAverages = rows
+            .Where(R => IsValidAnswer(R.AnswerText))
+            .GroupBy(R => new { R.ComponentName, R.VariableName, R.Position })
+            .ToDictionary(G => G.Key, G => Math.Round(G.Average(R => R.AnswerRisk), 2));
 
-        IQueryable<ErasCalculationsByPollDTO> reportQuery;
-
-        if (LastVersion)
+        List<ErasCalculationsByPollDTO> rawResults = [.. rows.Select(R => new ErasCalculationsByPollDTO
         {
-            reportQuery =
-            from A in _context.ErasCalculationsByPoll
-            join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
-            where A.PollUuid == PollUuid
-            where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate
-            where emailsInCohort.Contains(A.StudentEmail)
-            where A.PollVersion == pollVersion
-            select new ErasCalculationsByPollDTO
-            {
-                ComponentName = A.ComponentName,
-                ComponentAverageRisk = A.ComponentAverageRisk,
-                Question = A.Question,
-                Position = A.Position,
-                AnswerText = A.AnswerText,
-                VariableAverageRisk = A.VariableAverageRisk,
-                AnswerPercentage = A.AnswerPercentage,
-                StudentEmail = A.StudentEmail,
-                AnswerRisk = A.AnswerRisk
-            };
-        }
-        else
-        {
-            reportQuery =
-            from A in _context.ErasCalculationsByPoll
-            join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
-            where A.PollUuid == PollUuid
-            where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate
-            where emailsInCohort.Contains(A.StudentEmail)
-            where A.PollVersion != pollVersion
-            select new ErasCalculationsByPollDTO
-            {
-                ComponentName = A.ComponentName,
-                ComponentAverageRisk = A.ComponentAverageRisk,
-                Question = A.Question,
-                Position = A.Position,
-                AnswerText = A.AnswerText,
-                VariableAverageRisk = A.VariableAverageRisk,
-                AnswerPercentage = A.AnswerPercentage,
-                StudentEmail = A.StudentEmail,
-                AnswerRisk = A.AnswerRisk
-            };
-        }
-
-        List<ErasCalculationsByPollDTO> rawResults = await reportQuery.ToListAsync();
+            ComponentName = R.ComponentName,
+            Question = R.VariableName,
+            Position = R.Position,
+            AnswerText = R.AnswerText,
+            StudentEmail = R.StudentEmail,
+            AnswerRisk = R.AnswerRisk,
+            VariableAverageRisk = variableAverages.TryGetValue(new { R.ComponentName, R.VariableName, R.Position }, out var Avg) ? Avg : 0
+        })];
 
         List<ErasCalculationsByPollDTO> results = [.. rawResults
             .GroupBy(A => new { A.ComponentName, A.Question, A.Position, A.AnswerText, A.StudentEmail })
@@ -282,39 +241,48 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
         return Entity;
     }
 
-    public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, List<int> CohortIds, List<int> VariableIds, bool LastVersion, DateTime startDate, DateTime endDate, int? EvaluationId)
+    public async Task<CountReportResponseVm> GetCountReportByVariablesAsync(List<int> CohortIds, List<int> VariableIds, bool LastVersion, DateTime startDate, DateTime endDate, int EvaluationId)
     {
+        // The selected poll variables identify questions; the same question has a different
+        // poll variable in each poll of the evaluation, so match by variable name.
+        List<string> variableNames = await _context.PollVariables
+            .Where(PV => VariableIds.Contains(PV.Id))
+            .Select(PV => PV.Variable.Name)
+            .Distinct()
+            .ToListAsync();
 
-        int pollVersion = _context.Polls
-            .Where(A => A.Uuid == PollUuid)
-            .Select(A => A.LastVersion)
-            .FirstOrDefault();
-        IQueryable<ErasCalculationsByPollDTO> reportQuery =
-            from A in _context.ErasCalculationsByPoll
-            join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
-            where A.PollUuid == PollUuid
-            where CohortIds.Contains(A.CohortId)
-            where VariableIds.Contains(A.PollVariableId)
-            where PI.Audit.CreatedAt >= startDate && PI.FinishedAt <= endDate
-            where PI.EvaluationId == EvaluationId
-            select new ErasCalculationsByPollDTO
-            {
-                ComponentId = A.ComponentId,
-                ComponentName = A.ComponentName,
-                ComponentAverageRisk = A.ComponentAverageRisk,
-                VariableAverageRisk = A.VariableAverageRisk,
-                AnswerText = A.AnswerText,
-                AnswerRisk = A.AnswerRisk,
-                Question = A.Question,
-                Position = A.Position,
-                StudentName = A.StudentName,
-                StudentEmail = A.StudentEmail,
-                CohortId = A.CohortId,
-                CohortName = A.CohortName,
-                PollVersion = A.PollVersion
-            };
-        
-        List<ErasCalculationsByPollDTO> results = await reportQuery.ToListAsync();
+        var answers = EvaluationAnswerQuery
+            .Build(_context, EvaluationId, startDate, endDate)
+            .Where(R => variableNames.Contains(R.VariableName))
+            .ForVersion(LastVersion);
+
+        var rows = await (
+            from R in answers
+            join SC in _context.StudentCohorts on R.StudentId equals SC.StudentId
+            where CohortIds.Contains(SC.CohortId)
+            join Co in _context.Cohorts on SC.CohortId equals Co.Id
+            select new { Row = R, CohortId = Co.Id, CohortName = Co.Name }).ToListAsync();
+
+        var variableAverages = rows
+            .Where(R => IsValidAnswer(R.Row.AnswerText))
+            .GroupBy(R => new { R.Row.ComponentName, R.Row.VariableName, R.Row.Position })
+            .ToDictionary(G => G.Key, G => Math.Round(G.Average(R => R.Row.AnswerRisk), 2));
+
+        List<ErasCalculationsByPollDTO> results = [.. rows.Select(R => new ErasCalculationsByPollDTO
+        {
+            ComponentId = R.Row.ComponentId,
+            ComponentName = R.Row.ComponentName,
+            VariableAverageRisk = variableAverages.TryGetValue(new { R.Row.ComponentName, R.Row.VariableName, R.Row.Position }, out var Avg) ? Avg : 0,
+            AnswerText = R.Row.AnswerText,
+            AnswerRisk = R.Row.AnswerRisk,
+            Question = R.Row.VariableName,
+            Position = R.Row.Position,
+            StudentName = R.Row.StudentName,
+            StudentEmail = R.Row.StudentEmail,
+            CohortId = R.CohortId,
+            CohortName = R.CohortName,
+            PollVersion = R.Row.AnswerVersion
+        })];
 
         var avgByComponent = results
     .GroupBy(A => A.ComponentName)

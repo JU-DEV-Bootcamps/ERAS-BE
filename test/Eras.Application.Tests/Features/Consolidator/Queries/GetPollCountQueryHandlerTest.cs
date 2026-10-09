@@ -57,7 +57,6 @@ public class PollCountQueryHandlerTests
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetCountReportByVariablesAsync(
-                pollUuid,
                 cohortIds,
                 variableIds,
                 true,
@@ -89,7 +88,6 @@ public class PollCountQueryHandlerTests
 
         _pollInstanceRepositoryMock.Verify(
             x => x.GetCountReportByVariablesAsync(
-                pollUuid,
                 cohortIds,
                 variableIds,
                 true,
@@ -133,7 +131,6 @@ public class PollCountQueryHandlerTests
 
         _pollInstanceRepositoryMock.Verify(
             x => x.GetCountReportByVariablesAsync(
-                It.IsAny<string>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),
@@ -163,7 +160,6 @@ public class PollCountQueryHandlerTests
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetCountReportByVariablesAsync(
-                It.IsAny<string>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),
@@ -209,7 +205,6 @@ public class PollCountQueryHandlerTests
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetCountReportByVariablesAsync(
-                It.IsAny<string>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),

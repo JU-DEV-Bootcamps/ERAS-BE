@@ -55,7 +55,7 @@ public class PollAvgHandlerTest
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetReportByPollCohortAsync(
-                pollUuid.ToString(),
+                evaluationId,
                 cohortIds,
                 true,
                 It.IsAny<DateTime>(),
@@ -82,7 +82,7 @@ public class PollAvgHandlerTest
 
         _pollInstanceRepositoryMock.Verify(
             x => x.GetReportByPollCohortAsync(
-                pollUuid.ToString(),
+                evaluationId,
                 cohortIds,
                 true,
                 It.Is<DateTime>(d =>
@@ -120,7 +120,7 @@ public class PollAvgHandlerTest
 
         _pollInstanceRepositoryMock.Verify(
             x => x.GetReportByPollCohortAsync(
-                It.IsAny<string>(),
+                It.IsAny<int>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),
                 It.IsAny<DateTime>(),
@@ -148,7 +148,7 @@ public class PollAvgHandlerTest
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetReportByPollCohortAsync(
-                It.IsAny<string>(),
+                It.IsAny<int>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),
                 It.IsAny<DateTime>(),

@@ -238,7 +238,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     var query = from A in _context.ErasCalculationsByPoll
                                 join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
                                 where cohortIds.Contains(A.CohortId)
-                                where A.PollUuid == pollUuid
+                                where PI.EvaluationId == evaluationId.Value
                                 where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate
                                 select A;
 
