@@ -18,9 +18,12 @@ public class ConfigurationsRepository : BaseRepository<Domain.Entities.Configura
             : configuration.ToDomain();
     }
 
-    public async Task<Domain.Entities.Configurations?> GetByNameAsync(string ConfigurationName)
+    public async Task<Domain.Entities.Configurations?> GetActiveByUserAndNameAsync(string UserId, string ConfigurationName)
     {
-        var configuration = await _context.Configurations.FirstOrDefaultAsync(Configuration => Configuration.ConfigurationName == ConfigurationName);
+        var configuration = await _context.Configurations.FirstOrDefaultAsync(Configuration =>
+            Configuration.UserId == UserId
+            && Configuration.ConfigurationName == ConfigurationName
+            && !Configuration.IsDeleted);
 
         return configuration?.ToDomain();
     }

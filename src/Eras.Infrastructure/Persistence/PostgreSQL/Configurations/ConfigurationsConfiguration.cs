@@ -32,6 +32,11 @@ public class ConfigurationsConfiguration : IEntityTypeConfiguration<Configuratio
         Builder.Property(C => C.IsDeleted)
             .HasDefaultValue(false)
             .IsRequired();
+
+        Builder.HasIndex(C => new { C.UserId, C.ConfigurationName })
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = FALSE")
+            .HasDatabaseName("ux_configurations_user_id_configuration_name_active");
     }
 
     private static void ConfigureRelationShips(EntityTypeBuilder<ConfigurationsEntity> Builder)
