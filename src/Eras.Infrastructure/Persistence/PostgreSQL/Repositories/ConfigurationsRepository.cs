@@ -20,7 +20,7 @@ public class ConfigurationsRepository : BaseRepository<Domain.Entities.Configura
 
     public async Task<Domain.Entities.Configurations?> GetActiveByUserAndNameAsync(string UserId, string ConfigurationName)
     {
-        var configuration = await _context.Configurations.FirstOrDefaultAsync(Configuration =>
+        var configuration = await _context.Configurations.AsNoTracking().FirstOrDefaultAsync(Configuration =>
             Configuration.UserId == UserId
             && Configuration.ConfigurationName == ConfigurationName
             && !Configuration.IsDeleted);

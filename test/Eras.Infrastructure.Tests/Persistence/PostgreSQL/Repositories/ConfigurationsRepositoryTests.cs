@@ -124,6 +124,22 @@ public class ConfigurationsRepositoryTests : RepositoryTestBase
     }
 
     [Fact]
+    public async Task GetActiveByUserAndNameAsync_DoesNotTrackTheEntity_SoTheSameConfigurationCanBeUpdatedAfterwardsAsync()
+    {
+        await using var context = CreateContext();
+        context.Configurations.Add(NewConfiguration(1, "user-1", "Configuration 1"));
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var repository = new ConfigurationsRepository(context);
+
+        var found = await repository.GetActiveByUserAndNameAsync("user-1", "Configuration 1");
+        found!.BaseURL = "https://changed.example.com";
+        await repository.UpdateAsync(found);
+
+        Assert.Equal("https://changed.example.com", (await context.Configurations.FindAsync(1))!.BaseURL);
+    }
+
+    [Fact]
     public async Task GetUserConfigurationsAsync_ReturnsUserNonDeletedConfigurationsAsync()
     {
         await using var context = CreateContext();
