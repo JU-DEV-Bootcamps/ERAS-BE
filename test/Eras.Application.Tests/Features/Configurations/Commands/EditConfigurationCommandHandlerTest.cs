@@ -2,6 +2,7 @@
 using Eras.Application.DTOs;
 using Eras.Application.Features.Configurations.Command.EditConfiguration;
 using Eras.Domain.Common;
+using Eras.Error.Bussiness;
 
 using Microsoft.Extensions.Logging;
 
@@ -248,5 +249,72 @@ public class EditConfigurationCommandHandlerTests
         _configurationsRepository.Verify(x => x.GetByIdAsyncNoTracking(1), Times.Once);
 
         _configurationsRepository.Verify(x => x.UpdateAsync(It.IsAny<Domain.Entities.Configurations>()), Times.Never);
+    }
+
+    private static EditConfigurationCommand RenameRequest(string NewName) => new()
+    {
+        ConfigurationDTO = new ConfigurationsDTO
+        {
+            Id = 1,
+            ConfigurationName = NewName,
+            ServiceProviderId = 1,
+            BaseURL = "https://example.com",
+            EncryptedKey = "my-key",
+            UserId = "2",
+        }
+    };
+
+    private static Domain.Entities.Configurations OwnConfiguration() => new()
+    {
+        Id = 1,
+        ConfigurationName = "Old Configuration",
+        ServiceProviderId = 1,
+        UserId = "2",
+        BaseURL = "https://old.example.com",
+        EncryptedKey = "old-key",
+        Audit = new AuditInfo { ModifiedBy = "me", ModifiedAt = DateTime.UtcNow },
+    };
+
+    [Fact]
+    public async Task Handle_ShouldRejectWithConflict_WhenRenamingToTheNameOfAnotherActiveConfiguration()
+    {
+        _configurationsRepository.Setup(x => x.GetByIdAsyncNoTracking(1)).ReturnsAsync(OwnConfiguration());
+        _configurationsRepository
+            .Setup(x => x.GetActiveByUserAndNameAsync("2", "Taken"))
+            .ReturnsAsync(new Domain.Entities.Configurations
+            {
+                Id = 9,
+                ConfigurationName = "Taken",
+                UserId = "2",
+                BaseURL = "https://other.example.com",
+                EncryptedKey = "k",
+            });
+
+        BussinessException error = await Assert.ThrowsAsync<BussinessException>(
+            () => _handler.Handle(RenameRequest("Taken"), CancellationToken.None));
+
+        Assert.Equal(409, error.StatusCode);
+        _configurationsRepository.Verify(x => x.UpdateAsync(It.IsAny<Domain.Entities.Configurations>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldAllowSavingWithTheSameNameItAlreadyHas()
+    {
+        Domain.Entities.Configurations own = OwnConfiguration();
+        _configurationsRepository.Setup(x => x.GetByIdAsyncNoTracking(1)).ReturnsAsync(own);
+        _configurationsRepository
+            .Setup(x => x.GetActiveByUserAndNameAsync("2", "Old Configuration"))
+            .ReturnsAsync(own);
+        _encryptor.Setup(x => x.Encrypt("my-key")).Returns("encrypted-key");
+        _serviceProvidersRepository
+            .Setup(x => x.GetByIdAsync(1))
+            .ReturnsAsync(new Domain.Entities.ServiceProviders { Id = 1, ServiceProviderLogo = "logo", ServiceProviderName = "name" });
+        _configurationsRepository
+            .Setup(x => x.UpdateAsync(It.IsAny<Domain.Entities.Configurations>()))
+            .ReturnsAsync((Domain.Entities.Configurations C) => C);
+
+        var result = await _handler.Handle(RenameRequest("Old Configuration"), CancellationToken.None);
+
+        Assert.True(result.Success);
     }
 }

@@ -2,6 +2,7 @@
 using Eras.Application.DTOs;
 using Eras.Application.Features.Configurations.Command.CreateConfiguration;
 using Eras.Domain.Common;
+using Eras.Error.Bussiness;
 
 using Microsoft.Extensions.Logging;
 
@@ -48,55 +49,71 @@ public class CreateConfigurationCommandHandlerTest
         Assert.Equal("Error", result.Message);
         Assert.False(result.Success);
 
-        _configurationsRepository.Verify(x => x.GetByNameAsync(It.IsAny<string>()), Times.Never);
+        _configurationsRepository.Verify(
+            x => x.GetActiveByUserAndNameAsync(It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnExistingConfiguration_WhenConfigurationAlreadyExists()
+    public async Task Handle_ShouldRejectWithConflict_WhenTheUserAlreadyHasAnActiveConfigurationWithThatName()
     {
-        // Arrange
-        var existingConfiguration = new Domain.Entities.Configurations
-        {
-            ConfigurationName = "Existing Configuration",
-            UserId = "1",
-            BaseURL = "12345/asfhj",
-            EncryptedKey = "anything"
-        };
-
         var request = new CreateConfigurationCommand
         {
             Configurations = new ConfigurationsDTO
             {
                 ConfigurationName = "Existing Configuration",
                 UserId = "1",
-                BaseURL = "12345/asfhj",
-                EncryptedKey = "anything"
+                BaseURL = "https://new.example.com",
+                EncryptedKey = "new-plain-key",
             }
         };
 
         _configurationsRepository
-            .Setup(x => x.GetByNameAsync("Existing Configuration"))
-            .ReturnsAsync(existingConfiguration);
+            .Setup(x => x.GetActiveByUserAndNameAsync("1", "Existing Configuration"))
+            .ReturnsAsync(new Domain.Entities.Configurations
+            {
+                Id = 5,
+                ConfigurationName = "Existing Configuration",
+                UserId = "1",
+                BaseURL = "https://old.example.com",
+                EncryptedKey = "anything"
+            });
 
-        // Act
+        BussinessException error = await Assert.ThrowsAsync<BussinessException>(
+            () => _handler.Handle(request, CancellationToken.None));
+
+        Assert.Equal(409, error.StatusCode);
+        Assert.Contains("Existing Configuration", error.FriendlyMessage);
+        _configurationsRepository.Verify(x => x.AddAsync(It.IsAny<Domain.Entities.Configurations>()), Times.Never);
+        _encryptor.Verify(x => x.Encrypt(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_ShouldLookTheNameUpOnlyAmongTheConfigurationsOfThatUser()
+    {
+        var request = new CreateConfigurationCommand
+        {
+            Configurations = new ConfigurationsDTO
+            {
+                ConfigurationName = "Shared Name",
+                UserId = "user-b",
+                BaseURL = "12345/asfhj",
+                EncryptedKey = "plain-key",
+            }
+        };
+        _configurationsRepository
+            .Setup(x => x.GetActiveByUserAndNameAsync("user-b", "Shared Name"))
+            .ReturnsAsync((Domain.Entities.Configurations?)null);
+        _encryptor.Setup(x => x.Encrypt("plain-key")).Returns("encrypted-key");
+        _configurationsRepository
+            .Setup(x => x.AddAsync(It.IsAny<Domain.Entities.Configurations>()))
+            .ReturnsAsync((Domain.Entities.Configurations C) => C);
+
         var result = await _handler.Handle(request, CancellationToken.None);
 
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal("Success", result.Message);
         Assert.True(result.Success);
-
-        _configurationsRepository.Verify(
-            x => x.GetByNameAsync("Existing Configuration"),
-            Times.Once);
-
-        _configurationsRepository.Verify(
-            x => x.AddAsync(It.IsAny<Domain.Entities.Configurations>()),
-            Times.Never);
-
-        _encryptor.Verify(
-            x => x.Encrypt(It.IsAny<string>()),
-            Times.Never);
+        _configurationsRepository.Verify(x => x.GetActiveByUserAndNameAsync("user-b", "Shared Name"), Times.Once);
+        _configurationsRepository.Verify(x => x.GetActiveByUserAndNameAsync("user-a", It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
@@ -123,7 +140,7 @@ public class CreateConfigurationCommandHandlerTest
         };
 
         _configurationsRepository
-            .Setup(x => x.GetByNameAsync("New Configuration"))
+            .Setup(x => x.GetActiveByUserAndNameAsync("1", "New Configuration"))
             .ReturnsAsync((Domain.Entities.Configurations?)null);
 
         _encryptor
@@ -178,7 +195,7 @@ public class CreateConfigurationCommandHandlerTest
         };
 
         _configurationsRepository
-            .Setup(x => x.GetByNameAsync("New Configuration"))
+            .Setup(x => x.GetActiveByUserAndNameAsync("1", "New Configuration"))
             .ReturnsAsync((Domain.Entities.Configurations?)null);
 
         _configurationsRepository
@@ -216,7 +233,7 @@ public class CreateConfigurationCommandHandlerTest
         };
 
         _configurationsRepository
-            .Setup(x => x.GetByNameAsync("New Configuration"))
+            .Setup(x => x.GetActiveByUserAndNameAsync("1", "New Configuration"))
             .ThrowsAsync(new Exception("Database error"));
 
         // Act

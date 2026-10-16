@@ -3,7 +3,7 @@
 namespace Eras.Application.Contracts.Persistence;
 public interface IConfigurationsRepository : IBaseRepository<Configurations>
 {
-    Task<Domain.Entities.Configurations?> GetByNameAsync(string ConfigurationName);
+    Task<Domain.Entities.Configurations?> GetActiveByUserAndNameAsync(string UserId, string ConfigurationName);
     Task<Configurations> GetByIdAsyncNoTracking(int ConfigurationId);
     Task<Configurations> UpdateDeleteStatus(int ConfigurationId);
     Task<List<Configurations>> GetUserConfigurationsAsync(string UserId);

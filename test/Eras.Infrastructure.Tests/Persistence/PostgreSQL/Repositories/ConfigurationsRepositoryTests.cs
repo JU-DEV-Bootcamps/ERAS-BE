@@ -51,41 +51,92 @@ public class ConfigurationsRepositoryTests : RepositoryTestBase
             () => repository.GetByIdAsyncNoTracking(999));
     }
 
+    private static ConfigurationsEntity NewConfiguration(int Id, string UserId, string Name, bool IsDeleted = false) => new()
+    {
+        Id = Id,
+        UserId = UserId,
+        ServiceProviderId = 10,
+        ConfigurationName = Name,
+        BaseURL = "https://example.com",
+        EncryptedKey = "encrypted-key",
+        IsDeleted = IsDeleted
+    };
+
     [Fact]
-    public async Task GetByNameAsync_WhenConfigurationExists_ReturnsConfigurationAsync()
+    public async Task GetActiveByUserAndNameAsync_WhenTheUserHasThatActiveConfiguration_ReturnsItAsync()
     {
         await using var context = CreateContext();
-
-        var config = new ConfigurationsEntity
-        {
-            Id = 1,
-            UserId = "user-1",
-            ServiceProviderId = 10,
-            ConfigurationName = "Configuration 1",
-            BaseURL = "https://example.com",
-            EncryptedKey = "encrypted-key",
-            IsDeleted = false
-        };
-        context.Configurations.Add(config);
-        var dto = config.ToDomain();
+        context.Configurations.Add(NewConfiguration(1, "user-1", "Configuration 1"));
         await context.SaveChangesAsync();
         var repository = new ConfigurationsRepository(context);
-        var result = await repository.GetByNameAsync("Configuration 1");
+
+        var result = await repository.GetActiveByUserAndNameAsync("user-1", "Configuration 1");
 
         Assert.NotNull(result);
         Assert.Equal(1, result.Id);
-        Assert.Equal(dto.EncryptedKey, result.EncryptedKey);
-        Assert.Equal(dto.ConfigurationName, result.ConfigurationName);
+        Assert.Equal("encrypted-key", result.EncryptedKey);
     }
 
     [Fact]
-    public async Task GetByNameAsync_WhenConfigurationDoesNotExist_ReturnsNullAsync()
+    public async Task GetActiveByUserAndNameAsync_WhenNoConfigurationHasThatName_ReturnsNullAsync()
     {
         await using var context = CreateContext();
         var repository = new ConfigurationsRepository(context);
-        var result = await repository.GetByNameAsync("Does Not Exist");
 
-        Assert.Null(result);
+        Assert.Null(await repository.GetActiveByUserAndNameAsync("user-1", "Does Not Exist"));
+    }
+
+    [Fact]
+    public async Task GetActiveByUserAndNameAsync_IgnoresASoftDeletedConfigurationWithThatNameAsync()
+    {
+        await using var context = CreateContext();
+        context.Configurations.Add(NewConfiguration(1, "user-1", "Configuration 1", IsDeleted: true));
+        await context.SaveChangesAsync();
+        var repository = new ConfigurationsRepository(context);
+
+        Assert.Null(await repository.GetActiveByUserAndNameAsync("user-1", "Configuration 1"));
+    }
+
+    [Fact]
+    public async Task GetActiveByUserAndNameAsync_IgnoresTheConfigurationsOfOtherUsersAsync()
+    {
+        await using var context = CreateContext();
+        context.Configurations.Add(NewConfiguration(1, "user-2", "Configuration 1"));
+        await context.SaveChangesAsync();
+        var repository = new ConfigurationsRepository(context);
+
+        Assert.Null(await repository.GetActiveByUserAndNameAsync("user-1", "Configuration 1"));
+    }
+
+    [Fact]
+    public async Task GetActiveByUserAndNameAsync_FindsTheActiveOneWhenADeletedOneHasTheSameNameAsync()
+    {
+        await using var context = CreateContext();
+        context.Configurations.AddRange(
+            NewConfiguration(1, "user-1", "Configuration 1", IsDeleted: true),
+            NewConfiguration(2, "user-1", "Configuration 1"));
+        await context.SaveChangesAsync();
+        var repository = new ConfigurationsRepository(context);
+
+        var result = await repository.GetActiveByUserAndNameAsync("user-1", "Configuration 1");
+
+        Assert.Equal(2, result!.Id);
+    }
+
+    [Fact]
+    public async Task GetActiveByUserAndNameAsync_DoesNotTrackTheEntity_SoTheSameConfigurationCanBeUpdatedAfterwardsAsync()
+    {
+        await using var context = CreateContext();
+        context.Configurations.Add(NewConfiguration(1, "user-1", "Configuration 1"));
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        var repository = new ConfigurationsRepository(context);
+
+        var found = await repository.GetActiveByUserAndNameAsync("user-1", "Configuration 1");
+        found!.BaseURL = "https://changed.example.com";
+        await repository.UpdateAsync(found);
+
+        Assert.Equal("https://changed.example.com", (await context.Configurations.FindAsync(1))!.BaseURL);
     }
 
     [Fact]

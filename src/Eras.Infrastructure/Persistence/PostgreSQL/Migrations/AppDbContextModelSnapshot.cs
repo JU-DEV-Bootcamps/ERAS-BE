@@ -698,6 +698,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.HasIndex("ServiceProviderId");
 
+                    b.HasIndex("UserId", "ConfigurationName")
+                        .IsUnique()
+                        .HasDatabaseName("ux_configurations_user_id_configuration_name_active")
+                        .HasFilter("\"IsDeleted\" = FALSE");
+
                     b.ToTable("configurations", (string)null);
                 });
 
