@@ -110,7 +110,7 @@ public class GetStudentsByFiltersQueryHandlerTest
         var expectedEndDate = DateTime.SpecifyKind(endDate, DateTimeKind.Utc).Date.AddDays(1).AddTicks(-1);
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _repositoryMock
@@ -174,7 +174,7 @@ public class GetStudentsByFiltersQueryHandlerTest
         };
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync((Evaluation?)null);
 
         var result = await _handler.Handle(query, CancellationToken.None);
@@ -183,7 +183,7 @@ public class GetStudentsByFiltersQueryHandlerTest
         Assert.Equal(0, result.Count);
         Assert.Empty(result.Items);
 
-        _evaluationRepositoryMock.Verify(x => x.GetByIdAsync(evaluationId), Times.Once);
+        _evaluationRepositoryMock.Verify(x => x.GetByIdWithoutRelationsAsync(evaluationId), Times.Once);
 
         _repositoryMock.Verify(
             x => x.GetStudentsByFilters(
@@ -244,7 +244,7 @@ public class GetStudentsByFiltersQueryHandlerTest
         };
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _repositoryMock
@@ -324,7 +324,7 @@ public class GetStudentsByFiltersQueryHandlerTest
         };
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _repositoryMock
@@ -391,7 +391,7 @@ public class GetStudentsByFiltersQueryHandlerTest
             "Error retrieving students.");
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _repositoryMock
@@ -450,7 +450,7 @@ public class GetStudentsByFiltersQueryHandlerTest
         var exception = new Exception("Evaluation repository error.");
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ThrowsAsync(exception);
 
         // Act

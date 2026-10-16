@@ -991,6 +991,13 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
             .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
 
+        var variables = new List<VariableEntity>
+        {
+            new() { Id = 100, Name = "ofhr" },
+            new() { Id = 200, Name = "other" }
+        }.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(C => C.Variables).Returns(variables.Object);
+
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
 
         // Act
@@ -1037,6 +1044,12 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
         _mockContext
             .Setup(C => C.Set<ErasEvaluationDetailsViewEntity>())
             .Returns(data.Object);
+
+        var variables = new List<VariableEntity>
+        {
+            new() { Id = 100, Name = "Question A" }
+        }.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(C => C.Variables).Returns(variables.Object);
 
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
 

@@ -4,6 +4,8 @@ namespace Eras.Application.Contracts.Persistence
 {
     public interface IEvaluationRepository : IBaseRepository<Evaluation>
     {
+        /// <summary>Evaluation row only (dates, status), without its polls and poll instances.</summary>
+        Task<Evaluation?> GetByIdWithoutRelationsAsync(int Id);
         Task<Evaluation?> GetStatusById(int Id);
         Task<Evaluation?> GetByNameAsync(string Name);
         Task<Evaluation?> GetByNameForUpdateAsync(int Id, string Name);
