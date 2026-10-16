@@ -50,7 +50,7 @@ public class PollAvgHandlerTest
         var expectedResult = new AvgReportResponseVm();
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock
@@ -78,7 +78,7 @@ public class PollAvgHandlerTest
         Assert.Equal("Success", result.Message);
         Assert.Same(expectedResult, result.Body);
 
-        _evaluationRepositoryMock.Verify(x => x.GetByIdAsync(evaluationId), Times.Once);
+        _evaluationRepositoryMock.Verify(x => x.GetByIdWithoutRelationsAsync(evaluationId), Times.Once);
 
         _pollInstanceRepositoryMock.Verify(
             x => x.GetReportByPollCohortAsync(
@@ -99,7 +99,7 @@ public class PollAvgHandlerTest
         var evaluationId = 123;
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync((Evaluation?)null);
 
         var request = new PollAvgQuery
@@ -143,7 +143,7 @@ public class PollAvgHandlerTest
         };
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock

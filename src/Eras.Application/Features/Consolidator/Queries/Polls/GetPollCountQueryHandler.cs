@@ -23,7 +23,8 @@ public class PollCountQueryHandler(
     {
         try
         {
-            var evaluation = await _evaluationRepository.GetByIdAsync(Req.EvaluationId);
+            // Only the dates are needed: GetByIdAsync also loads every poll instance of the polls.
+            var evaluation = await _evaluationRepository.GetByIdWithoutRelationsAsync(Req.EvaluationId);
 
             if (evaluation == null)
             {

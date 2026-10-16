@@ -52,7 +52,7 @@ public class PollCountQueryHandlerTests
         var expectedResult = new CountReportResponseVm();
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock
@@ -83,7 +83,7 @@ public class PollCountQueryHandlerTests
         Assert.Same(expectedResult, result.Body);
 
         _evaluationRepositoryMock.Verify(
-            x => x.GetByIdAsync(evaluationId),
+            x => x.GetByIdWithoutRelationsAsync(evaluationId),
             Times.Once);
 
         _pollInstanceRepositoryMock.Verify(
@@ -109,7 +109,7 @@ public class PollCountQueryHandlerTests
         var evaluationId = 123;
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync((Evaluation?)null);
 
         var request = new PollCountQuery
@@ -155,7 +155,7 @@ public class PollCountQueryHandlerTests
         };
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock
@@ -200,7 +200,7 @@ public class PollCountQueryHandlerTests
         };
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock
