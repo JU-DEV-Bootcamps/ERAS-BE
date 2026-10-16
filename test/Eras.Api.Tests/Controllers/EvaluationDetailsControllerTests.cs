@@ -66,7 +66,7 @@ public class EvaluationDetailsControllerTests
             .ReturnsAsync(expectedResult);
 
         // Act
-        var result = await _controller.StudentsByFilterAsync("", 1, [""], [1], [1], [1], pagination);
+        var result = await _controller.StudentsByFilterAsync(1, [""], [1], [1], [1], pagination);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -86,7 +86,7 @@ public class EvaluationDetailsControllerTests
             .Setup(X => X.Send(It.IsAny<StudentsByFiltersResponse>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((PagedResult<StudentsByFiltersResponse>?)null);
         // Act
-        var result = await _controller.StudentsByFilterAsync("", 1, [""], [1], [1], [1], new Pagination());
+        var result = await _controller.StudentsByFilterAsync(1, [""], [1], [1], [1], new Pagination());
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);
     }

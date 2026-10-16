@@ -312,6 +312,54 @@ public class ImportQueueBackgroundServiceTests
     }
 
     [Fact]
+    public async Task ExecuteAsync_WhenItemsBelongToDifferentPolls_SetsUpEachPollOnceAsync()
+    {
+        var jobRepository = new Mock<IImportJobRepository>();
+        var itemRepository = new Mock<IImportJobItemRepository>();
+        var orchestrator = new Mock<IPollOrchestratorServiceV2>();
+
+        jobRepository.Setup(R => R.GetByIdAsync(123))
+            .ReturnsAsync(new ImportJob { Id = 123, EvaluationId = 456, Status = ImportJobStatus.Ready });
+
+        ImportJobItem NewItem(int Id, string PollName) => new()
+        {
+            Id = Id,
+            ImportJobId = 123,
+            Status = ImportJobStatus.Queued,
+            PollPayload = JsonSerializer.Serialize(new PollDTO { Name = PollName })
+        };
+
+        itemRepository
+            .Setup(R => R.GetByJobIdAndStatusAsync(123, ImportJobStatus.Queued))
+            .ReturnsAsync([NewItem(1, "Poll A"), NewItem(2, "Poll B"), NewItem(3, "Poll A")]);
+
+        orchestrator
+            .Setup(O => O.SetupImportStructureAsync(It.IsAny<List<PollDTO>>(), 456))
+            .ReturnsAsync(new CreateCommandResponse<Poll>(null, "Success", true));
+        orchestrator
+            .Setup(O => O.ProcessStudentAsync(It.IsAny<PollDTO>(), 456))
+            .ReturnsAsync(new ImportStudentResult(true, ""));
+        itemRepository
+            .Setup(R => R.GetImportPhaseCountsAsync(123))
+            .ReturnsAsync((0, 3, 0));
+
+        SetupScope(jobRepository, itemRepository, orchestrator);
+        SetupQueueForSingleJob(123);
+
+        var service = CreateService();
+        using var cancellationTokenSource = new CancellationTokenSource();
+
+        await service.StartAsync(cancellationTokenSource.Token);
+        await Task.Delay(100);
+        cancellationTokenSource.Cancel();
+        await service.StopAsync(CancellationToken.None);
+
+        orchestrator.Verify(O => O.SetupImportStructureAsync(It.Is<List<PollDTO>>(P => P[0].Name == "Poll A"), 456), Times.Once);
+        orchestrator.Verify(O => O.SetupImportStructureAsync(It.Is<List<PollDTO>>(P => P[0].Name == "Poll B"), 456), Times.Once);
+        orchestrator.Verify(O => O.ProcessStudentAsync(It.IsAny<PollDTO>(), 456), Times.Exactly(3));
+    }
+
+    [Fact]
     public async Task ExecuteAsync_WhenOrchestratorFailed_SetsPartiallyCompletedAsync()
     {
         var jobRepository = new Mock<IImportJobRepository>();

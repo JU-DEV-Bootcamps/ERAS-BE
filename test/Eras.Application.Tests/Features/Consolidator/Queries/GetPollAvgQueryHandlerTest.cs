@@ -50,12 +50,12 @@ public class PollAvgHandlerTest
         var expectedResult = new AvgReportResponseVm();
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetReportByPollCohortAsync(
-                pollUuid.ToString(),
+                evaluationId,
                 cohortIds,
                 true,
                 It.IsAny<DateTime>(),
@@ -78,11 +78,11 @@ public class PollAvgHandlerTest
         Assert.Equal("Success", result.Message);
         Assert.Same(expectedResult, result.Body);
 
-        _evaluationRepositoryMock.Verify(x => x.GetByIdAsync(evaluationId), Times.Once);
+        _evaluationRepositoryMock.Verify(x => x.GetByIdWithoutRelationsAsync(evaluationId), Times.Once);
 
         _pollInstanceRepositoryMock.Verify(
             x => x.GetReportByPollCohortAsync(
-                pollUuid.ToString(),
+                evaluationId,
                 cohortIds,
                 true,
                 It.Is<DateTime>(d =>
@@ -99,7 +99,7 @@ public class PollAvgHandlerTest
         var evaluationId = 123;
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync((Evaluation?)null);
 
         var request = new PollAvgQuery
@@ -120,7 +120,7 @@ public class PollAvgHandlerTest
 
         _pollInstanceRepositoryMock.Verify(
             x => x.GetReportByPollCohortAsync(
-                It.IsAny<string>(),
+                It.IsAny<int>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),
                 It.IsAny<DateTime>(),
@@ -143,12 +143,12 @@ public class PollAvgHandlerTest
         };
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetReportByPollCohortAsync(
-                It.IsAny<string>(),
+                It.IsAny<int>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),
                 It.IsAny<DateTime>(),

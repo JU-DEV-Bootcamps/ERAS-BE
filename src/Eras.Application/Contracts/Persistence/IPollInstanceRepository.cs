@@ -25,10 +25,10 @@ public interface IPollInstanceRepository : IBaseRepository<PollInstance>
             int? EvaluationId = null
     );
 
-    Task<AvgReportResponseVm> GetReportByPollCohortAsync(string PollUuid, List<int> CohortIds, bool LastVersion, DateTime StartDate, DateTime EndDate);
+    Task<AvgReportResponseVm> GetReportByPollCohortAsync(int EvaluationId, List<int> CohortIds, bool LastVersion, DateTime StartDate, DateTime EndDate);
 
     new Task<PollInstance> UpdateAsync(PollInstance Entity);
-    Task<CountReportResponseVm> GetCountReportByVariablesAsync(string PollUuid, List<int> CohortIds, List<int> VariableIds, bool LastVersion, DateTime startDate, DateTime endDate, int? EvaluationId);
+    Task<CountReportResponseVm> GetCountReportByVariablesAsync(List<int> CohortIds, List<int> VariableIds, bool LastVersion, DateTime startDate, DateTime endDate, int EvaluationId);
     new Task<int> CountByDateRangeAsync(DateTime startDate, DateTime endDate);
     Task<bool> ExistsForStudentAndEvaluationAsync(int StudentId, string PollUuid, int EvaluationId);
     Task<PollInstance?> FindMatchingSourceInstanceAsync(int studentId, int currentPollInstanceId, PollDTO incomingPoll);

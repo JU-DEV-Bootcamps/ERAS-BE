@@ -151,21 +151,39 @@ namespace Eras.Infrastructure.BackgroundProcessing
 
             await jobRepository.SetStatusAsync(job.Id, ImportJobStatus.Importing, DateTime.UtcNow);
 
-            // Resolve/create the poll template once (all confirmed students share it). The structure
-            // is derived from the first item's payload so it works for the extract flow too.
-            PollDTO firstPoll = JsonSerializer.Deserialize<PollDTO>(queuedItems[0].PollPayload)!;
-            var setup = await orchestrator.SetupImportStructureAsync([firstPoll], job.EvaluationId);
-            if (!setup.Success)
+            List<(ImportJobItem Item, PollDTO Poll)> entries = queuedItems
+                .Select(Item => (Item, Poll: JsonSerializer.Deserialize<PollDTO>(Item.PollPayload)!))
+                .ToList();
+
+            // An evaluation can mix several polls (distinct names). Resolve/create each poll template
+            // once, from the first payload of its group, and link it to the evaluation.
+            var failedSetupMessages = new Dictionary<string, string?>();
+            var pollGroups = entries.GroupBy(Entry => Entry.Poll.Name).ToList();
+            foreach (var group in pollGroups)
             {
-                await jobRepository.SetResultAsync(job.Id, ImportJobStatus.Failed, 0, setup.Message, DateTime.UtcNow);
+                var setup = await orchestrator.SetupImportStructureAsync([group.First().Poll], job.EvaluationId);
+                if (!setup.Success)
+                {
+                    failedSetupMessages[group.Key] = setup.Message;
+                }
+            }
+
+            if (failedSetupMessages.Count == pollGroups.Count)
+            {
+                await jobRepository.SetResultAsync(job.Id, ImportJobStatus.Failed, 0, failedSetupMessages.Values.First(), DateTime.UtcNow);
                 return;
             }
 
-            foreach (ImportJobItem item in queuedItems)
+            foreach (var (item, poll) in entries)
             {
+                if (failedSetupMessages.TryGetValue(poll.Name, out string? setupMessage))
+                {
+                    await itemRepository.SetStatusAsync(item.Id, ImportJobStatus.Failed, setupMessage, DateTime.UtcNow);
+                    continue;
+                }
+
                 await itemRepository.SetStatusAsync(item.Id, ImportJobStatus.Running, null, DateTime.UtcNow);
 
-                PollDTO poll = JsonSerializer.Deserialize<PollDTO>(item.PollPayload)!;
                 ImportStudentResult result = await orchestrator.ProcessStudentAsync(poll, job.EvaluationId);
 
                 ImportJobStatus itemStatus = result.Success ? ImportJobStatus.Completed : ImportJobStatus.Failed;

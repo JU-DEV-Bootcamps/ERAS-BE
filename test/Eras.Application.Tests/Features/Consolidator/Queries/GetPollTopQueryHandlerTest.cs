@@ -50,7 +50,8 @@ public class GetPollTopQueryHandlerTest
             .Setup(x => x.GetByPollUuidVariableIdAsync(
                 pollUuid.ToString(),
                 variableIds,
-                pagination))
+                pagination,
+                null))
             .ReturnsAsync(expectedResult);
 
         var request = new GetPollTopQuery
@@ -67,7 +68,26 @@ public class GetPollTopQueryHandlerTest
         Assert.Same(expectedResult, result);
 
         _pollVariableRepositoryMock.Verify(
-            x => x.GetByPollUuidVariableIdAsync(pollUuid.ToString(), variableIds, pagination),
+            x => x.GetByPollUuidVariableIdAsync(pollUuid.ToString(), variableIds, pagination, null),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_WhenEvaluationIdIsProvided_ForwardsItToRepository()
+    {
+        var pollUuid = Guid.NewGuid();
+        var variableIds = new List<int> { 1 };
+        var pagination = new Pagination { Page = 0, PageSize = 10 };
+        var expectedResult = new PagedResult<ErasCalculationsByPollDTO>(0, []);
+
+        _pollVariableRepositoryMock
+            .Setup(x => x.GetByPollUuidVariableIdAsync(pollUuid.ToString(), variableIds, pagination, 7))
+            .ReturnsAsync(expectedResult);
+
+        var result = await _handler.Handle(
+            new GetPollTopQuery { PollUuid = pollUuid, VariableIds = variableIds, Pagination = pagination, EvaluationId = 7 },
+            CancellationToken.None);
+
+        Assert.Same(expectedResult, result);
     }
 }

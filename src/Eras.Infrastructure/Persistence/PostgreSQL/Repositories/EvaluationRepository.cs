@@ -95,6 +95,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return Task.FromResult<Evaluation?>(evaluation);
         }
 
+        public async Task<Evaluation?> GetByIdWithoutRelationsAsync(int Id)
+        {
+            EvaluationEntity? evaluation = await _context.Evaluations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(E => E.Id == Id);
+
+            return evaluation?.ToDomain();
+        }
+
         public async Task<Evaluation?> GetByNameForUpdateAsync(int Id, string Name)
         {
             var evaluation = await _context.Evaluations

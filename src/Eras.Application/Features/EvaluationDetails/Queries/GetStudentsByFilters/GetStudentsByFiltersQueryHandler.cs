@@ -25,7 +25,8 @@ public class GetStudentsByFiltersQueryHandler :
     {
         try
         {
-            var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId); 
+            var evaluation = // Only the dates are needed: GetByIdAsync also loads every poll instance of the polls.
+            await _evaluationRepository.GetByIdWithoutRelationsAsync(Request.EvaluationId); 
             if (evaluation is null)
             {
                 throw new KeyNotFoundException($"Evaluation '{Request.EvaluationId}' not found.");
@@ -37,7 +38,6 @@ public class GetStudentsByFiltersQueryHandler :
                                 .AddTicks(-1); 
 
             var studentsList = await _repository.GetStudentsByFilters(
-                Request.PollUuid,
                 Request.ComponentNames, 
                 Request.CohortIds,
                 Request.VariableIds,
@@ -50,7 +50,7 @@ public class GetStudentsByFiltersQueryHandler :
             );
 
             var totalCount = await _repository.CountStudentsByFilters(
-                Request.PollUuid, Request.ComponentNames, Request.CohortIds,
+                Request.ComponentNames, Request.CohortIds,
                 Request.VariableIds, Request.RiskLevels, startDate, endDate, Request.EvaluationId
             );
 

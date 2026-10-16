@@ -23,7 +23,8 @@ public class PollCountQueryHandler(
     {
         try
         {
-            var evaluation = await _evaluationRepository.GetByIdAsync(Req.EvaluationId);
+            // Only the dates are needed: GetByIdAsync also loads every poll instance of the polls.
+            var evaluation = await _evaluationRepository.GetByIdWithoutRelationsAsync(Req.EvaluationId);
 
             if (evaluation == null)
             {
@@ -36,7 +37,7 @@ public class PollCountQueryHandler(
                                 .AddDays(1)
                                 .AddTicks(-1); 
 
-            var answersByFilters = await _pollInstanceRepository.GetCountReportByVariablesAsync(Req.PollUuid, Req.CohortIds, Req.VariableIds, Req.LastVersion, startDate, endDate, Req.EvaluationId)
+            var answersByFilters = await _pollInstanceRepository.GetCountReportByVariablesAsync(Req.CohortIds, Req.VariableIds, Req.LastVersion, startDate, endDate, Req.EvaluationId)
                 ?? throw new NotFoundException($"Error in query for filters: {Req.PollUuid}; {Req.CohortIds}");
 
             if (answersByFilters == null) 

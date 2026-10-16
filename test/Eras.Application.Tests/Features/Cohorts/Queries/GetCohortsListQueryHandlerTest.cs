@@ -78,4 +78,18 @@ public class GetCohortsListQueryHandlerTest
         Assert.Equal(returnMessage, result.Message);
         Assert.True(result.Success);
     }
+
+    [Fact]
+    public async Task Handler_ShouldReturnCohortsOfTheEvaluation_IgnoringPollUuid()
+    {
+        var cohorts = new List<Cohort> { BuildCohort("Cohort_A"), BuildCohort("Cohort_B") };
+        _mockRepository.Setup(Repo => Repo.GetCohortsByEvaluationAsync(7, true)).ReturnsAsync(cohorts);
+
+        var result = await _handler.Handle(
+            new GetCohortsListQuery { PollUuid = "poll-a", EvaluationId = 7 }, CancellationToken.None);
+
+        Assert.True(result.Success);
+        Assert.Equal(2, result.Body!.Count);
+        _mockRepository.Verify(Repo => Repo.GetCohortsByPollUuidAsync(It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
+    }
 }

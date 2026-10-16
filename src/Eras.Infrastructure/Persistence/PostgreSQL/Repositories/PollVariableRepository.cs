@@ -22,8 +22,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return pollVariable?.ToDomain();
         }
 
-        public async Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, List<int> VariableIds, Pagination Pagination)
+        public async Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, List<int> VariableIds, Pagination Pagination, int? EvaluationId = null)
         {
+            if (EvaluationId.HasValue)
+            {
+                return await GetTopByEvaluationAsync(EvaluationId.Value, VariableIds, Pagination);
+            }
+
             var pollId = await _context.Polls
                 .Where(P => P.Uuid == PollUuid)
                 .Select(P => P.Id)
@@ -65,6 +70,48 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return new PagedResult<ErasCalculationsByPollDTO>(Count, Items);
         }
+        /// <summary>
+        /// Top-risk answers of every poll of the evaluation. The selected variables identify questions;
+        /// the same question has a different variable in each poll, so they are matched by name.
+        /// </summary>
+        private async Task<PagedResult<ErasCalculationsByPollDTO>> GetTopByEvaluationAsync(int EvaluationId, List<int> VariableIds, Pagination Pagination)
+        {
+            List<string> variableNames = await _context.Variables
+                .Where(V => VariableIds.Contains(V.Id))
+                .Select(V => V.Name)
+                .Distinct()
+                .ToListAsync();
+
+            var rows = EvaluationAnswerQuery.Build(_context, EvaluationId)
+                .Where(R => variableNames.Contains(R.VariableName));
+
+            var count = await rows.CountAsync();
+            var items = await rows
+                .OrderByDescending(R => R.AnswerRisk)
+                .ThenBy(R => R.StudentEmail)
+                .Skip((Pagination.Page - 1) * Pagination.PageSize)
+                .Take(Pagination.PageSize)
+                .Select(R => new ErasCalculationsByPollDTO
+                {
+                    PollUuid = R.PollUuid,
+                    ComponentName = R.ComponentName,
+                    PollVariableId = R.PollVariableId,
+                    Question = R.VariableName,
+                    Position = R.Position,
+                    AnswerText = R.AnswerText,
+                    PollInstanceId = R.PollInstanceId,
+                    StudentName = R.StudentName,
+                    StudentEmail = R.StudentEmail,
+                    AnswerRisk = R.AnswerRisk,
+                    StudentId = R.StudentId,
+                    ComponentId = R.ComponentId,
+                    PollVersion = R.AnswerVersion
+                })
+                .ToListAsync();
+
+            return new PagedResult<ErasCalculationsByPollDTO>(count, items);
+        }
+
         public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, string VariableIds)
         {
             var variableIdsArray = VariableIds.Split(',').Select(int.Parse).ToArray();

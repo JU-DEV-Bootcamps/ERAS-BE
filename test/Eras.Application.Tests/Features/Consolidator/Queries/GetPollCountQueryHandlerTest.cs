@@ -52,12 +52,11 @@ public class PollCountQueryHandlerTests
         var expectedResult = new CountReportResponseVm();
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetCountReportByVariablesAsync(
-                pollUuid,
                 cohortIds,
                 variableIds,
                 true,
@@ -84,12 +83,11 @@ public class PollCountQueryHandlerTests
         Assert.Same(expectedResult, result.Body);
 
         _evaluationRepositoryMock.Verify(
-            x => x.GetByIdAsync(evaluationId),
+            x => x.GetByIdWithoutRelationsAsync(evaluationId),
             Times.Once);
 
         _pollInstanceRepositoryMock.Verify(
             x => x.GetCountReportByVariablesAsync(
-                pollUuid,
                 cohortIds,
                 variableIds,
                 true,
@@ -111,7 +109,7 @@ public class PollCountQueryHandlerTests
         var evaluationId = 123;
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync((Evaluation?)null);
 
         var request = new PollCountQuery
@@ -133,7 +131,6 @@ public class PollCountQueryHandlerTests
 
         _pollInstanceRepositoryMock.Verify(
             x => x.GetCountReportByVariablesAsync(
-                It.IsAny<string>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),
@@ -158,12 +155,11 @@ public class PollCountQueryHandlerTests
         };
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetCountReportByVariablesAsync(
-                It.IsAny<string>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),
@@ -204,12 +200,11 @@ public class PollCountQueryHandlerTests
         };
 
         _evaluationRepositoryMock
-            .Setup(x => x.GetByIdAsync(evaluationId))
+            .Setup(x => x.GetByIdWithoutRelationsAsync(evaluationId))
             .ReturnsAsync(evaluation);
 
         _pollInstanceRepositoryMock
             .Setup(x => x.GetCountReportByVariablesAsync(
-                It.IsAny<string>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<List<int>>(),
                 It.IsAny<bool>(),

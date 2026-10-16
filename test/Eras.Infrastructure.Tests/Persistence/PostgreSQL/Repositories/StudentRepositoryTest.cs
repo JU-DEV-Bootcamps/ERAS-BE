@@ -873,6 +873,53 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         }
 
         [Fact]
+        public async Task GetStudentAverageRiskByCohortsAsync_WhenEvaluationExists_ReturnsOnlyStudentsOfTheEvaluationAcrossPollsAsync()
+        {
+            // Arrange: evaluation 7 holds two polls (one student each); student 3 belongs to another evaluation
+            var finishedAt = new DateTime(2026, 1, 15, 0, 0, 0, DateTimeKind.Utc);
+            _context.Polls.AddRange(
+                new PollEntity { Id = 1, Uuid = "poll-1", LastVersion = 1 },
+                new PollEntity { Id = 2, Uuid = "poll-2", LastVersion = 1 });
+            _context.Set<EvaluationEntity>().Add(new EvaluationEntity
+            {
+                Id = 7,
+                StartDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+                EndDate = new DateTime(2026, 1, 31, 0, 0, 0, DateTimeKind.Utc)
+            });
+            _context.PollInstances.AddRange(
+                new PollInstanceEntity { Id = 1, Uuid = "poll-1", StudentId = 1, EvaluationId = 7, FinishedAt = finishedAt },
+                new PollInstanceEntity { Id = 2, Uuid = "poll-2", StudentId = 2, EvaluationId = 7, FinishedAt = finishedAt },
+                new PollInstanceEntity { Id = 3, Uuid = "poll-1", StudentId = 3, EvaluationId = 8, FinishedAt = finishedAt });
+
+            ErasCalculationsByPollEntity Calc(int StudentId, string PollUuid, int PollInstanceId) => new()
+            {
+                StudentId = StudentId,
+                CohortId = 10,
+                PollUuid = PollUuid,
+                AnswerRisk = 4,
+                PollVersion = 1,
+                StudentName = $"Student {StudentId}",
+                StudentEmail = $"s{StudentId}@t.com",
+                ComponentName = "Salud",
+                Question = "Q1",
+                AnswerText = "OK",
+                CohortName = "C1",
+                PollVariableId = 1,
+                PollInstanceId = PollInstanceId
+            };
+            _context.ErasCalculationsByPoll.AddRange(Calc(1, "poll-1", 1), Calc(2, "poll-2", 2), Calc(3, "poll-1", 3));
+            await _context.SaveChangesAsync();
+
+            // Act: the requested poll is only one of the evaluation's polls
+            var result = await _repository.GetStudentAverageRiskByCohortsAsync(
+                new Pagination { Page = 0, PageSize = 10 }, new List<int> { 10 }, "poll-1", true, 7);
+
+            // Assert
+            Assert.Equal(2, result.Count);
+            Assert.Equal([1, 2], result.Items.Select(I => I.StudentId).Order().ToList());
+        }
+
+        [Fact]
         public async Task GetStudentAverageRiskByCohortsAsync_ShouldGroupMultipleAnswersForStudentAsync()
         {
             // Arrange

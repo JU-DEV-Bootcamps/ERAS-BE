@@ -23,7 +23,8 @@ public class PollAvgHandler(
     {
         try
         {
-            var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId);
+            // Only the dates are needed: GetByIdAsync also loads every poll instance of the polls.
+            var evaluation = await _evaluationRepository.GetByIdWithoutRelationsAsync(Request.EvaluationId);
 
             if (evaluation == null)
             {
@@ -36,7 +37,7 @@ public class PollAvgHandler(
                                 .AddDays(1)
                                 .AddTicks(-1); 
 
-            var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Request.PollUuid.ToString(), Request.CohortIds, Request.LastVersion, startDate, endDate)
+            var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Request.EvaluationId, Request.CohortIds, Request.LastVersion, startDate, endDate)
                 ?? throw new NotFoundException($"Error in query for filters: {Request.PollUuid}; {Request.CohortIds}");
 
             if (answersByFilters == null) // Returns empty response
