@@ -24,9 +24,13 @@ namespace Eras.Api.Controllers.AssessmentManagement;
 [ApiController]
 [Route("api/v1/assessments")]
 [Authorize]
-public class AssessmentsController(IMediator Mediator, IFileStorageService FileStorage) : ControllerBase
+public class AssessmentsController(
+    IMediator Mediator,
+    IFileStorageService FileStorage,
+    ICurrentUserService CurrentUser) : ControllerBase
 {
     private readonly IFileStorageService _fileStorage = FileStorage;
+    private readonly ICurrentUserService _currentUser = CurrentUser;
 
     [HttpGet("{id:int}")]
     [Authorize(Policy = ErasPolicies.AnyErasRole)]
@@ -167,21 +171,26 @@ public class AssessmentsController(IMediator Mediator, IFileStorageService FileS
     }
 
     /// <summary>
-    /// Interventions of the assessment, scoped to a Professional: only the ones
-    /// <paramref name="professionalSub"/> created themselves, and only when they're the
-    /// assessment's assigned professional (#545).
+    /// Interventions of the assessment scoped to a Professional: those created by
+    /// <paramref name="professionalSub"/> or assigned to them, as long as the caller is
+    /// the same professional (#545).
     /// </summary>
     [HttpGet("{id:int}/interventions/by-professional/{professionalSub}")]
     [Authorize(Policy = ErasPolicies.AnyErasRole)]
     [ProducesResponseType(typeof(IReadOnlyCollection<InterventionDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IReadOnlyCollection<InterventionDto>>> GetInterventionsByAssignedProfessional(
         int id,
         string professionalSub,
         CancellationToken cancellationToken)
     {
+        if (_currentUser.Sub != professionalSub)
+            return Forbid();
+
         var response = await Mediator.Send(
-            new GetInterventionsByAssessmentAndAssignedProfessionalQuery(id, professionalSub), cancellationToken);
+            new GetInterventionsByAssessmentAndAssignedProfessionalQuery(id, professionalSub, _currentUser.Name),
+            cancellationToken);
         return Ok(response);
     }
 

@@ -17,16 +17,19 @@ public class AssessmentsControllerTests
 {
     private readonly Mock<IMediator> _mediatorMock;
     private readonly Mock<IFileStorageService> _storageMock;
+    private readonly Mock<ICurrentUserService> _currentUserMock;
     private readonly AssessmentsController _controller;
 
     public AssessmentsControllerTests()
     {
         _mediatorMock = new Mock<IMediator>();
         _storageMock = new Mock<IFileStorageService>();
+        _currentUserMock = new Mock<ICurrentUserService>();
 
         _controller = new AssessmentsController(
             _mediatorMock.Object,
-            _storageMock.Object);
+            _storageMock.Object,
+            _currentUserMock.Object);
     }
 
     [Fact]
