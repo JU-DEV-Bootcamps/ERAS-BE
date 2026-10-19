@@ -33,6 +33,26 @@ on:
         default: 'eras-api'
         required: true
         type: string  
+      keycloak_roles_resource:
+        description: 'Keycloak client whose resource_access roles authorize ERAS'
+        default: 'eras'
+        required: false
+        type: string
+      keycloak_role_administrator:
+        description: 'Raw Keycloak role name mapped to ERAS Administrator'
+        default: 'admin'
+        required: false
+        type: string
+      keycloak_role_officer:
+        description: 'Raw Keycloak role name mapped to ERAS Officer'
+        default: 'Student Services Officer'
+        required: false
+        type: string
+      keycloak_role_professional:
+        description: 'Raw Keycloak role name mapped to ERAS Professional'
+        default: 'Professional'
+        required: false
+        type: string
       environment_tag:
         description: 'ERAS environment tag'
         default: 'dev'
@@ -80,6 +100,26 @@ on:
         default: 'eras-stage-api'
         required: true
         type: string 
+      keycloak_roles_resource:
+        description: 'Keycloak client whose resource_access roles authorize ERAS'
+        default: 'eras'
+        required: false
+        type: string
+      keycloak_role_administrator:
+        description: 'Raw Keycloak role name mapped to ERAS Administrator'
+        default: 'admin'
+        required: false
+        type: string
+      keycloak_role_officer:
+        description: 'Raw Keycloak role name mapped to ERAS Officer'
+        default: 'Student Services Officer'
+        required: false
+        type: string
+      keycloak_role_professional:
+        description: 'Raw Keycloak role name mapped to ERAS Professional'
+        default: 'Professional'
+        required: false
+        type: string
       environment_tag:
         description: 'ERAS environment tag'
         default: 'stage'
@@ -191,6 +231,10 @@ jobs:
           sed -i "s|__KEYCLOAK_CLIENT_AUDIENCE__|account|g" src/Eras.Api/appsettings.Production.json
 
           sed -i "s|__CLIENT_ID__|${{ inputs.keycloak_client_id }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__KEYCLOAK_ROLES_RESOURCE__|${{ inputs.keycloak_roles_resource }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__KEYCLOAK_ROLE_ADMINISTRATOR__|${{ inputs.keycloak_role_administrator }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__KEYCLOAK_ROLE_OFFICER__|${{ inputs.keycloak_role_officer }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__KEYCLOAK_ROLE_PROFESSIONAL__|${{ inputs.keycloak_role_professional }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__ENCRYPTION_KEY__|${{ secrets.ENCRYPTION_KEY }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__ENCRYPTION_IV__|${{ secrets.ENCRYPTION_IV }}|g" src/Eras.Api/appsettings.Production.json
 
