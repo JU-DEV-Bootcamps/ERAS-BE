@@ -33,4 +33,22 @@ public sealed class StudentRegistrationDto
     public string? FacultySchool { get; set; }
     public string? StudyModality { get; set; }
     public string? PreviousInstitution { get; set; }
+
+    // Student profile view: all optional, null means "not available".
+    public string? SisId { get; set; }
+    public decimal? Cgpa { get; set; }
+    public string? SapStatus { get; set; }
+    public bool? IsCurrentCourseThirdAttempt { get; set; }
+    public int? PassedCoursesCount { get; set; }
+    public int? FailedCoursesCount { get; set; }
+    public List<StudentCurrentCourseDto>? CurrentCourses { get; set; }
+    public List<string>? IdentifiedRisks { get; set; }
+    public List<string>? SupportReceived { get; set; }
+}
+
+public sealed class StudentCurrentCourseDto
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Group { get; set; }
+    public string? Section { get; set; }
 }

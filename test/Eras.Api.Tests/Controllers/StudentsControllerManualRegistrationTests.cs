@@ -108,6 +108,49 @@ public class StudentsControllerManualRegistrationTests
     }
 
     [Fact]
+    public async Task GetStudentProfileAsync_ReturnsProfileViewFieldsAsync()
+    {
+        StudentRegistrationDto profile = Dto(StudentId: 7);
+        profile.SisId = "STU-001";
+        profile.Cgpa = 3.45m;
+        profile.CurrentCourses = [new StudentCurrentCourseDto { Name = "Algorithms", Group = "G1", Section = "A" }];
+        profile.IdentifiedRisks = ["Low attendance"];
+        _mediator
+            .Setup(M => M.Send(It.Is<GetStudentProfileQuery>(Q => Q.StudentId == 7), default))
+            .ReturnsAsync(profile);
+
+        OkObjectResult ok = Assert.IsType<OkObjectResult>(await _controller.GetStudentProfileAsync(7));
+
+        StudentRegistrationDto body = Assert.IsType<StudentRegistrationDto>(ok.Value);
+        Assert.Equal("STU-001", body.SisId);
+        Assert.Equal(3.45m, body.Cgpa);
+        Assert.Single(body.CurrentCourses!);
+        Assert.Null(body.SapStatus);
+        Assert.Null(body.SupportReceived);
+    }
+
+    [Fact]
+    public async Task UpdateStudentProfileAsync_ForwardsProfileViewFieldsAsync()
+    {
+        StudentRegistrationDto input = Dto(StudentId: 7);
+        input.SapStatus = "Satisfactory";
+        input.PassedCoursesCount = 12;
+        input.SupportReceived = ["Tutoring"];
+        _mediator
+            .Setup(M => M.Send(It.IsAny<UpdateStudentProfileCommand>(), default))
+            .ReturnsAsync(input);
+
+        await _controller.UpdateStudentProfileAsync(7, input);
+
+        _mediator.Verify(M => M.Send(
+            It.Is<UpdateStudentProfileCommand>(C =>
+                C.Profile.SapStatus == "Satisfactory"
+                && C.Profile.PassedCoursesCount == 12
+                && C.Profile.SupportReceived!.Single() == "Tutoring"),
+            default), Times.Once);
+    }
+
+    [Fact]
     public async Task DeleteStudentAsync_ReturnsNoContentAsync()
     {
         IActionResult result = await _controller.DeleteStudentAsync(7);

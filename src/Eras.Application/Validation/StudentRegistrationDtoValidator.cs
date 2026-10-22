@@ -72,5 +72,29 @@ public sealed class StudentRegistrationDtoValidator : AbstractValidator<StudentR
         RuleFor(Dto => Dto.FacultySchool).MaximumLength(150).WithMessage("Faculty / School must be under 150 characters.");
         RuleFor(Dto => Dto.StudyModality).MaximumLength(100).WithMessage("Study modality must be under 100 characters.");
         RuleFor(Dto => Dto.PreviousInstitution).MaximumLength(200).WithMessage("Previous institution must be under 200 characters.");
+
+        RuleFor(Dto => Dto.SisId).MaximumLength(50).WithMessage("SIS ID must be under 50 characters.");
+        RuleFor(Dto => Dto.SapStatus).MaximumLength(50).WithMessage("SAP status must be under 50 characters.");
+        RuleFor(Dto => Dto.Cgpa)
+            .InclusiveBetween(0m, 99.99m).WithMessage("CGPA must be between 0 and 99.99.")
+            .When(Dto => Dto.Cgpa.HasValue);
+        RuleFor(Dto => Dto.PassedCoursesCount)
+            .GreaterThanOrEqualTo(0).WithMessage("Passed courses count cannot be negative.")
+            .When(Dto => Dto.PassedCoursesCount.HasValue);
+        RuleFor(Dto => Dto.FailedCoursesCount)
+            .GreaterThanOrEqualTo(0).WithMessage("Failed courses count cannot be negative.")
+            .When(Dto => Dto.FailedCoursesCount.HasValue);
+        RuleForEach(Dto => Dto.CurrentCourses).ChildRules(Course =>
+        {
+            Course.RuleFor(Item => Item.Name)
+                .NotEmpty().WithMessage("Course name is required.")
+                .MaximumLength(150).WithMessage("Course name must be under 150 characters.");
+            Course.RuleFor(Item => Item.Group).MaximumLength(50).WithMessage("Course group must be under 50 characters.");
+            Course.RuleFor(Item => Item.Section).MaximumLength(50).WithMessage("Course section must be under 50 characters.");
+        });
+        RuleForEach(Dto => Dto.IdentifiedRisks)
+            .MaximumLength(500).WithMessage("Each identified risk must be under 500 characters.");
+        RuleForEach(Dto => Dto.SupportReceived)
+            .MaximumLength(500).WithMessage("Each support entry must be under 500 characters.");
     }
 }

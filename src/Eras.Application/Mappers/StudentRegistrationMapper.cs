@@ -36,6 +36,23 @@ public static class StudentRegistrationMapper
         Profile.FacultySchool = Clean(Dto.FacultySchool);
         Profile.StudyModality = Clean(Dto.StudyModality);
         Profile.PreviousInstitution = Clean(Dto.PreviousInstitution);
+        Profile.SisId = Clean(Dto.SisId);
+        Profile.Cgpa = Dto.Cgpa;
+        Profile.SapStatus = Clean(Dto.SapStatus);
+        Profile.IsCurrentCourseThirdAttempt = Dto.IsCurrentCourseThirdAttempt;
+        Profile.PassedCoursesCount = Dto.PassedCoursesCount;
+        Profile.FailedCoursesCount = Dto.FailedCoursesCount;
+        Profile.CurrentCourses = Dto.CurrentCourses?
+            .Where(Course => !string.IsNullOrWhiteSpace(Course.Name))
+            .Select(Course => new StudentCurrentCourse
+            {
+                Name = Course.Name.Trim(),
+                Group = Clean(Course.Group),
+                Section = Clean(Course.Section),
+            })
+            .ToList();
+        Profile.IdentifiedRisks = CleanList(Dto.IdentifiedRisks);
+        Profile.SupportReceived = CleanList(Dto.SupportReceived);
     }
 
     public static StudentRegistrationDto ToDto(this StudentProfile Profile, Student Student)
@@ -64,6 +81,22 @@ public static class StudentRegistrationMapper
             FacultySchool = Profile.FacultySchool,
             StudyModality = Profile.StudyModality,
             PreviousInstitution = Profile.PreviousInstitution,
+            SisId = Profile.SisId,
+            Cgpa = Profile.Cgpa,
+            SapStatus = Profile.SapStatus,
+            IsCurrentCourseThirdAttempt = Profile.IsCurrentCourseThirdAttempt,
+            PassedCoursesCount = Profile.PassedCoursesCount,
+            FailedCoursesCount = Profile.FailedCoursesCount,
+            CurrentCourses = Profile.CurrentCourses?
+                .Select(Course => new StudentCurrentCourseDto
+                {
+                    Name = Course.Name,
+                    Group = Course.Group,
+                    Section = Course.Section,
+                })
+                .ToList(),
+            IdentifiedRisks = Profile.IdentifiedRisks,
+            SupportReceived = Profile.SupportReceived,
         };
     }
 
@@ -71,4 +104,7 @@ public static class StudentRegistrationMapper
 
     private static string? Clean(string? Value) =>
         string.IsNullOrWhiteSpace(Value) ? null : Value.Trim();
+
+    private static List<string>? CleanList(List<string>? Values) =>
+        Values?.Where(Item => !string.IsNullOrWhiteSpace(Item)).Select(Item => Item.Trim()).ToList();
 }

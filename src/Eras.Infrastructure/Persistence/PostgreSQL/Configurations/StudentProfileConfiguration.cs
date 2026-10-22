@@ -49,6 +49,16 @@ public sealed class StudentProfileConfiguration : IEntityTypeConfiguration<Stude
         Builder.Property(Profile => Profile.StudyModality).HasColumnName("study_modality").HasMaxLength(100);
         Builder.Property(Profile => Profile.PreviousInstitution).HasColumnName("previous_institution").HasMaxLength(200);
 
+        Builder.Property(Profile => Profile.SisId).HasColumnName("stu_id").HasMaxLength(50);
+        Builder.Property(Profile => Profile.Cgpa).HasColumnName("cgpa").HasPrecision(4, 2);
+        Builder.Property(Profile => Profile.SapStatus).HasColumnName("sap_status").HasMaxLength(50);
+        Builder.Property(Profile => Profile.IsCurrentCourseThirdAttempt).HasColumnName("is_current_course_third_attempt");
+        Builder.Property(Profile => Profile.PassedCoursesCount).HasColumnName("passed_courses_count");
+        Builder.Property(Profile => Profile.FailedCoursesCount).HasColumnName("failed_courses_count");
+        Builder.Property(Profile => Profile.IdentifiedRisks).HasColumnName("identified_risks").HasColumnType("text[]");
+        Builder.Property(Profile => Profile.SupportReceived).HasColumnName("support_received").HasColumnType("text[]");
+        Builder.OwnsMany(Profile => Profile.CurrentCourses, Course => Course.ToJson("current_courses"));
+
         Builder.Property(Profile => Profile.IsDeleted)
             .HasColumnName("is_deleted")
             .HasDefaultValue(false)
