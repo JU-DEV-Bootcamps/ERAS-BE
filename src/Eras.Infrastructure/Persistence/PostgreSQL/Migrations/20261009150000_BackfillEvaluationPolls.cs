@@ -9,7 +9,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
     /// Data-only migration: an evaluation can hold several polls, but older imports only linked the
     /// first one in evaluation_poll. vErasEvaluationDetails now joins each poll instance to its own
     /// poll (poll_instances.uuid), so every poll that has instances must be linked to its evaluation.
-    /// Insert-only and idempotent; nothing is deleted.
+    /// Poll instances that point to an evaluation that no longer exists are skipped, since evaluation_poll
+    /// has a foreign key to evaluation. Insert-only and idempotent; nothing is deleted.
     /// </summary>
     [DbContext(typeof(AppDbContext))]
     [Migration("20261009150000_BackfillEvaluationPolls")]
@@ -24,6 +25,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 SELECT DISTINCT pi.""EvaluationId"", p.""Id""
                 FROM poll_instances pi
                 JOIN polls p ON p.uuid = pi.uuid
+                JOIN evaluation e ON e.""Id"" = pi.""EvaluationId""
                 WHERE pi.""EvaluationId"" IS NOT NULL
                   AND NOT EXISTS (
                       SELECT 1 FROM evaluation_poll ep
