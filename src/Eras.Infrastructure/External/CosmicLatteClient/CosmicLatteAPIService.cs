@@ -26,7 +26,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private const string PathEvaluationSet = "evaluationSets";
         private const string PathEvaluation = "evaluations";
         private const string HeaderApiKey = "x-apikey";
-        private const int EvaluationsPageSize = 100;
+        private const string PageSizeSetting = "CosmicLatte:EvaluationsPageSize";
+        // Cosmic Latte never returns more than this per page, whatever $top is asked for.
+        private const int MaxEvaluationsPageSize = 100;
         private const int MaxEvaluationsPages = 200;
         private const int EvaluationsPageConcurrency = 4;
         private const string EvaluationsOrderBy = "createdAt asc";
@@ -41,6 +43,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private readonly PollOrchestratorService _pollOrchestratorService;
         private readonly IApiKeyEncryptor _encryptor;
         private readonly IPollInstanceRepository _pollInstanceRepository;
+        private readonly int _evaluationsPageSize;
 
         public CosmicLatteAPIService(
             IConfiguration Configuration,
@@ -55,7 +58,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             _pollOrchestratorService = PollOrchestratorService;
             _encryptor = Encryptor;
             _pollInstanceRepository = PollInstanceRepository;
+            _evaluationsPageSize = ReadPageSize(Configuration);
         }
+
+        // Missing, non-numeric (e.g. an unreplaced __PLACEHOLDER__) or out-of-range values fall back
+        // to the Cosmic Latte maximum instead of failing the import.
+        private static int ReadPageSize(IConfiguration Configuration) =>
+            int.TryParse(Configuration[PageSizeSetting], out int configured) && configured > 0
+                ? Math.Min(configured, MaxEvaluationsPageSize)
+                : MaxEvaluationsPageSize;
 
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy(string ApiKey, string ApiUrl)
         {
@@ -194,8 +205,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
         /// <summary>
         /// Reads every page of the evaluations matching <paramref name="Filter"/>. Cosmic Latte caps
-        /// each page at <see cref="EvaluationsPageSize"/> items whatever $top is asked for, so a
-        /// single request silently dropped every response after the first 100.
+        /// each page at <see cref="MaxEvaluationsPageSize"/> items whatever $top is asked for, so a
+        /// single request silently dropped every response after the first 100. The page size asked
+        /// for comes from <c>CosmicLatte:EvaluationsPageSize</c>.
         /// The first page tells @totalCount, so the rest are fetched in parallel; a sequential tail
         /// then covers a missing @totalCount or responses submitted while paging.
         /// </summary>
@@ -214,7 +226,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 var newItems = Page.data.Where(D => D.Id == null || seenIds.Add(D.Id)).ToList();
                 all.AddRange(newItems);
 
-                return Page.data.Count < EvaluationsPageSize
+                return Page.data.Count < _evaluationsPageSize
                     || newItems.Count == 0
                     || (totalCount > 0 && all.Count >= totalCount);
             }
@@ -237,7 +249,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             if (!lastPage && totalCount > 0)
             {
-                int pages = Math.Min((totalCount + EvaluationsPageSize - 1) / EvaluationsPageSize, MaxEvaluationsPages);
+                int pages = Math.Min((totalCount + _evaluationsPageSize - 1) / _evaluationsPageSize, MaxEvaluationsPages);
                 using var pageGate = new SemaphoreSlim(EvaluationsPageConcurrency);
                 var pageTasks = Enumerable.Range(nextPage, Math.Max(0, pages - nextPage)).Select(async Page =>
                 {
@@ -245,7 +257,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     try
                     {
                         return (await GetEvaluationsPageAsync(
-                            ApiUrl, Filter, DecryptedApiKey, EvaluationSetName, Page * EvaluationsPageSize, orderBy))!;
+                            ApiUrl, Filter, DecryptedApiKey, EvaluationSetName, Page * _evaluationsPageSize, orderBy))!;
                     }
                     finally
                     {
@@ -260,7 +272,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             for (; !lastPage && nextPage < MaxEvaluationsPages; nextPage++)
                 lastPage = AddPage((await GetEvaluationsPageAsync(
-                    ApiUrl, Filter, DecryptedApiKey, EvaluationSetName, nextPage * EvaluationsPageSize, orderBy))!);
+                    ApiUrl, Filter, DecryptedApiKey, EvaluationSetName, nextPage * _evaluationsPageSize, orderBy))!);
 
             if (totalCount > all.Count)
                 _logger.LogWarning(
@@ -286,7 +298,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             string ApiUrl, string Filter, string DecryptedApiKey, string EvaluationSetName, int Skip, string? OrderBy)
         {
             string order = OrderBy == null ? string.Empty : $"&$orderby={OrderBy}";
-            string path = $"{ApiUrl}{PathEvaluation}?$top={EvaluationsPageSize}&$skip={Skip}{order}&$filter={Filter}";
+            string path = $"{ApiUrl}{PathEvaluation}?$top={_evaluationsPageSize}&$skip={Skip}{order}&$filter={Filter}";
             var response = await SendWithRetryAsync(() =>
             {
                 var request = new HttpRequestMessage(HttpMethod.Get, path);

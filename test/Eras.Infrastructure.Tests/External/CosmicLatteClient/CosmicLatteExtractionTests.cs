@@ -41,8 +41,11 @@ public class CosmicLatteExtractionTests
         }
     }
 
-    private CosmicLatteAPIService CreateService(HttpMessageHandler Handler)
+    private CosmicLatteAPIService CreateService(HttpMessageHandler Handler, string? PageSize = null)
     {
+        var configuration = new Mock<IConfiguration>();
+        configuration.Setup(C => C["CosmicLatte:EvaluationsPageSize"]).Returns(PageSize);
+
         var encryptor = new Mock<IApiKeyEncryptor>();
         encryptor.Setup(E => E.Decrypt(It.IsAny<string>())).Returns((string Value) => Value);
         _pollInstances
@@ -59,7 +62,7 @@ public class CosmicLatteExtractionTests
             _pollInstances.Object);
 
         return new CosmicLatteAPIService(
-            new Mock<IConfiguration>().Object,
+            configuration.Object,
             factory.Object,
             _logger.Object,
             orchestrator,
@@ -220,6 +223,41 @@ public class CosmicLatteExtractionTests
         Assert.Equal(250, summary.Returned);
         Assert.Equal(250, summary.Extracted);
         Assert.Equal(250, extracted);
+    }
+
+    [Theory]
+    [InlineData("40", 40)]
+    [InlineData(null, 100)]
+    [InlineData("__COSMIC_LATTE_PAGE_SIZE__", 100)]
+    [InlineData("0", 100)]
+    [InlineData("500", 100)]
+    public async Task ExtractRespondentsAsync_AsksForTheConfiguredPageSize(string? Configured, int ExpectedPageSize)
+    {
+        var ids = Enumerable.Range(1, 250).Select(I => $"r{I}").ToList();
+        var skips = new System.Collections.Concurrent.ConcurrentBag<int>();
+        var tops = new System.Collections.Concurrent.ConcurrentBag<string>();
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+            {
+                string query = Uri.UnescapeDataString(Request.RequestUri!.Query);
+                tops.Add(query.Split('&').First(P => P.TrimStart('?').StartsWith("$top=")).Split('=')[1]);
+                int skip = SkipOf(Request);
+                skips.Add(skip);
+                return Json(ListPage(ids.Skip(skip).Take(ExpectedPageSize), ids.Count));
+            }
+
+            return Json(Details($"{RespondentId(Body)}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler, Configured);
+
+        ExtractionSummary summary = await service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask);
+
+        int pages = (250 + ExpectedPageSize - 1) / ExpectedPageSize;
+        Assert.Equal(Enumerable.Range(0, pages).Select(P => P * ExpectedPageSize), skips.OrderBy(S => S));
+        Assert.All(tops, Top => Assert.Equal(ExpectedPageSize.ToString(), Top));
+        Assert.Equal(250, summary.Extracted);
     }
 
     [Fact]
