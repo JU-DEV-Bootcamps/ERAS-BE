@@ -299,6 +299,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("country_of_birth");
 
+                    b.Property<string>("CurrentCourses")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("current_courses");
+
                     b.Property<DateOnly?>("DateOfBirth")
                         .HasColumnType("date")
                         .HasColumnName("date_of_birth");
@@ -393,6 +397,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("secondary_email");
 
+                    b.Property<string>("SisId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("stu_id");
+
                     b.Property<string>("StateProvince")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
@@ -402,11 +411,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)")
                         .HasColumnName("street");
-
-                    b.Property<string>("SisId")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("stu_id");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("integer")
@@ -1706,35 +1710,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsMany("Eras.Domain.Entities.StudentCurrentCourse", "CurrentCourses", b1 =>
-                        {
-                            b1.Property<int>("StudentProfileId")
-                                .HasColumnType("integer");
-
-                            b1.Property<int>("__synthesizedOrdinal")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("integer");
-
-                            b1.Property<string>("Group")
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Name")
-                                .IsRequired()
-                                .HasColumnType("text");
-
-                            b1.Property<string>("Section")
-                                .HasColumnType("text");
-
-                            b1.HasKey("StudentProfileId", "__synthesizedOrdinal");
-
-                            b1.ToTable("student_profiles");
-
-                            b1.ToJson("current_courses");
-
-                            b1.WithOwner()
-                                .HasForeignKey("StudentProfileId");
-                        });
-
                     b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
                         {
                             b1.Property<int>("StudentProfileId")
@@ -1769,8 +1744,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
-
-                    b.Navigation("CurrentCourses");
                 });
 
             modelBuilder.Entity("Eras.Domain.Entities.UserManagement.ErasUser", b =>

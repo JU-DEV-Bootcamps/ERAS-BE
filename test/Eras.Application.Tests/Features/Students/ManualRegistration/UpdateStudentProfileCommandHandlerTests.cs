@@ -1,4 +1,4 @@
-using Eras.Application.Contracts.Infrastructure;
+﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Features.Students.Commands.UpdateStudentProfile;
@@ -15,6 +15,8 @@ public class UpdateStudentProfileCommandHandlerTests
 {
     private readonly Mock<IStudentRepository> _students = new();
     private readonly Mock<IStudentProfileRepository> _profiles = new();
+    private readonly Mock<IStudentCohortRepository> _studentCohorts = new();
+    private readonly Mock<ICohortRepository> _cohorts = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
     private readonly Mock<ICurrentUserService> _currentUser = new();
     private readonly UpdateStudentProfileCommandHandler _handler;
@@ -22,6 +24,8 @@ public class UpdateStudentProfileCommandHandlerTests
     public UpdateStudentProfileCommandHandlerTests()
     {
         _currentUser.SetupGet(U => U.Sub).Returns("editor-sub");
+        _cohorts.Setup(R => R.GetByIdAsync(3)).ReturnsAsync(new Cohort { Id = 3 });
+        _studentCohorts.Setup(R => R.GetCohortIdByStudentIdAsync(7)).ReturnsAsync(2);
         _students.Setup(R => R.GetByEmailAsync(It.IsAny<string>())).ReturnsAsync((Student?)null);
         _profiles.Setup(R => R.ExistsByIdPassportNumberAsync(It.IsAny<string>(), It.IsAny<int?>())).ReturnsAsync(false);
         _profiles.Setup(R => R.AddAsync(It.IsAny<StudentProfile>())).ReturnsAsync((StudentProfile P) => P);
@@ -34,6 +38,8 @@ public class UpdateStudentProfileCommandHandlerTests
         _handler = new UpdateStudentProfileCommandHandler(
             _students.Object,
             _profiles.Object,
+            _studentCohorts.Object,
+            _cohorts.Object,
             _unitOfWork.Object,
             _currentUser.Object,
             new StudentRegistrationDtoValidator());
@@ -153,5 +159,57 @@ public class UpdateStudentProfileCommandHandlerTests
             () => Run(StudentRegistrationTestData.ValidDto()));
 
         Assert.Equal(409, error.StatusCode);
+    }
+
+    [Fact]
+    public async Task Handle_CohortGiven_ChangesCohortAndReturnsIt()
+    {
+        _students.Setup(R => R.GetByIdAsync(7)).ReturnsAsync(ManualStudent());
+        _profiles.Setup(R => R.GetByStudentIdAsync(7)).ReturnsAsync((StudentProfile?)null);
+
+        StudentRegistrationDto result = await Run(StudentRegistrationTestData.ValidDto());
+
+        Assert.Equal(3, result.CohortId);
+        _studentCohorts.Verify(R => R.ChangeCohortAsync(7, 3), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_CohortOmitted_KeepsCurrentCohort()
+    {
+        _students.Setup(R => R.GetByIdAsync(7)).ReturnsAsync(ManualStudent());
+        _profiles.Setup(R => R.GetByStudentIdAsync(7)).ReturnsAsync((StudentProfile?)null);
+        StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();
+        dto.CohortId = null;
+
+        StudentRegistrationDto result = await Run(dto);
+
+        Assert.Equal(2, result.CohortId);
+        _studentCohorts.Verify(R => R.ChangeCohortAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_UnknownCohort_ThrowsNotFoundAndChangesNothing()
+    {
+        _students.Setup(R => R.GetByIdAsync(7)).ReturnsAsync(ManualStudent());
+        StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();
+        dto.CohortId = 99;
+        _cohorts.Setup(R => R.GetByIdAsync(99)).ReturnsAsync((Cohort?)null);
+
+        await Assert.ThrowsAsync<NotFoundException>(() => Run(dto));
+
+        _studentCohorts.Verify(R => R.ChangeCohortAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        _profiles.Verify(R => R.UpdateAsync(It.IsAny<StudentProfile>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_NegativeCohort_ThrowsBadRequest()
+    {
+        _students.Setup(R => R.GetByIdAsync(7)).ReturnsAsync(ManualStudent());
+        StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();
+        dto.CohortId = -1;
+
+        BussinessException error = await Assert.ThrowsAsync<BussinessException>(() => Run(dto));
+
+        Assert.Equal(400, error.StatusCode);
     }
 }

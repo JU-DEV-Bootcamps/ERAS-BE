@@ -10,7 +10,8 @@ namespace Eras.Application.Features.Students.Queries.GetStudentProfile;
 
 public sealed class GetStudentProfileQueryHandler(
     IStudentRepository StudentRepository,
-    IStudentProfileRepository ProfileRepository
+    IStudentProfileRepository ProfileRepository,
+    IStudentCohortRepository StudentCohortRepository
 ) : IRequestHandler<GetStudentProfileQuery, StudentRegistrationDto>
 {
     public async Task<StudentRegistrationDto> Handle(
@@ -20,13 +21,15 @@ public sealed class GetStudentProfileQueryHandler(
         Student student = await StudentRepository.GetByIdAsync(Request.StudentId)
             ?? throw new NotFoundException($"Student with ID {Request.StudentId} not found.");
 
+        int? cohortId = await StudentCohortRepository.GetCohortIdByStudentIdAsync(student.Id);
         StudentProfile? profile = await ProfileRepository.GetByStudentIdAsync(student.Id);
-        if (profile is not null) return profile.ToDto(student);
+        if (profile is not null) return profile.ToDto(student, cohortId);
 
         string[] nameParts = student.Name.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         return new StudentRegistrationDto
         {
             StudentId = student.Id,
+            CohortId = cohortId,
             IsImported = student.IsImported,
             FirstName = nameParts.ElementAtOrDefault(0) ?? string.Empty,
             LastName = nameParts.ElementAtOrDefault(1) ?? string.Empty,

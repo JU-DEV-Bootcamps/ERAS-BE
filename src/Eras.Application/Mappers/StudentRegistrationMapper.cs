@@ -55,11 +55,12 @@ public static class StudentRegistrationMapper
         Profile.SupportReceived = CleanList(Dto.SupportReceived);
     }
 
-    public static StudentRegistrationDto ToDto(this StudentProfile Profile, Student Student)
+    public static StudentRegistrationDto ToDto(this StudentProfile Profile, Student Student, int? CohortId = null)
     {
         return new StudentRegistrationDto
         {
             StudentId = Student.Id,
+            CohortId = CohortId,
             IsImported = Student.IsImported,
             FirstName = Profile.FirstName,
             MiddleName = Profile.MiddleName,

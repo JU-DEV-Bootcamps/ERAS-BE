@@ -1,4 +1,4 @@
-using Eras.Application.Contracts.Infrastructure;
+﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Features.Students.Commands.CreateManualStudent;
@@ -57,6 +57,7 @@ public class CreateManualStudentCommandHandlerTests
         StudentRegistrationDto result = await Run(StudentRegistrationTestData.ValidDto());
 
         Assert.Equal(55, result.StudentId);
+        Assert.Equal(3, result.CohortId);
         Assert.False(result.IsImported);
         Assert.Equal("ana.perez@jala.university", result.PrimaryEmail);
         Assert.Equal("AB-123456", result.IdPassportNumber);

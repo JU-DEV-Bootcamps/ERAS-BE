@@ -1,4 +1,4 @@
-using Eras.Application.DTOs.Student;
+﻿using Eras.Application.DTOs.Student;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 
@@ -144,6 +144,16 @@ public class StudentRegistrationMapperTests
         Assert.Null(dto.CurrentCourses);
         Assert.Null(dto.IdentifiedRisks);
         Assert.Null(dto.SupportReceived);
+    }
+
+    [Fact]
+    public void ToDto_IncludesGivenCohortAndNullWhenOmitted()
+    {
+        Student student = new() { Id = 9, Email = "ana@jala.university" };
+        StudentProfile profile = new() { FirstName = "Ana", LastName = "Pérez", IdPassportNumber = "X1" };
+
+        Assert.Equal(4, profile.ToDto(student, 4).CohortId);
+        Assert.Null(profile.ToDto(student).CohortId);
     }
 
     [Fact]
