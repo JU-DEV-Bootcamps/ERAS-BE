@@ -41,8 +41,11 @@ public class CosmicLatteExtractionTests
         }
     }
 
-    private CosmicLatteAPIService CreateService(HttpMessageHandler Handler)
+    private CosmicLatteAPIService CreateService(HttpMessageHandler Handler, string? PageSize = null)
     {
+        var configuration = new Mock<IConfiguration>();
+        configuration.Setup(C => C["CosmicLatte:EvaluationsPageSize"]).Returns(PageSize);
+
         var encryptor = new Mock<IApiKeyEncryptor>();
         encryptor.Setup(E => E.Decrypt(It.IsAny<string>())).Returns((string Value) => Value);
         _pollInstances
@@ -59,7 +62,7 @@ public class CosmicLatteExtractionTests
             _pollInstances.Object);
 
         return new CosmicLatteAPIService(
-            new Mock<IConfiguration>().Object,
+            configuration.Object,
             factory.Object,
             _logger.Object,
             orchestrator,
@@ -177,6 +180,291 @@ public class CosmicLatteExtractionTests
         Assert.Equal(4, summary.Skipped);
         Assert.Equal(2, r6Attempts);
         Assert.Equivalent(new[] { "r1@jala.university", "r6@jala.university" }, extractedEmails);
+    }
+
+    private static string ListPage(IEnumerable<string> Ids, int TotalCount)
+    {
+        var items = Ids.Select(Id => ListItem(Id, "2026-01-10T00:00:00Z")).ToList();
+        return "{ \"@data\": [" + string.Join(",", items) + "], \"@meta\": { \"@totalCount\": " + TotalCount + ", \"@count\": " + items.Count + " } }";
+    }
+
+    private static int SkipOf(HttpRequestMessage Request)
+    {
+        string query = Uri.UnescapeDataString(Request.RequestUri!.Query);
+        string skip = query.Split('&').First(P => P.TrimStart('?').StartsWith("$skip=")).Split('=')[1];
+        return int.Parse(skip);
+    }
+
+    [Fact]
+    public async Task ExtractRespondentsAsync_ReadsEveryPageCosmicLatteReturns()
+    {
+        var ids = Enumerable.Range(1, 250).Select(I => $"r{I}").ToList();
+        var skips = new System.Collections.Concurrent.ConcurrentBag<int>();
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+            {
+                int skip = SkipOf(Request);
+                skips.Add(skip);
+                return Json(ListPage(ids.Skip(skip).Take(100), ids.Count));
+            }
+
+            string id = RespondentId(Body);
+            return Json(Details($"{id}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler);
+        int extracted = 0;
+
+        ExtractionSummary summary = await service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl,
+            (Poll, AlreadyImported) => { extracted++; return Task.CompletedTask; });
+
+        Assert.Equal(new[] { 0, 100, 200 }, skips.OrderBy(S => S));
+        Assert.Equal(250, summary.Returned);
+        Assert.Equal(250, summary.Extracted);
+        Assert.Equal(250, extracted);
+    }
+
+    [Theory]
+    [InlineData("40", 40)]
+    [InlineData(null, 100)]
+    [InlineData("__COSMIC_LATTE_PAGE_SIZE__", 100)]
+    [InlineData("0", 100)]
+    [InlineData("500", 100)]
+    public async Task ExtractRespondentsAsync_AsksForTheConfiguredPageSize(string? Configured, int ExpectedPageSize)
+    {
+        var ids = Enumerable.Range(1, 250).Select(I => $"r{I}").ToList();
+        var skips = new System.Collections.Concurrent.ConcurrentBag<int>();
+        var tops = new System.Collections.Concurrent.ConcurrentBag<string>();
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+            {
+                string query = Uri.UnescapeDataString(Request.RequestUri!.Query);
+                tops.Add(query.Split('&').First(P => P.TrimStart('?').StartsWith("$top=")).Split('=')[1]);
+                int skip = SkipOf(Request);
+                skips.Add(skip);
+                return Json(ListPage(ids.Skip(skip).Take(ExpectedPageSize), ids.Count));
+            }
+
+            return Json(Details($"{RespondentId(Body)}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler, Configured);
+
+        ExtractionSummary summary = await service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask);
+
+        int pages = (250 + ExpectedPageSize - 1) / ExpectedPageSize;
+        Assert.Equal(Enumerable.Range(0, pages).Select(P => P * ExpectedPageSize), skips.OrderBy(S => S));
+        Assert.All(tops, Top => Assert.Equal(ExpectedPageSize.ToString(), Top));
+        Assert.Equal(250, summary.Extracted);
+    }
+
+    [Fact]
+    public async Task ExtractRespondentsAsync_PagesInAFixedOldestFirstOrder()
+    {
+        var ids = Enumerable.Range(1, 150).Select(I => $"r{I}").ToList();
+        var queries = new System.Collections.Concurrent.ConcurrentBag<string>();
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+            {
+                queries.Add(Uri.UnescapeDataString(Request.RequestUri!.Query));
+                return Json(ListPage(ids.Skip(SkipOf(Request)).Take(100), ids.Count));
+            }
+
+            return Json(Details($"{RespondentId(Body)}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler);
+
+        await service.ExtractRespondentsAsync("Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask);
+
+        Assert.Equal(2, queries.Count);
+        Assert.All(queries, Query => Assert.Contains("$orderby=createdAt asc", Query));
+    }
+
+    [Fact]
+    public async Task ExtractRespondentsAsync_OrderRejected_FallsBackToPagingWithoutIt()
+    {
+        var ids = Enumerable.Range(1, 150).Select(I => $"r{I}").ToList();
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+            {
+                if (Uri.UnescapeDataString(Request.RequestUri!.Query).Contains("$orderby"))
+                    return Json("unknown query option", HttpStatusCode.BadRequest);
+                return Json(ListPage(ids.Skip(SkipOf(Request)).Take(100), ids.Count));
+            }
+
+            return Json(Details($"{RespondentId(Body)}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler);
+
+        ExtractionSummary summary = await service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask);
+
+        Assert.Equal(150, summary.Extracted);
+        _logger.Verify(
+            L => L.Log(LogLevel.Warning, It.IsAny<EventId>(), It.Is<It.IsAnyType>((V, T) => V.ToString()!.Contains("$orderby")),
+                null, It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ExtractRespondentsAsync_DoesNotFetchDetailsOfResponsesOutsideTheDateRange()
+    {
+        string list = "{ \"@data\": ["
+            + string.Join(",", ListItem("in", "2026-01-10T00:00:00Z"), ListItem("old", "2025-06-01T00:00:00Z"))
+            + "], \"@meta\": { \"@totalCount\": 2, \"@count\": 2 } }";
+        var detailsRequested = new System.Collections.Concurrent.ConcurrentBag<string>();
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+                return Json(list);
+
+            string id = RespondentId(Body);
+            detailsRequested.Add(id);
+            return Json(Details($"{id}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler);
+
+        ExtractionSummary summary = await service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask);
+
+        // "in" is also read once to learn the questions; "old" must never be requested.
+        Assert.DoesNotContain("old", detailsRequested);
+        Assert.Equal(1, summary.Extracted);
+        Assert.Equal(1, summary.SkippedOutsideDateRange);
+    }
+
+    [Fact]
+    public async Task ExtractRespondentsAsync_TooManyRequests_EveryWorkerWaitsTheRetryAfter()
+    {
+        var ids = Enumerable.Range(1, 20).Select(I => $"r{I}").ToList();
+        int throttled = 0;
+        var detailTimes = new System.Collections.Concurrent.ConcurrentBag<DateTime>();
+        DateTime throttledAt = DateTime.MaxValue;
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+                return Json(ListPage(ids, ids.Count));
+
+            // Call 1 reads the questions; throttle the first respondent request after it.
+            if (Interlocked.Increment(ref throttled) == 2)
+            {
+                throttledAt = DateTime.UtcNow;
+                var tooMany = Json("slow down", HttpStatusCode.TooManyRequests);
+                tooMany.Headers.RetryAfter = new System.Net.Http.Headers.RetryConditionHeaderValue(TimeSpan.FromSeconds(1));
+                return tooMany;
+            }
+
+            detailTimes.Add(DateTime.UtcNow);
+            return Json(Details($"{RespondentId(Body)}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler);
+
+        ExtractionSummary summary = await service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask);
+
+        Assert.Equal(20, summary.Extracted);
+        // Only the requests already in flight when the 429 arrived (at most the 8 workers) may land
+        // before the cooldown ends; everything else waited for it.
+        int beforeCooldown = detailTimes.Count(T => T < throttledAt.AddMilliseconds(900));
+        Assert.InRange(beforeCooldown, 0, 8);
+    }
+
+    [Fact]
+    public async Task ExtractRespondentsAsync_RetriesTheQuestionsReadWhenItFailsTransiently()
+    {
+        var ids = Enumerable.Range(1, 3).Select(I => $"r{I}").ToList();
+        int posts = 0;
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+                return Json(ListPage(ids, ids.Count));
+
+            return Interlocked.Increment(ref posts) == 1
+                ? Json("busy", HttpStatusCode.ServiceUnavailable)
+                : Json(Details($"{RespondentId(Body)}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler);
+
+        ExtractionSummary summary = await service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask);
+
+        Assert.Equal(3, summary.Extracted);
+    }
+
+    [Fact]
+    public async Task ExtractRespondentsAsync_RetriesAPageThatFailsTransiently()
+    {
+        var ids = Enumerable.Range(1, 150).Select(I => $"r{I}").ToList();
+        int secondPageAttempts = 0;
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+            {
+                int skip = SkipOf(Request);
+                if (skip == 100 && Interlocked.Increment(ref secondPageAttempts) == 1)
+                    return Json("busy", HttpStatusCode.ServiceUnavailable);
+                return Json(ListPage(ids.Skip(skip).Take(100), ids.Count));
+            }
+
+            string id = RespondentId(Body);
+            return Json(Details($"{id}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler);
+
+        ExtractionSummary summary = await service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask);
+
+        Assert.Equal(2, secondPageAttempts);
+        Assert.Equal(150, summary.Returned);
+        Assert.Equal(150, summary.Extracted);
+    }
+
+    [Fact]
+    public async Task ExtractRespondentsAsync_APageThatKeepsFailing_FailsTheExtraction()
+    {
+        var ids = Enumerable.Range(1, 150).Select(I => $"r{I}").ToList();
+        var handler = new RoutingHandler((Request, Body) =>
+            SkipOf(Request) == 100
+                ? Json("busy", HttpStatusCode.ServiceUnavailable)
+                : Json(ListPage(ids.Take(100), ids.Count)));
+        var service = CreateService(handler);
+
+        await Assert.ThrowsAnyAsync<Exception>(() => service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask));
+    }
+
+    [Fact]
+    public async Task ExtractRespondentsAsync_StopsWhenAPageBringsNothingNew()
+    {
+        // Cosmic Latte ignoring $skip would hand back the same first page forever.
+        var firstPage = Enumerable.Range(1, 100).Select(I => $"r{I}").ToList();
+        int listCalls = 0;
+        var handler = new RoutingHandler((Request, Body) =>
+        {
+            if (Request.Method == HttpMethod.Get)
+            {
+                Interlocked.Increment(ref listCalls);
+                return Json(ListPage(firstPage, 300));
+            }
+
+            string id = RespondentId(Body);
+            return Json(Details($"{id}@jala.university", "2026-01-10T00:00:00Z"));
+        });
+        var service = CreateService(handler);
+
+        ExtractionSummary summary = await service.ExtractRespondentsAsync(
+            "Set", StartDate, EndDate, "p1", "key", ApiUrl, (Poll, AlreadyImported) => Task.CompletedTask);
+
+        // The first page plus the two more its @totalCount (300) announces; none brings anything new.
+        Assert.Equal(3, listCalls);
+        Assert.Equal(100, summary.Returned);
+        _logger.Verify(
+            L => L.Log(LogLevel.Warning, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(), null, It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.AtLeastOnce);
     }
 
     [Fact]
