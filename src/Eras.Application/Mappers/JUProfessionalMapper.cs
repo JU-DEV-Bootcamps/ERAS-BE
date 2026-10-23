@@ -14,7 +14,7 @@ namespace Eras.Application.Mappers
                 Id = Dto.Id,
                 Name = Dto.Name,
                 Uuid = Dto.Uuid,
-                Audit = Dto.Audit,
+                Audit = Dto.Audit ?? throw new ArgumentException("Audit is required.", nameof(Dto)),
             };
         }
 
@@ -27,7 +27,7 @@ namespace Eras.Application.Mappers
                 Id = Entity.Id,
                 Name = Entity.Name,
                 Uuid = Entity.Uuid,
-                Audit = Entity.Audit,
+                Audit = Entity.Audit ?? throw new ArgumentException("Audit is required.", nameof(Entity)),
             };
         }
     }

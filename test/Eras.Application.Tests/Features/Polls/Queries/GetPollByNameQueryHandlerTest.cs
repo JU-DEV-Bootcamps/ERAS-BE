@@ -45,6 +45,25 @@ public class GetPollByNameQueryHandlerTest
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal("Poll1",result.Body.Name);
+        Assert.Equal("Poll1",result.Body!.Name);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_NotFoundPoll()
+    {
+        // Arrange
+        var query = new GetPollByNameQuery() { pollName = "Poll1" };
+        
+        _mockVariableRepository
+            .Setup(Repo => Repo.GetByNameAsync(It.IsAny<string>()))
+            .ReturnsAsync((Poll)null!);
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.Equal("Poll Not Found", result.Message);
+        Assert.Equal(Models.Enums.QueryEnums.QueryResultStatus.NotFound, result.Status);
     }
 }

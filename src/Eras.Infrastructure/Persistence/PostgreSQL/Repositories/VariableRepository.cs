@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class VariableRepository : BaseRepository<Variable, VariableEntity>, IVariableRepository
     {
         public VariableRepository(AppDbContext Context)
@@ -105,6 +104,45 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Select(Cv => Cv.Variable)
                 .FirstOrDefaultAsync();
             return variable?.ToDomain();
+        }
+
+        public async Task<List<Variable>> GetAllWithNameAndPollIdAsync()
+        {
+            List<Variable> response = await _context.Variables
+                .Join(_context.PollVariables,
+                    Var => Var.Id,
+                    PollVar => PollVar.VariableId,
+                    (Variable, PollVariable) => new {Variable, PollVariable}
+                )
+                .Select(JoinResult => new Variable()
+                {
+                    Id = JoinResult.Variable.Id,
+                    Name = JoinResult.Variable.Name,
+                    IdPoll = JoinResult.PollVariable.PollId
+                })
+                .AsNoTracking()
+                .ToListAsync();
+
+            return response;
+        }
+
+        public async Task<List<Variable>> GetByPollIdAsync(int PollId)
+        {
+            return await _context.Variables
+                .Join(_context.PollVariables,
+                    Var => Var.Id,
+                    PollVar => PollVar.VariableId,
+                    (Variable, PollVariable) => new { Variable, PollVariable })
+                .Where(JoinResult => JoinResult.PollVariable.PollId == PollId)
+                .Select(JoinResult => new Variable()
+                {
+                    Id = JoinResult.Variable.Id,
+                    Name = JoinResult.Variable.Name,
+                    Position = JoinResult.Variable.Position,
+                    IdPoll = JoinResult.PollVariable.PollId
+                })
+                .AsNoTracking()
+                .ToListAsync();
         }
 
         public async Task<Variable?> GetByNameAndPositionAsync(string Name, int Position)

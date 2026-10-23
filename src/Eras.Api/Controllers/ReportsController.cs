@@ -8,6 +8,7 @@ using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 using Eras.Application.Utils;
 using Eras.Application.DTOs.Views;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -18,8 +19,7 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/reports")]
-[Authorize]
-[ExcludeFromCodeCoverage]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class ReportsController(IMediator Mediator) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
@@ -34,8 +34,9 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             GetStudentTopQuery query = new() { CohortName = CohortName, PollName = PollName, Take = Take };
             GetQueryResponse<List<(Student Student, List<Answer> Answers, decimal RiskIndex)>> avgRisk = await _mediator.Send(query);
-            var toprmessage = string.Join(", ", avgRisk.Body.Select(St => $"{St.Student.Uuid} - {St.Student.Name} - RISK = {St.RiskIndex}").ToList());
-            var result = avgRisk.Body.Select(St => new
+            List<(Student Student, List<Answer> Answers, decimal RiskIndex)> items = avgRisk.Body ?? [];
+            var toprmessage = string.Join(", ", items.Select(St => $"{St.Student.Uuid} - {St.Student.Name} - RISK = {St.RiskIndex}").ToList());
+            var result = items.Select(St => new
             {
                 StudentUuid = St.Student.Uuid,
                 StudentName = St.Student.Name,
@@ -70,7 +71,8 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     public async Task<IActionResult> GetHigherRiskStudentsByPollAsync(
     [FromRoute] string Uuid,
     [FromQuery] Pagination Pagination,
-    [FromQuery] string VariableIds)
+    [FromQuery] string VariableIds,
+    [FromQuery] int? EvaluationId = null)
     {
         try
         {
@@ -79,7 +81,8 @@ public class ReportsController(IMediator Mediator) : ControllerBase
             {
                 PollUuid = new Guid(Uuid),
                 Pagination = Pagination,
-                VariableIds = VariableIdsAsInts
+                VariableIds = VariableIdsAsInts,
+                EvaluationId = EvaluationId
             };
             PagedResult<ErasCalculationsByPollDTO>? avgRisk = await _mediator.Send(query);
 
@@ -98,7 +101,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
     }
 
     [HttpGet("polls/{Uuid}/avg")]
-    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] string CohortIds, [FromQuery] bool LastVersion)
+    public async Task<IActionResult> GetAvgRiskByPollAsync([FromRoute] string Uuid, [FromQuery] string CohortIds, [FromQuery] bool LastVersion, [FromQuery] int evaluationId)
     {
         try
         {
@@ -109,7 +112,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
             {
                 return BadRequest(new { status = "error", message = "Wrong format for cohortIds" });
             }
-            var query = new PollAvgQuery() { PollUuid = pollGuid, CohortIds = CohortIdsAsInts, LastVersion = LastVersion };
+            var query = new PollAvgQuery() { PollUuid = pollGuid, EvaluationId = evaluationId, CohortIds = CohortIdsAsInts, LastVersion = LastVersion };
             GetQueryResponse<AvgReportResponseVm> avgRisk = await _mediator.Send(query);
             return avgRisk.Success
             ? Ok(new
@@ -127,6 +130,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
 
     [HttpGet("polls/{Uuid}/count")]
     public async Task<IActionResult> GetPollResultsCountAsync([FromRoute] string Uuid,
+        [FromQuery] int evaluationId,
         [FromQuery] string CohortIds,
         [FromQuery] string VariableIds,
         [FromQuery] bool LastVersion)
@@ -135,7 +139,7 @@ public class ReportsController(IMediator Mediator) : ControllerBase
         {
             var VariableIdsAsInts = VariableIds.Split(',').Select(int.Parse).ToList();
             var CohortIdsAsInts = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);
-            var query = new PollCountQuery() { PollUuid = Uuid, CohortIds = CohortIdsAsInts, VariableIds = VariableIdsAsInts, LastVersion = LastVersion };
+            var query = new PollCountQuery() { PollUuid = Uuid, EvaluationId = evaluationId, CohortIds = CohortIdsAsInts, VariableIds = VariableIdsAsInts, LastVersion = LastVersion };
             var count = await _mediator.Send(query);
             return count.Success
             ? Ok(new

@@ -11,6 +11,7 @@ using Eras.Application.Features.Evaluations.Commands.UpdateEvaluation;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+using Eras.Error.Bussiness;
 
 using MediatR;
 
@@ -43,6 +44,12 @@ public class EditConfigurationCommandHandler : IRequestHandler<EditConfiguration
                 return new CreateCommandResponse<Domain.Entities.Configurations>(null, 0, "Configuration not found", false);
             }
 
+            Domain.Entities.Configurations? sameName = await _configurationsRepository.GetActiveByUserAndNameAsync(
+                configurationDB.UserId,
+                Request.ConfigurationDTO.ConfigurationName);
+            if (sameName != null && sameName.Id != configurationDB.Id)
+                throw new BussinessException($"A configuration named '{Request.ConfigurationDTO.ConfigurationName}' already exists.", 409);
+
             // Fields always updatable
             configurationDB.ConfigurationName = Request.ConfigurationDTO.ConfigurationName;
             configurationDB.ServiceProviderId = Request.ConfigurationDTO.ServiceProviderId;
@@ -52,12 +59,21 @@ public class EditConfigurationCommandHandler : IRequestHandler<EditConfiguration
             configurationDB.Audit.ModifiedBy = Request.ConfigurationDTO.UserId;
             
             Domain.Entities.ServiceProviders? serviceProvider = await _serviceProvidersRepository.GetByIdAsync(Request.ConfigurationDTO.ServiceProviderId);
+            if (serviceProvider is null)
+            {
+                _logger.LogWarning("ServiceProvider with ID {Id} not found", Request.ConfigurationDTO.ServiceProviderId);
+                return new CreateCommandResponse<Domain.Entities.Configurations>(null, 0, "ServiceProvider not found", false);
+            }
             configurationDB.ServiceProvider = serviceProvider;
             
             await _configurationsRepository.UpdateAsync(configurationDB);
 
             _logger.LogInformation("Successfully updated Configuration ID {Id}", configurationDB.Id);
             return new CreateCommandResponse<Domain.Entities.Configurations>(configurationDB, 1, "Success", true);
+        }
+        catch (BussinessException)
+        {
+            throw;
         }
         catch (Exception ex)
         {

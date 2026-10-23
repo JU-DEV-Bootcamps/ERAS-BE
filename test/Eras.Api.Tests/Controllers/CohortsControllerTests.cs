@@ -1,4 +1,5 @@
 using Eras.Api.Controllers;
+using Eras.Application.Utils;
 
 using MediatR;
 
@@ -28,6 +29,45 @@ public class CohortsControllerTests
     {
         // Act
         IActionResult result = await _controller.GetCohortsAsync(null, false);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetCohorts_WithPollUuid_AndReturnsOkResultAsync()
+    {
+        // Act
+        IActionResult result = await _controller.GetCohortsAsync("NotNull", false);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
+        Assert.NotNull(result);
+    }
+
+    [Fact]
+    public async Task GetCohortsDetails_ReturnsOkResultAsync()
+    {
+        // Arrange
+        Pagination pagination = new Pagination();
+        // Act
+        IActionResult result = await _controller.GetCohortsDetailsAsync(pagination);
+
+        // Assert
+        OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetCohortsSummary_ReturnsOkResultAsync()
+    {
+        // Arrange
+        Pagination pagination = new Pagination();
+
+        // Act
+        IActionResult result = await _controller.GetCohortsSummaryAsync(pagination, 1);
 
         // Assert
         OkObjectResult okResult = Assert.IsType<OkObjectResult>(result);

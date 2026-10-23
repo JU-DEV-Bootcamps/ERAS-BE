@@ -45,6 +45,25 @@ public class GetVariableByNameQueryHandlerTest
 
         // Assert
         Assert.True(result.Success);
-        Assert.Equal("Variable",result.Body.Name);
+        Assert.Equal("Variable",result.Body!.Name);
+    }
+
+    [Fact]
+    public async Task Handle_Should_Return_NotFoundVariable()
+    {
+        // Arrange
+        var query = new GetVariableByNameQuery() { VariableName = "Variable" };
+
+        _mockVariableRepository
+            .Setup(Repo => Repo.GetByNameAsync(It.Is<string>(Name => Name == "Variable")))
+            .ReturnsAsync((Variable)null!);
+
+        // Act
+        var result = await _handler.Handle(query, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.Success);
+        Assert.Equal("Variable Not Found", result.Message);
+        Assert.Equal(Models.Enums.QueryEnums.QueryResultStatus.NotFound, result.Status);
     }
 }

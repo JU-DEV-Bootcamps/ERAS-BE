@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Evaluations.Queries;
 
-class GetEvaluationProcessSummaryQueryHandler(
+public class GetEvaluationProcessSummaryQueryHandler(
     IEvaluationRepository EvaluationRepository,
     ILogger<GetEvaluationProcessSummaryQueryHandler> Logger
 ): IRequestHandler<GetEvaluationSummaryQuery, GetQueryResponse<Evaluation?>>
@@ -15,7 +15,7 @@ class GetEvaluationProcessSummaryQueryHandler(
     private readonly ILogger<GetEvaluationProcessSummaryQueryHandler> _logger = Logger;
 
 
-    async Task<GetQueryResponse<Evaluation?>> IRequestHandler<GetEvaluationSummaryQuery, GetQueryResponse<Evaluation?>>.Handle(GetEvaluationSummaryQuery Request, CancellationToken CancellationToken)
+    public async Task<GetQueryResponse<Evaluation?>> Handle(GetEvaluationSummaryQuery Request, CancellationToken CancellationToken)
     {
         _logger.LogDebug("Handling summarizing all evaluation processes");
         var evs = await _evaluationRepository.GetByIdAsync(Request.EvaluationId);

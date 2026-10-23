@@ -4,7 +4,6 @@ using System.Text.Json;
 
 namespace Eras.Api.Middleware
 {
-    [ExcludeFromCodeCoverage]
     public class ExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;

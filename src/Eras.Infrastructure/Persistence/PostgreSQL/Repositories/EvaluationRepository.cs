@@ -60,18 +60,20 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             {
                 Id = Entity.Id,
                 Name = Entity.Name,
-                Status = Entity.CurrentStatus,
+                Status = Entity.Status,
                 StartDate = Entity.StartDate,
                 EndDate = Entity.EndDate,
                 Audit = Entity.Audit,
                 Polls = [.. evaluationPolls.Where(Ep => Ep.EvaluationId == Entity.Id).Select(Ep => PollMapper.ToDomain(Ep.Poll))],
+                PollName = Entity.PollName,
+                ConfigurationId = Entity.ConfigurationId,
                 PollInstances = [.. pollInstances.Where(Pi => evaluationPolls.Any(Ep => Ep.Poll.Uuid == Pi.Uuid && Ep.EvaluationId == Entity.Id)).Select(Pi => PollInstanceMapper.ToDomain(Pi))]
             })];
         }
 
         public new Task<Evaluation?> GetByIdAsync(int EvalId)
         {
-            EvaluationEntity? ev = _context.Evaluations.FirstOrDefault(E => E.Id == EvalId);
+            EvaluationEntity? ev = _context.Evaluations.AsNoTracking().FirstOrDefault(E => E.Id == EvalId);
             if (ev == null)
             {
                 return Task.FromResult<Evaluation?>(null);
@@ -89,8 +91,17 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             Evaluation evaluation = ev.ToDomain();
             evaluation.Polls = polls;
             evaluation.PollInstances = pollIntances;
-            evaluation.Status = ev.CurrentStatus;
+            evaluation.Status = ev.Status;
             return Task.FromResult<Evaluation?>(evaluation);
+        }
+
+        public async Task<Evaluation?> GetByIdWithoutRelationsAsync(int Id)
+        {
+            EvaluationEntity? evaluation = await _context.Evaluations
+                .AsNoTracking()
+                .FirstOrDefaultAsync(E => E.Id == Id);
+
+            return evaluation?.ToDomain();
         }
 
         public async Task<Evaluation?> GetByNameForUpdateAsync(int Id, string Name)
@@ -107,7 +118,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                .AsNoTracking()
                .FirstOrDefaultAsync(E => E.Id == Id);
 
-            return evaluation is not null 
+            return evaluation is not null
                 ? new Evaluation
                 {
                     Id = evaluation.Id,
@@ -132,7 +143,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             {
                 Id = e.Id,
                 Name = e.Name,
-                Status = e.CurrentStatus,
+                Status = e.Status,
                 StartDate = e.StartDate,
                 EndDate = e.EndDate,
                 Audit = e.Audit,
@@ -144,6 +155,37 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             }).ToListAsync();
 
             return results;
+        }
+
+        public new async Task<int> CountByDateRangeAsync(DateTime startDate, DateTime endDate)
+        {
+            return await _context.Evaluations
+                .Where(e => e.StartDate >= DateTime.SpecifyKind(startDate, DateTimeKind.Utc)
+                        && e.StartDate <= DateTime.SpecifyKind(endDate, DateTimeKind.Utc))
+                .CountAsync();
+        }
+
+        public async Task<IEnumerable<Evaluation>> GetExpiredWithPendingStatusAsync(IEnumerable<string> status, DateTime endDateBefore, CancellationToken ct) 
+        {
+            var entities = await _context.Evaluations
+                .Include(e => e.EvaluationPolls)
+                    .ThenInclude(p => p.Poll)
+                .Include(e => e.PollInstances)
+                    .ThenInclude(pi => pi.Answers)
+                .Where(e => status.Contains(e.Status) && e.EndDate < endDateBefore)
+                .ToListAsync();
+
+            return entities.Select(e => e.ToDomain());
+
+        }
+
+        public async Task UpdateStatusAsync(int evaluationId, string status)
+        {
+            await _context.Evaluations
+                .Where(e => e.Id == evaluationId)
+                .ExecuteUpdateAsync(e => e
+                    .SetProperty(x => x.Status, status)
+                    .SetProperty(x => x.Audit.ModifiedAt, DateTime.UtcNow));
         }
     }
 }

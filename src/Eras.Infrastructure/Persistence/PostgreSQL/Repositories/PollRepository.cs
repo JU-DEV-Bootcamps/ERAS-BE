@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class PollRepository : BaseRepository<Poll, PollEntity>, IPollRepository
     {
         public PollRepository(AppDbContext Context)

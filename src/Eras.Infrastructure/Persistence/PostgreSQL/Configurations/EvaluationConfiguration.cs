@@ -51,6 +51,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .WithMany()
                 .HasForeignKey(e => e.ConfigurationId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            Builder.HasMany(e => e.PollInstances)
+                .WithOne(pi => pi.Evaluation)
+                .HasForeignKey(pi => pi.EvaluationId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

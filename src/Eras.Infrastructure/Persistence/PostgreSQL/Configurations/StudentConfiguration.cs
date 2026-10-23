@@ -34,6 +34,16 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.Property(Student => Student.IsImported)
                 .HasColumnName("is_imported")
                 .IsRequired();
+            Builder.Property(Student => Student.IsDeleted)
+                .HasColumnName("is_deleted")
+                .HasDefaultValue(false)
+                .IsRequired();
+
+            // Soft-deleted students disappear from every query.
+            Builder.HasQueryFilter(Student => !Student.IsDeleted);
+
+            Builder.HasIndex(Student => Student.Name)
+                .HasDatabaseName("ix_students_name");
         }
         private static void ConfigureRelationShips(EntityTypeBuilder<StudentEntity> Builder)
         {
@@ -44,10 +54,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
             Builder.HasMany(Student => Student.PollInstances)
                 .WithOne(PollInstance => PollInstance.Student)
                 .HasForeignKey(PollInstance => PollInstance.StudentId);
-
-            Builder.HasMany(S => S.Remissions)
-                .WithMany(R => R.Students)
-                .UsingEntity(J => J.ToTable("student_remissions"));
         }
     }
 }

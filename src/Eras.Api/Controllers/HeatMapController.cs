@@ -7,6 +7,7 @@ using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary;
 using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
 using Eras.Application.Models.Response;
 using Eras.Application.Models.Response.Common;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -17,6 +18,7 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/heat-map")]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Logger)
     : ControllerBase
 {
@@ -98,7 +100,6 @@ public class HeatMapController(IMediator Mediator, ILogger<HeatMapController> Lo
         return Ok(result);
     }
 
-    [Authorize]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

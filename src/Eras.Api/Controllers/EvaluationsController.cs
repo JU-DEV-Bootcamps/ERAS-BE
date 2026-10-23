@@ -8,6 +8,7 @@ using Eras.Application.Models.Response;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -19,13 +20,13 @@ namespace Eras.Api.Controllers;
 
 [Route("api/v1/evaluations")]
 [ApiController]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<EvaluationsController> _logger = Logger;
 
     [HttpDelete("{Id}")]
-    [Authorize]
     public async Task<IActionResult> DeleteEvaluationAsync(int Id)
     {
         _logger.LogInformation("Deleting evaluation with ID {Id}", Id);
@@ -36,7 +37,6 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         return Ok(new { status = "successful", message = "Deleted" });
     }
 
-    [Authorize]
     [HttpPut("{Id}")]
     public async Task<IActionResult> UpdateEvaluationAsync(int Id, [FromBody] EvaluationDTO EvaluationDTO)
     {
@@ -54,7 +54,6 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
         return Ok(new { status = "successful", message = "Updated" });
     }
 
-    [Authorize]
     [HttpPost("{ParentId}")]
     public async Task<IActionResult> CreateEvaluationAsync(string ParentId, [FromBody] EvaluationDTO EvaluationDTO)
     {
@@ -82,8 +81,10 @@ public class EvaluationsController(IMediator Mediator, ILogger<EvaluationsContro
     [HttpGet]
     public async Task<IActionResult> GetAllEvaluationsAsync([FromQuery] Pagination Query)
     {
-        GetAllEvaluationsQuery command = new() { Query = Query };
+        // get all evaluations with take and skip paginations
+        GetAllEvaluationsQuery command = Query == null ? new() : new() { Query = Query };
         PagedResult<Evaluation> response = await _mediator.Send(command);
+
         return Ok(response);
     }
 

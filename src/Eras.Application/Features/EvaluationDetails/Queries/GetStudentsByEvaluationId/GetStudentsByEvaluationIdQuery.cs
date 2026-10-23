@@ -11,5 +11,4 @@ public class GetStudentsByEvaluationIdQuery : IRequest<List<StudentsByFiltersRes
     public required List<int> CohortIds { get; set; }
     public List<int>? VariableIds { get; set; }
     public List<decimal>? RiskLevels { get; set; }
-
 }

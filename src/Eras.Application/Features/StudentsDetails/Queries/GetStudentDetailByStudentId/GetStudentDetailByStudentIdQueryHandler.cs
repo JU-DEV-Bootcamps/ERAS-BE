@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStudentId;
 
-internal class GetStudentDetailByStudentIdQueryHandler : IRequestHandler<GetStudentDetailByStudentIdQuery, GetQueryResponse<StudentDetail?>>
+public class GetStudentDetailByStudentIdQueryHandler : IRequestHandler<GetStudentDetailByStudentIdQuery, GetQueryResponse<StudentDetail?>>
 {
     private readonly IStudentDetailRepository _StudentDetailRepository;
-    private readonly ILogger<CreateStudentDetailCommandHandler> _Logger;
-    public GetStudentDetailByStudentIdQueryHandler(IStudentDetailRepository StudentDetailRepository, ILogger<CreateStudentDetailCommandHandler> Logger)
+    private readonly ILogger<GetStudentDetailByStudentIdQueryHandler> _Logger;
+    public GetStudentDetailByStudentIdQueryHandler(IStudentDetailRepository StudentDetailRepository, ILogger<GetStudentDetailByStudentIdQueryHandler> Logger)
     {
         _StudentDetailRepository = StudentDetailRepository;
         _Logger = Logger;

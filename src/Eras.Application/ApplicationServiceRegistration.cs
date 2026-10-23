@@ -1,20 +1,91 @@
-﻿using Eras.Application.Contracts.Infrastructure;
+﻿using System.Reflection;
+
+using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Services;
+using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Application.DTOs.Student;
+using Eras.Application.Mappers.AssessmentManagement;
+using Eras.Application.Validation;
+using Eras.Domain.Entities;
+using Eras.Domain.Entities.AssessmentManagement;
+using Eras.Domain.Entities.AssessmentManagement.StatusManagement;
+using Eras.Domain.Entities.AssessmentManagement.Validators;
+using Eras.Domain.Entities.FeatureFlagManagement;
+using Eras.Domain.Entities.UserManagement;
+
+using FluentValidation;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Eras.Application.Services
 {
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
     public static class ApplicationServiceRegistration
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection Services)
         {
             Services.AddMediatR(Cfg => Cfg.RegisterServicesFromAssemblies(AppDomain.CurrentDomain.GetAssemblies()));
+            Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
             Services.AddScoped<IStudentService, StudentService>();
             Services.AddScoped<IPollService, PollService>();
             Services.AddScoped<IAnswerService, AnswerService>();
-            Services.AddScoped<PollOrchestratorService, PollOrchestratorService>();
-            
+            Services.AddScoped<PollOrchestratorService>();
+            Services.AddScoped<IPollOrchestratorServiceV2, PollOrchestratorServiceV2>();
+            Services.AddScoped<PollStructureImporter>();
+            Services.AddScoped<StudentImporter>();
+            Services.AddScoped<PollInstanceImporter>();
+            Services.AddScoped<IImportJobService, ImportJobService>();
+            Services.AddScoped<IEvaluationStatusUpdater, EvaluationStatusUpdater>();
+            Services.AddScoped<IFeatureFlagService, FeatureFlagService>();
+            Services.AddScoped<IAttachmentService, AttachmentService>();
+            Services.AddScoped<IAttachmentDraftSessionService, AttachmentDraftSessionService>();
+            Services.AddScoped<ITempAttachmentCleanupService, TempAttachmentCleanupService>();
+            Services.AddScoped<IAttachmentRelocationService, AttachmentRelocationService>();
+
+            Services.AddScoped<UserIdentityProvider>();
+            Services.AddScoped<IUserIdentityProvider>(Sp => Sp.GetRequiredService<UserIdentityProvider>());
+            Services.AddScoped<IInterventionAttachmentMigrationService, InterventionAttachmentMigrationService>();
+            Services.AddScoped<IInterventionAttachmentMigrationStartupTask, InterventionAttachmentMigrationStartupTask>();
+            Services.ConfigureMappers();
+            Services.ConfigureValidators();
             return Services;
+        }
+
+
+        public static IServiceCollection ConfigureMappers(this IServiceCollection services)
+        {
+
+            services.AddScoped<IMapper<StudentProfileDto, Student>, StudentProfileMapper>();
+            services.AddScoped<IMapper<Student, StudentProfileDto>, StudentProfileToDtoMapper>();
+
+            services.AddScoped<IMapper<InterventionPlanDto, InterventionPlan>, InterventionPlanMapper>();
+            services.AddScoped<IMapper<InterventionPlan, InterventionPlanDto>, InterventionPlanToDtoMapper>();
+
+            services.AddScoped<IMapper<IndividualInterventionDto, IndividualIntervention>, IndividualInterventionMapper>();
+            services.AddScoped<IMapper<IndividualIntervention, IndividualInterventionDto>, IndividualInterventionToDtoMapper>();
+
+            services.AddScoped<IMapper<GroupInterventionDto, GroupIntervention>, GroupInterventionMapper>();
+            services.AddScoped<IMapper<GroupIntervention, GroupInterventionDto>, GroupInterventionToDtoMapper>();
+
+            services.AddScoped<IMapper<AssessmentDto, Assessment>, AssessmentMapper>();
+            services.AddScoped<IMapper<Assessment, AssessmentDto>, AssessmentToDtoMapper>();
+            services.AddScoped<IMapper<UpdateInterventionDto, Intervention>, UpdateInterventionMapper>();
+
+            return services;
+        }
+
+        public static IServiceCollection ConfigureValidators(this IServiceCollection Services)
+        {
+            Services.AddScoped<IValidator<InterventionPlan>, InterventionPlanValidator>();
+            Services.AddScoped<IValidator<Assessment>, AssessementValidator>();
+            Services.AddScoped<IValidator<StatusTransitionRequest<InterventionStatus>>, InterventionStatusTransitionValidator>();
+            Services.AddScoped<IValidator<StatusTransitionRequest<AssessmentStatus>>, AssessmentStatusTransitionValidator>();
+            Services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
+            Services.AddScoped<IValidator<ErasUser>, ErasUserValidator>();
+            Services.AddScoped<IValidator<StudentRegistrationDto>, StudentRegistrationDtoValidator>();
+
+            return Services;  
         }
     }
 }

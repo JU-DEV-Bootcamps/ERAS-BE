@@ -15,5 +15,5 @@ public class ServiceProvidersDTO
     [StringLength(10485760, ErrorMessage = "Logo URL must not exceed 10485760 characters.")]
     public required string ServiceProviderLogo { get; set; }
 
-    public AuditInfo Audit { get; set; }
+    public AuditInfo Audit { get; set; } = null!;
 }

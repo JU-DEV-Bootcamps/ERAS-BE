@@ -54,8 +54,10 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         try
                         {
                             GetQueryResponse<Student> getStudentResponse = await _mediator.Send(getStudentByEmailQuery);
-                            getStudentResponse.Body.IsImported = true;
-                            UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = getStudentResponse.Body.ToDto() };
+                            Student existingStudent = getStudentResponse.Body
+                                ?? throw new NotFoundException($"Student with email '{studentDTO.Email}' not found.");
+                            existingStudent.IsImported = true;
+                            UpdateStudentCommand updateStudentCommand = new UpdateStudentCommand() { StudentDTO = existingStudent.ToDto() };
                             studentCreatedOrChanged = await _mediator.Send(updateStudentCommand);
                         }
                         catch (NotFoundException)
@@ -70,12 +72,22 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         }
                         else if (studentCreatedOrChanged.Success)
                         {
+                            bool studentAlreadyHasDetail = studentCreatedOrChanged.Entity!.StudentDetail?.Id != 0;
+                            
+                            if (!HasDefaultDetailData(dto) && !studentAlreadyHasDetail)
+                            {
+                                CreateCommandResponse<StudentDetail> createdStudentDetail =
+                                    await CreateStudentDetailAsync(studentCreatedOrChanged.Entity!, dto);
+                                studentCreatedOrChanged.Entity!.StudentDetail = createdStudentDetail.Entity!;
+                            }
                             if (studentCreatedOrChanged.SuccessfullImports == 0)
+                            {
                                 updatedStudents.Add(studentCreatedOrChanged.Entity!);
-
-                            CreateCommandResponse<StudentDetail> createdStudentDetail = await CreateStudentDetailAsync(studentCreatedOrChanged.Entity!, dto);
-                            studentCreatedOrChanged.Entity!.StudentDetail = createdStudentDetail.Entity!;
-                            createdStudents.Add(studentCreatedOrChanged.Entity);
+                            }
+                            else
+                            {
+                                createdStudents.Add(studentCreatedOrChanged.Entity);
+                            }
                         }
                     } else
                     {
@@ -117,6 +129,12 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             };
             CreateStudentDetailCommand createStudentDetailCommand = new CreateStudentDetailCommand() { StudentDetailDto = studentDetailDTO };
             return await _mediator.Send(createStudentDetailCommand);
+        }
+
+        private bool HasDefaultDetailData(StudentImportDto Dto)
+        {
+            return Dto.EnrolledCourses == 0 && Dto.TimelySubmissions == 0 && Dto.AverageScore == 0 && Dto.CoursesBelowAverage == 0 
+                && Dto.RawScoreDifference == 0 && Dto.StandardScoreDifference == 0 && Dto.DaysSinceLastAccess == 0;
         }
     }
 }

@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
-[ExcludeFromCodeCoverage]
 public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, AnswerEntity>
     (Context, AnswerMapper.ToDomain, AnswerMapper.ToPersistence), IAnswerRepository
 {
@@ -31,36 +30,15 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
         return domainAnswers;
     }
 
-    public async Task<List<Answer>> GetByPollInstanceIdAsync(string Uuid)
+    public async Task<List<Answer>> GetByPollInstanceIdAsync(int Id)
     {
-        List<AnswerEntity> answers = await _context.Answers
-            .Where(Answ => Answ.PollInstanceId.Equals(Uuid)).ToListAsync();
-        var domainAnswers = new List<Answer>();
-        foreach (AnswerEntity answer in answers)
-        {
-            domainAnswers.Add(answer.ToDomain());
-        }
-        return domainAnswers;
-    }
-    public async Task SaveManyAnswersAsync(List<Answer> Answers)
-    {
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        foreach (Answer ans in Answers)
-        {
-            try
-            {
-                await _context.Answers.AddAsync(ans.ToPersistence());
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                _context.ChangeTracker.Clear();
-                Console.WriteLine($"Error storing answer: {ex.Message}");
-            }
-            await transaction.CommitAsync();
-        }
-    }
+        List<Answer> answers = await _context.Answers
+            .Where(Answ => Answ.PollInstanceId.Equals(Id))
+            .Select(Ans => Ans.ToDomain())
+            .ToListAsync();
 
+        return answers;
+    }
     public async Task<List<Answer>> GetByPollInstanceAnswerAndPollVariableAsync(int PollVariableId,
         int PollInstanceId, string AnswerText)
     {
@@ -68,5 +46,22 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
             .Where(Answ => Answ.PollInstanceId == PollInstanceId && 
             Answ.AnswerText.Equals(AnswerText) && Answ.PollVariableId == PollVariableId).ToListAsync();
         return answers.Select(Answ => Answ.ToDomain()).ToList();
+    }
+
+    public async Task<int?> GetAnswerIdByPollInstanceAndVariableAsync(int PollVariableId, int PollInstanceId)
+    {
+        AnswerEntity? answer = await _context.Answers
+            .FirstOrDefaultAsync(a => a.PollVariableId == PollVariableId && 
+                                    a.PollInstanceId == PollInstanceId);
+        return answer?.Id;
+    }
+
+    public async Task UpdateAnswerTextAsync(int Id, string AnswerText, decimal RiskLevel)
+    {
+        await _context.Answers
+            .Where(a => a.Id == Id)
+            .ExecuteUpdateAsync(s => s
+                .SetProperty(a => a.AnswerText, AnswerText)
+                .SetProperty(a => a.RiskLevel, RiskLevel));
     }
 }

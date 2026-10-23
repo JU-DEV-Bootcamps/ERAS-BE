@@ -13,7 +13,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250702170439_added-isdeleted-configurations")]
-    partial class addedisdeletedconfigurations
+    partial class AddedIsDeletedConfigurations
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

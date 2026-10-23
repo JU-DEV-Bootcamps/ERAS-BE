@@ -8,10 +8,10 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class PollVariableRepository(AppDbContext Context) : BaseRepository<Variable, PollVariableJoin>(Context, PollVariableMapper.ToDomain, PollVariableMapper.ToPersistenceVariable), IPollVariableRepository
     {
         public async Task<Variable?> GetByPollIdAndVariableIdAsync(int PollId, int VariableId)
@@ -22,8 +22,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return pollVariable?.ToDomain();
         }
 
-        public async Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, List<int> VariableIds, Pagination Pagination)
+        public async Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, List<int> VariableIds, Pagination Pagination, int? EvaluationId = null)
         {
+            if (EvaluationId.HasValue)
+            {
+                return await GetTopByEvaluationAsync(EvaluationId.Value, VariableIds, Pagination);
+            }
+
             var pollId = await _context.Polls
                 .Where(P => P.Uuid == PollUuid)
                 .Select(P => P.Id)
@@ -65,6 +70,48 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return new PagedResult<ErasCalculationsByPollDTO>(Count, Items);
         }
+        /// <summary>
+        /// Top-risk answers of every poll of the evaluation. The selected variables identify questions;
+        /// the same question has a different variable in each poll, so they are matched by name.
+        /// </summary>
+        private async Task<PagedResult<ErasCalculationsByPollDTO>> GetTopByEvaluationAsync(int EvaluationId, List<int> VariableIds, Pagination Pagination)
+        {
+            List<string> variableNames = await _context.Variables
+                .Where(V => VariableIds.Contains(V.Id))
+                .Select(V => V.Name)
+                .Distinct()
+                .ToListAsync();
+
+            var rows = EvaluationAnswerQuery.Build(_context, EvaluationId)
+                .Where(R => variableNames.Contains(R.VariableName));
+
+            var count = await rows.CountAsync();
+            var items = await rows
+                .OrderByDescending(R => R.AnswerRisk)
+                .ThenBy(R => R.StudentEmail)
+                .Skip((Pagination.Page - 1) * Pagination.PageSize)
+                .Take(Pagination.PageSize)
+                .Select(R => new ErasCalculationsByPollDTO
+                {
+                    PollUuid = R.PollUuid,
+                    ComponentName = R.ComponentName,
+                    PollVariableId = R.PollVariableId,
+                    Question = R.VariableName,
+                    Position = R.Position,
+                    AnswerText = R.AnswerText,
+                    PollInstanceId = R.PollInstanceId,
+                    StudentName = R.StudentName,
+                    StudentEmail = R.StudentEmail,
+                    AnswerRisk = R.AnswerRisk,
+                    StudentId = R.StudentId,
+                    ComponentId = R.ComponentId,
+                    PollVersion = R.AnswerVersion
+                })
+                .ToListAsync();
+
+            return new PagedResult<ErasCalculationsByPollDTO>(count, items);
+        }
+
         public async Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, string VariableIds)
         {
             var variableIdsArray = VariableIds.Split(',').Select(int.Parse).ToArray();
@@ -107,5 +154,58 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return [.. answers.Select(A => A.Answer)];
         }
 
+        public async Task<List<Variable>> GetAllWithVariablesAsync()
+        {
+            return await _context.PollVariables
+                .Include(PollVar => PollVar.Variable)
+                .Select(PollVar => PollVar.ToDomain())
+                .ToListAsync();
+        }
+        public async Task<List<Variable>> GetAllWithVariablesByPollIdAsync(int PollId)
+        {
+            return await _context.PollVariables
+                .Where(PollVar => PollVar.PollId == PollId)
+                .Include(PollVar => PollVar.Variable)
+                .Select(PollVar => PollVar.ToDomain())
+                .ToListAsync();
+        }
+        public async Task<List<Variable>> AddBatchPollVariablesAsync(List<Variable> Variables)
+        {
+            // Reuse an ambient transaction (e.g. an import wrapped in IUnitOfWork) when present
+            // so we don't open a conflicting nested transaction.
+            var transaction = _context.Database.CurrentTransaction == null
+                ? await _context.Database.BeginTransactionAsync()
+                : null;
+            try
+            {
+                List<PollVariableJoin> entitiesToPersist = Variables
+                    .Select(Var => PollVariableMapper.ToPersistenceVariable(Var))
+                    .ToList();
+                _context.PollVariables.AddRange(entitiesToPersist);
+                await _context.SaveChangesAsync();
+                if (transaction != null) await transaction.CommitAsync();
+
+                // Ids are populated on the tracked entities after SaveChanges; refetch with the
+                // Variable navigation so ToDomain can resolve ComponentId.
+                List<int> persistedIds = entitiesToPersist.Select(Entity => Entity.Id).ToList();
+                List<PollVariableJoin> persistedEntities = await _context.PollVariables
+                    .AsNoTracking()
+                    .Include(PollVar => PollVar.Variable)
+                    .Where(PollVar => persistedIds.Contains(PollVar.Id))
+                    .ToListAsync();
+
+                return persistedEntities.Select(Pers => Pers.ToDomain()).ToList();
+            }
+            catch (Exception ex)
+            {
+                _context.ChangeTracker.Clear();
+                if (transaction != null) await transaction.RollbackAsync();
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                if (transaction != null) await transaction.DisposeAsync();
+            }
+        }
     }
 }

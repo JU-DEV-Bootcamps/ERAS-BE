@@ -11,10 +11,10 @@ public class CriticalException : ErasException
     public override void LogException()
     {
         var currentException = InnerException;
-        do
+        while (currentException != null)
         {
             LogMessage($"Message: {currentException.Message}. trace {currentException.StackTrace}");
             currentException = currentException.InnerException;
-        } while (currentException != null);
+        }
     }
 }

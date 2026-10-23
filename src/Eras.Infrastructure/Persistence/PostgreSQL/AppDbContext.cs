@@ -1,10 +1,15 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+using Eras.Domain.Entities;
+using Eras.Domain.Entities.AssessmentManagement;
+using Eras.Domain.Entities.FeatureFlagManagement;
+using Eras.Domain.Entities.UserManagement;
+using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
-    public class AppDbContext : DbContext
+    public class AppDbContext : DbContext, IDataBase
     {
         public virtual DbSet<AnswerEntity> Answers { get; set; }
         public virtual DbSet<CohortEntity> Cohorts { get; set; }
@@ -21,10 +26,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public virtual DbSet<ConfigurationsEntity> Configurations { get; set; }
         public virtual DbSet<ServiceProvidersEntity> ServiceProviders { get; set; }
         public virtual DbSet<UserPollsEntity> UserPolls { get; set; }
-        public virtual DbSet<JURemissionEntity> Remissions { get; set; }
-        public virtual DbSet<JUInterventionEntity> Interventions { get; set; }
         public virtual DbSet<JUProfessionalEntity> Professionals { get; set; }
         public virtual DbSet<JUServiceEntity> JUServices { get; set; }
+        public virtual DbSet<ImportJobEntity> ImportJobs { get; set; }
+        public virtual DbSet<ImportJobItemEntity> ImportJobItems { get; set; }
+        public virtual DbSet<AttachmentDraftSessionEntity> AttachmentDraftSessions { get; set; }
+        public virtual DbSet<AttachmentEntity> Attachments { get; set; }
+
+        public DbSet<Assessment> Assessments => Set<Assessment>();
+        public DbSet<Intervention> Interventions => Set<Intervention>();
+        public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
+        public DbSet<DataMigrationCompletion> DataMigrationCompletions => Set<DataMigrationCompletion>();
+        public DbSet<ErasUser> ErasUsers => Set<ErasUser>();
+        public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
 
         // Views
         public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
@@ -38,7 +52,40 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         protected override void OnModelCreating(ModelBuilder ModelBuilder)
         {
             ModelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
-            base.OnModelCreating(ModelBuilder);             
+            base.OnModelCreating(ModelBuilder);
+        }
+
+        /// <summary>
+        /// Brings the database schema up to date and recreates the SQL views that depend on it
+        /// </summary>
+        public async Task MigrateAsync(CancellationToken CancellationToken = default)
+        {
+            string basePath = AppDomain.CurrentDomain.BaseDirectory;
+
+            await RunViewScriptsAsync(Path.Combine(basePath, "Persistence/PostgreSQL/Views/Drops"), CancellationToken);
+
+            await Database.MigrateAsync(CancellationToken);
+
+            await RunViewScriptsAsync(Path.Combine(basePath, "Persistence/PostgreSQL/Views/Ups"), CancellationToken);
+        }
+
+        /// <summary>
+        /// Runs every `*.sql` file in <paramref name="ScriptsPath"/>, in name order. Goes through
+        /// <see cref="Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync"/>
+        /// rather than manually opening/disposing <c>Database.GetDbConnection()</c>
+        /// </summary>
+        private async Task RunViewScriptsAsync(string ScriptsPath, CancellationToken CancellationToken)
+        {
+            if (!Directory.Exists(ScriptsPath))
+                return;
+
+            IOrderedEnumerable<string> files = Directory.GetFiles(ScriptsPath, "*.sql").OrderBy(file => file);
+
+            foreach (string file in files)
+            {
+                string sql = await File.ReadAllTextAsync(file, CancellationToken);
+                await Database.ExecuteSqlRawAsync(sql, CancellationToken);
+            }
         }
     }
 }

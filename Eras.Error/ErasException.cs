@@ -2,10 +2,10 @@
 
 public abstract class ErasException : Exception, IErasException
 {    
-    public event LogDelegate OnLoggingException;
+    public event LogDelegate? OnLoggingException;
     public int StatusCode { get; protected set; }
     public string FriendlyMessage { get; protected set; }
-    public new Exception InnerException { get; set; }
+    public new Exception? InnerException { get; set; }
     protected Severity Severity { get; }
     
     protected ErasException(

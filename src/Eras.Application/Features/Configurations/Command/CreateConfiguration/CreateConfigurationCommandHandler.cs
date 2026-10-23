@@ -2,6 +2,7 @@
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Common;
+using Eras.Error.Bussiness;
 
 using MediatR;
 
@@ -31,8 +32,11 @@ public class CreateConfigurationCommandHandler : IRequestHandler<CreateConfigura
                 return new CreateCommandResponse<Domain.Entities.Configurations>(null, 0, "Error", false);
             }
 
-            Domain.Entities.Configurations? configurationDB = await _configurationsRepository.GetByNameAsync(Request.Configurations.ConfigurationName);
-            if (configurationDB != null) return new CreateCommandResponse<Domain.Entities.Configurations>(configurationDB, 0, "Success", true);
+            Domain.Entities.Configurations? sameName = await _configurationsRepository.GetActiveByUserAndNameAsync(
+                Request.Configurations.UserId,
+                Request.Configurations.ConfigurationName);
+            if (sameName != null)
+                throw new BussinessException($"A configuration named '{Request.Configurations.ConfigurationName}' already exists.", 409);
 
             Domain.Entities.Configurations? configuration = Request.Configurations?.ToDomain();
 
@@ -47,6 +51,10 @@ public class CreateConfigurationCommandHandler : IRequestHandler<CreateConfigura
             Domain.Entities.Configurations createdConfiguration = await _configurationsRepository.AddAsync(configuration);
 
             return new CreateCommandResponse<Domain.Entities.Configurations>(createdConfiguration, 1, "Success", true);
+        }
+        catch (BussinessException)
+        {
+            throw;
         }
         catch (Exception ex)
         {

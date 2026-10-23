@@ -15,6 +15,7 @@ namespace Eras.Application.Mappers
                 Position = Dto.Position,
                 Audit = Dto.Audit?? new AuditInfo(),
                 Version = Dto.Version,
+                Type = Dto.Type,
             };
         }
         public static VariableDTO ToDto(this Variable Domain)
@@ -26,6 +27,7 @@ namespace Eras.Application.Mappers
                 Position = Domain.Position,
                 Audit = Domain.Audit,
                 Version = Domain.Version,
+                Type = Domain.Type,
             };
         }
     }

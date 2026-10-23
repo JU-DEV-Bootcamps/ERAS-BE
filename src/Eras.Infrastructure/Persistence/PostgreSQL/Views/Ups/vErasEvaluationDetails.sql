@@ -25,10 +25,13 @@ SELECT DISTINCT
 FROM evaluation e
 JOIN evaluation_poll ep ON e."Id" = ep.evaluation_id
 JOIN polls p ON ep.poll_id = p."Id"
-LEFT JOIN poll_instances pi ON p.uuid = pi.uuid
+LEFT JOIN poll_instances pi ON pi."EvaluationId" = e."Id" AND pi.uuid = p.uuid
 LEFT JOIN students s ON pi."StudentId" = s."Id"
 LEFT JOIN student_cohort sc ON s."Id" = sc.student_id
-LEFT JOIN answers ans ON pi."Id" = ans.poll_instance_id
+LEFT JOIN answers ans ON ans.poll_instance_id = COALESCE(
+                            pi."SourcePollInstanceId",
+                            pi."Id"
+                        )
 LEFT JOIN poll_variable pv ON ans.poll_variable_id = pv."Id"
 LEFT JOIN variables v ON pv.variable_id = v."Id"
 LEFT JOIN components comp ON v.component_id = comp."Id"

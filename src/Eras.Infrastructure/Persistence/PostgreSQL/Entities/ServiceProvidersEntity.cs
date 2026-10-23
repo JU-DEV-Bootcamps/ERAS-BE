@@ -11,6 +11,6 @@ public class ServiceProvidersEntity : BaseEntity, IAuditableEntity
 {
     public required string ServiceProviderName { get; set; }
     public required string ServiceProviderLogo { get; set; }
-    public ICollection<ConfigurationsEntity> Configurations { get; set; }
-    public AuditInfo Audit { get; set; }
+    public ICollection<ConfigurationsEntity> Configurations { get; set; } = null!;
+    public AuditInfo Audit { get; set; } = null!;
 }

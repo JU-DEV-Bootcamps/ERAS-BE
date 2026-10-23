@@ -11,7 +11,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
             {
                 Id = Entity.Id,
                 Name = Entity.Name,
-                Status = Entity.CurrentStatus,
+                Status = Entity.Status,
                 PollName = Entity.PollName,
                 Country = Entity.Country,
                 StartDate = Entity.StartDate,

@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
-[ExcludeFromCodeCoverage]
 public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, CohortEntity>(Context, CohortMapper.ToDomain, CohortMapper.ToPersistence), ICohortRepository
 {
     public async Task<Cohort?> GetByNameAsync(string Name)
@@ -92,6 +91,26 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
             query = query.Where(v => v.ComponentName == ComponentName);
 
         return query;
+    }
+
+    /// <summary>
+    /// Cohorts of the students imported into the evaluation, across all of its polls (an evaluation can
+    /// hold several polls, so a single poll uuid would miss the cohorts of the others).
+    /// </summary>
+    public async Task<List<Cohort>> GetCohortsByEvaluationAsync(int EvaluationId, bool LastVersion)
+    {
+        var studentIds = EvaluationAnswerQuery.Build(_context, EvaluationId)
+            .ForVersion(LastVersion)
+            .Select(Row => Row.StudentId)
+            .Distinct();
+
+        List<CohortEntity> cohorts = await (
+            from SC in _context.StudentCohorts
+            where studentIds.Contains(SC.StudentId)
+            join Co in _context.Cohorts on SC.CohortId equals Co.Id
+            select Co).Distinct().ToListAsync();
+
+        return [.. cohorts.Select(P => P.ToDomain())];
     }
 
     public async Task<List<Cohort>> GetCohortsByPollUuidAsync(string PollUuid, bool LastVersion)

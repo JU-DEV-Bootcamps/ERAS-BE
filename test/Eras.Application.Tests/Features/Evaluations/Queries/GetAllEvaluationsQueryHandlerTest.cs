@@ -16,14 +16,19 @@ namespace Eras.Application.Tests.Features.Evaluations.Queries;
 public class GetAllEvaluationsQueryHandlerTest
 {
     private readonly Mock<IEvaluationRepository> _mockEvaluationRepository;
+    private readonly Mock<IImportJobRepository> _mockImportJobRepository;
     private readonly Mock<ILogger<GetAllEvaluationsQueryHandler>> _mockLogger;
     private readonly GetAllEvaluationsQueryHandler _handler;
 
     public GetAllEvaluationsQueryHandlerTest()
     {
         _mockEvaluationRepository = new Mock<IEvaluationRepository>();
+        _mockImportJobRepository = new Mock<IImportJobRepository>();
         _mockLogger = new Mock<ILogger<GetAllEvaluationsQueryHandler>>();
-        _handler = new GetAllEvaluationsQueryHandler(_mockEvaluationRepository.Object, _mockLogger.Object);
+        _handler = new GetAllEvaluationsQueryHandler(
+            _mockEvaluationRepository.Object,
+            _mockImportJobRepository.Object,
+            _mockLogger.Object);
     }
 
     [Fact]
@@ -46,6 +51,10 @@ public class GetAllEvaluationsQueryHandlerTest
             .Setup(Repo => Repo.GetAllAsync())
             .ReturnsAsync(evaluations);
         _mockEvaluationRepository.Setup(Repo => Repo.CountAsync()).ReturnsAsync(2);
+        _mockImportJobRepository
+            .Setup(Repo => Repo.GetLatestImportJobIdsByEvaluationIdsAsync(It.IsAny<IEnumerable<int>>()))
+            .ReturnsAsync(new Dictionary<int, int>());
+
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
 

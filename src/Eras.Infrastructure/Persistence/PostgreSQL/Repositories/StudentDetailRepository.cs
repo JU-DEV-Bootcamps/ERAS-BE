@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class StudentDetailRepository : BaseRepository<StudentDetail, StudentDetailEntity>, IStudentDetailRepository
     {
         public StudentDetailRepository(AppDbContext Context)

@@ -1,22 +1,26 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.DTOs;
 using Eras.Application.DTOs.HeatMap;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 {
-    [ExcludeFromCodeCoverage]
     public class StudentRepository : BaseRepository<Student, StudentEntity>, IStudentRepository
     {
         private const int _defaultLimit = 5;
+        private readonly IAnswerRiskValidator _answerRiskValidator;
 
-        public StudentRepository(AppDbContext Context)
-            : base(Context, StudentMapper.ToDomain, StudentMapper.ToPersistence) { }
+        public StudentRepository(AppDbContext Context, IAnswerRiskValidator validator)
+            : base(Context, StudentMapper.ToDomain, StudentMapper.ToPersistence) {
+            _answerRiskValidator = validator;
+        }
 
         public async Task<Student?> GetByNameAsync(string Name)
         {
@@ -27,6 +31,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return student?.ToDomain();
         }
 
+        public async Task<IEnumerable<Student>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default)
+        {
+            var entities = await _context.Students
+                .Where(s => ids.Contains(s.Id))
+                .ToListAsync(cancellationToken);
+
+            return entities.Select(s => s.ToDomain());
+        }
+
         public async Task<Student?> GetByUuidAsync(string Uuid)
         {
             var student = await _context.Students.FirstOrDefaultAsync(Student =>
@@ -34,6 +47,51 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             );
 
             return student?.ToDomain();
+        }
+
+        public new async Task<Student?> GetByIdAsync(int Id)
+        {
+            StudentEntity? entity = await _context.Students.FirstOrDefaultAsync(Student => Student.Id == Id);
+            return entity?.ToDomain();
+        }
+
+        public async Task<bool> HasRelatedDataAsync(int StudentId)
+        {
+            bool hasAnswers = await _context.PollInstances.AnyAsync(Instance => Instance.StudentId == StudentId);
+            if (hasAnswers) return true;
+
+            return await _context.Set<Assessment>().AnyAsync(Item => Item.StudentIds.Contains(StudentId));
+        }
+
+        public async Task UpdateIdentityAsync(int StudentId, string Name, string Email, string ModifiedBy)
+        {
+            StudentEntity entity = await _context.Students.FirstAsync(Student => Student.Id == StudentId);
+            entity.Name = Name;
+            entity.Email = Email;
+            entity.Audit.ModifiedBy = ModifiedBy;
+            entity.Audit.ModifiedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SoftDeleteAsync(int StudentId, string ModifiedBy)
+        {
+            DateTime now = DateTime.UtcNow;
+
+            StudentEntity entity = await _context.Students.FirstAsync(Student => Student.Id == StudentId);
+            entity.IsDeleted = true;
+            entity.Audit.ModifiedBy = ModifiedBy;
+            entity.Audit.ModifiedAt = now;
+
+            StudentProfile? profile = await _context.StudentProfiles
+                .FirstOrDefaultAsync(Profile => Profile.StudentId == StudentId);
+            if (profile is not null)
+            {
+                profile.IsDeleted = true;
+                profile.Audit.ModifiedBy = ModifiedBy;
+                profile.Audit.ModifiedAt = now;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         public async Task<Student?> GetByEmailAsync(string Email)
@@ -85,7 +143,6 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             string CohortId,
             int Limit)
         {
-            //comment
             if (!int.TryParse(CohortId, out int cohortInt))
             {
                 throw new ArgumentException("Invalid cohort Id format", nameof(CohortId));
@@ -158,21 +215,62 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             Pagination pagination,
             List<int> cohortIds,
             string pollUuid,
-            bool lastVersion)
+            bool lastVersion,
+            int? evaluationId)
         {
             int pollVersion = await _context.Polls
                 .Where(a => a.Uuid == pollUuid)
                 .Select(a => a.LastVersion)
                 .FirstOrDefaultAsync();
 
-            var query = _context.ErasCalculationsByPoll
+            if (evaluationId.HasValue)
+            {
+                var evaluation = await _context.Set<EvaluationEntity>()
+                    .Where(e => e.Id == evaluationId.Value)
+                    .FirstOrDefaultAsync();
+
+                if (evaluation != null)
+                {
+                    var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
+                    var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                          .Date.AddDays(1).AddTicks(-1);
+
+                    var query = from A in _context.ErasCalculationsByPoll
+                                join PI in _context.PollInstances on A.PollInstanceId equals PI.Id
+                                where cohortIds.Contains(A.CohortId)
+                                where PI.EvaluationId == evaluationId.Value
+                                where PI.FinishedAt >= startDate && PI.FinishedAt <= endDate
+                                select A;
+
+                    var groupedQuery = query
+                        .GroupBy(x => new { x.StudentEmail, x.StudentId, x.StudentName })
+                        .Select(g => new StudentAverageRiskDto
+                        {
+                            StudentId = g.Key.StudentId,
+                            StudentName = g.Key.StudentName,
+                            Email = g.Key.StudentEmail,
+                            AvgRiskLevel = g.Average(x => x.AnswerRisk)
+                        });
+
+                    var count = await groupedQuery.CountAsync();
+                    var data = await groupedQuery
+                        .OrderByDescending(x => x.AvgRiskLevel)
+                        .Skip((pagination.Page - 1) * pagination.PageSize)
+                        .Take(pagination.PageSize)
+                        .ToListAsync();
+
+                    return new PagedResult<StudentAverageRiskDto>(count, data);
+                }
+            }
+
+            var defaultQuery = _context.ErasCalculationsByPoll
                 .Where(x => cohortIds.Contains(x.CohortId) && x.PollUuid == pollUuid);
 
-            query = lastVersion
-                ? query.Where(x => x.PollVersion == pollVersion)
-                : query.Where(x => x.PollVersion != pollVersion);
+            defaultQuery = lastVersion
+                ? defaultQuery.Where(x => x.PollVersion == pollVersion)
+                : defaultQuery.Where(x => x.PollVersion != pollVersion);
 
-            var groupedQuery = query
+            var defaultGrouped = defaultQuery
                 .GroupBy(x => new { x.StudentEmail, x.StudentId, x.StudentName })
                 .Select(g => new StudentAverageRiskDto
                 {
@@ -182,15 +280,14 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     AvgRiskLevel = g.Average(x => x.AnswerRisk)
                 });
 
-            var count = await groupedQuery.CountAsync();
-
-            var data = await groupedQuery
+            var defaultCount = await defaultGrouped.CountAsync();
+            var defaultData = await defaultGrouped
                 .OrderByDescending(x => x.AvgRiskLevel)
                 .Skip((pagination.Page - 1) * pagination.PageSize)
                 .Take(pagination.PageSize)
                 .ToListAsync();
 
-            return new PagedResult<StudentAverageRiskDto>(count, data);
+            return new PagedResult<StudentAverageRiskDto>(defaultCount, defaultData);
         }
 
         public new async Task<Student> UpdateAsync(Student Entity)
@@ -210,13 +307,54 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize)
         {
             var persistenceEntity = await _context.Set<StudentEntity>()
+                .AsNoTracking()
+                .Include(E => E.StudentDetail)
                 .OrderBy(Stu => Stu.Name)
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize)
-                .Include(E => E.StudentDetail)
                 .ToListAsync();
 
             return persistenceEntity.Select(Entity => StudentMapper.ToDomain(Entity));
+        }
+        public async Task<Dictionary<int, double>> GetAverageRiskByStudentIdsAsync(IEnumerable<int> studentIds)
+        {
+            var studentIdsList = studentIds.ToList();
+
+            var rows = await _context.ErasCalculationsByPoll
+                .Where(e => studentIdsList.Contains(e.StudentId))
+                .Select(e => new { e.StudentId, e.ComponentId, e.AnswerRisk, e.AnswerText })
+                .ToListAsync();
+
+            var results = rows
+                .Where(r => _answerRiskValidator.IsValidAnswer(r.AnswerText))
+                .GroupBy(r => new { r.StudentId, r.ComponentId })
+                .Select(g => new
+                {
+                    g.Key.StudentId,
+                    ComponentAvg = g.Average(x => (double)x.AnswerRisk)
+                })
+                .GroupBy(c => c.StudentId)
+                .Select(g => new
+                {
+                    StudentId = g.Key,
+                    AvgRisk = g.Average(c => c.ComponentAvg)
+                })
+                .ToList();
+
+            return results.ToDictionary(x => x.StudentId, x => x.AvgRisk);
+        }
+
+        public async Task<IEnumerable<StudentLightDto>> GetAllLightAsync()
+        {
+            return await _context.Set<StudentEntity>()
+                .AsNoTracking()
+                .OrderBy(Student => Student.Name)
+                .Select(Student => new StudentLightDto
+                {
+                    Id = Student.Id,
+                    Name = Student.Name
+                })
+                .ToListAsync();
         }
     }
 }

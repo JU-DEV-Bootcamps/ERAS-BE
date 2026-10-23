@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Students.Queries.GetAll;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Students.Queries.GetAllByPollAndDate;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
@@ -27,27 +20,63 @@ public class GetAllStudentsByPollUuidAndDaysQueryHandlerTest
     }
 
     [Fact]
-    public async Task Handle_Should_Return_Success_ResponseAsync()
+    public async Task Handler_ShouldReturnSuccessResponse()
     {
-        // Arrange
         var query = new GetAllStudentsByPollUuidAndDaysQuery()
         {
-            Query = new Utils.Pagination(),
+            Query = new Pagination(),
             PollUuid = "1",
             Days = 1
         };
-        List<Student> students = new List<Student>()
+        var students = new List<Student>()
             {
-                new Student(){Email = "StudentEmail1",},
-                new Student(){Email = "StudentEmail2"}
+                new (){Email = "StudentEmail1@mail.com",},
+                new (){Email = "StudentEmail2@mail.com"}
             };
-        var response = (students,2);
+        (List<Student> students, int) response = (students,2);
+    
         _mockStudentRepository
-            .Setup(Repo => Repo.GetAllStudentsByPollUuidAndDaysQuery(It.IsAny<int>(), It.IsAny<int>(),It.IsAny<string>(), It.IsAny<int?>())).ReturnsAsync(response);
+            .Setup(Repo => Repo.GetAllStudentsByPollUuidAndDaysQuery(
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>()
+            ))
+            .ReturnsAsync(response);
 
-        var result = await _handler.Handle(query, CancellationToken.None);
+        PagedResult<Student> result = await _handler.Handle(query, CancellationToken.None);
 
-        // Assert
-        Assert.Equal(2, result.Items.Count);
+        Assert.NotNull(result.Items);
+        Assert.Equal(2,result.Count);
+        Assert.Equal(2,result.Items.Count);
+        Assert.Collection(result.Items,
+            item => Assert.Equal(students[0].Email, item.Email),
+            item => Assert.Equal(students[1].Email, item.Email)
+        );
     }
+
+    [Fact]
+        public async Task Handler_ShouldCatchExceptionAndReturnEmptyResponse()
+        {
+            var query = new GetAllStudentsByPollUuidAndDaysQuery()
+            {
+                Query = new Pagination(),
+                PollUuid = "1",
+                Days = 1
+            };
+
+            _mockStudentRepository
+            .Setup(Repo => Repo.GetAllStudentsByPollUuidAndDaysQuery(
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<string>(),
+                It.IsAny<int?>()
+            ))
+            .ThrowsAsync(new Exception("DB Error."));
+
+            PagedResult<Student> result = await _handler.Handle(query, CancellationToken.None);
+
+            Assert.Empty(result.Items);
+            Assert.Equal(0,result.Items.Count);
+        }
 }

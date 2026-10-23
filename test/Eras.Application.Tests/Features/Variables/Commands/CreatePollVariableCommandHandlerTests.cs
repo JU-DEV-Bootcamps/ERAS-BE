@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+﻿
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Dtos;
 using Eras.Application.DTOs;
-using Eras.Application.Features.Components.Commands.CreateCommand;
-using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Features.Variables.Commands.CreatePollVariable;
-using Eras.Application.Features.Variables.Commands.CreateVariable;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 using Microsoft.Extensions.Logging;
@@ -47,5 +38,41 @@ namespace Eras.Application.Tests.Features.Variables.Commands
             Assert.Equal("newPollVariable", result.Entity?.Name);
         }
 
+        [Fact]
+        public async Task Handle_CreatePollVariableThrowsAnExceptionAsync()
+        {
+            _mockPollVariableRepository
+                .Setup(x => x.GetByPollIdAndVariableIdAsync(It.IsAny<int>(), It.IsAny<int>()))
+                .ThrowsAsync(new Exception("Some error"));
+
+            var command = new CreatePollVariableCommand { Variable = new() };
+
+            _mockPollVariableRepository
+                .Setup(x => x.AddAsync(It.IsAny<Variable>()))
+                .ThrowsAsync(new Exception("Some error"));
+
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.False(result.Success);
+            Assert.Null(result.Entity);
+            Assert.Equal("Error", result.Message);
+        }
+
+        [Fact]
+        public async Task Handle_CreatePollVariableErrorInRequestVariable()
+        {
+            var newVariableDto = new VariableDTO() { Name = "newPollVariable" };
+            var command = new CreatePollVariableCommand { Variable = null };
+            var newPollVariable = newVariableDto.ToDomain;
+
+            _mockPollVariableRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Variable>()))
+                .ReturnsAsync(newPollVariable);
+
+            var result = await _handler.Handle(command, CancellationToken.None);
+
+            Assert.False(result.Success);
+            Assert.Null(result.Entity);
+            Assert.Equal("Error", result.Message);
+        }
     }
 }

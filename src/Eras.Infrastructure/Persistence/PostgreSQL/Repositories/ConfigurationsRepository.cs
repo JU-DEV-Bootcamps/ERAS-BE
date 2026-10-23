@@ -13,12 +13,17 @@ public class ConfigurationsRepository : BaseRepository<Domain.Entities.Configura
     public async Task<Domain.Entities.Configurations> GetByIdAsyncNoTracking(int ConfigurationId)
     {
         var configuration = await _context.Configurations.AsNoTracking().FirstOrDefaultAsync(Configuration => Configuration.Id == ConfigurationId);
-        return configuration.ToDomain();
+        return configuration is null
+            ? throw new KeyNotFoundException($"Configuration '{ConfigurationId}' not found.")
+            : configuration.ToDomain();
     }
 
-    public async Task<Domain.Entities.Configurations?> GetByNameAsync(string ConfigurationName)
+    public async Task<Domain.Entities.Configurations?> GetActiveByUserAndNameAsync(string UserId, string ConfigurationName)
     {
-        var configuration = await _context.Configurations.FirstOrDefaultAsync(Configuration => Configuration.ConfigurationName == ConfigurationName);
+        var configuration = await _context.Configurations.AsNoTracking().FirstOrDefaultAsync(Configuration =>
+            Configuration.UserId == UserId
+            && Configuration.ConfigurationName == ConfigurationName
+            && !Configuration.IsDeleted);
 
         return configuration?.ToDomain();
     }
@@ -49,12 +54,13 @@ public class ConfigurationsRepository : BaseRepository<Domain.Entities.Configura
     public Task<Domain.Entities.Configurations> UpdateDeleteStatus(int ConfigurationId)
     {
         var Configuration = _context.Configurations.FirstOrDefault(C => C.Id == ConfigurationId);
-        if (Configuration != null)
+        if (Configuration is null)
         {
-            Configuration.IsDeleted = true;
-            _context.Configurations.Update(Configuration);
-            _context.SaveChanges();
+            throw new KeyNotFoundException($"Configuration '{ConfigurationId}' not found.");
         }
+        Configuration.IsDeleted = true;
+        _context.Configurations.Update(Configuration);
+        _context.SaveChanges();
         return Task.FromResult(Configuration.ToDomain());
     }
 }

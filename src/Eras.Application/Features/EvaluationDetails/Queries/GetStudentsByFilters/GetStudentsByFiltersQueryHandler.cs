@@ -12,33 +12,50 @@ public class GetStudentsByFiltersQueryHandler :
     IRequestHandler<GetStudentsByFiltersQuery, PagedResult<StudentsByFiltersResponse>>
 {
     private readonly IErasEvaluationDetailsViewRepository _repository;
+    private readonly IEvaluationRepository _evaluationRepository;
     private readonly ILogger<GetStudentsByFiltersQueryHandler> _logger;
 
-    public GetStudentsByFiltersQueryHandler(IErasEvaluationDetailsViewRepository Repository, ILogger<GetStudentsByFiltersQueryHandler> Logger)
+    public GetStudentsByFiltersQueryHandler(IErasEvaluationDetailsViewRepository Repository, IEvaluationRepository EvaluationRepository, ILogger<GetStudentsByFiltersQueryHandler> Logger)
     {
         _repository = Repository;
+        _evaluationRepository = EvaluationRepository;
         _logger = Logger;
     }
     public async Task<PagedResult<StudentsByFiltersResponse>> Handle(GetStudentsByFiltersQuery Request, CancellationToken CancellationToken)
     {
         try
         {
+            var evaluation = // Only the dates are needed: GetByIdAsync also loads every poll instance of the polls.
+            await _evaluationRepository.GetByIdWithoutRelationsAsync(Request.EvaluationId); 
+            if (evaluation is null)
+            {
+                throw new KeyNotFoundException($"Evaluation '{Request.EvaluationId}' not found.");
+            }
+            var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
+            var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                                .Date
+                                .AddDays(1)
+                                .AddTicks(-1); 
+
             var studentsList = await _repository.GetStudentsByFilters(
-                Request.PollUuid,
                 Request.ComponentNames, 
                 Request.CohortIds,
                 Request.VariableIds,
                 Request.RiskLevels,
-                Request.PageValues.Page, 
-                Request.PageValues.PageSize
+                Request.PageValues.Page,
+                Request.PageValues.PageSize,
+                startDate,
+                endDate,
+                Request.EvaluationId
             );
 
             var totalCount = await _repository.CountStudentsByFilters(
-                Request.PollUuid, Request.ComponentNames, Request.CohortIds,
-                Request.VariableIds, Request.RiskLevels
+                Request.ComponentNames, Request.CohortIds,
+                Request.VariableIds, Request.RiskLevels, startDate, endDate, Request.EvaluationId
             );
 
-            var studentsResponses = studentsList.Select(Student => new StudentsByFiltersResponse
+            var studentsResponses = studentsList
+            .Select(Student => new StudentsByFiltersResponse
             {
                 Id = Student.StudentId,
                 Name = Student.StudentName,

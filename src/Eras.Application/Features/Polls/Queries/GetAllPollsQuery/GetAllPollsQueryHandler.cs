@@ -13,11 +13,11 @@ namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery
         private readonly IPollRepository _pollRepository;
         private readonly ILogger<GetAllPollsQuery> _logger;
 
-    public GetAllPollsQueryHandler(IPollRepository PollRepository, ILogger<GetAllPollsQuery> Logger)
-    {
-        _pollRepository = PollRepository;
-        _logger = Logger;
-    }
+        public GetAllPollsQueryHandler(IPollRepository PollRepository, ILogger<GetAllPollsQuery> Logger)
+        {
+            _pollRepository = PollRepository;
+            _logger = Logger;
+        }
 
         public async Task<List<GetPollsQueryResponse>> Handle(GetAllPollsQuery Request, CancellationToken CancellationToke)
         {

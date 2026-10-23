@@ -4,9 +4,11 @@ using Eras.Application.Features.Cohorts.Queries;
 using Eras.Application.Models.Response.Controllers.CohortsController;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
@@ -14,6 +16,7 @@ namespace Eras.Api.Controllers;
 [Description("Only for cohort level data. If Cohort is used only as filter use the students controller")]
 [ApiController]
 [Route("api/v1/cohorts")]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class CohortsController(IMediator Mediator, ILogger<CohortsController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
@@ -22,11 +25,12 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetCohortsAsync([FromQuery] string? PollUuid, [FromQuery] bool LastVersion)
+    public async Task<IActionResult> GetCohortsAsync([FromQuery] string? PollUuid, [FromQuery] bool LastVersion, [FromQuery] int? EvaluationId = null)
     {
         GetCohortsListQuery getCohortsListQuery = new();
 
         getCohortsListQuery.LastVersion = LastVersion;
+        getCohortsListQuery.EvaluationId = EvaluationId;
         if (!string.IsNullOrEmpty(PollUuid))
         {
             getCohortsListQuery.PollUuid = PollUuid;
@@ -40,20 +44,20 @@ public class CohortsController(IMediator Mediator, ILogger<CohortsController> Lo
     }
 
     [HttpGet("summary")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetCohortsSummaryAsync(
-        [FromQuery] Pagination Pagination
+        [FromQuery] Pagination Pagination,
+        [FromQuery] int? EvaluationId
     )
     {
         GetCohortsSummaryQuery getCohortsSummaryQuery = new()
         {
-            Pagination = Pagination
+            Pagination = Pagination,
+            EvaluationId = EvaluationId
         };
         CohortSummaryResponse res = await _mediator.Send(getCohortsSummaryQuery);
-
         return Ok(res);
     }
+
     [HttpGet("details")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

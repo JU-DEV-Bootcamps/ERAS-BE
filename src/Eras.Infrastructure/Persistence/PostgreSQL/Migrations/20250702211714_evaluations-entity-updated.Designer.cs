@@ -13,7 +13,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     [Migration("20250702211714_evaluations-entity-updated")]
-    partial class evaluationsentityupdated
+    partial class EvaluationsEntityUpdated
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

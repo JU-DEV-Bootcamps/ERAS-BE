@@ -24,6 +24,11 @@ namespace Eras.Application.Features.Evaluations.Commands
             {
                 Evaluation evaluation = Request.EvaluationDTO.ToDomain();
                 evaluation.PollId = Request.EvaluationDTO.PollId;
+                // One evaluation can hold several polls; linking the same poll twice is a no-op.
+                if (await _evaluationPollRepository.ExistsAsync(evaluation.Id, evaluation.PollId))
+                {
+                    return new CreateCommandResponse<Evaluation>(evaluation, 0, "EvaluationPoll already exists", true);
+                }
                 Evaluation response = await _evaluationPollRepository.AddAsync(evaluation);
                 return new CreateCommandResponse<Evaluation>(response, 0, "EvaluationPoll created", true);
             }

@@ -11,7 +11,6 @@ namespace Eras.Api.Controllers;
 [AllowAnonymous]
 [Route("api/v1/auth")]
 [ApiController]
-[ExcludeFromCodeCoverage]
 public class AuthController(
     IKeycloakAuthService<TokenResponse> KeycloakAuthService, ILogger<AuthController> Logger) : ControllerBase
 {

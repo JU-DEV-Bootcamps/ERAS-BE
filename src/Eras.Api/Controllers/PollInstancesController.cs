@@ -4,16 +4,18 @@ using Eras.Application.Utils;
 using Eras.Application.Features.Cohorts.Queries.GetCohortComponentsByPoll;
 using Eras.Application.Features.Components.Queries;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Eras.Api.Controllers;
 
 [Route("api/v1/poll-instances")]
 [ApiController]
-[ExcludeFromCodeCoverage]
+[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
 public class PollInstancesController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {
 
@@ -26,10 +28,11 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
             [FromQuery] int Days,
             [FromQuery] Pagination Query,
             [FromQuery] bool LastVersion = true,
-            [FromRoute] string PollUuid = ""
+            [FromRoute] string PollUuid = "",
+            [FromQuery] int? EvaluationId = null 
     )
     {
-        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(Query, CohortId, Days, LastVersion, PollUuid)));
+        return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(Query, CohortId, Days, LastVersion, PollUuid, EvaluationId)));
     }
 
     [HttpGet("{Uuid}/cohorts/avg")]
@@ -60,6 +63,9 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
             StudentId = StudentId,
             PollId = Id
         };
-        return Ok(await _mediator.Send(getComponentsRiskAvgByStudent));
+        var result = await _mediator.Send(getComponentsRiskAvgByStudent);
+        if (result == null || !result.Any())
+            return NotFound(new { status = "error", message = "Student not found" });
+        return Ok(result);
     }
 }

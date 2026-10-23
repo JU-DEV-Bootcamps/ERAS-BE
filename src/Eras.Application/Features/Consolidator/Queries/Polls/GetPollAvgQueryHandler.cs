@@ -11,17 +11,33 @@ namespace Eras.Application.Features.Consolidator.Queries.Polls;
 
 public class PollAvgHandler(
     ILogger<PollAvgHandler> Logger,
-    IPollInstanceRepository PollInstanceRepository
+    IPollInstanceRepository PollInstanceRepository,
+    IEvaluationRepository EvaluationRepository 
     ) : IRequestHandler<PollAvgQuery, GetQueryResponse<AvgReportResponseVm>>
 {
     private readonly IPollInstanceRepository _pollInstanceRepository = PollInstanceRepository;
+    private readonly IEvaluationRepository _evaluationRepository = EvaluationRepository; 
     private readonly ILogger<PollAvgHandler> _logger = Logger;
 
     public async Task<GetQueryResponse<AvgReportResponseVm>> Handle(PollAvgQuery Request, CancellationToken CancellationToken)
     {
         try
         {
-            var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Request.PollUuid.ToString(), Request.CohortIds, Request.LastVersion)
+            // Only the dates are needed: GetByIdAsync also loads every poll instance of the polls.
+            var evaluation = await _evaluationRepository.GetByIdWithoutRelationsAsync(Request.EvaluationId);
+
+            if (evaluation == null)
+            {
+                return new GetQueryResponse<AvgReportResponseVm>(new AvgReportResponseVm(), $"Failed: Evaluation with ID {Request.EvaluationId} not found.", false);
+            }
+
+            var startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
+            var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                                .Date
+                                .AddDays(1)
+                                .AddTicks(-1); 
+
+            var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Request.EvaluationId, Request.CohortIds, Request.LastVersion, startDate, endDate)
                 ?? throw new NotFoundException($"Error in query for filters: {Request.PollUuid}; {Request.CohortIds}");
 
             if (answersByFilters == null) // Returns empty response

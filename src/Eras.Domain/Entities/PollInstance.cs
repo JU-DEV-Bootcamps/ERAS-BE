@@ -11,5 +11,8 @@ namespace Eras.Domain.Entities
         public int LastVersion { get; set; }
         public DateTime LastVersionDate { get; set; }
         public DateTime FinishedAt { get; set; }
+        public int? EvaluationId { get; set; }
+        public int? SourcePollInstanceId { get; set; }
+        public string? AnswersHash { get; set; }
     }
 }

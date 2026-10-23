@@ -1,11 +1,9 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.Response.Controllers.CohortsController;
-
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
-
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -26,6 +24,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         public async Task<IEnumerable<Student>?> GetAllStudentsByCohortIdAsync(int CohortId)
         {
             var cohortStudents = await _context.StudentCohorts.Include(Cs => Cs.Student).Where(StudentCohort => StudentCohort.CohortId.Equals(CohortId)).ToListAsync();
+
             var domainStudents = new List<Student>();
             foreach (var student in cohortStudents)
             {
@@ -34,23 +33,32 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return domainStudents;
         }
 
-        public async Task<CohortSummaryResponse> GetCohortsSummaryAsync(Pagination Pagination)
+        public async Task<CohortSummaryResponse> GetCohortsSummaryAsync(
+            Pagination Pagination,
+            DateTime? startDate = null,
+            DateTime? endDate = null)
         {
             var cohortStudents = _context.StudentCohorts
                 .Include(Cs => Cs.Cohort)
-                .Include(Cs => Cs.Student);
-            int StudentCount = cohortStudents.Distinct().Count();
-
-            var cohorts = await cohortStudents
+                .Include(Cs => Cs.Student)
                 .ThenInclude(S => S.PollInstances)
                 .ThenInclude(P => P.Answers)
-                .ThenInclude(A => A.PollVariable)
-                .ToListAsync();
+                .ThenInclude(A => A.PollVariable);
+
+            int StudentCount = await cohortStudents.CountAsync();
+
+            var cohorts = await cohortStudents.ToListAsync();
+
             var cohortsDomain = cohorts.Select(C => new CohortStudentPollsSummary
             {
                 Student = C.ToJoinDomain(),
-                PollInstances = C.Student.PollInstances.Select(P => P.ToSummaryDomain()).ToList()
+                PollInstances = C.Student.PollInstances
+                    .Where(P => (!startDate.HasValue || P.FinishedAt >= startDate) &&
+                                (!endDate.HasValue   || P.FinishedAt <= endDate))
+                    .Select(P => P.ToSummaryDomain())
+                    .ToList()
             })
+            .Where(C => C.PollInstances.Any())
             .Skip((Pagination.Page - 1) * Pagination.PageSize)
             .Take(Pagination.PageSize);
 
@@ -62,7 +70,9 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 StudentName = S.Student.Name,
                 CohortId = S.Student.Cohort?.Id,
                 CohortName = S.Student.Cohort?.Name,
-                PollinstancesAverage = S.PollInstances.Average(P => P.Answers.Average(A => A.RiskLevel)),
+                PollinstancesAverage = S.PollInstances.Any()
+                    ? S.PollInstances.Average(P => P.Answers.Average(A => A.RiskLevel))
+                    : 0,
                 PollinstancesCount = S.PollInstances.Count,
             }).ToList();
 

@@ -14,4 +14,5 @@ public class GetPollInstanceByUuidAndStudentIdQuery: IRequest<GetQueryResponse<P
 {
     public required string PollUuid;
     public required int StudentId;
+    public required int EvaluationId;
 }

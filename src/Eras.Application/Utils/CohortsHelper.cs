@@ -72,4 +72,23 @@ public class CohortsHelper
         }
         return false;
     }
+
+    private static (DateTime Start, DateTime End) GetCohortRangeForDate(DateTime date)
+    {
+        return date.Month <= 6
+            ? (new DateTime(date.Year, 1, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(date.Year, 6, 30, 23, 59, 59, DateTimeKind.Utc))
+            : (new DateTime(date.Year, 7, 1, 0, 0, 0, DateTimeKind.Utc),
+            new DateTime(date.Year, 12, 31, 23, 59, 59, DateTimeKind.Utc));
+    }
+
+    public static (DateTime Start, DateTime End) GetCurrentCohortRange()
+    {
+        return GetCohortRangeForDate(DateTime.UtcNow);
+    }
+
+    public static (DateTime Start, DateTime End) GetPreviousCohortRange()
+    {
+        return GetCohortRangeForDate(DateTime.UtcNow.AddMonths(-6));
+    }
 }

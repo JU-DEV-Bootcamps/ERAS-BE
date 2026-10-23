@@ -1,6 +1,7 @@
 ﻿using Eras.Application.Dtos;
 using Eras.Domain.Entities;
 using Eras.Application.Mappers;
+using Eras.Application.DTOs;
 namespace Eras.Application.Tests.Mappers;
 public class PollMapperTest
 {
@@ -24,11 +25,35 @@ public class PollMapperTest
         var model = new Poll()
         {
             Uuid = "1234",
-            Name= "name"
+            Name= "name",
+            Components = null!
         };
         var result = model.ToDto();
         Assert.NotNull(result);
         Assert.Equal(model.Uuid, result.Uuid);
         Assert.Equal(model.Name, result.Name);
+        Assert.Empty(result.Components);
+    }
+
+    [Fact]
+    public void ToDto_Should_ConvertPollInstance_WithComponentsProvided()
+    {
+        var model = new Poll()
+        {
+            Uuid = "1234",
+            Name = "name",
+            Components = new List<Component>
+            {
+                new Component 
+                {
+                    Id = 1,
+                }
+            }
+        };
+        var result = model.ToDto();
+        Assert.NotNull(result);
+        Assert.Equal(model.Uuid, result.Uuid);
+        Assert.Equal(model.Name, result.Name);
+        Assert.Equal(1, result.Components.Count);
     }
 }

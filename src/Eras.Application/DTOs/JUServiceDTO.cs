@@ -6,7 +6,7 @@ namespace Eras.Application.DTOs;
 public class JUServiceDTO 
 {
     [Required(ErrorMessage = "JUService Id is required.")]
-    [Range(0, 2147483647, ErrorMessage = "Id must be greater than or equals 0.")]
+    [Range(0, 2147483647, ErrorMessage = "Id must be greater or equal to 0.")]
     public int Id { get; set; }
 
     [Required(ErrorMessage = "JUService name is required.")]

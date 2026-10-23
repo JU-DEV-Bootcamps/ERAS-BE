@@ -14,6 +14,12 @@ public class GetCohortsListQueryHandler(ICohortRepository Repository, ILogger<Ge
 
     public async Task<GetQueryResponse<List<Domain.Entities.Cohort>>> Handle(GetCohortsListQuery Request, CancellationToken CancellationToken)
     {
+        if (Request.EvaluationId.HasValue)
+        {
+            List<Domain.Entities.Cohort> evaluationCohorts = await _repository.GetCohortsByEvaluationAsync(Request.EvaluationId.Value, Request.LastVersion);
+            return new GetQueryResponse<List<Domain.Entities.Cohort>>(evaluationCohorts, $"{evaluationCohorts.Count} cohorts retrieved from evaluation {Request.EvaluationId} successfully", true);
+        }
+
         if (Request.PollUuid == string.Empty)
         {
             _logger.LogInformation("PollUuid is empty. Getting all cohorts");

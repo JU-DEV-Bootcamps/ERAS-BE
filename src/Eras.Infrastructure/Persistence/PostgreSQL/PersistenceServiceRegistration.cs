@@ -1,5 +1,9 @@
-﻿using Eras.Application.Contracts.Persistence;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManagement;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -8,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL
 {
+    [ExcludeFromCodeCoverage]
     public static class PersistenceServiceRegistration
     {
         private static string GetConnectionString(IConfiguration Configuration)
@@ -35,6 +40,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public static IServiceCollection AddPersistenceServices(this IServiceCollection Services, IConfiguration Configuration)
         {
             AddDbContextPostgreSql(Services, Configuration);
+            Services.AddScoped<IUnitOfWork, UnitOfWork>();
             Services.AddScoped<IAnswerRepository, AnswerRepository>();
             Services.AddScoped<ICohortRepository, CohortRepository>();
             Services.AddScoped<IComponentRepository, ComponentRepository>();
@@ -46,7 +52,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             Services.AddScoped<IPollVariableRepository, PollVariableRepository>();
             Services.AddScoped<IStudentCohortRepository, StudentCohortRepository>();
             Services.AddScoped<IPollCohortRepository, PollCohortRepository>();
-            Services.AddScoped<IHeatMapRepository, HeatMapRespository>();
+            Services.AddScoped<IHeatMapRepository, HeatMapRepository>();
             Services.AddScoped<IEvaluationRepository, EvaluationRepository>();
             Services.AddScoped<IEvaluationPollRepository, EvaluationPollRepository>();
             Services.AddScoped<IStudentPollsRepository, StudentPollsRepository>();
@@ -54,12 +60,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             Services.AddScoped<IStudentAnswersRepository, StudentAnswersRepository>();
             Services.AddScoped<IConfigurationsRepository, ConfigurationsRepository>();
             Services.AddScoped<IServiceProvidersRepository, ServiceProvidersRepository>();
-            Services.AddScoped<IRemissionRepository, RemissionRepository>();
             Services.AddScoped<IProfessionalRepository, ProfessionalRepository>();
-            Services.AddScoped<IInterventionRepository, InterventionRepository>();
             Services.AddScoped<IJUServiceRepository, JUServiceRepository>();
             Services.AddScoped<IErasEvaluationDetailsViewRepository, ErasEvaluationDetailsViewRepository>();
-
+            Services.AddScoped<IAssessmentRepository, AssessmentRepository>();
+            Services.AddScoped<IFeatureFlagRepository, FeatureFlagRepository>();
+            Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+            Services.AddScoped<IAttachmentDraftSessionRepository, AttachmentDraftSessionRepository>();
+            Services.AddScoped<IDataMigrationCompletionRepository, DataMigrationCompletionRepository>();
+            Services.AddScoped<IImportJobRepository, ImportJobRepository>();
+            Services.AddScoped<IImportJobItemRepository, ImportJobItemRepository>();
+            Services.AddScoped<IErasUsersRepository, ErasUsersRepository>();
+            Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
+            Services.AddScoped<IDataBase, AppDbContext>();
             return Services;
         }
     }

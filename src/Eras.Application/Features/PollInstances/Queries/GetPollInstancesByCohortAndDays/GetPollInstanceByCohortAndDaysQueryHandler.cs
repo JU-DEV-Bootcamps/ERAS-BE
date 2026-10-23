@@ -13,18 +13,37 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
     {
 
         private readonly IPollInstanceRepository _pollInstanceRepository;
+        private readonly IEvaluationRepository _evaluationRepository; 
         private readonly ILogger<GetPollInstanceByCohortAndDaysQueryHandler> _logger;
 
-        public GetPollInstanceByCohortAndDaysQueryHandler(IPollInstanceRepository PollInstanceRepository, ILogger<GetPollInstanceByCohortAndDaysQueryHandler> Logger)
+        public GetPollInstanceByCohortAndDaysQueryHandler(IPollInstanceRepository PollInstanceRepository, IEvaluationRepository EvaluationRepository, ILogger<GetPollInstanceByCohortAndDaysQueryHandler> Logger)
         {
             _pollInstanceRepository = PollInstanceRepository;
+            _evaluationRepository = EvaluationRepository;
             _logger = Logger;
         }
         public async Task<GetQueryResponse<PagedResult<PollInstanceDTO>>> Handle(GetPollInstanceByCohortAndDaysQuery Request, CancellationToken CancellationToken)
         {
             try
             {
-                var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(Request.Pagination.Page, Request.Pagination.PageSize, Request.CohortId, Request.Days, Request.LastVersion, Request.PollUuid);
+                DateTime? startDate = null;  
+                DateTime? endDate = null;
+
+            if (Request.EvaluationId.HasValue)
+            {
+                var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId.Value);
+                if (evaluation is null)
+                {
+                    throw new KeyNotFoundException($"Evaluation '{Request.EvaluationId}' not found.");
+                }
+                startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
+                endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                  .Date
+                  .AddDays(1)
+                  .AddTicks(-1);
+            }
+
+                var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(Request.Pagination.Page, Request.Pagination.PageSize, Request.CohortId, Request.Days, Request.LastVersion, Request.PollUuid, startDate, endDate, Request.EvaluationId);
                 var pollInstanceDTOs =
                     pollInstances.Items
                     .Select(PollInstance => PollInstanceMapper.ToDTO(PollInstance)).ToList();

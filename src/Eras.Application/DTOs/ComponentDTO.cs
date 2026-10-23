@@ -5,7 +5,6 @@ using Eras.Domain.Common;
 
 namespace Eras.Application.DTOs;
 
-[ExcludeFromCodeCoverage]
 public class ComponentDTO
 {
     [Required(ErrorMessage = "Component name is required.")]

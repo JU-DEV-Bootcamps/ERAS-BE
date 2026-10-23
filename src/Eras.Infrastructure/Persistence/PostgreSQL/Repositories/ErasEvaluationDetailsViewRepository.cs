@@ -1,19 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-using Eras.Application.Contracts.Persistence;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.Response.Controllers.EvaluationDetailsController;
-using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 using Microsoft.EntityFrameworkCore;
 
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 
@@ -25,7 +17,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
     public async Task<List<ErasEvaluationDetailsView>> GetByFiltersAsync(int? PollId, List<int>? ComponentIds, List<int>? CohortIds, List<int>? VariableIds)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
-
+        
         if (PollId.HasValue)
         {
             query = query.Where(v => v.PollId == PollId.Value);
@@ -51,13 +43,14 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
         return entities.Select(e => e.ToDomain()).ToList();
     }
 
-    public async Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
+    public async Task<List<StudentsByFiltersResponse>> GetStudentsByEvaluationIdFilters(int EvaluationId, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels, DateTime startDate, DateTime endDate)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
 
         query = query.Where(v => v.EvaluationId == EvaluationId);
         query = query.Where(v => CohortIds.Contains(v.CohortId));
         query = query.Where(v => ComponentNames.Contains(v.ComponentName));
+        query = query.Where(v => v.FinishedAt >= startDate && v.FinishedAt <= endDate);
 
         var entitiesEval = await query.ToListAsync();
 
@@ -74,49 +67,158 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .Distinct();
 
         if (RiskLevels != null && RiskLevels.Any())
-        {
             resultEval = resultEval.Where(v => RiskLevels.Contains((decimal)GetRiskGroup((double)v.RiskLevel)));
-        }
 
         return resultEval.ToList();
     }
 
     public async Task<IEnumerable<ErasEvaluationDetailsView>> GetStudentsByFilters(
-        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels, int Page, int PageSize)
+    List<string> ComponentNames, List<int> CohortIds,
+    List<int>? VariableIds, List<decimal>? RiskLevels,
+    int Page, int PageSize, DateTime startDate, DateTime endDate, int? EvaluationId = null)
     {
-        var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, RiskLevels);
-        var entities = await query.OrderBy(v => v.StudentName).Distinct().ToListAsync();
+        var query = await BuildStudentsByFiltersQueryAsync(
+            ComponentNames, CohortIds, VariableIds, startDate, endDate, EvaluationId);
 
-        return ApplyRiskFilter(entities, RiskLevels)
+        // The view is large (one row per student answer), so first resolve only the students of the
+        // requested page from a slim projection and load full rows for those students alone.
+        var students = await GetEligibleStudentsAsync(query, RiskLevels);
+        var pageIds = students
             .Skip((Page - 1) * PageSize)
             .Take(PageSize)
-            .Select(ErasEvaluationDetailsViewMapper.ToDomain);
+            .Select(S => S.StudentId)
+            .ToList();
+
+        if (pageIds.Count == 0)
+        {
+            return [];
+        }
+
+        var entities = await query
+            .Where(v => pageIds.Contains(v.StudentId))
+            .ToListAsync();
+
+        var firstRowByStudent = ApplyRiskFilter(entities, RiskLevels)
+            .GroupBy(v => v.StudentId)
+            .ToDictionary(g => g.Key, g => g.First());
+
+        return pageIds
+            .Where(firstRowByStudent.ContainsKey)
+            .Select(Id => ErasEvaluationDetailsViewMapper.ToDomain(firstRowByStudent[Id]))
+            .ToList();
     }
 
     public async Task<int> CountStudentsByFilters(
-        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
+        List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels,
+        DateTime startDate, DateTime endDate, int? EvaluationId = null)
     {
-        var query = BuildStudentsByFiltersQuery(PollUuid, ComponentNames, CohortIds, VariableIds, RiskLevels);
-        var entities = await query.ToListAsync();
-        return ApplyRiskFilter(entities, RiskLevels)
-            .Select(v => v.StudentId)
-            .Distinct()
-            .Count();
+        var query = await BuildStudentsByFiltersQueryAsync(
+            ComponentNames, CohortIds, VariableIds, startDate, endDate, EvaluationId);
+        return (await GetEligibleStudentsAsync(query, RiskLevels)).Count;
     }
 
-    private IQueryable<ErasEvaluationDetailsViewEntity> BuildStudentsByFiltersQuery(
-        string PollUuid, List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, List<decimal>? RiskLevels)
+    public async Task<int> CountRecentAlerts()
+    {
+        var itemsRiskStudents = await GetRecentAlertsWithoutPagination();
+
+        return itemsRiskStudents.Count();
+    }
+
+    public async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsStudentAsync(int Page, int PageSize)
+    {
+        var averageRiskStudents = await GetRecentAlertsWithoutPagination();
+
+        return averageRiskStudents
+            .Skip((Page - 1) * PageSize)
+            .Take(PageSize)
+            .ToList();
+    }
+    private async Task<IEnumerable<GetStudentsRecentAlertsResponse>> GetRecentAlertsWithoutPagination()
+    {
+        var prevItems = await _context.ErasEvaluationDetailsView
+            .Where(e => e.Status == "Completed" || e.Status == "InProgress")
+            .Select(e => new
+            {
+                e.StudentId,
+                e.StudentName,
+                e.RiskLevel,
+                e.ComponentName,
+                e.FinishedAt,
+                e.Status
+            }).ToListAsync();
+
+        return prevItems
+            .GroupBy(e => new { e.StudentId, e.ComponentName })
+            .Select(e =>
+            {
+                var averageScore = e.Average(e => (double)e.RiskLevel);
+                var first = e.First();
+                return new GetStudentsRecentAlertsResponse
+                {
+                    StudentId = first.StudentId.ToString(),
+                    StudentName = first.StudentName,
+                    RiskLevel = RiskLevelMapper.ToRiskLevel(averageScore),
+                    Category = first.ComponentName,
+                    Date = first.FinishedAt,
+                    Status = first.Status
+                };
+            })
+            .OrderByDescending(e => e.RiskLevel)
+            .ThenByDescending(e => e.Date)
+            .ToList();
+    }
+
+    private async Task<IQueryable<ErasEvaluationDetailsViewEntity>> BuildStudentsByFiltersQueryAsync(
+        List<string> ComponentNames, List<int> CohortIds, List<int>? VariableIds, DateTime startDate, DateTime endDate, int? EvaluationId = null)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>()
             .AsNoTracking()
-            .Where(v => v.PollUuid == PollUuid)
             .Where(v => CohortIds.Contains(v.CohortId))
-            .Where(v => ComponentNames.Contains(v.ComponentName));
+            .Where(v => ComponentNames.Contains(v.ComponentName))
+            .Where(v => v.FinishedAt >= startDate && v.FinishedAt <= endDate); 
 
+        if (EvaluationId.HasValue)
+            query = query.Where(v => v.EvaluationId == EvaluationId.Value);
+
+        // The same question has a different VariableId in each poll of an evaluation, so match by
+        // name: expand the selected ids to their names (read from the small variables table, not
+        // from the large view) and filter on those.
         if (VariableIds != null && VariableIds.Any())
-            query = query.Where(v => VariableIds.Contains(v.VariableId));
+        {
+            var variableNames = await _context.Variables
+                .AsNoTracking()
+                .Where(v => VariableIds.Contains(v.Id))
+                .Select(v => v.Name)
+                .Distinct()
+                .ToListAsync();
+            query = query.Where(v => variableNames.Contains(v.VariableName));
+        }
 
         return query;
+    }
+
+    /// <summary>
+    /// Students that match the filters, ordered by name. Only (student, name, risk) is read, so the
+    /// result is a few rows per student instead of every answer.
+    /// </summary>
+    private async Task<List<(int StudentId, string StudentName)>> GetEligibleStudentsAsync(
+        IQueryable<ErasEvaluationDetailsViewEntity> query, List<decimal>? RiskLevels)
+    {
+        var slim = await query
+            .Select(v => new { v.StudentId, v.StudentName, v.RiskLevel })
+            .Distinct()
+            .ToListAsync();
+
+        var filtered = RiskLevels == null || !RiskLevels.Any()
+            ? slim
+            : slim.Where(v => RiskLevels.Contains((decimal)GetRiskGroup((double)v.RiskLevel))).ToList();
+
+        return filtered
+            .GroupBy(v => v.StudentId)
+            .Select(g => (StudentId: g.Key, StudentName: g.First().StudentName))
+            .OrderBy(S => S.StudentName)
+            .ThenBy(S => S.StudentId)
+            .ToList();
     }
 
     private static int GetRiskGroup(double risk)
