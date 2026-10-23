@@ -219,6 +219,7 @@ jobs:
           set -euo pipefail
     
           sed -i "s|__COSMIC_API_URL__|${{ inputs.cosmic_api_url }}|g" src/Eras.Api/appsettings.Production.json
+          sed -i "s|__COSMIC_LATTE_PAGE_SIZE__|${{ vars.COSMIC_LATTE_PAGE_SIZE || '100' }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__COSMIC_LATTE_API_KEY__|${{ secrets.COSMIC_LATTE_API_KEY }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__DB_HOST__|${{ inputs.db_host }}|g" src/Eras.Api/appsettings.Production.json
           sed -i "s|__KEYCLOAK_URL__|${{ inputs.keycloak_url }}|g" src/Eras.Api/appsettings.Production.json
