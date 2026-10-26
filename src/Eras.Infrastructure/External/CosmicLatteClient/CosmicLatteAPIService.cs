@@ -26,12 +26,24 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         private const string PathEvaluationSet = "evaluationSets";
         private const string PathEvaluation = "evaluations";
         private const string HeaderApiKey = "x-apikey";
+        private const string PageSizeSetting = "CosmicLatte:EvaluationsPageSize";
+        // Cosmic Latte never returns more than this per page, whatever $top is asked for.
+        private const int MaxEvaluationsPageSize = 100;
+        private const int MaxEvaluationsPages = 200;
+        private const int EvaluationsPageConcurrency = 4;
+        private const string EvaluationsOrderBy = "createdAt asc";
         private static readonly TimeSpan[] RespondentRetryDelays = [TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(400)];
+        private static readonly TimeSpan MaxRetryAfter = TimeSpan.FromSeconds(10);
+
+        // Shared by every request of this (scoped) instance: once Cosmic Latte answers 429, all the
+        // parallel workers wait out the same cooldown instead of each hammering it with retries.
+        private long _throttledUntilTicks;
         private readonly HttpClient _httpClient;
         private readonly ILogger<CosmicLatteAPIService> _logger;
         private readonly PollOrchestratorService _pollOrchestratorService;
         private readonly IApiKeyEncryptor _encryptor;
         private readonly IPollInstanceRepository _pollInstanceRepository;
+        private readonly int _evaluationsPageSize;
 
         public CosmicLatteAPIService(
             IConfiguration Configuration,
@@ -46,7 +58,15 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             _pollOrchestratorService = PollOrchestratorService;
             _encryptor = Encryptor;
             _pollInstanceRepository = PollInstanceRepository;
+            _evaluationsPageSize = ReadPageSize(Configuration);
         }
+
+        // Missing, non-numeric (e.g. an unreplaced __PLACEHOLDER__) or out-of-range values fall back
+        // to the Cosmic Latte maximum instead of failing the import.
+        private static int ReadPageSize(IConfiguration Configuration) =>
+            int.TryParse(Configuration[PageSizeSetting], out int configured) && configured > 0
+                ? Math.Min(configured, MaxEvaluationsPageSize)
+                : MaxEvaluationsPageSize;
 
         public async Task<CosmicLatteStatus> CosmicApiIsHealthy(string ApiKey, string ApiUrl)
         {
@@ -101,18 +121,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 string ApiUrl)
         {
             var decryptedApiKey = _encryptor.Decrypt(ApiKey);
-            string path = $"{ApiUrl}{PathEvaluation}?$top=1000&$filter=name eq '{EvaluationSetName}'";
-
-            var request = new HttpRequestMessage(HttpMethod.Get, path);
-            request.Headers.Add(HeaderApiKey, decryptedApiKey);
-
-            var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-                throw new Exception($"Cosmic latte server error, Message: {response.ReasonPhrase}");
-
-            string responseBody = await response.Content.ReadAsStringAsync();
-            var apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody)
-                              ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+            var apiResponse = await GetAllEvaluationsAsync(
+                ApiUrl, $"name eq '{EvaluationSetName}'", decryptedApiKey, EvaluationSetName);
 
             var validatedEvaluations = apiResponse.data
                 .Where(e => e.status == "validated")
@@ -193,6 +203,123 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
 
 
+        /// <summary>
+        /// Reads every page of the evaluations matching <paramref name="Filter"/>. Cosmic Latte caps
+        /// each page at <see cref="MaxEvaluationsPageSize"/> items whatever $top is asked for, so a
+        /// single request silently dropped every response after the first 100. The page size asked
+        /// for comes from <c>CosmicLatte:EvaluationsPageSize</c>.
+        /// The first page tells @totalCount, so the rest are fetched in parallel; a sequential tail
+        /// then covers a missing @totalCount or responses submitted while paging.
+        /// </summary>
+        private async Task<CLResponseModelForAllPollsDTO> GetAllEvaluationsAsync(
+            string ApiUrl, string Filter, string DecryptedApiKey, string EvaluationSetName)
+        {
+            var all = new List<DataItem>();
+            var seenIds = new HashSet<string>();
+            int totalCount = 0;
+
+            // Adds a page in order and tells whether it was the last one. A page that brings nothing
+            // new also ends the paging, guarding against $skip being ignored.
+            bool AddPage(CLResponseModelForAllPollsDTO Page)
+            {
+                totalCount = Math.Max(totalCount, Page.meta.totalCount);
+                var newItems = Page.data.Where(D => D.Id == null || seenIds.Add(D.Id)).ToList();
+                all.AddRange(newItems);
+
+                return Page.data.Count < _evaluationsPageSize
+                    || newItems.Count == 0
+                    || (totalCount > 0 && all.Count >= totalCount);
+            }
+
+            // A fixed oldest-first order keeps pages stable: responses submitted while paging land at
+            // the end instead of shifting earlier ones across page boundaries.
+            string? orderBy = EvaluationsOrderBy;
+            var firstPage = await GetEvaluationsPageAsync(ApiUrl, Filter, DecryptedApiKey, EvaluationSetName, 0, orderBy);
+            if (firstPage == null)
+            {
+                _logger.LogWarning(
+                    "Cosmic Latte rejected $orderby={OrderBy} for '{EvaluationSetName}'; paging without a fixed order.",
+                    orderBy, EvaluationSetName);
+                orderBy = null;
+                firstPage = await GetEvaluationsPageAsync(ApiUrl, Filter, DecryptedApiKey, EvaluationSetName, 0, orderBy);
+            }
+
+            bool lastPage = AddPage(firstPage!);
+            int nextPage = 1;
+
+            if (!lastPage && totalCount > 0)
+            {
+                int pages = Math.Min((totalCount + _evaluationsPageSize - 1) / _evaluationsPageSize, MaxEvaluationsPages);
+                using var pageGate = new SemaphoreSlim(EvaluationsPageConcurrency);
+                var pageTasks = Enumerable.Range(nextPage, Math.Max(0, pages - nextPage)).Select(async Page =>
+                {
+                    await pageGate.WaitAsync();
+                    try
+                    {
+                        return (await GetEvaluationsPageAsync(
+                            ApiUrl, Filter, DecryptedApiKey, EvaluationSetName, Page * _evaluationsPageSize, orderBy))!;
+                    }
+                    finally
+                    {
+                        pageGate.Release();
+                    }
+                }).ToList();
+
+                foreach (var page in await Task.WhenAll(pageTasks))
+                    lastPage = AddPage(page);
+                nextPage = Math.Max(nextPage, pages);
+            }
+
+            for (; !lastPage && nextPage < MaxEvaluationsPages; nextPage++)
+                lastPage = AddPage((await GetEvaluationsPageAsync(
+                    ApiUrl, Filter, DecryptedApiKey, EvaluationSetName, nextPage * _evaluationsPageSize, orderBy))!);
+
+            if (totalCount > all.Count)
+                _logger.LogWarning(
+                    "Cosmic Latte reported {TotalCount} evaluations for '{EvaluationSetName}' but only {Fetched} could be read.",
+                    totalCount, EvaluationSetName, all.Count);
+            else
+                _logger.LogInformation(
+                    "Cosmic Latte evaluations for '{EvaluationSetName}': read {Fetched} of @totalCount={TotalCount}.",
+                    EvaluationSetName, all.Count, totalCount);
+
+            return new CLResponseModelForAllPollsDTO
+            {
+                data = all,
+                meta = new MetaAllEvaluations { totalCount = totalCount, count = all.Count }
+            };
+        }
+
+        /// <summary>
+        /// Reads one page of evaluations. Returns null only when Cosmic Latte answers 400 to a request
+        /// carrying <paramref name="OrderBy"/>, so the caller can retry without it.
+        /// </summary>
+        private async Task<CLResponseModelForAllPollsDTO?> GetEvaluationsPageAsync(
+            string ApiUrl, string Filter, string DecryptedApiKey, string EvaluationSetName, int Skip, string? OrderBy)
+        {
+            string order = OrderBy == null ? string.Empty : $"&$orderby={OrderBy}";
+            string path = $"{ApiUrl}{PathEvaluation}?$top={_evaluationsPageSize}&$skip={Skip}{order}&$filter={Filter}";
+            var response = await SendWithRetryAsync(() =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Get, path);
+                request.Headers.Add(HeaderApiKey, DecryptedApiKey);
+                return request;
+            });
+            if (OrderBy != null && response.StatusCode == HttpStatusCode.BadRequest)
+                return null;
+            if (!response.IsSuccessStatusCode)
+                throw new Exception($"Cosmic latte server error, Message: {response.ReasonPhrase}");
+
+            string responseBody = await response.Content.ReadAsStringAsync();
+            var page = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody)
+                       ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+
+            _logger.LogDebug(
+                "Cosmic Latte evaluations page for '{EvaluationSetName}': $skip={Skip}, @count={Count}, @totalCount={TotalCount}.",
+                EvaluationSetName, Skip, page.meta.count, page.meta.totalCount);
+            return page;
+        }
+
         public async Task<ExtractionSummary> ExtractRespondentsAsync(
             string EvaluationSetName,
             string StartDate,
@@ -203,18 +330,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             Func<PollDTO, bool, Task> OnExtracted)
         {
             var decryptedApiKey = _encryptor.Decrypt(ApiKey);
-            string path = $"{ApiUrl}{PathEvaluation}?$top=1000&$filter=name eq '{EvaluationSetName}' or parent eq 'evaluationSets:{PollId}'";
-
-            var request = new HttpRequestMessage(HttpMethod.Get, path);
-            request.Headers.Add(HeaderApiKey, decryptedApiKey);
-
-            var response = await _httpClient.SendAsync(request);
-            if (!response.IsSuccessStatusCode)
-                throw new Exception($"Cosmic latte server error, Message: {response.ReasonPhrase}");
-
-            string responseBody = await response.Content.ReadAsStringAsync();
-            var apiResponse = JsonSerializer.Deserialize<CLResponseModelForAllPollsDTO>(responseBody)
-                              ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
+            var apiResponse = await GetAllEvaluationsAsync(
+                ApiUrl, $"name eq '{EvaluationSetName}' or parent eq 'evaluationSets:{PollId}'", decryptedApiKey, EvaluationSetName);
 
             int returned = apiResponse.data.Count;
             var validatedEvaluations = apiResponse.data.Where(E => E.status == "validated").ToList();
@@ -243,6 +360,16 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
             var tasks = apiResponse.data.Select(async dataItem =>
             {
+                // The list already carries finishedAt, so a scored response outside the requested range
+                // is skipped without asking Cosmic Latte for its details. The details are still
+                // checked too, as they are the authoritative date.
+                if (dataItem.score != null && dataItem.finishedAt != default
+                    && !ValidateEvaluationWithinDateRange(StartDate, EndDate, dataItem.finishedAt))
+                {
+                    Interlocked.Increment(ref outsideRange);
+                    return;
+                }
+
                 await httpGate.WaitAsync();
                 RespondentFetch fetched;
                 try
@@ -405,37 +532,94 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
         private async Task<string> SendRespondentRequestAsync(string Path, string Body, string ApiKey)
         {
+            var response = await SendWithRetryAsync(() =>
+            {
+                var request = new HttpRequestMessage(HttpMethod.Post, Path)
+                {
+                    Content = new StringContent(Body, Encoding.UTF8, "application/json")
+                };
+                request.Headers.Add(HeaderApiKey, ApiKey);
+                return request;
+            });
+
+            if (response.IsSuccessStatusCode)
+                return await response.Content.ReadAsStringAsync();
+
+            throw new HttpRequestException($"Unsuccessful response from cosmic latte ({(int)response.StatusCode})");
+        }
+
+        /// <summary>
+        /// Sends a request built by <paramref name="CreateRequest"/>, retrying network errors and
+        /// transient statuses (429/5xx) with <see cref="RespondentRetryDelays"/>. Returns the last
+        /// response, successful or not; a network error on the last attempt propagates.
+        /// A 429 pauses every request of this instance for its Retry-After (capped), and retries are
+        /// jittered so parallel workers do not hit Cosmic Latte again in lockstep.
+        /// </summary>
+        private async Task<HttpResponseMessage> SendWithRetryAsync(Func<HttpRequestMessage> CreateRequest)
+        {
             for (int attempt = 0; ; attempt++)
             {
                 bool canRetry = attempt < RespondentRetryDelays.Length;
+                await WaitForThrottleAsync();
+
                 HttpResponseMessage response;
                 try
                 {
-                    var request = new HttpRequestMessage(HttpMethod.Post, Path)
-                    {
-                        Content = new StringContent(Body, Encoding.UTF8, "application/json")
-                    };
-                    request.Headers.Add(HeaderApiKey, ApiKey);
-                    response = await _httpClient.SendAsync(request);
+                    response = await _httpClient.SendAsync(CreateRequest());
                 }
                 catch (HttpRequestException) when (canRetry)
                 {
-                    await Task.Delay(RespondentRetryDelays[attempt]);
+                    await Task.Delay(WithJitter(RespondentRetryDelays[attempt]));
                     continue;
                 }
 
-                if (response.IsSuccessStatusCode)
-                    return await response.Content.ReadAsStringAsync();
-
-                if (canRetry && IsTransient(response.StatusCode))
+                if (canRetry && !response.IsSuccessStatusCode && IsTransient(response.StatusCode))
                 {
-                    await Task.Delay(RespondentRetryDelays[attempt]);
+                    TimeSpan wait = RespondentRetryDelays[attempt];
+                    if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                    {
+                        wait = RetryAfterOf(response) ?? wait;
+                        ThrottleFor(wait);
+                    }
+                    await Task.Delay(WithJitter(wait));
                     continue;
                 }
 
-                throw new HttpRequestException($"Unsuccessful response from cosmic latte ({(int)response.StatusCode})");
+                return response;
             }
         }
+
+        private async Task WaitForThrottleAsync()
+        {
+            long remaining = Interlocked.Read(ref _throttledUntilTicks) - DateTime.UtcNow.Ticks;
+            if (remaining > 0)
+                await Task.Delay(TimeSpan.FromTicks(remaining));
+        }
+
+        private void ThrottleFor(TimeSpan Wait)
+        {
+            long until = DateTime.UtcNow.Add(Wait).Ticks;
+            long current;
+            do
+            {
+                current = Interlocked.Read(ref _throttledUntilTicks);
+                if (current >= until)
+                    return;
+            }
+            while (Interlocked.CompareExchange(ref _throttledUntilTicks, until, current) != current);
+        }
+
+        private static TimeSpan? RetryAfterOf(HttpResponseMessage Response)
+        {
+            var retryAfter = Response.Headers.RetryAfter;
+            TimeSpan? wait = retryAfter?.Delta ?? (retryAfter?.Date - DateTimeOffset.UtcNow);
+            if (wait == null || wait <= TimeSpan.Zero)
+                return null;
+            return wait > MaxRetryAfter ? MaxRetryAfter : wait;
+        }
+
+        private static TimeSpan WithJitter(TimeSpan Delay) =>
+            Delay + TimeSpan.FromMilliseconds(Random.Shared.Next(0, (int)(Delay.TotalMilliseconds / 2) + 1));
 
         private static bool IsTransient(HttpStatusCode Status) =>
             Status == HttpStatusCode.TooManyRequests || (int)Status >= 500;
@@ -483,20 +667,11 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             string ApiKey,
             string ApiUrl)
         {
-            var content = new StringContent($"{{\"@data\":{{\"_id\":\"{PollId}\"}}}}", Encoding.UTF8, "application/json");
-
             try
             {
                 string path = $"{ApiUrl}{PathEvaluation}/exec/evaluationDetails";
-                var request = new HttpRequestMessage(HttpMethod.Post, path);
-                request.Content = content;
-                request.Headers.Add(HeaderApiKey, ApiKey);
-
-                var response = await _httpClient.SendAsync(request);
-                if (!response.IsSuccessStatusCode)
-                    throw new Exception("Unsuccessful response from cosmic latte");
-
-                string responseBody = await response.Content.ReadAsStringAsync();
+                // Every respondent depends on these questions, so this read gets the same retries.
+                string responseBody = await SendRespondentRequestAsync(path, $"{{\"@data\":{{\"_id\":\"{PollId}\"}}}}", ApiKey);
 
                 var apiResponse = JsonSerializer.Deserialize<CLResponseModelForPollDTO>(responseBody)
                                   ?? throw new InvalidCastException("Unable to deserialize response from cosmic latte");
