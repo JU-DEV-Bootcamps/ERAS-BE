@@ -28,6 +28,8 @@ public sealed class BackfillEvaluationPollsMigrationTests : IDisposable
     }
 
     [Fact]
+    [Trait("Change", "571-skip-orphan-poll-instances-in-backfill")]
+    [Trait("AC", "571-skip-orphan-poll-instances-in-backfill/AC-2")]
     public void Up_LinksEachPollWithInstancesToItsEvaluation()
     {
         Execute(@"
@@ -41,6 +43,8 @@ public sealed class BackfillEvaluationPollsMigrationTests : IDisposable
     }
 
     [Fact]
+    [Trait("Change", "571-skip-orphan-poll-instances-in-backfill")]
+    [Trait("AC", "571-skip-orphan-poll-instances-in-backfill/AC-1")]
     public void Up_SkipsInstancesOfEvaluationsThatNoLongerExistInsteadOfFailing()
     {
         Execute(@"
@@ -54,6 +58,8 @@ public sealed class BackfillEvaluationPollsMigrationTests : IDisposable
     }
 
     [Fact]
+    [Trait("Change", "571-skip-orphan-poll-instances-in-backfill")]
+    [Trait("AC", "571-skip-orphan-poll-instances-in-backfill/AC-3")]
     public void Up_IgnoresInstancesWithoutEvaluation()
     {
         Execute(@"
@@ -67,6 +73,8 @@ public sealed class BackfillEvaluationPollsMigrationTests : IDisposable
     }
 
     [Fact]
+    [Trait("Change", "571-skip-orphan-poll-instances-in-backfill")]
+    [Trait("AC", "571-skip-orphan-poll-instances-in-backfill/AC-4")]
     public void Up_KeepsExistingLinksAndCanRunTwice()
     {
         Execute(@"
