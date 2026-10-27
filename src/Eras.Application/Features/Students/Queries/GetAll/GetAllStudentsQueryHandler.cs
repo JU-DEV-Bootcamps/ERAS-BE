@@ -32,11 +32,11 @@ namespace Eras.Application.Features.Students.Queries.GetAll
         {
             try
             {
-                var students = await _studentRepository.GetPagedAsyncWithJoins(
+                var (students, totalCount) = await _studentRepository.GetPagedAsyncWithJoins(
                     Request.Query.Page,
-                    Request.Query.PageSize
+                    Request.Query.PageSize,
+                    Request.Search
                 );
-                var totalCount = await _studentRepository.CountAsync();
                 HashSet<int> studentsWithProfile = await _profileRepository
                     .GetStudentIdsWithProfileAsync(students.Select(Student => Student.Id).ToList());
 

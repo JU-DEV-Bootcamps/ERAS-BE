@@ -110,6 +110,20 @@ public class StudentsControllerTests
     }
 
     [Fact]
+    public async Task GetAllAsync_PassesSearchToTheQueryAsync()
+    {
+        GetAllStudentsQuery? sent = null;
+        _mediator
+            .Setup(X => X.Send(It.IsAny<GetAllStudentsQuery>(), default))
+            .Callback<IRequest<PagedResult<GetAllStudentsQueryResponse>>, CancellationToken>((Query, _) => sent = (GetAllStudentsQuery)Query)
+            .ReturnsAsync(new PagedResult<GetAllStudentsQueryResponse>(0, []));
+
+        await _controller.GetAllAsync(new Pagination(), "jose");
+
+        Assert.Equal("jose", sent?.Search);
+    }
+
+    [Fact]
     public async Task GetStudentDetailsByIdAsync_ReturnsOk_WhenStudentExistsAsync()
     {
         var student = new Student()

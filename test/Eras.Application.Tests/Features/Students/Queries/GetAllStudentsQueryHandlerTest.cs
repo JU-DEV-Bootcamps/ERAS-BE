@@ -38,7 +38,8 @@ namespace Eras.Application.Tests.Features.Students.Queries
                 new() {Id = 2, Email = "manual"}
             };
             _mockStudentRepository
-                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(students);
+                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
+                .ReturnsAsync((students, students.Count));
             _mockProfileRepository
                 .Setup(Repo => Repo.GetStudentIdsWithProfileAsync(It.IsAny<IReadOnlyCollection<int>>()))
                 .ReturnsAsync([2]);
@@ -61,7 +62,8 @@ namespace Eras.Application.Tests.Features.Students.Queries
             };
 
             _mockStudentRepository
-                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(students);
+                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
+                .ReturnsAsync((students, students.Count));
 
             PagedResult<GetAllStudentsQueryResponse> result = await _handler.Handle(query, CancellationToken.None);
 
@@ -74,11 +76,26 @@ namespace Eras.Application.Tests.Features.Students.Queries
         }
 
         [Fact]
+        public async Task Handler_ShouldPassSearchToRepositoryAndReturnItsTotalCountAsync()
+        {
+            var students = new List<Student>() { new() { Id = 1, Name = "Jose" } };
+            _mockStudentRepository
+                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), "jose"))
+                .ReturnsAsync((students, 7));
+
+            PagedResult<GetAllStudentsQueryResponse> result =
+                await _handler.Handle(new GetAllStudentsQuery(new Pagination(), "jose"), CancellationToken.None);
+
+            Assert.Equal(7, result.Count);
+            Assert.Single(result.Items);
+        }
+
+        [Fact]
         public async Task Handler_ShouldCatchExceptionAndReturnEmptyResponse()
         {
             var query = new GetAllStudentsQuery(new Pagination());
 
-            _mockStudentRepository.Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>()))
+            _mockStudentRepository.Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
                 .ThrowsAsync(new Exception("DB error."));
             
             PagedResult<GetAllStudentsQueryResponse> result = await _handler.Handle(query, CancellationToken.None);

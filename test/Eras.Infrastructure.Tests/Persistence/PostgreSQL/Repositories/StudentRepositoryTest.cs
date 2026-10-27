@@ -1013,10 +1013,10 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             // Act
             var result =
-                await _repository.GetPagedAsyncWithJoins(1, 10);
+                await _repository.GetPagedAsyncWithJoins(1, 10, null);
 
             // Assert
-            var students = result.ToList();
+            var students = result.Students.ToList();
 
             Assert.Equal(2, students.Count);
         }
@@ -1055,10 +1055,10 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             // Act
             var result =
-                await _repository.GetPagedAsyncWithJoins(1, 10);
+                await _repository.GetPagedAsyncWithJoins(1, 10, null);
 
             // Assert
-            var students = result.ToList();
+            var students = result.Students.ToList();
 
             Assert.Equal(3, students.Count);
             Assert.Equal("Ana", students[0].Name);
@@ -1100,10 +1100,10 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             // Act
             var result =
-                await _repository.GetPagedAsyncWithJoins(2, 1);
+                await _repository.GetPagedAsyncWithJoins(2, 1, null);
 
             // Assert
-            var students = result.ToList();
+            var students = result.Students.ToList();
 
             Assert.Single(students);
             Assert.Equal("Pedro", students[0].Name);
@@ -1117,10 +1117,11 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             // Act
             var result =
-                await _repository.GetPagedAsyncWithJoins(1, 10);
+                await _repository.GetPagedAsyncWithJoins(1, 10, null);
 
             // Assert
-            Assert.Empty(result);
+            Assert.Empty(result.Students);
+            Assert.Equal(0, result.TotalCount);
         }
 
         [Fact]

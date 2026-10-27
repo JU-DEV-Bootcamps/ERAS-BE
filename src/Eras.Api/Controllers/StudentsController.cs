@@ -73,9 +73,9 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAllAsync([FromQuery] Pagination Query)
+    public async Task<IActionResult> GetAllAsync([FromQuery] Pagination Query, [FromQuery] string? Search = null)
     {
-        PagedResult<GetAllStudentsQueryResponse> result = await _mediator.Send(new GetAllStudentsQuery(Query));
+        PagedResult<GetAllStudentsQueryResponse> result = await _mediator.Send(new GetAllStudentsQuery(Query, Search));
         return Ok(result);
     }
 
