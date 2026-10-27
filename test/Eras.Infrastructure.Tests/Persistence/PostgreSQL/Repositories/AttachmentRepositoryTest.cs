@@ -215,18 +215,30 @@ public class AttachmentRepositoryTest
 
         var staleTemp = new Attachment
         {
-            EntityType = "Temp", EntityId = 1, StorageKey = "Temp/1/old.bin", ContentHash = new string('n', 64),
-            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow.AddHours(-30)
+            EntityType = "Temp",
+            EntityId = 1,
+            StorageKey = "Temp/1/old.bin",
+            ContentHash = new string('n', 64),
+            CreatedBy = "user-uuid-1",
+            CreatedAt = DateTime.UtcNow.AddHours(-30)
         };
         var freshTemp = new Attachment
         {
-            EntityType = "Temp", EntityId = 2, StorageKey = "Temp/2/new.bin", ContentHash = new string('o', 64),
-            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow.AddHours(-1)
+            EntityType = "Temp",
+            EntityId = 2,
+            StorageKey = "Temp/2/new.bin",
+            ContentHash = new string('o', 64),
+            CreatedBy = "user-uuid-1",
+            CreatedAt = DateTime.UtcNow.AddHours(-1)
         };
         var staleOtherType = new Attachment
         {
-            EntityType = "Intervention", EntityId = 3, StorageKey = "Intervention/3/old.bin", ContentHash = new string('p', 64),
-            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow.AddHours(-30)
+            EntityType = "Intervention",
+            EntityId = 3,
+            StorageKey = "Intervention/3/old.bin",
+            ContentHash = new string('p', 64),
+            CreatedBy = "user-uuid-1",
+            CreatedAt = DateTime.UtcNow.AddHours(-30)
         };
 
         await repository.AddAsync(staleTemp);
@@ -248,8 +260,12 @@ public class AttachmentRepositoryTest
         var repository = CreateRepository(out _);
         await repository.AddAsync(new Attachment
         {
-            EntityType = "Temp", EntityId = 1, StorageKey = "Temp/1/new.bin", ContentHash = new string('r', 64),
-            CreatedBy = "user-uuid-1", CreatedAt = DateTime.UtcNow
+            EntityType = "Temp",
+            EntityId = 1,
+            StorageKey = "Temp/1/new.bin",
+            ContentHash = new string('r', 64),
+            CreatedBy = "user-uuid-1",
+            CreatedAt = DateTime.UtcNow
         });
 
         // Act

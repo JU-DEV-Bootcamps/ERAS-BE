@@ -14,5 +14,5 @@ public class StudentsByFiltersResponse
     public int AnswerId { get; set; }
     public string AnswerText { get; set; } = string.Empty;
     public decimal RiskLevel { get; set; }
-    
+
 }

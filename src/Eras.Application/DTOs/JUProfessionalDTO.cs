@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Eras.Domain.Common;
 
 namespace Eras.Application.DTOs;
+
 public class JUProfessionalDTO
 {
     [Required(ErrorMessage = "Professional Id is required.")]

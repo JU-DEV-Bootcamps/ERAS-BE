@@ -1,8 +1,10 @@
 using Eras.Domain.Common;
 using Eras.Domain.Entities.FeatureFlagManagement;
+
 using FluentValidation.TestHelper;
 
 namespace Eras.Domain.Tests.Entities.Validators;
+
 public class FeatureFlagValidatorTests
 {
     private readonly FeatureFlagValidator _validator = new();

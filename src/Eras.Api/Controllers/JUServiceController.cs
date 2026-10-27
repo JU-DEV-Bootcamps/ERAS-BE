@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.DTOs;
 using Eras.Application.Features.JUServices.Commands.CreateJUService;
 using Eras.Application.Features.JUServices.Queries.GetJUServices;
@@ -8,7 +10,6 @@ using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Eras.Api.Controllers;
 

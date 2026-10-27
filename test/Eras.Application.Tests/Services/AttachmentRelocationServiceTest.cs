@@ -1,9 +1,8 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models;
-using Eras.Domain.Entities;
-
 using Eras.Application.Services;
+using Eras.Domain.Entities;
 
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

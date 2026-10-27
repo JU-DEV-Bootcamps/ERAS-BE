@@ -1,6 +1,7 @@
 using Eras.Domain.Entities.AssessmentManagement;
 
 namespace Eras.Domain.Tests.Entities.Validators;
+
 public sealed class ValidatableIntervention
 {
     public DateTime DateUtc { get; set; } = DateTime.Now;

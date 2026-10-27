@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Eras.Application.Utils;
+
 public class CohortsHelper
 {
     public static DateTime? ParseCohortDate(string Cohort)

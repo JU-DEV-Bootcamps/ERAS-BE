@@ -48,7 +48,7 @@ namespace Eras.Infrastructure
             Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));
 
             string basePath = Configuration["FileStorage:BasePath"] ?? "/app/uploads";
-            
+
             Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));
 
             Services.AddSingleton<IFileEncryptionService, AesFileEncryptionService>();

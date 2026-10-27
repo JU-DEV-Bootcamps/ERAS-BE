@@ -38,13 +38,13 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             var options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
                 .Options;
-            
+
             _context = new TestDbContext(options);
             _context.Database.EnsureCreated();
-            
+
             _mockValidator = new Mock<IAnswerRiskValidator>();
             _mockValidator.Setup(v => v.IsValidAnswer(It.IsAny<string>())).Returns(true);
-            
+
             _repository = new StudentRepository(_context, _mockValidator.Object);
         }
 
@@ -157,13 +157,14 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             _context.Students.Add(entity);
             await _context.SaveChangesAsync();
 
-            var domain = new Student { 
-                Id = 1, 
-                Name = "New", 
+            var domain = new Student
+            {
+                Id = 1,
+                Name = "New",
                 Audit = new AuditInfo(),
-                StudentDetail = new StudentDetail { AvgScore = 5 } 
+                StudentDetail = new StudentDetail { AvgScore = 5 }
             };
-            
+
             var result = await _repository.UpdateAsync(domain);
             Assert.Equal("New", result.Name);
         }
@@ -202,13 +203,13 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         {
             var pagination = new Pagination { Page = 1, PageSize = 10 };
             _context.Polls.Add(new PollEntity { Id = 1, Uuid = "p1", LastVersion = 1 });
-            
-            _context.ErasCalculationsByPoll.Add(new ErasCalculationsByPollEntity 
-            { 
-                StudentId = 1, 
-                CohortId = 1, 
-                PollUuid = "p1", 
-                AnswerRisk = 4, 
+
+            _context.ErasCalculationsByPoll.Add(new ErasCalculationsByPollEntity
+            {
+                StudentId = 1,
+                CohortId = 1,
+                PollUuid = "p1",
+                AnswerRisk = 4,
                 PollVersion = 1,
                 StudentName = "Test",
                 StudentEmail = "t@t.com",
@@ -217,11 +218,11 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                 AnswerText = "OK",
                 CohortName = "C1",
                 PollVariableId = 1,
-                PollInstanceId = 1 
+                PollInstanceId = 1
             });
             await _context.SaveChangesAsync();
 
-            var res = await _repository.GetStudentAverageRiskByCohortsAsync(pagination, new List<int>{1}, "p1", true, null);
+            var res = await _repository.GetStudentAverageRiskByCohortsAsync(pagination, new List<int> { 1 }, "p1", true, null);
             Assert.Equal(1, res.Count);
         }
 
@@ -232,19 +233,37 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             _mockValidator.Setup(v => v.IsValidAnswer("BAD")).Returns(false);
 
             _context.ErasCalculationsByPoll.AddRange(
-                new ErasCalculationsByPollEntity 
-                { 
-                    StudentId = 1, ComponentId = 1, AnswerRisk = 10, AnswerText = "OK",
-                    StudentName = "T1", StudentEmail = "t1@t.com", ComponentName = "C", 
-                    Question = "Q", CohortName = "CH", PollUuid = "P", CohortId = 1,
-                    PollVariableId = 1, PollInstanceId = 1
+                new ErasCalculationsByPollEntity
+                {
+                    StudentId = 1,
+                    ComponentId = 1,
+                    AnswerRisk = 10,
+                    AnswerText = "OK",
+                    StudentName = "T1",
+                    StudentEmail = "t1@t.com",
+                    ComponentName = "C",
+                    Question = "Q",
+                    CohortName = "CH",
+                    PollUuid = "P",
+                    CohortId = 1,
+                    PollVariableId = 1,
+                    PollInstanceId = 1
                 },
-                new ErasCalculationsByPollEntity 
-                { 
-                    StudentId = 1, ComponentId = 2, AnswerRisk = 0, AnswerText = "BAD",
-                    StudentName = "T1", StudentEmail = "t1@t.com", ComponentName = "C", 
-                    Question = "Q", CohortName = "CH", PollUuid = "P", CohortId = 1,
-                    PollVariableId = 2, PollInstanceId = 2
+                new ErasCalculationsByPollEntity
+                {
+                    StudentId = 1,
+                    ComponentId = 2,
+                    AnswerRisk = 0,
+                    AnswerText = "BAD",
+                    StudentName = "T1",
+                    StudentEmail = "t1@t.com",
+                    ComponentName = "C",
+                    Question = "Q",
+                    CohortName = "CH",
+                    PollUuid = "P",
+                    CohortId = 1,
+                    PollVariableId = 2,
+                    PollInstanceId = 2
                 }
             );
             await _context.SaveChangesAsync();
@@ -976,7 +995,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
 
             // Act
             var result =
-                await _repository.GetStudentAverageRiskByCohortsAsync(pagination, new List<int> { 10 }, "poll-1",true, null);
+                await _repository.GetStudentAverageRiskByCohortsAsync(pagination, new List<int> { 10 }, "poll-1", true, null);
 
             // Assert
             Assert.Equal(1, result.Count);

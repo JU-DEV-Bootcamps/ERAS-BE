@@ -96,7 +96,7 @@ public class CreateFeatureFlagCommandHandlerTests
 
         // Assert
         Assert.Equal(
-            "Feature flag ExistingFeature already exists.",exception.Message);
+            "Feature flag ExistingFeature already exists.", exception.Message);
 
         _repositoryMock.Verify(
             x => x.AddAsync(It.IsAny<FeatureFlag>()),
@@ -118,7 +118,7 @@ public class CreateFeatureFlagCommandHandlerTests
             id: 1,
             createdAt: default,
             createdBy: "john.doe");
-       
+
         _repositoryMock
             .Setup(x => x.GetByNameAsync("NewFeature"))
             .ReturnsAsync((FeatureFlag?)null);
@@ -160,7 +160,7 @@ public class CreateFeatureFlagCommandHandlerTests
             id: 1,
             createdAt: createdAt,
             createdBy: "john.doe");
-        
+
         _repositoryMock
             .Setup(x => x.GetByNameAsync("NewFeature"))
             .ReturnsAsync((FeatureFlag?)null);
@@ -194,7 +194,7 @@ public class CreateFeatureFlagCommandHandlerTests
             id: 2,
             createdAt: DateTime.UtcNow,
             createdBy: "");
-        
+
         _repositoryMock
             .Setup(x => x.GetByNameAsync("NewFeature"))
             .ReturnsAsync((FeatureFlag?)null);
@@ -266,7 +266,7 @@ public class CreateFeatureFlagCommandHandlerTests
             id: 3,
             createdAt: DateTime.UtcNow,
             createdBy: "john.doe");
-      
+
         _repositoryMock
             .Setup(x => x.GetByNameAsync("NewFeature"))
             .ReturnsAsync((FeatureFlag?)null);

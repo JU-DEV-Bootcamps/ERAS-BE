@@ -1,6 +1,7 @@
 ﻿using Eras.Domain.Entities;
 
 namespace Eras.Application.Contracts.Persistence;
+
 public interface IConfigurationsRepository : IBaseRepository<Configurations>
 {
     Task<Domain.Entities.Configurations?> GetActiveByUserAndNameAsync(string UserId, string ConfigurationName);

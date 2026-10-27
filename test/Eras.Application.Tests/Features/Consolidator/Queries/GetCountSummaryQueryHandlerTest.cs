@@ -8,6 +8,7 @@ using Moq;
 using Xunit;
 
 namespace Eras.Application.Tests.Features.Consolidator.Queries;
+
 public class GetCountSummaryQueryHandlerTests
 {
     private readonly Mock<ILogger<GetCountSummaryQueryHandler>> _loggerMock;

@@ -4,10 +4,13 @@ using Eras.Application.Features.PollInstances.Commands.CreatePollInstance;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.PollInstances.Commands;
+
 public class CreatePollInstanceCommandHandlerTests
 {
     private readonly Mock<IPollInstanceRepository> _mockPollInstanceRepository;
@@ -28,7 +31,7 @@ public class CreatePollInstanceCommandHandlerTests
         {
             Id = 1,
         };
-        var newPollInstanceDTO = new PollInstanceDTO() { Uuid= "Uuid1" , Student = newStudent};
+        var newPollInstanceDTO = new PollInstanceDTO() { Uuid = "Uuid1", Student = newStudent };
         var command = new CreatePollInstanceCommand { PollInstance = newPollInstanceDTO };
         PollInstance newPoll = newPollInstanceDTO.ToDomain();
 
@@ -51,7 +54,7 @@ public class CreatePollInstanceCommandHandlerTests
         {
             Id = 1,
         };
-        var newPollInstanceDTO = new PollInstanceDTO() { Uuid= "Uuid1" , Student = newStudent};
+        var newPollInstanceDTO = new PollInstanceDTO() { Uuid = "Uuid1", Student = newStudent };
         var command = new CreatePollInstanceCommand { PollInstance = newPollInstanceDTO };
         PollInstance existingEntity = newPollInstanceDTO.ToDomain();
 
@@ -90,7 +93,7 @@ public class CreatePollInstanceCommandHandlerTests
         {
             Id = 1,
         };
-        var newPollInstanceDTO = new PollInstanceDTO() { Uuid= "Uuid1" , Student = newStudent};
+        var newPollInstanceDTO = new PollInstanceDTO() { Uuid = "Uuid1", Student = newStudent };
         var command = new CreatePollInstanceCommand { PollInstance = newPollInstanceDTO };
 
         _mockPollInstanceRepository.Setup(Repo => Repo.AddAsync(It.IsAny<PollInstance>()))

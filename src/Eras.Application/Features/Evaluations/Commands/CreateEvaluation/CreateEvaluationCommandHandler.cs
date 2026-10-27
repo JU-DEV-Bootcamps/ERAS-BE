@@ -15,7 +15,7 @@ namespace Eras.Application.Features.Evaluations.Commands
         private readonly IEvaluationRepository _evaluationRepository;
         private readonly IPollRepository _pollRepository;
         private readonly IMediator _mediator;
-        public CreateEvaluationCommandHandler(IEvaluationRepository EvaluationRepository,IPollRepository PollRepository, IMediator Mediator)
+        public CreateEvaluationCommandHandler(IEvaluationRepository EvaluationRepository, IPollRepository PollRepository, IMediator Mediator)
         {
             _evaluationRepository = EvaluationRepository;
             _pollRepository = PollRepository;
@@ -25,14 +25,14 @@ namespace Eras.Application.Features.Evaluations.Commands
         public async Task<CreateCommandResponse<Evaluation>> Handle(CreateEvaluationCommand Request, CancellationToken CancellationToken)
         {
             string status = EvaluationConstants.EvaluationStatus.Pending.ToString();
-            Evaluation? evaluation=null;
+            Evaluation? evaluation = null;
             Poll? poll = null;
             evaluation = await _evaluationRepository.GetByNameAsync(Request.EvaluationDTO.Name);
 
             if (evaluation != null)
             {
                 throw new ExistingEvaluationNameException(Request.EvaluationDTO.Name);
-            }                                        
+            }
 
             if (!Request.EvaluationDTO.PollName.Equals(string.Empty))
             {
@@ -46,7 +46,7 @@ namespace Eras.Application.Features.Evaluations.Commands
                 CreatedAt = DateTime.UtcNow,
                 ModifiedAt = DateTime.UtcNow,
             };
-            
+
             if (poll != null && !Request.EvaluationDTO.PollName.Equals(string.Empty))
             {
                 evaluation.PollId = poll.Id;

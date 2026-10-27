@@ -108,7 +108,7 @@ public class ConfigurationsControllerTests
                 BaseURL = "fake/url",
                 EncryptedKey = "fake-key"
             },
-            "Success", true); 
+            "Success", true);
 
         _mediatorMock
             .Setup(X => X.Send(It.IsAny<CreateConfigurationCommand>(), It.IsAny<CancellationToken>()))

@@ -2,7 +2,9 @@
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
@@ -12,7 +14,7 @@ namespace Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail
         private readonly IStudentDetailRepository _studentDetailRepository;
         private readonly ILogger<CreateStudentDetailCommandHandler> _logger;
 
-        public CreateStudentDetailCommandHandler(IStudentDetailRepository StudentDetailRepository, 
+        public CreateStudentDetailCommandHandler(IStudentDetailRepository StudentDetailRepository,
             ILogger<CreateStudentDetailCommandHandler> Logger)
         {
             _studentDetailRepository = StudentDetailRepository;

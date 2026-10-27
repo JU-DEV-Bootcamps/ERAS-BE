@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Configurations.Command.CreateConfiguration;
+
 public class CreateConfigurationCommandHandler : IRequestHandler<CreateConfigurationCommand, CreateCommandResponse<Domain.Entities.Configurations>>
 {
     private readonly IConfigurationsRepository _configurationsRepository;

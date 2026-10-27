@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Polls.Queries;
+
 public class GetPollsByCohortListQueryHandlerTest
 {
     private readonly Mock<IPollCohortRepository> _mockRepository;

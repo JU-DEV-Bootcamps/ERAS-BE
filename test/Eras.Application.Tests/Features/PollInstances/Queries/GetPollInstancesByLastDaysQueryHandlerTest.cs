@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.PollInstances.Queries;
+
 public class GetPollInstancesByLastDaysQueryHandlerTest
 {
     private readonly Mock<IPollInstanceRepository> _mockPollInstanceRepository;
@@ -22,7 +23,7 @@ public class GetPollInstancesByLastDaysQueryHandlerTest
     }
 
     private static PollInstance BuildPollInstance(int Id = 1, string Uuid = "m0ck-Uu1D")
-        => new ()
+        => new()
         {
             Id = Id,
             Uuid = Uuid,
@@ -30,7 +31,7 @@ public class GetPollInstancesByLastDaysQueryHandlerTest
             LastVersionDate = DateTime.Now,
             FinishedAt = DateTime.Now
         };
-    
+
     [Fact]
     public async Task Handler_ShouldReturnSuccessResponse()
     {

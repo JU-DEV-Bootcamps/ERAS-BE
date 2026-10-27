@@ -1,8 +1,9 @@
 ﻿using Eras.Application.Dtos;
-using Eras.Domain.Entities;
-using Eras.Application.Mappers;
 using Eras.Application.DTOs;
+using Eras.Application.Mappers;
+using Eras.Domain.Entities;
 namespace Eras.Application.Tests.Mappers;
+
 public class PollMapperTest
 {
     [Fact]
@@ -25,7 +26,7 @@ public class PollMapperTest
         var model = new Poll()
         {
             Uuid = "1234",
-            Name= "name",
+            Name = "name",
             Components = null!
         };
         var result = model.ToDto();
@@ -44,7 +45,7 @@ public class PollMapperTest
             Name = "name",
             Components = new List<Component>
             {
-                new Component 
+                new Component
                 {
                     Id = 1,
                 }

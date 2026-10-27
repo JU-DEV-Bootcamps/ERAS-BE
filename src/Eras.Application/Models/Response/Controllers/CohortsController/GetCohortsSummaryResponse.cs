@@ -1,6 +1,7 @@
 ﻿using Eras.Domain.Entities;
 
 namespace Eras.Application.Models.Response.Controllers.CohortsController;
+
 public class CohortSummaryResponse
 {
     public int CohortCount { get; set; } = 0;

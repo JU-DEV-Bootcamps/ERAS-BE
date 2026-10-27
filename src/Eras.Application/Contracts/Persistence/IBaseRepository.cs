@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 
 namespace Eras.Application.Contracts.Persistence;
+
 public interface IBaseRepository<T>
 {
     Task<T> AddAsync(T Entity);

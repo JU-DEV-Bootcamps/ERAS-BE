@@ -1,10 +1,12 @@
-﻿using Eras.Application.Mappers;
-using Eras.Application.Contracts.Persistence;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Eras.Domain.Entities;
-using Eras.Application.Models.Response.Common;
+﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Mappers;
 using Eras.Application.Models.Enums;
+using Eras.Application.Models.Response.Common;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Polls.Commands.CreatePoll
 {
@@ -30,7 +32,7 @@ namespace Eras.Application.Features.Polls.Commands.CreatePoll
                 Poll poll = Request.Poll.ToDomain();
                 poll.Uuid = Guid.NewGuid().ToString();
                 Poll response = await _pollRepository.AddAsync(poll);
-                return new CreateCommandResponse<Poll>(response,1, "Success", true);
+                return new CreateCommandResponse<Poll>(response, 1, "Success", true);
             }
             catch (Exception ex)
             {

@@ -3,7 +3,7 @@
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
-{ 
+{
     public static class ConfigurationsMapper
     {
         public static Domain.Entities.Configurations ToDomain(this ConfigurationsEntity Entity)

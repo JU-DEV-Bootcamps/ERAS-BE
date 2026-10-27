@@ -13,7 +13,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
 
 public class CohortRepositoryTests : RepositoryTestBase
 {
-    
+
     private static Mock<DbSet<ErasCalculationsByPollEntity>> CreateMockErasCalculations(IEnumerable<ErasCalculationsByPollEntity> Data)
     {
         var queryable = new TestAsyncEnumerable<ErasCalculationsByPollEntity>(Data);
@@ -233,8 +233,8 @@ public class CohortRepositoryTests : RepositoryTestBase
     {
         await using var context = CreateContext();
         await SeedAsync(context);
-        var calculations = CreateErasCalculations(); 
-        var calculationsDbSet = CreateMockErasCalculations(calculations); 
+        var calculations = CreateErasCalculations();
+        var calculationsDbSet = CreateMockErasCalculations(calculations);
         context.ErasCalculationsByPoll = calculationsDbSet.Object;
 
         var repository = CreateRepository(context);
@@ -250,8 +250,8 @@ public class CohortRepositoryTests : RepositoryTestBase
     {
         await using var context = CreateContext();
         await SeedAsync(context);
-        var calculations = CreateErasCalculations(); 
-        var calculationsDbSet = CreateMockErasCalculations(calculations); 
+        var calculations = CreateErasCalculations();
+        var calculationsDbSet = CreateMockErasCalculations(calculations);
         context.ErasCalculationsByPoll = calculationsDbSet.Object;
 
         var repository = CreateRepository(context);

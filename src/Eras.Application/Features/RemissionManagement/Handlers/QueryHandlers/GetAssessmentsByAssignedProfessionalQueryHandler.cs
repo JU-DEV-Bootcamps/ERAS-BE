@@ -7,6 +7,7 @@ using Eras.Domain.Entities.AssessmentManagement;
 using MediatR;
 
 namespace Eras.Application.Features.RemissionManagement.Handlers.QueryHandlers;
+
 public class GetAssessmentsByAssignedProfessionalQueryHandler(
     IAssessmentRepository Repository,
     IMapper<Assessment, AssessmentDto> Mapper,

@@ -10,9 +10,11 @@ using Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters;
 using Eras.Application.Models.Response.HeatMap;
 
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapSummaryAvgByPoll;
+
 public class GetHeatMapSummaryAvgByPollTests
 {
     private readonly Mock<IHeatMapRepository> _mockHeatMapRepository;
@@ -31,13 +33,13 @@ public class GetHeatMapSummaryAvgByPollTests
 
     [Fact]
     public async Task HandleShouldReturnSuccessResponseWhenAverageDataIsFoundAsync()
-    {        
+    {
         var query = new GetHeatMapSummaryQuery("3dbce0ff-21a1-484c-ab1c-e2e4fe78eca5");
 
         _mockHeatMapRepository.Setup(Repo => Repo.GetHeatMapAnswersPercentageByVariableAsync(query.PollInstanceUUID))
             .ReturnsAsync(new List<GetHeatMapAnswersPercentageByVariableQueryResponse>
             {
-                new GetHeatMapAnswersPercentageByVariableQueryResponse { 
+                new GetHeatMapAnswersPercentageByVariableQueryResponse {
                     ComponentName = "Component1",
                     PollVariableId = 1,
                     Name = "student name",
@@ -48,7 +50,7 @@ public class GetHeatMapSummaryAvgByPollTests
             });
 
         var result = await _handler.Handle(query, CancellationToken.None);
-        
+
         Assert.True(result.Success);
         Assert.NotNull(result.Body);
         Assert.NotEmpty(result.Body.Components);

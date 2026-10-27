@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Eras.Domain.Common;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 public class ServiceProvidersEntity : BaseEntity, IAuditableEntity
 {
     public required string ServiceProviderName { get; set; }

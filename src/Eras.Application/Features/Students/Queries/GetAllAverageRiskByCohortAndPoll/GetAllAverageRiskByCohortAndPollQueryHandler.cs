@@ -1,9 +1,10 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Utils;
-using Microsoft.Extensions.Logging;
 
 using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohortAndPoll
 {

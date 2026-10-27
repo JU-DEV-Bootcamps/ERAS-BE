@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
+
 public class JUServicesConfiguration : IEntityTypeConfiguration<JUServiceEntity>
 {
     public void Configure(EntityTypeBuilder<JUServiceEntity> Builder)

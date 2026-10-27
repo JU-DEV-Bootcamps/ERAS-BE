@@ -66,7 +66,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
             PagedResult<GetAllStudentsQueryResponse> result = await _handler.Handle(query, CancellationToken.None);
 
             Assert.NotNull(result.Items);
-            Assert.Equal(2,result.Items.Count);
+            Assert.Equal(2, result.Items.Count);
             Assert.Collection(result.Items,
                 item => Assert.Equal(students[0].Email, item.Email),
                 item => Assert.Equal(students[1].Email, item.Email)
@@ -80,12 +80,12 @@ namespace Eras.Application.Tests.Features.Students.Queries
 
             _mockStudentRepository.Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>()))
                 .ThrowsAsync(new Exception("DB error."));
-            
+
             PagedResult<GetAllStudentsQueryResponse> result = await _handler.Handle(query, CancellationToken.None);
 
             _mockStudentRepository.Verify(Repo => Repo.CountAsync(), Times.Never);
             Assert.Empty(result.Items);
-            Assert.Equal(0,result.Items.Count);
+            Assert.Equal(0, result.Items.Count);
         }
     }
 }

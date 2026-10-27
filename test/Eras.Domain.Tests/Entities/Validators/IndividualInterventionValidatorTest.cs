@@ -4,6 +4,7 @@ using Eras.Domain.Entities.AssessmentManagement.Validators;
 using FluentValidation.TestHelper;
 
 namespace Eras.Domain.Tests.Entities.Validators;
+
 public class IndividualInterventionValidatorTests
 {
     private readonly IndividualInterventionValidator _validator = new();
@@ -22,7 +23,7 @@ public class IndividualInterventionValidatorTests
             Attachments = Data.Attachments,
             RiskLevel = Data.RiskLevel
         };
-    
+
     [Fact]
     public void Should_NotHaveAnyValidationErrors_When_InterventionIsValid()
     {

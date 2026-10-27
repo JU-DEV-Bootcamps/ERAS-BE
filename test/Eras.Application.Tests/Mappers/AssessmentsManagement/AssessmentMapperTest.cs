@@ -27,11 +27,13 @@ public class AssessmentMapperTest
         var planDto = new InterventionPlanDto();
         var plan = new InterventionPlan();
 
-        var individualDto = new IndividualInterventionDto() {
+        var individualDto = new IndividualInterventionDto()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1]
         };
-        var individual = new IndividualIntervention() {
+        var individual = new IndividualIntervention()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1]
         };
@@ -167,11 +169,13 @@ public class AssessmentMapperTest
     public void Map_ShouldMapIndividualIntervention_UsingIndividualMapper()
     {
         // Arrange
-        var dto = new IndividualInterventionDto() {
+        var dto = new IndividualInterventionDto()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1]
         };
-        var mapped = new IndividualIntervention() {
+        var mapped = new IndividualIntervention()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1]
         };
@@ -208,7 +212,8 @@ public class AssessmentMapperTest
     public void Map_ShouldMapGroupIntervention_UsingGroupMapper()
     {
         // Arrange
-        var dto = new GroupInterventionDto() {
+        var dto = new GroupInterventionDto()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1]
         };

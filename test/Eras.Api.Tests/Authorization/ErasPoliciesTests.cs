@@ -4,12 +4,11 @@ using System.Text.Json;
 using Eras.Domain.Entities.UserManagement;
 using Eras.Infrastructure.Authorization;
 
-using Microsoft.IdentityModel.JsonWebTokens;
-
 using Keycloak.AuthServices.Authorization;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 using Xunit;
 

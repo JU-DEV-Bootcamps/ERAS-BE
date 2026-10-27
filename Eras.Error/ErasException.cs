@@ -1,15 +1,15 @@
 ﻿namespace Eras.Error;
 
 public abstract class ErasException : Exception, IErasException
-{    
+{
     public event LogDelegate? OnLoggingException;
     public int StatusCode { get; protected set; }
     public string FriendlyMessage { get; protected set; }
     public new Exception? InnerException { get; set; }
     protected Severity Severity { get; }
-    
+
     protected ErasException(
-        string FriendlyMessage, 
+        string FriendlyMessage,
         Severity Severity,
         int StatusCode)
     {
@@ -22,7 +22,7 @@ public abstract class ErasException : Exception, IErasException
         string FriendlyMessage,
         Exception InnerException,
         Severity Severity,
-        int StatusCode) 
+        int StatusCode)
         : this(FriendlyMessage, Severity, StatusCode)
     {
         this.InnerException = InnerException;

@@ -8,17 +8,17 @@ public static class StudentMapper
 {
     public static StudentDetail CreateEmptyStudentDetail(StudentDTO Dto)
     {
-            AuditInfo audit = new AuditInfo()
-            {
-                CreatedBy = "Automatic mapper",
-                CreatedAt = DateTime.UtcNow,
-                ModifiedAt = DateTime.UtcNow,
-            };
-            return new StudentDetail
-            {
-                StudentId = Dto.Id,
-                Audit = audit,
-            }; 
+        AuditInfo audit = new AuditInfo()
+        {
+            CreatedBy = "Automatic mapper",
+            CreatedAt = DateTime.UtcNow,
+            ModifiedAt = DateTime.UtcNow,
+        };
+        return new StudentDetail
+        {
+            StudentId = Dto.Id,
+            Audit = audit,
+        };
     }
     public static Student ToDomain(this StudentDTO Dto)
     {
@@ -94,6 +94,6 @@ public static class StudentMapper
                 CreatedAt = DateTime.UtcNow,
                 ModifiedAt = DateTime.UtcNow,
             }
-        };        
+        };
     }
 }

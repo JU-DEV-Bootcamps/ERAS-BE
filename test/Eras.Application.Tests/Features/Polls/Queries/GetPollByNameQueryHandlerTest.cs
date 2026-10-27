@@ -8,10 +8,13 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
 using Eras.Application.Features.Polls.Queries.GetPollByName;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Polls.Queries;
+
 public class GetPollByNameQueryHandlerTest
 {
     private readonly Mock<IPollRepository> _mockVariableRepository;
@@ -31,11 +34,15 @@ public class GetPollByNameQueryHandlerTest
         // Arrange
         var query = new GetPollByNameQuery() { pollName = "Poll1" };
         var variables = new List<Variable>();
-        var components = new List<Component>() { 
-            new Component(){ Name = "Component", Variables = variables}        
+        var components = new List<Component>() {
+            new Component(){ Name = "Component", Variables = variables}
         };
-        var poll = new Poll() { Name = "Poll1", LastVersionDate = DateTime.Now ,
-            Components = components};
+        var poll = new Poll()
+        {
+            Name = "Poll1",
+            LastVersionDate = DateTime.Now,
+            Components = components
+        };
 
         _mockVariableRepository
             .Setup(Repo => Repo.GetByNameAsync(It.IsAny<string>()))
@@ -45,7 +52,7 @@ public class GetPollByNameQueryHandlerTest
         var result = await _handler.Handle(query, CancellationToken.None);
 
         // Assert
-        Assert.Equal("Poll1",result.Body!.Name);
+        Assert.Equal("Poll1", result.Body!.Name);
     }
 
     [Fact]
@@ -53,7 +60,7 @@ public class GetPollByNameQueryHandlerTest
     {
         // Arrange
         var query = new GetPollByNameQuery() { pollName = "Poll1" };
-        
+
         _mockVariableRepository
             .Setup(Repo => Repo.GetByNameAsync(It.IsAny<string>()))
             .ReturnsAsync((Poll)null!);

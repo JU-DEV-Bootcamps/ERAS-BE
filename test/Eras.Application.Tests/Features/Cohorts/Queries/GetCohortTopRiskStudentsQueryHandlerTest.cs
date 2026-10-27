@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Cohorts.Queries;
+
 public class GetCohortTopRiskStudentsQueryHandlerTest
 {
     private readonly Mock<ICohortRepository> _mockCohortRepository;
@@ -33,7 +34,7 @@ public class GetCohortTopRiskStudentsQueryHandlerTest
             RiskSum = RiskSum
         };
     }
-    
+
     [Fact]
     public async Task Handler_ShouldReturnPagedResultWithCohortTopRiskStudents()
     {
@@ -48,7 +49,8 @@ public class GetCohortTopRiskStudentsQueryHandlerTest
         _mockCohortRepository.Setup(Repo => Repo.CountStudentsAsync("mock_uuid", 1, true, null))
             .ReturnsAsync(2);
 
-        var query = new GetCohortTopRiskStudentsQuery {
+        var query = new GetCohortTopRiskStudentsQuery
+        {
             PollUuid = "mock_uuid",
             CohortId = 1,
             LastVersion = true,
@@ -78,7 +80,8 @@ public class GetCohortTopRiskStudentsQueryHandlerTest
             It.IsAny<int>())
         ).ThrowsAsync(new Exception("Error retrieving cohorts."));
 
-        var query = new GetCohortTopRiskStudentsQuery {
+        var query = new GetCohortTopRiskStudentsQuery
+        {
             PollUuid = "mock_uuid",
             CohortId = 1,
             LastVersion = true,
@@ -109,7 +112,8 @@ public class GetCohortTopRiskStudentsQueryHandlerTest
         _mockCohortRepository.Setup(Repo => Repo.CountStudentsAsync("mock_uuid", 1, true, "Test"))
             .ReturnsAsync(0);
 
-        var query = new GetCohortTopRiskStudentsQuery {
+        var query = new GetCohortTopRiskStudentsQuery
+        {
             PollUuid = "mock_uuid",
             CohortId = 1,
             LastVersion = true,

@@ -104,7 +104,7 @@ public class UpdateEvaluationCommandHandlerTest
 
     [Fact]
     public async Task Handle_ShouldUpdateEvaluation_WhenEvaluationExistsAndNoPollIsProvided()
-    { 
+    {
         var evaluation = new Evaluation
         {
             Id = 1,
@@ -223,6 +223,6 @@ public class UpdateEvaluationCommandHandlerTest
         _mediator.Verify(
             x => x.Publish(
                 It.Is<EvaluationCreatedEvent>(e => e.EvaluationId == 1),
-                It.IsAny<CancellationToken>()),Times.Once);
+                It.IsAny<CancellationToken>()), Times.Once);
     }
 }

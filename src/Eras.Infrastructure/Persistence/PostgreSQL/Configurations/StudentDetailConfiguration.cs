@@ -33,7 +33,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations
                 .IsRequired();
             Builder.Property(Detail => Detail.AvgScore)
                 .HasColumnName("avg_score")
-                .HasPrecision(14,4)
+                .HasPrecision(14, 4)
                 .IsRequired();
             Builder.Property(Detail => Detail.CoursesUnderAvg)
                 .HasColumnName("courses_under_avg")

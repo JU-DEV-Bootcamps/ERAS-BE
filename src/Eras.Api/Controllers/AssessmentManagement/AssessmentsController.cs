@@ -131,10 +131,12 @@ public class AssessmentsController(
         int id,
         CancellationToken cancellationToken)
     {
-        try {
+        try
+        {
             await Mediator.Send(new DeleteAssessmentCommand(id), cancellationToken);
             return NoContent();
-        } catch(KeyNotFoundException)
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
@@ -245,7 +247,8 @@ public class AssessmentsController(
         {
             await Mediator.Send(new DeleteInterventionCommand(id, interventionId), cancellationToken);
             return NoContent();
-        } catch(KeyNotFoundException)
+        }
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
@@ -358,7 +361,7 @@ public class AssessmentsController(
                 new UpdateInterventionCommand(assessmentId, interventionId, request.UpdateInterventionDto, request.AttachmentIdsToRemove, request.DraftSessionId));
             return Ok(response);
         }
-        catch (KeyNotFoundException) 
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }
@@ -393,7 +396,7 @@ public class AssessmentsController(
             UpdateInterventionDto result = await Mediator.Send(command, CancellationToken);
             return Ok(result);
         }
-        catch (KeyNotFoundException) 
+        catch (KeyNotFoundException)
         {
             return NotFound();
         }

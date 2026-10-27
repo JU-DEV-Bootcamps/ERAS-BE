@@ -11,6 +11,6 @@ public class GetStudentsByFiltersQuery : IRequest<PagedResult<StudentsByFiltersR
     public required List<int> CohortIds { get; set; }
     public List<int>? VariableIds { get; set; }
     public List<decimal>? RiskLevels { get; set; }
-    public required Pagination PageValues { get; set; } 
+    public required Pagination PageValues { get; set; }
     public int EvaluationId { get; set; }
 }

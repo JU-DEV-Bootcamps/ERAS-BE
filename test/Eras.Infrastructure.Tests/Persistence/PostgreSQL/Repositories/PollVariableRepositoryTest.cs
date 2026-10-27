@@ -202,7 +202,7 @@ public class PollVariableRepositoryTest : RepositoryTestBase
     {
         await using var context = CreateContext();
 
-        var variable = new VariableEntity{ Id = 10 };
+        var variable = new VariableEntity { Id = 10 };
 
         context.Variables.Add(variable);
 

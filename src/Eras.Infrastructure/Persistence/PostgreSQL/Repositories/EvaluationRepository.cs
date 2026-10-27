@@ -165,7 +165,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .CountAsync();
         }
 
-        public async Task<IEnumerable<Evaluation>> GetExpiredWithPendingStatusAsync(IEnumerable<string> status, DateTime endDateBefore, CancellationToken ct) 
+        public async Task<IEnumerable<Evaluation>> GetExpiredWithPendingStatusAsync(IEnumerable<string> status, DateTime endDateBefore, CancellationToken ct)
         {
             var entities = await _context.Evaluations
                 .Include(e => e.EvaluationPolls)

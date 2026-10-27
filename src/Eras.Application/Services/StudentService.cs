@@ -2,6 +2,7 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Services
@@ -64,8 +65,8 @@ namespace Eras.Application.Services
 
         private bool ValidateStudentDto(StudentImportDto Dto)
         {
-            return !string.IsNullOrWhiteSpace(Dto.Name) 
-                && !string.IsNullOrWhiteSpace(Dto.Email) 
+            return !string.IsNullOrWhiteSpace(Dto.Name)
+                && !string.IsNullOrWhiteSpace(Dto.Email)
                 && !string.IsNullOrWhiteSpace(Dto.SISId);
         }
     }

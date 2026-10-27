@@ -9,7 +9,8 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Components.Queries.GetByName;
-public class GetComponentByNameQueryHandler: IRequestHandler<GetComponentByNameQuery, GetQueryResponse<Component>>
+
+public class GetComponentByNameQueryHandler : IRequestHandler<GetComponentByNameQuery, GetQueryResponse<Component>>
 {
     private IComponentRepository _componentRepository;
     private ILogger<GetComponentByNameQueryHandler> _logger;
@@ -23,9 +24,9 @@ public class GetComponentByNameQueryHandler: IRequestHandler<GetComponentByNameQ
     {
 
         var response = await _componentRepository.GetByNameAsync(Request.componentName);
-        if (response == null) 
+        if (response == null)
         {
-            return new GetQueryResponse<Component>(new Component(), "Component Found0", true,QueryEnums.QueryResultStatus.NotFound);
+            return new GetQueryResponse<Component>(new Component(), "Component Found0", true, QueryEnums.QueryResultStatus.NotFound);
         }
         return new GetQueryResponse<Component>(response, "Component Found0", true, QueryEnums.QueryResultStatus.Success);
     }

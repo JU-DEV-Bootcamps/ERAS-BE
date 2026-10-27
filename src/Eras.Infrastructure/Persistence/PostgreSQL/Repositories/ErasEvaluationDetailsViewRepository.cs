@@ -17,7 +17,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
     public async Task<List<ErasEvaluationDetailsView>> GetByFiltersAsync(int? PollId, List<int>? ComponentIds, List<int>? CohortIds, List<int>? VariableIds)
     {
         var query = _context.Set<ErasEvaluationDetailsViewEntity>().AsNoTracking();
-        
+
         if (PollId.HasValue)
         {
             query = query.Where(v => v.PollId == PollId.Value);
@@ -175,7 +175,7 @@ public class ErasEvaluationDetailsViewRepository : BaseRepository<Domain.Entitie
             .AsNoTracking()
             .Where(v => CohortIds.Contains(v.CohortId))
             .Where(v => ComponentNames.Contains(v.ComponentName))
-            .Where(v => v.FinishedAt >= startDate && v.FinishedAt <= endDate); 
+            .Where(v => v.FinishedAt >= startDate && v.FinishedAt <= endDate);
 
         if (EvaluationId.HasValue)
             query = query.Where(v => v.EvaluationId == EvaluationId.Value);

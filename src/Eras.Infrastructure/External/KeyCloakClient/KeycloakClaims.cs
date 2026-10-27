@@ -1,4 +1,5 @@
 namespace Eras.Infrastructure.External.KeycloakClient;
+
 public class KeycloakClaims
 {
     public required string Sub { get; init; }
@@ -10,5 +11,5 @@ public class KeycloakClaims
 
 public class Resource
 {
-    public required string[] roles {get; init;} 
+    public required string[] roles { get; init; }
 }

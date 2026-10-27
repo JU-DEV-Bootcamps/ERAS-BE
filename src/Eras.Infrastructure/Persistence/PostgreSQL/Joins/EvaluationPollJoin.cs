@@ -3,7 +3,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Joins
 {
-    public class EvaluationPollJoin: BaseEntity
+    public class EvaluationPollJoin : BaseEntity
     {
         public int PollId { get; set; }
 

@@ -15,7 +15,7 @@ public class ErasEvaluationDetailsViewConfiguration : IEntityTypeConfiguration<E
 {
     public void Configure(EntityTypeBuilder<ErasEvaluationDetailsViewEntity> Builder)
     {
-        
+
         Builder.ToView("verasevaluationdetails");
 
         Builder.HasNoKey();

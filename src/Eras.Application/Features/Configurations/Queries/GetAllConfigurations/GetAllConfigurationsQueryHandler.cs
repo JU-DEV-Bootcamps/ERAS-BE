@@ -1,8 +1,11 @@
 ﻿using Eras.Application.Contracts.Persistence;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Configurations.Queries.GetAllConfigurations;
+
 public class GetAllConfigurationsQueryHandler : IRequestHandler<GetAllConfigurationsQuery, List<Domain.Entities.Configurations>>
 {
     private readonly IConfigurationsRepository _configurationsRepository;

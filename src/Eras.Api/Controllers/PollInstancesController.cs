@@ -1,15 +1,15 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-using Eras.Application.Utils;
 using Eras.Application.Features.Cohorts.Queries.GetCohortComponentsByPoll;
 using Eras.Application.Features.Components.Queries;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
+using Eras.Application.Utils;
 using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 
@@ -29,7 +29,7 @@ public class PollInstancesController(IMediator Mediator, ILogger<StudentsControl
             [FromQuery] Pagination Query,
             [FromQuery] bool LastVersion = true,
             [FromRoute] string PollUuid = "",
-            [FromQuery] int? EvaluationId = null 
+            [FromQuery] int? EvaluationId = null
     )
     {
         return Ok(await _mediator.Send(new GetPollInstanceByCohortAndDaysQuery(Query, CohortId, Days, LastVersion, PollUuid, EvaluationId)));

@@ -38,7 +38,7 @@ public class ProfessionalsControllerTests
     {
         // Arrange
         var pagination = new Pagination();
-        var response = new PagedResult<JUProfessional>( Items:
+        var response = new PagedResult<JUProfessional>(Items:
             [new JUProfessional()
             {
                 Id = 1,
@@ -78,7 +78,7 @@ public class ProfessionalsControllerTests
         var professional = new JUProfessional();
         var response = new CreateCommandResponse<JUProfessional>(professional, "Success", true);
         _mediatorMock
-            .Setup(X => X.Send(It.IsAny<CreateProfessionalCommand>(),It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<CreateProfessionalCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(response);
 
         // Act

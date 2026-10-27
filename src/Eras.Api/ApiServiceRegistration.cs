@@ -1,6 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
+
+using Eras.Api.Filters;
+
 using Microsoft.OpenApi.Models;
-using Eras.Api.Filters; 
 
 namespace Eras.Api
 {

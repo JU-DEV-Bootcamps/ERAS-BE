@@ -3,7 +3,8 @@ using System.ComponentModel.DataAnnotations;
 using Eras.Domain.Common;
 
 namespace Eras.Application.DTOs;
-public class JUServiceDTO 
+
+public class JUServiceDTO
 {
     [Required(ErrorMessage = "JUService Id is required.")]
     [Range(0, 2147483647, ErrorMessage = "Id must be greater or equal to 0.")]

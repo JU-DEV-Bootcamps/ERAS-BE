@@ -31,8 +31,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             foreach (var q in pagedQuestions)
             {
                 var answer = _context.ErasCalculationsByPoll
-                    .Where(E => E.StudentId == StudentId && E.PollId == PollId && 
-                               E.Question == q.Question && E.Position == q.Position && 
+                    .Where(E => E.StudentId == StudentId && E.PollId == PollId &&
+                               E.Question == q.Question && E.Position == q.Position &&
                                E.ComponentName == q.ComponentName)
                     .Select(E => new StudentAnswer
                     {
@@ -43,13 +43,13 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                         Score = E.AnswerRisk
                     })
                     .First();
-                
+
                 studentAnswers.Add(answer);
             }
 
             return Task.FromResult(new PagedResult<StudentAnswer>(totalCount, studentAnswers));
         }
-        
+
         public Task<List<StudentAnswer>> GetStudentAnswersAsync(int StudentId, int PollId)
         {
             var studentAnswers = from a in _context.Answers

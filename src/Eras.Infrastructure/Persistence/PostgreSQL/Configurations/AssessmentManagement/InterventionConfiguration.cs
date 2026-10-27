@@ -1,5 +1,7 @@
 using System.Text.Json;
+
 using Eras.Domain.Entities.AssessmentManagement;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -9,7 +11,7 @@ public sealed class InterventionConfiguration : IEntityTypeConfiguration<Interve
 {
     public void Configure(EntityTypeBuilder<Intervention> builder)
     {
-        
+
         builder.Property(e => e.Activity)
             .HasColumnName("activity")
             .HasMaxLength(200);

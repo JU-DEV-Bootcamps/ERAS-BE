@@ -1,17 +1,20 @@
 ﻿using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
-using Eras.Domain.Entities;
-using Microsoft.Extensions.Logging;
-using Eras.Application.Utils;
-using Moq;
-using Eras.Application.Models.Response.Common;
 using Eras.Application.DTOs;
+using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
+using Eras.Application.Models.Response.Common;
+using Eras.Application.Utils;
+using Eras.Domain.Entities;
+
+using Microsoft.Extensions.Logging;
+
+using Moq;
 
 namespace Eras.Application.Tests.Features.PollInstances.Queries;
+
 public class GetPollInstanceByCohortAndDaysQueryHandlerTest
 {
     private readonly Mock<IPollInstanceRepository> _mockPollInstanceRepository;
-    private readonly Mock<IEvaluationRepository> _mockEvaluationRepository; 
+    private readonly Mock<IEvaluationRepository> _mockEvaluationRepository;
     private readonly Mock<ILogger<GetPollInstanceByCohortAndDaysQueryHandler>> _mockLogger;
     private readonly GetPollInstanceByCohortAndDaysQueryHandler _handler;
 
@@ -24,7 +27,7 @@ public class GetPollInstanceByCohortAndDaysQueryHandlerTest
     }
 
     private static PollInstance BuildPollInstance(DateTime? FinishedAt, int Id = 1, string Uuid = "m0ck-Uu1D")
-        => new ()
+        => new()
         {
             Id = Id,
             Uuid = Uuid,

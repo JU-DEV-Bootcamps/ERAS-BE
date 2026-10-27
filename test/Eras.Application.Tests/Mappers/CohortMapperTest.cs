@@ -1,9 +1,11 @@
 ﻿using System;
-using Eras.Application.Mappers;
+
 using Eras.Application.DTOs;
+using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Tests.Mappers;
+
 public class CohortMapperTest
 {
     [Fact]

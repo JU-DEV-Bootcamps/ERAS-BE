@@ -3,6 +3,7 @@
 using Eras.Domain.Common;
 
 namespace Eras.Application.DTOs;
+
 public class ConfigurationsDTO
 {
     [Required(ErrorMessage = "Configuration Id is required.")]

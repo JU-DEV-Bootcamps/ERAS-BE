@@ -6,8 +6,8 @@ using Eras.Domain.Entities.AssessmentManagement;
 
 using MediatR;
 
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Eras.Application.Features.RemissionManagement.Handlers;
 
@@ -17,7 +17,7 @@ public sealed class UploadInterventionAttachmentsCommandHandler
     private readonly IAssessmentRepository _repository;
     private readonly IFileStorageService _fileStorage;
     private readonly FileStorageSettings _settings;
-    private readonly ILogger<UploadInterventionAttachmentsCommandHandler> _logger; 
+    private readonly ILogger<UploadInterventionAttachmentsCommandHandler> _logger;
 
     public UploadInterventionAttachmentsCommandHandler(
         IAssessmentRepository repository,

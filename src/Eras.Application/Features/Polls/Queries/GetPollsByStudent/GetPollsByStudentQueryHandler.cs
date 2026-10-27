@@ -2,7 +2,9 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Polls.Queries.GetPollsByCohort;
 using Eras.Application.Models.Response.Controllers.PollsController;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Polls.Queries.GetPollsByStudent

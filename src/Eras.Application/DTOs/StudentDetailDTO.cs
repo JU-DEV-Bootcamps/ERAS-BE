@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 using Eras.Domain.Common;
 
 namespace Eras.Application.DTOs;

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Cohorts.Commands;
+
 public class CreateCohortCommandHandlerTest
 {
     private readonly Mock<ICohortRepository> _mockCohortRepository;
@@ -20,7 +21,7 @@ public class CreateCohortCommandHandlerTest
     {
         _mockCohortRepository = new Mock<ICohortRepository>();
         _mockLogger = new Mock<ILogger<CreateCohortCommandHandler>>();
-        _handler = new CreateCohortCommandHandler(_mockCohortRepository.Object,_mockLogger.Object);
+        _handler = new CreateCohortCommandHandler(_mockCohortRepository.Object, _mockLogger.Object);
     }
 
     [Fact]
@@ -51,10 +52,10 @@ public class CreateCohortCommandHandlerTest
         Cohort createdCohort = newCohort.ToDomain();
 
         var command = new CreateCohortCommand { CohortDto = newCohort };
-        
+
         _mockCohortRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Cohort>()))
             .ReturnsAsync(createdCohort);
-        
+
         CreateCommandResponse<Cohort> result = await _handler.Handle(command, CancellationToken.None);
 
         _mockCohortRepository.Verify(Repo => Repo.AddAsync(It.IsAny<Cohort>()), Times.Once);
@@ -74,7 +75,7 @@ public class CreateCohortCommandHandlerTest
 
         _mockCohortRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Cohort>()))
             .ThrowsAsync(new Exception("Error saving cohort."));
-        
+
         CreateCommandResponse<Cohort> result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.NotNull(result.Entity);

@@ -32,7 +32,7 @@ namespace Eras.Application.DTOs.CL
             {
                 var value = Reader.GetString();
                 if (value == null)
-                    return new string[] { string.Empty};
+                    return new string[] { string.Empty };
                 return new string[] { value };
             }
             throw new JsonException("An array or string was expected.");

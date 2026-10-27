@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MediatR;
 
 namespace Eras.Application.Features.ServiceProviders.Queries;
+
 public class GetAllServiceProvidersQuery : IRequest<List<Domain.Entities.ServiceProviders>>
 {
 }

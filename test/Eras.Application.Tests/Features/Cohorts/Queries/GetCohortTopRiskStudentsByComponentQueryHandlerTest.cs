@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Cohorts.Queries;
+
 public class GetCohortTopRiskStudentsByComponentQueryHandlerTest
 {
     private readonly Mock<ICohortRepository> _mockCohortRepository;
@@ -33,7 +34,7 @@ public class GetCohortTopRiskStudentsByComponentQueryHandlerTest
             RiskSum = RiskSum
         };
     }
-    
+
     [Fact]
     public async Task Handler_ShouldReturnPagedResultWithCohortTopRiskStudentsByComponent()
     {
@@ -48,7 +49,8 @@ public class GetCohortTopRiskStudentsByComponentQueryHandlerTest
         _mockCohortRepository.Setup(Repo => Repo.CountStudentsAsync("mock_uuid", 1, true, "Test"))
             .ReturnsAsync(2);
 
-        var query = new GetCohortTopRiskStudentsByComponentQuery {
+        var query = new GetCohortTopRiskStudentsByComponentQuery
+        {
             PollUuid = "mock_uuid",
             ComponentName = "Test",
             CohortId = 1,
@@ -80,7 +82,8 @@ public class GetCohortTopRiskStudentsByComponentQueryHandlerTest
             It.IsAny<int>())
         ).ThrowsAsync(new Exception("Error retrieving cohorts."));
 
-       var query = new GetCohortTopRiskStudentsByComponentQuery {
+        var query = new GetCohortTopRiskStudentsByComponentQuery
+        {
             PollUuid = "mock_uuid",
             ComponentName = "Test",
             CohortId = 1,
@@ -112,7 +115,8 @@ public class GetCohortTopRiskStudentsByComponentQueryHandlerTest
         _mockCohortRepository.Setup(Repo => Repo.CountStudentsAsync("mock_uuid", 1, true, "Test"))
             .ReturnsAsync(0);
 
-        var query = new GetCohortTopRiskStudentsByComponentQuery {
+        var query = new GetCohortTopRiskStudentsByComponentQuery
+        {
             PollUuid = "mock_uuid",
             ComponentName = "Test",
             CohortId = 1,

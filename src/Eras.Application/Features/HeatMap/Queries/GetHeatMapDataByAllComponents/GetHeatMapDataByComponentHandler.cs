@@ -1,10 +1,12 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
-using Microsoft.Extensions.Logging;
-using MediatR;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.HeatMap;
 using Eras.Error.Bussiness;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponents
 {
@@ -14,7 +16,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponent
         private readonly IComponentRepository _componentRepository;
         private readonly ILogger<GetHeatMapDataByAllComponentsHandler> _logger;
 
-        public GetHeatMapDataByAllComponentsHandler(IHeatMapRepository HeatMapRepository, IComponentRepository ComponentRepository , ILogger<GetHeatMapDataByAllComponentsHandler> Logger)
+        public GetHeatMapDataByAllComponentsHandler(IHeatMapRepository HeatMapRepository, IComponentRepository ComponentRepository, ILogger<GetHeatMapDataByAllComponentsHandler> Logger)
         {
             _heatMapRepository = HeatMapRepository;
             _componentRepository = ComponentRepository;
@@ -46,7 +48,8 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapDataByAllComponent
 
                 return new GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>(bodyData, "Success", true);
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 _logger.LogError(ex, "An error occurred getting the heat map data by components");
                 return new GetQueryResponse<IEnumerable<HeatMapByComponentsResponseVm>>([], "Failed", false);
             }

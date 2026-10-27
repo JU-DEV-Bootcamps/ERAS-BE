@@ -23,45 +23,45 @@ public static class ValidationTestHelper
 }
 
 public class ValidationHelperTests
+{
+    [Fact]
+    public async Task ValidateAndThrowAsync_DoesNotThrow_WhenValidationIsSuccessful()
     {
-        [Fact]
-        public async Task ValidateAndThrowAsync_DoesNotThrow_WhenValidationIsSuccessful()
-        {
-            var validator = new Mock<IValidator<string>>();
-            var instance = "valid";
-            var cancellationToken = CancellationToken.None;
+        var validator = new Mock<IValidator<string>>();
+        var instance = "valid";
+        var cancellationToken = CancellationToken.None;
 
-            validator
-                .Setup(v => v.ValidateAsync(instance, cancellationToken))
-                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+        validator
+            .Setup(v => v.ValidateAsync(instance, cancellationToken))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
-            await ValidationHelper.ValidateAndThrowAsync(
-                validator.Object,
-                instance,
-                cancellationToken);
-        }
+        await ValidationHelper.ValidateAndThrowAsync(
+            validator.Object,
+            instance,
+            cancellationToken);
+    }
 
-        [Fact]
-        public async Task ValidateAndThrowAsync_ThrowsValidationException_WhenValidationFails()
-        {
-            var validator = new Mock<IValidator<string>>();
-            var instance = "invalid";
-            var cancellationToken = CancellationToken.None;
+    [Fact]
+    public async Task ValidateAndThrowAsync_ThrowsValidationException_WhenValidationFails()
+    {
+        var validator = new Mock<IValidator<string>>();
+        var instance = "invalid";
+        var cancellationToken = CancellationToken.None;
 
-            var errors = new List<ValidationFailure>
+        var errors = new List<ValidationFailure>
             {
                 new("Name", "Name is required")
             };
 
-            validator
-                .Setup(v => v.ValidateAsync(instance, cancellationToken))
-                .ReturnsAsync(new FluentValidation.Results.ValidationResult(errors));
+        validator
+            .Setup(v => v.ValidateAsync(instance, cancellationToken))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult(errors));
 
-            await Assert.ThrowsAsync<FluentValidation.ValidationException>(() =>
-                ValidationHelper.ValidateAndThrowAsync(
-                    validator.Object,
-                    instance,
-                    cancellationToken));
-        }
+        await Assert.ThrowsAsync<FluentValidation.ValidationException>(() =>
+            ValidationHelper.ValidateAndThrowAsync(
+                validator.Object,
+                instance,
+                cancellationToken));
     }
+}
 //}

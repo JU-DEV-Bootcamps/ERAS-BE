@@ -5,10 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
+
 public class UserPollsConfiguration : IEntityTypeConfiguration<UserPollsEntity>
 {
     public void Configure(EntityTypeBuilder<UserPollsEntity> Builder)

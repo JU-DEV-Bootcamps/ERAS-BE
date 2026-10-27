@@ -2,7 +2,9 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Polls.Commands.CreatePoll;
 using Eras.Application.Models.Response.Controllers.PollsController;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Polls.Queries.GetPollsByCohort
@@ -12,7 +14,7 @@ namespace Eras.Application.Features.Polls.Queries.GetPollsByCohort
         private readonly IPollCohortRepository _repository;
         private readonly ILogger<GetPollsByCohortListQueryHandler> _logger;
 
-        public GetPollsByCohortListQueryHandler( IPollCohortRepository PollCohortRepository, ILogger<GetPollsByCohortListQueryHandler> Logger)
+        public GetPollsByCohortListQueryHandler(IPollCohortRepository PollCohortRepository, ILogger<GetPollsByCohortListQueryHandler> Logger)
         {
             _repository = PollCohortRepository;
             _logger = Logger;

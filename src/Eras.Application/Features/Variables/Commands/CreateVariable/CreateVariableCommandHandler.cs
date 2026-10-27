@@ -2,7 +2,9 @@
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Variables.Commands.CreateVariable
@@ -35,7 +37,7 @@ namespace Eras.Application.Features.Variables.Commands.CreateVariable
 
 
                 Variable? variable = Request.Variable?.ToDomain();
-                if (variable!= null)
+                if (variable != null)
                 {
                     variable.IdComponent = Request.ComponentId;
                     variable.IdPoll = Request.PollId;

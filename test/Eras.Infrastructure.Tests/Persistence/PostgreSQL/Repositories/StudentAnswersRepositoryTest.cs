@@ -201,8 +201,8 @@ public class StudentAnswersRepositoryTest : RepositoryTestBase
         var repository = new StudentAnswersRepository(context);
 
         // Act
-        var result = await repository.GetStudentAnswersPagedAsync(StudentId: 1,PollId: 10, Page: 1, PageSize: 10);
- 
+        var result = await repository.GetStudentAnswersPagedAsync(StudentId: 1, PollId: 10, Page: 1, PageSize: 10);
+
         // Assert
         Assert.Equal(2, result.Items.Count);
 
@@ -248,7 +248,7 @@ public class StudentAnswersRepositoryTest : RepositoryTestBase
         var repository = new StudentAnswersRepository(context);
 
         // Act
-        var result = await repository.GetStudentAnswersPagedAsync(StudentId: 1, PollId: 10, Page: 2,PageSize: 10);
+        var result = await repository.GetStudentAnswersPagedAsync(StudentId: 1, PollId: 10, Page: 2, PageSize: 10);
 
         // Assert
         Assert.Equal(2, result.Count);

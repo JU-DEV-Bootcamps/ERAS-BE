@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Cohorts.Queries;
+
 public class GetCohortComponentsByPollQueryHandlerTest
 {
     private readonly Mock<IPollCohortRepository> _mockPollCohortRepository;
@@ -18,7 +19,7 @@ public class GetCohortComponentsByPollQueryHandlerTest
         _mockLogger = new Mock<ILogger<GetCohortComponentsByPollQueryHandler>>();
         _handler = new GetCohortComponentsByPollQueryHandler(_mockPollCohortRepository.Object, _mockLogger.Object);
     }
-    
+
     private static GetCohortComponentsByPollResponse BuildCohortComponentByPoll(int CohortId = 1, string CohortName = "Test", string ComponentName = "Test")
     {
         return new GetCohortComponentsByPollResponse
@@ -28,7 +29,7 @@ public class GetCohortComponentsByPollQueryHandlerTest
             ComponentName = ComponentName
         };
     }
-    
+
     [Fact]
     public async Task Handle_ShouldReturnListOfCohortComponentsByPoll()
     {

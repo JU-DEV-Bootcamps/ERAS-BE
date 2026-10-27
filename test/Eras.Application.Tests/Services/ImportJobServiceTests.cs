@@ -75,7 +75,7 @@ public class ImportJobServiceTests
             PollId = 1,
             ConfigurationId = 1,
             EvaluationPollId = 1,
-        }; 
+        };
         var startDate = "2026-01-01";
         var endDate = "2026-12-31";
         var evaluationId = 1;

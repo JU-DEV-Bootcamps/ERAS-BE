@@ -10,9 +10,11 @@ using Eras.Domain.Entities;
 using MediatR;
 
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Commands;
+
 public class CreateStudentsCommandHandlerTests
 {
     private readonly Mock<IStudentRepository> _mockStudentRepository;
@@ -33,7 +35,7 @@ public class CreateStudentsCommandHandlerTests
     }
 
     private static StudentImportDto ValidDTO(string Email = "student@test.com", string Name = "Hector Lenon") =>
-        new ()
+        new()
         {
             Name = Name,
             Email = Email,
@@ -49,7 +51,7 @@ public class CreateStudentsCommandHandlerTests
         };
 
     private static StudentImportDto DefaultDTO(string Email = "default@test.com", string Name = "Tales De Mileto") =>
-        new ()
+        new()
         {
             Name = Name,
             Email = Email,
@@ -76,7 +78,7 @@ public class CreateStudentsCommandHandlerTests
         _mockMediator
             .Setup(m => m.Send(It.IsAny<CreateStudentCommand>(), CancellationToken.None))
             .ReturnsAsync(new CreateCommandResponse<Student>(CreatedStudent, 1, "Success", true));
-    private void SetupCreatedStudentDetail(StudentDetail? StudentDetail) => 
+    private void SetupCreatedStudentDetail(StudentDetail? StudentDetail) =>
         _mockMediator
             .Setup(m => m.Send(It.IsAny<CreateStudentDetailCommand>(), CancellationToken.None))
             .ReturnsAsync(new CreateCommandResponse<StudentDetail>(StudentDetail ?? new StudentDetail(), 1, "Success", true));
@@ -133,7 +135,7 @@ public class CreateStudentsCommandHandlerTests
     {
         var invalidDTO = new StudentImportDto { Name = "J0se Muñoz", Email = "invalid.mail", SISId = "" };
 
-        var command = new CreateStudentsCommand { students =[invalidDTO] };
+        var command = new CreateStudentsCommand { students = [invalidDTO] };
 
         CreateCommandResponse<Student[]> result = await _handler.Handle(command, CancellationToken.None);
 
@@ -171,10 +173,12 @@ public class CreateStudentsCommandHandlerTests
     public async Task Handler_ShouldGenerateStudentDetail_WhenCreatedStudentDoesNotHaveDetails()
     {
         StudentImportDto studentImportDTO = ValidDTO();
-        var createdEntity = new Student {
+        var createdEntity = new Student
+        {
             Name = studentImportDTO.Name,
             Email = studentImportDTO.Email,
-            StudentDetail = new StudentDetail {
+            StudentDetail = new StudentDetail
+            {
                 Id = 0,
                 Audit = new Domain.Common.AuditInfo { ModifiedAt = DateTime.Now }
             }
@@ -195,7 +199,8 @@ public class CreateStudentsCommandHandlerTests
     public async Task Handler_ShouldSkipStudentDetailCreation_WhenDTOHasDefaultDetailData()
     {
         StudentImportDto studentImportDTO = DefaultDTO();
-        var createdEntity = new Student {
+        var createdEntity = new Student
+        {
             Name = studentImportDTO.Name,
             Email = studentImportDTO.Email,
             StudentDetail = new StudentDetail { Id = 1 }
@@ -215,7 +220,8 @@ public class CreateStudentsCommandHandlerTests
     public async Task Handler_ShouldSkipStudentDetailCreation_WhenStudentAlreadyHasDetail()
     {
         StudentImportDto studentImportDTO = ValidDTO();
-        var createdEntity = new Student {
+        var createdEntity = new Student
+        {
             Name = studentImportDTO.Name,
             Email = studentImportDTO.Email,
             StudentDetail = new StudentDetail { Id = 1 }
@@ -238,14 +244,18 @@ public class CreateStudentsCommandHandlerTests
         StudentImportDto existingDto = ValidDTO("existing@test.com", "Existing Student");
         var invalidDto = new StudentImportDto { Name = "", Email = "", SISId = "" };
 
-        var createdStudent = new Student {
+        var createdStudent = new Student
+        {
             Name = newDto.Name,
             Email = newDto.Email,
-            StudentDetail = new StudentDetail { Audit = new Domain.Common.AuditInfo { ModifiedAt = DateTime.Now } } };
-        var existingStudent = new Student {
+            StudentDetail = new StudentDetail { Audit = new Domain.Common.AuditInfo { ModifiedAt = DateTime.Now } }
+        };
+        var existingStudent = new Student
+        {
             Name = existingDto.Name,
             Email = existingDto.Email,
-            StudentDetail = new StudentDetail { Id = 1 } };
+            StudentDetail = new StudentDetail { Id = 1 }
+        };
 
         SetupCreatedStudent(createdStudent);
         SetupCreatedStudentDetail(null);
@@ -301,8 +311,10 @@ public class CreateStudentsCommandHandlerTests
             PureScoreDiff = studentImportDto.RawScoreDifference,
             TimeDeliveryRate = studentImportDto.TimelySubmissions,
         };
-        var student = new Student {
-            StudentDetail = new StudentDetail {
+        var student = new Student
+        {
+            StudentDetail = new StudentDetail
+            {
                 Audit = new Domain.Common.AuditInfo { ModifiedAt = DateTime.UtcNow }
             }
         };

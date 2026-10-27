@@ -1,7 +1,9 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Queries.GetAllByPollAndDate
@@ -25,13 +27,13 @@ namespace Eras.Application.Features.Students.Queries.GetAllByPollAndDate
         {
             try
             {
-                (IEnumerable<Student> students, int totalCount) = 
+                (IEnumerable<Student> students, int totalCount) =
                     await _studentRepository.GetAllStudentsByPollUuidAndDaysQuery(
-                        Request.Query.Page, 
-                        Request.Query.PageSize, 
+                        Request.Query.Page,
+                        Request.Query.PageSize,
                         Request.PollUuid,
                         Request.Days);
- 
+
                 return new PagedResult<Student>(totalCount, students.ToList());
             }
             catch (Exception ex)

@@ -211,7 +211,7 @@ public class FeatureFlagControllerTests
     {
         // Arrange
         _mediatorMock
-            .Setup(X => X.Send(It.IsAny<DeleteFeatureFlagCommand>(),It.IsAny<CancellationToken>()))
+            .Setup(X => X.Send(It.IsAny<DeleteFeatureFlagCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new KeyNotFoundException());
 
         // Act

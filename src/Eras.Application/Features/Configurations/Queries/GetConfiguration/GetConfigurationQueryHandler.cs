@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Configurations.Queries.GetConfiguration;
+
 public class GetConfigurationQueryHandler : IRequestHandler<GetConfigurationQuery, Domain.Entities.Configurations>
 {
     IConfigurationsRepository _configurationsRepository;

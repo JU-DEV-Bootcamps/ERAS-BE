@@ -25,7 +25,7 @@ public class GetRiskCountQueryHandler(IPollVariableRepository PollVariableReposi
             var res = new RiskCountResponseVm()
             {
                 AnswerCount = results.Count,
-                AverageRisk = (decimal) Math.Round(results.Select(A => A.RiskLevel).Average(),2),
+                AverageRisk = (decimal)Math.Round(results.Select(A => A.RiskLevel).Average(), 2),
                 Risks = [..results
                     .GroupBy(A =>A.RiskLevel >= maxRiskLevel
                         ? maxRiskLevel - 1
@@ -50,7 +50,7 @@ public class GetRiskCountQueryHandler(IPollVariableRepository PollVariableReposi
         {
             _logger.LogError(e, "An error occurred while counting risks by poll: ");
             return new GetQueryResponse<RiskCountResponseVm>(
-                new RiskCountResponseVm() { AverageRisk = 0},
+                new RiskCountResponseVm() { AverageRisk = 0 },
                 $"Failed to retrieve risk count by poll. Error {e.Message}",
                 false
             );

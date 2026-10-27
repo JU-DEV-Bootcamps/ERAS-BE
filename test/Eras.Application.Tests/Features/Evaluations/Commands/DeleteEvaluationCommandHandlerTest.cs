@@ -41,7 +41,7 @@ namespace Eras.Application.Tests.Features.Evaluations.Commands
             Assert.Equal(exception.FriendlyMessage, expectedMessage);
             return Task.CompletedTask;
         }
-        
+
         [Fact]
         public async Task HandleComponentDeletesEvaluationAsync()
         {

@@ -136,7 +136,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Skip((Page - 1) * PageSize)
                 .Take(PageSize)
                 .ToListAsync();
-            
+
             return persistenceEntity.Select(Entity => _toDomain(Entity));
         }
         public async Task<int> CountAsync()
@@ -153,7 +153,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
                 return Entity;
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 throw new DatabaseCustomException(e);
             }

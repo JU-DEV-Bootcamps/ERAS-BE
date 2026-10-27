@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Cohorts.Queries.GetCohortComponentsByPoll;
+
 public class GetCohortComponentsByPollQueryHandler : IRequestHandler<GetCohortComponentsByPollQuery, List<GetCohortComponentsByPollResponse>>
 {
     private readonly IPollCohortRepository _pollCohortRepository;

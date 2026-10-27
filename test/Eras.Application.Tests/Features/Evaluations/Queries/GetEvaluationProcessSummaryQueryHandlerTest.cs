@@ -9,6 +9,7 @@ using Moq;
 using Xunit;
 
 namespace Eras.Application.Tests.Features.Evaluations.Queries;
+
 public class GetEvaluationProcessSummaryQueryHandlerTest
 {
     private readonly Mock<IEvaluationRepository> _evaluationRepository;

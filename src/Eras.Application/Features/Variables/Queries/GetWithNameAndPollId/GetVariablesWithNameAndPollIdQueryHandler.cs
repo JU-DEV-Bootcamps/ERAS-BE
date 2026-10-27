@@ -7,26 +7,28 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Variables.Queries.GetWithNameAndPollId;
-public class GetVariablesWithNameAndPollIdQueryHandler: 
+
+public class GetVariablesWithNameAndPollIdQueryHandler :
     IRequestHandler<GetVariablesWithNameAndPollIdQuery, GetQueryResponse<List<Variable>>>
 {
     private IVariableRepository _variableRepository;
     private ILogger<GetVariablesWithNameAndPollIdQueryHandler> _logger;
-    public GetVariablesWithNameAndPollIdQueryHandler(IVariableRepository VariableRepository, 
-        ILogger<GetVariablesWithNameAndPollIdQueryHandler> Logger) {
+    public GetVariablesWithNameAndPollIdQueryHandler(IVariableRepository VariableRepository,
+        ILogger<GetVariablesWithNameAndPollIdQueryHandler> Logger)
+    {
         _variableRepository = VariableRepository;
         _logger = Logger;
     }
 
-    public async Task<GetQueryResponse<List<Variable>>> Handle(GetVariablesWithNameAndPollIdQuery Request, 
+    public async Task<GetQueryResponse<List<Variable>>> Handle(GetVariablesWithNameAndPollIdQuery Request,
         CancellationToken CancellationToken)
     {
         // Only load variables already linked to this poll instead of scanning the whole table.
         List<Variable> result = Request.PollId > 0
             ? await _variableRepository.GetByPollIdAsync(Request.PollId)
             : await _variableRepository.GetAllWithNameAndPollIdAsync();
-        if (result.Count == 0) 
-            return new GetQueryResponse<List<Variable>>(result,"Variables Not Found",true,
+        if (result.Count == 0)
+            return new GetQueryResponse<List<Variable>>(result, "Variables Not Found", true,
                 Models.Enums.QueryEnums.QueryResultStatus.NotFound);
         return new GetQueryResponse<List<Variable>>(result, "Variables Found", true);
     }

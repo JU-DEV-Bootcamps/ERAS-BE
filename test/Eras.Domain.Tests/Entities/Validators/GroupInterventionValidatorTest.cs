@@ -4,6 +4,7 @@ using Eras.Domain.Entities.AssessmentManagement.Validators;
 using FluentValidation.TestHelper;
 
 namespace Eras.Domain.Tests.Entities.Validators;
+
 public class GroupInterventionValidatorTests
 {
     private readonly GroupInterventionValidator _validator = new();
@@ -29,7 +30,7 @@ public class GroupInterventionValidatorTests
             Attachments = Data.Attachments,
             RiskLevel = Data.RiskLevel
         };
-    
+
     [Fact]
     public void Should_NotHaveAnyValidationErrors_When_InterventionIsValid()
     {

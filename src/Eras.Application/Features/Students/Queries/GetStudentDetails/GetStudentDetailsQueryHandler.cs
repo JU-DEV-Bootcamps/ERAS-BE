@@ -1,7 +1,9 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -14,7 +16,7 @@ namespace Eras.Application.Features.Students.Queries.GetStudentDetails
         private readonly IStudentDetailRepository _studentDetailRepository;
         private readonly ILogger<GetStudentDetailsQueryHandler> _logger;
 
-        public GetStudentDetailsQueryHandler(IStudentRepository StudentRepository, 
+        public GetStudentDetailsQueryHandler(IStudentRepository StudentRepository,
             ILogger<GetStudentDetailsQueryHandler> Logger,
             IStudentDetailRepository StudentDetailRepository)
         {

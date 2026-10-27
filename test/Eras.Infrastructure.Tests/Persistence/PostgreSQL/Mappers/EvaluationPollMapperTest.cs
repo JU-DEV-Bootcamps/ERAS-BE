@@ -1,7 +1,7 @@
-﻿using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+﻿using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
-using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
+using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
 {
@@ -30,7 +30,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Mappers
             {
                 Id = 1,
                 PollId = 2,
-                EvaluationPollId= 3
+                EvaluationPollId = 3
             };
             var result = EvaluationPollMapper.ToPersistence(entity);
             Assert.NotNull(result);

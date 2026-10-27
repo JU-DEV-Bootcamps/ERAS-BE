@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Domain.Entities;
 
@@ -17,7 +18,7 @@ public static class EvaluationStatusService
             return EvaluationConstants.EvaluationStatus.Pending;
         }
 
-        bool hasAnswers = evaluation.PollInstances != null && 
+        bool hasAnswers = evaluation.PollInstances != null &&
             evaluation.PollInstances.Any(pi => pi.Answers.Count > 0 || pi.SourcePollInstanceId != null);
 
         var now = DateTime.UtcNow;

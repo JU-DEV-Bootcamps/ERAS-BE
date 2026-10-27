@@ -32,10 +32,10 @@ namespace Eras.Application.Features.Evaluations.Commands.UpdateEvaluation
                 ?? throw new NotFoundException($"Evaluation with ID {Request.EvaluationDTO.Id} not found");
 
             Evaluation? evaluation = await _evaluationRepository.GetByNameForUpdateAsync(Request.EvaluationDTO.Id, Request.EvaluationDTO.Name);
-            if (evaluation != null) 
+            if (evaluation != null)
             {
                 throw new ExistingEvaluationNameException(Request.EvaluationDTO.Name);
-            }                
+            }
 
             // Fields always updatable
             evaluationDB.Name = Request.EvaluationDTO.Name;

@@ -14,7 +14,7 @@ public static class ErasEvaluationDetailsViewMapper
     {
         return new Domain.Entities.ErasEvaluationDetailsView
         {
-            
+
             EvaluationId = Entity.EvaluationId,
             EvaluationName = Entity.EvaluationName,
             StartDate = Entity.StartDate,
@@ -65,7 +65,7 @@ public static class ErasEvaluationDetailsViewMapper
             VariableName = Model.VariableName,
             ComponentId = Model.ComponentId,
             ComponentName = Model.ComponentName,
-            VariableVersion = Model .VariableVersion,
+            VariableVersion = Model.VariableVersion,
         };
     }
 }

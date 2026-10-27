@@ -1,16 +1,18 @@
-﻿using Eras.Application.Mappers;
-using Eras.Application.Contracts.Persistence;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Eras.Domain.Entities;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
-using Eras.Domain.Common;
-using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
-using Eras.Application.Models.Response.Common;
-using Eras.Application.Features.Students.Queries.GetByEmail;
 using Eras.Application.Features.Students.Commands.UpdateStudent;
+using Eras.Application.Features.Students.Queries.GetByEmail;
+using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
+using Eras.Application.Mappers;
+using Eras.Application.Models.Response.Common;
 using Eras.Application.Utils;
+using Eras.Domain.Common;
+using Eras.Domain.Entities;
 using Eras.Error.Bussiness;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Commands.CreateStudent
 {
@@ -73,7 +75,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                         else if (studentCreatedOrChanged.Success)
                         {
                             bool studentAlreadyHasDetail = studentCreatedOrChanged.Entity!.StudentDetail?.Id != 0;
-                            
+
                             if (!HasDefaultDetailData(dto) && !studentAlreadyHasDetail)
                             {
                                 CreateCommandResponse<StudentDetail> createdStudentDetail =
@@ -89,7 +91,8 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
                                 createdStudents.Add(studentCreatedOrChanged.Entity);
                             }
                         }
-                    } else
+                    }
+                    else
                     {
                         Student errorStudent = new Student
                         {
@@ -104,7 +107,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred during the massive import process");
-                return new CreateCommandResponse<Student[]>([new Student()],0, "Error", false);
+                return new CreateCommandResponse<Student[]>([new Student()], 0, "Error", false);
             }
         }
         public async Task<CreateCommandResponse<StudentDetail>> CreateStudentDetailAsync(Student Student, StudentImportDto Dto)
@@ -133,7 +136,7 @@ namespace Eras.Application.Features.Students.Commands.CreateStudent
 
         private bool HasDefaultDetailData(StudentImportDto Dto)
         {
-            return Dto.EnrolledCourses == 0 && Dto.TimelySubmissions == 0 && Dto.AverageScore == 0 && Dto.CoursesBelowAverage == 0 
+            return Dto.EnrolledCourses == 0 && Dto.TimelySubmissions == 0 && Dto.AverageScore == 0 && Dto.CoursesBelowAverage == 0
                 && Dto.RawScoreDifference == 0 && Dto.StandardScoreDifference == 0 && Dto.DaysSinceLastAccess == 0;
         }
     }

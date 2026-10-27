@@ -1,21 +1,23 @@
-﻿using MediatR;
-using Eras.Application.Contracts.Persistence;
-using Microsoft.Extensions.Logging;
+﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.HeatMap;
 using Eras.Error.Bussiness;
 
+using MediatR;
+
+using Microsoft.Extensions.Logging;
+
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
 {
-    public class GetHeatMapSummaryByFiltersHandler 
+    public class GetHeatMapSummaryByFiltersHandler
         : IRequestHandler<GetHeatMapSummaryByFiltersQuery, GetQueryResponse<HeatMapSummaryResponseVm>>
     {
         private readonly IHeatMapRepository _heatMapRepository;
         private readonly ILogger<GetHeatMapSummaryByFiltersHandler> _logger;
 
         public GetHeatMapSummaryByFiltersHandler(
-            IHeatMapRepository HeatMapRepository, 
+            IHeatMapRepository HeatMapRepository,
             ILogger<GetHeatMapSummaryByFiltersHandler> Logger)
         {
             _heatMapRepository = HeatMapRepository;
@@ -23,14 +25,14 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
         }
 
         public async Task<GetQueryResponse<HeatMapSummaryResponseVm>> Handle(
-            GetHeatMapSummaryByFiltersQuery Request, 
+            GetHeatMapSummaryByFiltersQuery Request,
             CancellationToken CancellationToken)
         {
             try
             {
-                var answersByFilters = await _heatMapRepository.GetHeatMapDataByCohortAndDaysAsync(Request.CohortId, Request.Days) 
+                var answersByFilters = await _heatMapRepository.GetHeatMapDataByCohortAndDaysAsync(Request.CohortId, Request.Days)
                     ?? throw new NotFoundException($"Error in query for filters: {Request.CohortId} - {Request.Days}");
-                
+
                 if (!answersByFilters.Any()) // Returns empty response
                     return new GetQueryResponse<HeatMapSummaryResponseVm>(new HeatMapSummaryResponseVm(), "Success", true);
 
@@ -38,7 +40,7 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters
 
                 return new GetQueryResponse<HeatMapSummaryResponseVm>(mappedData, "Success", true);
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "An error occurred getting the heat map summary data by filters");
                 return new GetQueryResponse<HeatMapSummaryResponseVm>(new HeatMapSummaryResponseVm(), "Failed", false);

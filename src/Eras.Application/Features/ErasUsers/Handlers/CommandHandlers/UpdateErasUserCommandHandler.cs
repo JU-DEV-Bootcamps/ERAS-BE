@@ -10,6 +10,7 @@ using FluentValidation;
 using MediatR;
 
 namespace Eras.Application.Features.ErasUsers.Handlers.CommandHandlers;
+
 public sealed class UpdateErasUserCommandHandler(
     IErasUsersRepository Repository,
     IValidator<ErasUser> Validator
@@ -32,7 +33,7 @@ public sealed class UpdateErasUserCommandHandler(
 
         if (existingEntity is null)
             throw new NotFoundException($"User {dto.Email} not found.");
-        
+
         if (dto.Audit.ModifiedAt == default)
             dto.Audit.ModifiedAt = DateTime.UtcNow;
 

@@ -69,7 +69,7 @@ public class ServiceProvidersControllerTests
     {
         // Arrange
         var dto = new ServiceProvidersDTO() { ServiceProviderName = "", ServiceProviderLogo = "b" };
-        var serviceProvider = new ServiceProviders() 
+        var serviceProvider = new ServiceProviders()
         {
             ServiceProviderName = "A",
             ServiceProviderLogo = "logo",

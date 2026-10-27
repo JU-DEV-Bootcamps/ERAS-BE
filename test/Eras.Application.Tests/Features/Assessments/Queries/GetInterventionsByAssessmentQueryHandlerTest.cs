@@ -113,7 +113,7 @@ public class GetInterventionsByAssessmentQueryHandlerTests
     {
         // Arrange
         var assessmentId = 2;
-        var assessment = new Assessment 
+        var assessment = new Assessment
         {
             CreatedBy = "me",
             Service = "workshop",

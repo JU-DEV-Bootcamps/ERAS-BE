@@ -12,7 +12,7 @@ namespace Eras.Application.Mappers
             return new PollInstance()
             {
                 Id = Dto.Id,
-                Uuid = Dto.Uuid,             
+                Uuid = Dto.Uuid,
                 Student = Dto.Student?.ToDomain() ?? new Student(),
                 Answers = answers,
                 Audit = Dto.Audit,

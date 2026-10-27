@@ -1,8 +1,10 @@
 using System.Security.Cryptography;
+
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Models;
-using Microsoft.Extensions.Options;
+
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Eras.Infrastructure.FileStorage;
 

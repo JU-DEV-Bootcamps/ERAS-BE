@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 using Moq;
 
-using Xunit; 
+using Xunit;
 
 namespace Eras.Application.Tests.Features.Answers.Queries;
 
@@ -28,12 +28,12 @@ public class GetStudentAnswersByPollQueryHandlerTest
     public GetStudentAnswersByPollQueryHandlerTest()
     {
         _mockAnswerRepository = new Mock<IStudentAnswersRepository>();
-        _mockStudentRepository = new Mock<IStudentRepository>(); 
+        _mockStudentRepository = new Mock<IStudentRepository>();
         _mockLogger = new Mock<ILogger<GetStudentAnswersByPollQueryHandler>>();
-        
+
         _handler = new GetStudentAnswersByPollQueryHandler(
-            _mockAnswerRepository.Object, 
-            _mockStudentRepository.Object, 
+            _mockAnswerRepository.Object,
+            _mockStudentRepository.Object,
             _mockLogger.Object);
     }
 
@@ -44,7 +44,7 @@ public class GetStudentAnswersByPollQueryHandlerTest
 
         _mockStudentRepository
             .Setup(r => r.GetByIdAsync(It.Is<int>(id => id == 1)))
-            .ReturnsAsync(new Student { Id = 1 }); 
+            .ReturnsAsync(new Student { Id = 1 });
 
         var studentAnswers = new List<StudentAnswer>() {
             new StudentAnswer
@@ -99,7 +99,7 @@ public class GetStudentAnswersByPollQueryHandlerTest
     [Fact]
     public async Task Handle_Should_ThrowsException_WhenRequestEmpty()
     {
-        var query = new GetStudentAnswersByPollQuery() {  };
+        var query = new GetStudentAnswersByPollQuery() { };
 
         var exception = await Assert.ThrowsAsync<ArgumentException>(
             () => _handler.Handle(query, CancellationToken.None));

@@ -43,7 +43,7 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
         int PollInstanceId, string AnswerText)
     {
         List<AnswerEntity> answers = await _context.Answers
-            .Where(Answ => Answ.PollInstanceId == PollInstanceId && 
+            .Where(Answ => Answ.PollInstanceId == PollInstanceId &&
             Answ.AnswerText.Equals(AnswerText) && Answ.PollVariableId == PollVariableId).ToListAsync();
         return answers.Select(Answ => Answ.ToDomain()).ToList();
     }
@@ -51,7 +51,7 @@ public class AnswerRepository(AppDbContext Context) : BaseRepository<Answer, Ans
     public async Task<int?> GetAnswerIdByPollInstanceAndVariableAsync(int PollVariableId, int PollInstanceId)
     {
         AnswerEntity? answer = await _context.Answers
-            .FirstOrDefaultAsync(a => a.PollVariableId == PollVariableId && 
+            .FirstOrDefaultAsync(a => a.PollVariableId == PollVariableId &&
                                     a.PollInstanceId == PollInstanceId);
         return answer?.Id;
     }

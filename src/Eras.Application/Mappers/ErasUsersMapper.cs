@@ -2,6 +2,7 @@ using Eras.Application.DTOs.UsersManagement;
 using Eras.Domain.Entities.UserManagement;
 
 namespace Eras.Application.Mappers;
+
 public static class ErasUsersMapper
 {
     public static ErasUserDTO ToDTO(this ErasUser Entity)
@@ -46,7 +47,7 @@ public static class ErasUsersMapper
 
         if (DTO.Id != null)
             entity.Id = (int)DTO.Id;
-        
+
         return entity;
     }
 }

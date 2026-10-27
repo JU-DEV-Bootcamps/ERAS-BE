@@ -68,7 +68,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             .Where(A => A.Uuid == PollUuid)
             .Select(A => A.LastVersion)
             .FirstOrDefault();
-            
+
             var query = _context.Variables
                 .Join(_context.PollVariables, V => V.Id, Pv => Pv.VariableId, (V, Pv) => new { V, Pv })
                 .Join(_context.Polls, Vp => Vp.Pv.PollId, P => P.Id, (Vp, P) => new { Vp.V, Vp.Pv, P })
@@ -99,7 +99,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Join(_context.PollVariables,
                     V => V.Id,
                     Pv => Pv.VariableId,
-                    (Variable, PollVariable) => new {Variable, PollVariable })
+                    (Variable, PollVariable) => new { Variable, PollVariable })
                 .Where(Cv => Cv.PollVariable.PollId == PollId)
                 .Select(Cv => Cv.Variable)
                 .FirstOrDefaultAsync();
@@ -112,7 +112,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Join(_context.PollVariables,
                     Var => Var.Id,
                     PollVar => PollVar.VariableId,
-                    (Variable, PollVariable) => new {Variable, PollVariable}
+                    (Variable, PollVariable) => new { Variable, PollVariable }
                 )
                 .Select(JoinResult => new Variable()
                 {

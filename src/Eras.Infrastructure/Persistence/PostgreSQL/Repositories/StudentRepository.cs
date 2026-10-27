@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.HeatMap;
@@ -8,6 +9,7 @@ using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -18,7 +20,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         private readonly IAnswerRiskValidator _answerRiskValidator;
 
         public StudentRepository(AppDbContext Context, IAnswerRiskValidator validator)
-            : base(Context, StudentMapper.ToDomain, StudentMapper.ToPersistence) {
+            : base(Context, StudentMapper.ToDomain, StudentMapper.ToPersistence)
+        {
             _answerRiskValidator = validator;
         }
 

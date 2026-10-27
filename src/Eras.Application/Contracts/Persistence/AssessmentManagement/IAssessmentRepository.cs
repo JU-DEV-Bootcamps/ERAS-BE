@@ -6,7 +6,7 @@ namespace Eras.Application.Contracts.Persistence.AssessmentManagement;
 public interface IAssessmentRepository : IBaseRepository<Assessment>
 {
     new Task<IEnumerable<Assessment>> GetAllAsync();
-    
+
     Task<IEnumerable<Assessment>> GetByStudentIdAsync(int studentId);
 
     Task<IEnumerable<Assessment>> GetByStatusAsync(AssessmentStatus status);
@@ -15,7 +15,7 @@ public interface IAssessmentRepository : IBaseRepository<Assessment>
     Task DeleteAssessmentAsync(int assessmentId);
 
 
-    Task<Intervention> AddInterventionAsync(int assessmentId, Intervention intervention); 
+    Task<Intervention> AddInterventionAsync(int assessmentId, Intervention intervention);
 
     Task<IReadOnlyCollection<Intervention>> ReplaceInterventionsAsync(int assessmentId, IReadOnlyCollection<Intervention> interventions);
 

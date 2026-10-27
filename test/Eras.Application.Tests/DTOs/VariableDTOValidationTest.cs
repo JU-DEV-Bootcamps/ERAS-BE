@@ -4,6 +4,7 @@ using Eras.Application.DTOs;
 using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class VariableDTOValidationTests
 {
     private static VariableDTO CreateValidDTO() => new VariableDTO
@@ -31,7 +32,7 @@ public class VariableDTOValidationTests
         dto.Name = InvalidId;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("Variable name is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(VariableDTO.Name), results.First().MemberNames);
@@ -84,7 +85,7 @@ public class VariableDTOValidationTests
         dto.Position = InvalidPosition;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-        
+
         Assert.Single(results);
         Assert.Equal("Position must be zero or a positive integer.", results.First().ErrorMessage);
         Assert.Contains(nameof(VariableDTO.Position), results.First().MemberNames);
@@ -98,7 +99,7 @@ public class VariableDTOValidationTests
         dto.Type = InvalidType;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("Type is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(VariableDTO.Type), results.First().MemberNames);

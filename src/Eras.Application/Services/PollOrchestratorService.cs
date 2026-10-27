@@ -51,7 +51,7 @@ namespace Eras.Application.Services
         private readonly IPollInstanceRepository _pollInstanceRepository;
 
         public PollOrchestratorService(
-            IMediator Mediator, 
+            IMediator Mediator,
             ILogger<PollOrchestratorService> Logger,
             IEvaluationRepository EvaluationRepository,
             IPollInstanceRepository PollInstanceRepository)
@@ -116,7 +116,7 @@ namespace Eras.Application.Services
                             if (pollOfPollInstance.Entity is null)
                             {
                                 _logger.LogError("Could not resolve poll for instance creation.");
-                                continue; 
+                                continue;
                             }
                             CreateCommandResponse<PollInstance> createdPollInstance = await CreatePollInstanceAsync(createdStudent.Entity,
                                 pollOfPollInstance.Entity.Uuid, pollToCreate.FinishedAt, EvaluationId);
@@ -339,7 +339,7 @@ namespace Eras.Application.Services
         {
             try
             {
-                foreach(Variable variable in Variables)
+                foreach (Variable variable in Variables)
                 {
                     variable.Version = new VersionInfo()
                     {
@@ -371,7 +371,7 @@ namespace Eras.Application.Services
                 List<Variable> createdVariables = new List<Variable>();
                 if (VariablesDtos == null) return createdVariables;
 
-                var query = new GetVariablesWithNameAndPollIdQuery(){};
+                var query = new GetVariablesWithNameAndPollIdQuery() { };
                 GetQueryResponse<List<Variable>> responseQuery = await _mediator.Send(query);
                 List<Variable> existingVariables = responseQuery.Body ?? [];
 
@@ -388,7 +388,7 @@ namespace Eras.Application.Services
                     if (!IsNewPoll && responseQuery.Status != QueryEnums.QueryResultStatus.NotFound)
                     {
                         var variableAlreadyExists = existingVariables.Any(
-                            ExistingVar => ExistingVar.Name == variableDto.Name && ExistingVar.IdPoll == AsociatedPollId 
+                            ExistingVar => ExistingVar.Name == variableDto.Name && ExistingVar.IdPoll == AsociatedPollId
                         );
                         if (!variableAlreadyExists && !IsNewVersion)
                         {
@@ -414,7 +414,7 @@ namespace Eras.Application.Services
                     CreateCommandResponse<List<Variable>> createdPollVariables = await CreateRelationshipsPollVariablesAsync(createdVariablesList.Entity, AsociatedPollId);
                     if (createdPollVariables.Success && createdPollVariables.Entity != null)
                     {
-                        foreach(Variable createdVariable in createdVariablesList.Entity)
+                        foreach (Variable createdVariable in createdVariablesList.Entity)
                         {
                             Variable? createdPollVariable = createdPollVariables.Entity.FirstOrDefault(PollVar => createdVariable.Id == PollVar.Id);
                             if (createdPollVariable != null)

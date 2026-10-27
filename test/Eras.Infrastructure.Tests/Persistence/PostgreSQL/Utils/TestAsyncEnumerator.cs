@@ -1,4 +1,5 @@
 ﻿namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Utils;
+
 public class TestAsyncEnumerator<T> : IAsyncEnumerator<T>
 {
     private readonly IEnumerator<T> _inner;

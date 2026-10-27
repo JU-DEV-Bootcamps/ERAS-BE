@@ -3,7 +3,9 @@ using Eras.Application.Models;
 using Eras.Application.Models.Response.Controllers.PollsController;
 using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Polls.Queries.GetAllPollsQuery

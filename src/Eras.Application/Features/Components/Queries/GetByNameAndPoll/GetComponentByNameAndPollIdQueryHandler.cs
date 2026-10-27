@@ -8,7 +8,8 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Components.Queries.GetByNameAndPoll;
-public class GetComponentByNameAndPollIdQueryHandler: IRequestHandler<GetComponentByNameAndPollIdQuery, GetQueryResponse<Component>>
+
+public class GetComponentByNameAndPollIdQueryHandler : IRequestHandler<GetComponentByNameAndPollIdQuery, GetQueryResponse<Component>>
 {
     private IComponentRepository _componentRepository;
     private ILogger<GetComponentByNameAndPollIdQueryHandler> _logger;

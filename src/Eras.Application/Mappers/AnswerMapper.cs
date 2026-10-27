@@ -15,7 +15,7 @@ namespace Eras.Application.Mappers
                 RiskLevel = Dto.Score,
                 PollInstanceId = Dto.PollInstanceId,
                 PollVariableId = Dto.PollVariableId,
-                Audit = Dto.Audit?? new AuditInfo(),
+                Audit = Dto.Audit ?? new AuditInfo(),
                 Version = Dto.Version,
             };
         }

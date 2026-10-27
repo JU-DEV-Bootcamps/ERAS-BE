@@ -188,7 +188,8 @@ namespace Eras.Api.Tests.Controllers
                 .ReturnsAsync(false);
             mockService
                 .Setup(x => x.SavePreviewPolls(It.IsAny<List<PollDTO>>(), 5))
-                .ReturnsAsync(new CreatedPollDTO { 
+                .ReturnsAsync(new CreatedPollDTO
+                {
                     Id = 1,
                     FinishedAt = DateTime.UtcNow,
                     IdCosmicLatte = "",
@@ -263,7 +264,7 @@ namespace Eras.Api.Tests.Controllers
             mockImportJobService
                 .Setup(x => x.ConfirmImportAsync(1, It.IsAny<List<int>>()))
                 .ReturnsAsync(false);
-            var request = new ConfirmImportRequest{ ItemIds = new List<int>([1])};
+            var request = new ConfirmImportRequest { ItemIds = new List<int>([1]) };
             var result = await controller.ConfirmImportAsync(1, request);
             Assert.IsType<NotFoundObjectResult>(result);
         }
@@ -374,9 +375,9 @@ namespace Eras.Api.Tests.Controllers
         {
             mockImportJobService
                 .Setup(x => x.GetStatusAsync(1))
-                .ReturnsAsync( new ImportJobStatusDTO
+                .ReturnsAsync(new ImportJobStatusDTO
                 {
-                    ImportJobId = 1, 
+                    ImportJobId = 1,
                     EvaluationId = 2,
                     Status = "",
                     TotalCount = 10,
@@ -417,7 +418,7 @@ namespace Eras.Api.Tests.Controllers
         {
             mockService
                 .Setup(x => x.GetPollsNameList(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync([new PollDataItem("", "", "","")]);
+                .ReturnsAsync([new PollDataItem("", "", "", "")]);
             var result = await controller.GetPollsNameListAsync(1);
             Assert.IsType<OkObjectResult>(result);
             Assert.NotNull(result);

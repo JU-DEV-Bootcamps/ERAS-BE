@@ -1,20 +1,21 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Models.Enums;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
-using Eras.Application.Models.Enums;
 
 using MediatR;
 
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Polls.Queries.GetPollByName;
-public class GetPollByNameQueryHandler: IRequestHandler<GetPollByNameQuery, GetQueryResponse<Poll>>
+
+public class GetPollByNameQueryHandler : IRequestHandler<GetPollByNameQuery, GetQueryResponse<Poll>>
 {
     private IPollRepository _pollRepository;
     private ILogger<GetPollByNameQuery> _logger;
 
     public GetPollByNameQueryHandler(
-        IPollRepository PollsRepository, 
+        IPollRepository PollsRepository,
         ILogger<GetPollByNameQuery> Logger
     )
     {
@@ -22,10 +23,11 @@ public class GetPollByNameQueryHandler: IRequestHandler<GetPollByNameQuery, GetQ
         _logger = Logger;
     }
 
-    public async Task<GetQueryResponse<Poll>> Handle(GetPollByNameQuery Request, CancellationToken CancellationToken) {
+    public async Task<GetQueryResponse<Poll>> Handle(GetPollByNameQuery Request, CancellationToken CancellationToken)
+    {
         Poll? poll = await _pollRepository.GetByNameAsync(Request.pollName);
-        if (poll == null) return new GetQueryResponse<Poll>(new Poll(),"Poll Not Found",true,
+        if (poll == null) return new GetQueryResponse<Poll>(new Poll(), "Poll Not Found", true,
             QueryEnums.QueryResultStatus.NotFound);
-        return new GetQueryResponse<Poll>(poll,"Poll Found", true);
+        return new GetQueryResponse<Poll>(poll, "Poll Found", true);
     }
 }

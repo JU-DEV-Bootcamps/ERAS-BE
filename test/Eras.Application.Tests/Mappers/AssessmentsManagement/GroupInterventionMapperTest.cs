@@ -28,7 +28,7 @@ public class GroupInterventionMapperTest
         Assert.Equal(source.Area, result.Area);
         Assert.Equal(source.Status, result.Status);
     }
-    
+
     private static GroupInterventionMapper CreateSut()
     {
         return new GroupInterventionMapper();

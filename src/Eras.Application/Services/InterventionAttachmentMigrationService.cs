@@ -61,7 +61,7 @@ public sealed class InterventionAttachmentMigrationService(
 
             IEnumerable<Attachment> alreadyMigrated = await AttachmentRepository.GetByEntityAsync(
                 InterventionConstants.AttachmentEntityType, intervention.Id);
-            HashSet<string> alreadyMigratedHashes = alreadyMigrated.Select(Obj=> Obj.ContentHash).ToHashSet();
+            HashSet<string> alreadyMigratedHashes = alreadyMigrated.Select(Obj => Obj.ContentHash).ToHashSet();
 
             List<string> paths = intervention.Attachments.ToList();
             List<string> hashes = intervention.AttachmentHashes.ToList();

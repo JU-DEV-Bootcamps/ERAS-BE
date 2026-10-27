@@ -1,16 +1,16 @@
-﻿using Eras.Application.Dtos;
+﻿using Eras.Application.Contracts.Services;
+using Eras.Application.Dtos;
 using Eras.Application.DTOs;
 using Eras.Application.Features.Configurations.Queries.GetConfiguration;
+using Eras.Application.Features.FeatureFlags;
+using Eras.Application.Models;
 using Eras.Application.Services;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Eras.Application.Features.FeatureFlags;
-using Eras.Application.Models;
-using Eras.Application.Contracts.Services;
-using Eras.Infrastructure.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 

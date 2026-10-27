@@ -2,7 +2,9 @@
 using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Queries.GetAll
@@ -40,7 +42,7 @@ namespace Eras.Application.Features.Students.Queries.GetAll
                 HashSet<int> studentsWithProfile = await _profileRepository
                     .GetStudentIdsWithProfileAsync(students.Select(Student => Student.Id).ToList());
 
-                var studentsResponses = students.Select(Student => new GetAllStudentsQueryResponse 
+                var studentsResponses = students.Select(Student => new GetAllStudentsQueryResponse
                 {
                     Id = Student.Id,
                     Name = Student.Name,

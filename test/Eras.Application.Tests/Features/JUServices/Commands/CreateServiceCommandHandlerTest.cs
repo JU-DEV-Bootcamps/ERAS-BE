@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Test.Features.JUServices.Commands;
+
 public class CreateJUServiceCommandHandlerTest
 {
     private readonly Mock<IJUServiceRepository> _mockJuServiceRepository;

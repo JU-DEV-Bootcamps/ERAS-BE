@@ -4,6 +4,7 @@ using Eras.Application.DTOs;
 using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class ServiceProvidersDTOValidationTests
 {
     private static ServiceProvidersDTO CreateValidDTO() => new ServiceProvidersDTO
@@ -30,7 +31,7 @@ public class ServiceProvidersDTOValidationTests
         dto.ServiceProviderName = InvalidName;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("Service provider name is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(ServiceProvidersDTO.ServiceProviderName), results.First().MemberNames);
@@ -86,7 +87,7 @@ public class ServiceProvidersDTOValidationTests
         dto.ServiceProviderLogo = InvalidId;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("Logo URL is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(ServiceProvidersDTO.ServiceProviderLogo), results.First().MemberNames);

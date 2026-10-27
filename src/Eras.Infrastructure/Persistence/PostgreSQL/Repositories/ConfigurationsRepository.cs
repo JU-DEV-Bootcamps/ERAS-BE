@@ -5,6 +5,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+
 public class ConfigurationsRepository : BaseRepository<Domain.Entities.Configurations, ConfigurationsEntity>, IConfigurationsRepository
 {
     public ConfigurationsRepository(AppDbContext Context)

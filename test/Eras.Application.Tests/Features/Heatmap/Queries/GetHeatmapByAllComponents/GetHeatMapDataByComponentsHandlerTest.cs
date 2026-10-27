@@ -5,6 +5,7 @@ using Eras.Application.Tests.Mocks;
 using Eras.Error.Bussiness;
 
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Heatmap.Queries.GetHeatmapByAllComponents

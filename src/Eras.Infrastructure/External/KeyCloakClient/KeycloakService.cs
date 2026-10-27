@@ -20,7 +20,7 @@ namespace Eras.Infrastructure.External.KeycloakClient
         private readonly ILogger<KeycloakAuthService> _logger;
         private readonly IMediator _mediator;
         private readonly KeycloakRoleNames _roleNames;
-        private readonly JwtSecurityTokenHandler _jwtHandler = new ();
+        private readonly JwtSecurityTokenHandler _jwtHandler = new();
 
         public KeycloakAuthService(
             IConfiguration Configuration,
@@ -110,7 +110,8 @@ namespace Eras.Infrastructure.External.KeycloakClient
                     keycloakClaims.FamilyName,
                     ErasRole.Resolve(roles, _roleNames)
                 ));
-            } catch(Exception Ex)
+            }
+            catch (Exception Ex)
             {
                 _logger.LogError("ERAS User registration failed. User was not created in the database.");
                 _logger.LogError(Ex.Message);

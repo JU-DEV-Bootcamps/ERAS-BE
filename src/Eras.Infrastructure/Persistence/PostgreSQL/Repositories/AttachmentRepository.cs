@@ -74,7 +74,7 @@ public sealed class AttachmentRepository(AppDbContext Context) : BaseRepository<
                 .SetProperty(Attachment => Attachment.StorageRelocationPendingAt, RelocationPendingAt));
     }
 
-    public async Task<IReadOnlyCollection<Attachment>> GetPendingRelocationAsync(int BatchSize) 
+    public async Task<IReadOnlyCollection<Attachment>> GetPendingRelocationAsync(int BatchSize)
     {
         List<AttachmentEntity> entities = await _context.Attachments
             .Where(Attachment => Attachment.StorageRelocationPendingAt != null)

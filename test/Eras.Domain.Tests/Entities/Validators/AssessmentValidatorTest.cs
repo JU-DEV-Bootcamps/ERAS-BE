@@ -4,6 +4,7 @@ using Eras.Domain.Entities.AssessmentManagement.Validators;
 using FluentValidation.TestHelper;
 
 namespace Eras.Domain.Tests.Entities.Validators;
+
 public class AssessmentValidatorTests
 {
     private readonly AssessementValidator _validator = new();
@@ -24,7 +25,7 @@ public class AssessmentValidatorTests
             Plan = Data.Plan,
             Interventions = Data.Interventions
         };
-    
+
     [Fact]
     public void Should_NotHaveAnyValidationErrors_When_AssessmentIsValid()
     {

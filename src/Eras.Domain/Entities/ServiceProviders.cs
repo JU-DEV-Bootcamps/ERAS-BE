@@ -1,6 +1,7 @@
 ﻿using Eras.Domain.Common;
 
 namespace Eras.Domain.Entities;
+
 public class ServiceProviders : BaseEntity, IAuditableEntity
 {
     public required string ServiceProviderName { get; set; }

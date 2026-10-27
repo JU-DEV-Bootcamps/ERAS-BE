@@ -89,7 +89,7 @@ public class ReportsControllerTests
     [Fact]
     public async Task GetHigherRiskStudentsByPollAsync_ReturnsOkAsync()
     {
-        var response = new PagedResult<ErasCalculationsByPollDTO>(Items: null!, Count: 0 );
+        var response = new PagedResult<ErasCalculationsByPollDTO>(Items: null!, Count: 0);
         _mediator
             .Setup(X => X.Send(It.IsAny<GetPollTopQuery>(), default))
             .ReturnsAsync(response);
@@ -160,7 +160,7 @@ public class ReportsControllerTests
             .Setup(X => X.Send(It.IsAny<PollAvgQuery>(), default))
             .ThrowsAsync(new Exception());
 
-        var result = await _controller.GetAvgRiskByPollAsync(Guid.NewGuid().ToString(),"1",false,1);
+        var result = await _controller.GetAvgRiskByPollAsync(Guid.NewGuid().ToString(), "1", false, 1);
 
         var objectResult = Assert.IsType<ObjectResult>(result);
         Assert.Equal(500, objectResult.StatusCode);

@@ -9,6 +9,7 @@ using FluentValidation;
 using MediatR;
 
 namespace Eras.Application.Features.FeatureFlags.Handlers.CommandHandlers;
+
 public sealed class CreateFeatureFlagCommandHandler
     : IRequestHandler<CreateFeatureFlagCommand, FeatureFlagDTO>
 {

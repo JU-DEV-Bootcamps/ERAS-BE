@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Queries;
+
 public class GetStudentByEmailQueryHandlerTest
 {
     private readonly Mock<IStudentRepository> _mockStudentRepository;
@@ -25,7 +26,8 @@ public class GetStudentByEmailQueryHandlerTest
     public async Task Handlee_ShouldReturnSuccessResponse()
     {
         // Arrange
-        var query = new GetStudentByEmailQuery() {
+        var query = new GetStudentByEmailQuery()
+        {
             studentEmail = "StudentTest"
         };
         var studentExpected = new Student()
@@ -50,7 +52,7 @@ public class GetStudentByEmailQueryHandlerTest
 
         // Assert
         Assert.True(result.Success);
-        Assert.Equal("Student",result.Body!.Name);
+        Assert.Equal("Student", result.Body!.Name);
     }
 
     [Fact]
@@ -58,8 +60,9 @@ public class GetStudentByEmailQueryHandlerTest
     {
         _mockStudentRepository.Setup(Repo => Repo.GetByEmailAsync(It.IsAny<string>()))
             .ReturnsAsync(value: null);
-        
-        var query = new GetStudentByEmailQuery() {
+
+        var query = new GetStudentByEmailQuery()
+        {
             studentEmail = "StudentTest"
         };
 

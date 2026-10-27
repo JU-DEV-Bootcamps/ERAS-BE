@@ -6,9 +6,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 using Eras.Domain.Common;
+
 using Microsoft.Extensions.Configuration;
 
 namespace Eras.Infrastructure.Cryptography;
+
 public class AesApiKeyEncryptor : IApiKeyEncryptor
 {
 

@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+
 using Eras.Application.DTOs;
 using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class EvaluationDTOValidationTests
 {
     private static EvaluationDTO CreateValidDTO() => new EvaluationDTO
@@ -103,7 +105,7 @@ public class EvaluationDTOValidationTests
         dto.ConfigurationId = InvalidId;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-        
+
         Assert.Single(results);
         Assert.Equal("Configuration Id must be greater or equal to 0.", results.First().ErrorMessage);
         Assert.Contains(nameof(EvaluationDTO.ConfigurationId), results.First().MemberNames);

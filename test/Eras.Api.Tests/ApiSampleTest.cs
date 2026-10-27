@@ -1,8 +1,10 @@
 ﻿using Eras.Api.Controllers;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Api.Tests
@@ -17,7 +19,7 @@ namespace Eras.Api.Tests
             var mockService = new Mock<ICosmicLatteAPIService>();
             var expectedStatus = new CosmicLatteStatus(true);
 
-            mockService.Setup(Service => Service.CosmicApiIsHealthy("",""))
+            mockService.Setup(Service => Service.CosmicApiIsHealthy("", ""))
                 .ReturnsAsync(expectedStatus);
 
 

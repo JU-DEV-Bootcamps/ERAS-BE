@@ -71,7 +71,7 @@ namespace Eras.Application.Features.Answers.Commands.CreateAnswerList
                     }
                 }
 
-                
+
                 await _answerRepository.AddBatchAsync(newAnswers);
             }
             catch (Exception ex)

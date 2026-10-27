@@ -1,8 +1,10 @@
 ﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
+
 public class ConfigurationsConfiguration : IEntityTypeConfiguration<ConfigurationsEntity>
 {
     public void Configure(EntityTypeBuilder<ConfigurationsEntity> Builder)
@@ -17,7 +19,7 @@ public class ConfigurationsConfiguration : IEntityTypeConfiguration<Configuratio
     private static void ConfigureColumns(EntityTypeBuilder<ConfigurationsEntity> Builder)
     {
         Builder.HasKey(C => C.Id);
-        
+
         Builder.Property(C => C.UserId)
             .IsRequired()
             .HasMaxLength(100);

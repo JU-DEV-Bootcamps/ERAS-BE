@@ -49,7 +49,7 @@ public class DeleteInterventionAttachmentCommandHandlerTests
             StudentIds = [1, 2],
             Mode = InterventionMode.InPlace,
             Attachments = new List<string>().AsReadOnly(),
-            AttachmentHashes = new List<string> ().AsReadOnly()
+            AttachmentHashes = new List<string>().AsReadOnly()
         };
         _mockRepository
             .Setup(x => x.GetInterventionByIdAsync(1))
@@ -117,7 +117,7 @@ public class DeleteInterventionAttachmentCommandHandlerTests
             Attachments = new List<string>().AsReadOnly(),
             AttachmentHashes = new List<string>().AsReadOnly()
         };
-        
+
         _mockRepository
             .Setup(x => x.GetInterventionByIdAsync(1))
             .ReturnsAsync(intervention);

@@ -5,11 +5,11 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities
 {
     using EvStatus = EvaluationConstants.EvaluationStatus;
-    public class EvaluationEntity: BaseEntity, IAuditableEntity
+    public class EvaluationEntity : BaseEntity, IAuditableEntity
     {
         public string Name { get; set; } = string.Empty;
         public string Status { get; set; } = string.Empty;
-        public string PollName {  get; set; } = string.Empty ;
+        public string PollName { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
         public int ConfigurationId { get; set; }
         public ConfigurationsEntity Configuration { get; set; } = null!;

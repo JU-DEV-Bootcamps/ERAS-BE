@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eras.Application.Models.Response.HeatMap;
+
 public class GetHeatMapAnswersPercentageByVariableQueryResponse
 {
     [Column("component_name")]

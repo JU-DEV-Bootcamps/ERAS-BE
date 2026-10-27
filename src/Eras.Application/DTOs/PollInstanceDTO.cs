@@ -19,7 +19,7 @@ public class PollInstanceDTO
     [Required(ErrorMessage = "Last version is required.")]
     [Range(1, 32767, ErrorMessage = "Last version must be at least 1.")]
     public int LastVersion { get; set; }
-    
+
     [Required(ErrorMessage = "Last version date is required.")]
     [DataType(DataType.DateTime)]
     public DateTime LastVersionDate { get; set; }

@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Test.Features.Cohorts.Queries;
+
 public class GetCohortsSummaryQueryHandlerTest
 {
     private readonly Mock<IStudentCohortRepository> _mockSCRepository;
@@ -136,6 +137,6 @@ public class GetCohortsSummaryQueryHandlerTest
         _mockSCRepository.Verify(
             Repo => Repo.GetCohortsSummaryAsync(It.IsAny<Pagination>(), It.IsAny<DateTime>(), It.IsAny<DateTime>()),
             Times.Never
-        );        
+        );
     }
 }

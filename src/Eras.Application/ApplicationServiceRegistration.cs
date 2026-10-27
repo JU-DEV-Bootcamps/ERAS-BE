@@ -85,7 +85,7 @@ namespace Eras.Application.Services
             Services.AddScoped<IValidator<ErasUser>, ErasUserValidator>();
             Services.AddScoped<IValidator<StudentRegistrationDto>, StudentRegistrationDtoValidator>();
 
-            return Services;  
+            return Services;
         }
     }
 }

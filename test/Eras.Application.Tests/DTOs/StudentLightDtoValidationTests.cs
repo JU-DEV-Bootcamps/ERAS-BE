@@ -4,6 +4,7 @@ using Eras.Application.DTOs;
 using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class StudentLightDtoValidationTests
 {
     private static StudentLightDto CreateValidDTO() => new StudentLightDto

@@ -14,6 +14,7 @@ using Moq;
 using Xunit;
 
 namespace Eras.Application.Tests.Features.Assessments.Queries;
+
 public sealed class GetRemissionByIdQueryHandlerTests
 {
     private readonly Mock<IAssessmentRepository> _repository = new();
@@ -40,14 +41,14 @@ public sealed class GetRemissionByIdQueryHandlerTests
 
         var handler = CreateHandler();
         var request = new GetRemissionByIdQuery(assessmentId);
-        
+
         // Act
         var result = await handler.Handle(request, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
 
-        _mapper.Verify(x => x.Map(It.IsAny<Assessment>()),Times.Never);
+        _mapper.Verify(x => x.Map(It.IsAny<Assessment>()), Times.Never);
 
         _studentRepository.Verify(
             x => x.GetByIdsAsync(It.IsAny<IEnumerable<int>>(), It.IsAny<CancellationToken>()),

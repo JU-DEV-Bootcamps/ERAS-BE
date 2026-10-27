@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.Attributes;
 using Eras.Domain.Common;
 
