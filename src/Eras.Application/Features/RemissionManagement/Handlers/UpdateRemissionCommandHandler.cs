@@ -1,7 +1,9 @@
 ﻿
 
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Application.DTOs.UsersManagement;
 using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Application.Validation;
 using Eras.Domain.Entities.AssessmentManagement;
@@ -26,6 +28,7 @@ public sealed class UpdateRemissionCommandHandler
     private readonly IValidator<StatusTransitionRequest<InterventionStatus>> _interventionStatusValidator;
     private readonly IAssessmentRepository _repository;
     private readonly ILogger<UpdateRemissionCommandHandler> _logger;
+    private readonly IErasUsersRepository _usersRepository;
 
     public UpdateRemissionCommandHandler(
         IMapper<AssessmentDto, Assessment> toDomainMapper,
@@ -34,7 +37,8 @@ public sealed class UpdateRemissionCommandHandler
         IValidator<StatusTransitionRequest<AssessmentStatus>> statusValidator,
         IValidator<StatusTransitionRequest<InterventionStatus>> interventionStatusValidator,
         IAssessmentRepository repository,
-        ILogger<UpdateRemissionCommandHandler> logger)
+        ILogger<UpdateRemissionCommandHandler> logger,
+        IErasUsersRepository usersRepository)
     {
         _toDomainMapper = toDomainMapper;
         _toDtoMapper = toDtoMapper;
@@ -43,6 +47,7 @@ public sealed class UpdateRemissionCommandHandler
         _interventionStatusValidator = interventionStatusValidator;
         _repository = repository;
         _logger = logger;
+        _usersRepository = usersRepository;
     }
 
     public async Task<AssessmentDto> Handle(
@@ -78,6 +83,8 @@ public sealed class UpdateRemissionCommandHandler
                 }
             }
 
+            await EnsureRemovedProfessionalsHaveNoInterventionsAsync(existing, entity);
+
             var existingInterventionsById = existing.Interventions.ToDictionary(i => i.Id);
 
             foreach (var incoming in entity.Interventions)
@@ -99,6 +106,34 @@ public sealed class UpdateRemissionCommandHandler
         {
             _logger.LogWarning(ex, "Validation failed updating assessment {AssessmentId}.", request.Remission.Id);
             throw new OperationCanceledException($"Error updating assessment: Some status cannot be updated. ${ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// A professional can leave the assessment only if none of its interventions is assigned to them.
+    /// An intervention holds the professional as free text, so it can carry the display name, the email
+    /// or (in older rows) the sub; all of them count, ignoring case and surrounding spaces.
+    /// </summary>
+    private async Task EnsureRemovedProfessionalsHaveNoInterventionsAsync(Assessment existing, Assessment incoming)
+    {
+        List<string> removedSubs = existing.AssignedProfessionals.Except(incoming.AssignedProfessionals).ToList();
+
+        foreach (string sub in removedSubs)
+        {
+            ErasUserDTO? user = await _usersRepository.GetErasUserBySubAsync(sub);
+
+            string displayName = user is null ? sub : ProfessionalDisplayName.From(user);
+            var identifiers = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { sub, displayName };
+            if (user is not null && !string.IsNullOrWhiteSpace(user.Email))
+            {
+                identifiers.Add(user.Email.Trim());
+            }
+
+            if (existing.Interventions.Any(I => !string.IsNullOrWhiteSpace(I.Professional) && identifiers.Contains(I.Professional.Trim())))
+            {
+                _logger.LogError("Cannot update assessment {AssessmentId}: professional {ProfessionalSub} still has interventions.", existing.Id, sub);
+                throw new OperationCanceledException($"Error updating assessment: {displayName} cannot be removed. Since they still have interventions in this assessment.");
+            }
         }
     }
 }

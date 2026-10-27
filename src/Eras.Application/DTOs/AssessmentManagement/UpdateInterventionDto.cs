@@ -20,5 +20,6 @@ public sealed record UpdateInterventionDto(
     double? RiskLevel,
     InterventionLevel RiskLevelName,
     InterventionLevel? EndRiskLevelName,
-    int? Id
+    int? Id,
+    string? ProfessionalSub = null
 );
