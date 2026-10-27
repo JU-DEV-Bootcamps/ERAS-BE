@@ -19,8 +19,13 @@ public sealed class AssessementValidator : AbstractValidator<Assessment>
             .NotEmpty()
             .MaximumLength(200);
 
-        RuleFor(x => x.AssignedProfessional)
+        RuleForEach(x => x.AssignedProfessionals)
+            .NotEmpty()
             .MaximumLength(200);
+
+        RuleFor(x => x.AssignedProfessionals)
+            .Must(x => x.Distinct().Count() == x.Length)
+            .WithMessage("Assigned professionals must not contain duplicates.");
 
         RuleFor(x => x.StudentIds)
             .NotNull()

@@ -46,10 +46,10 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AssignedProfessional")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("assigned_professional");
+                    b.PrimitiveCollection<string[]>("AssignedProfessionals")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("assigned_professionals");
 
                     b.Property<string>("Comments")
                         .HasMaxLength(4000)

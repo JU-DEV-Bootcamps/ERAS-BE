@@ -35,10 +35,10 @@ public sealed class AssessmentConfiguration : IEntityTypeConfiguration<Assessmen
             .HasMaxLength(200)
             .IsRequired();
 
-        builder.Property(entity => entity.AssignedProfessional)
-            .HasColumnName("assigned_professional")
-            .HasMaxLength(200)
-            .IsRequired(false);
+        builder.Property(entity => entity.AssignedProfessionals)
+            .HasColumnName("assigned_professionals")
+            .HasColumnType("text[]")
+            .IsRequired();
 
         builder.Property(entity => entity.StudentIds)
             .HasColumnName("student_ids")

@@ -15,7 +15,7 @@ public class AssessmentValidatorTests
             CreatedAtUtc = Data.CreatedAtUtc,
             CreatedBy = Data.CreatedBy,
             Service = Data.Service,
-            AssignedProfessional = Data.AssignedProfessional,
+            AssignedProfessionals = Data.AssignedProfessionals,
             StudentIds = Data.StudentIds,
             Diagnosis = Data.Diagnosis,
             Objective = Data.Objective,
@@ -125,17 +125,36 @@ public class AssessmentValidatorTests
     [Theory]
     [InlineData(200, false)]
     [InlineData(201, true)]
-    public void Should_ValidateMaximumLength_ForAssignedProfessional(int Length, bool ExpectError)
+    public void Should_ValidateMaximumLength_ForAssignedProfessionals(int Length, bool ExpectError)
     {
-        _validatableAssessment.AssignedProfessional = new string('a', Length);
+        _validatableAssessment.AssignedProfessionals = [new string('a', Length)];
         Assessment Assessment = CreateAssessment(_validatableAssessment);
 
         TestValidationResult<Assessment> result = _validator.TestValidate(Assessment);
 
-        if (ExpectError)
-            result.ShouldHaveValidationErrorFor(x => x.AssignedProfessional);
-        else
-            result.ShouldNotHaveValidationErrorFor(x => x.AssignedProfessional);
+        Assert.Equal(ExpectError, result.Errors.Any(E => E.PropertyName.StartsWith("AssignedProfessionals")));
+    }
+
+    [Fact]
+    public void Should_HaveError_When_AssignedProfessionalsContainDuplicates()
+    {
+        _validatableAssessment.AssignedProfessionals = ["ana-sub", "ana-sub"];
+        Assessment Assessment = CreateAssessment(_validatableAssessment);
+
+        TestValidationResult<Assessment> result = _validator.TestValidate(Assessment);
+
+        result.ShouldHaveValidationErrorFor(x => x.AssignedProfessionals);
+    }
+
+    [Fact]
+    public void Should_HaveError_When_AssignedProfessionalIsBlank()
+    {
+        _validatableAssessment.AssignedProfessionals = ["ana-sub", ""];
+        Assessment Assessment = CreateAssessment(_validatableAssessment);
+
+        TestValidationResult<Assessment> result = _validator.TestValidate(Assessment);
+
+        Assert.Contains(result.Errors, E => E.PropertyName.StartsWith("AssignedProfessionals"));
     }
 
     [Fact]

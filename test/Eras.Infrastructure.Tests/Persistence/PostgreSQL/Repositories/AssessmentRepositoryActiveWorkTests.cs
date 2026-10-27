@@ -24,7 +24,7 @@ public class AssessmentRepositoryActiveWorkTests : RepositoryTestBase
     {
         CreatedBy = CreatedBy,
         Service = "Speech",
-        AssignedProfessional = AssignedProfessional,
+        AssignedProfessionals = AssignedProfessional is null ? [] : [AssignedProfessional],
         StudentIds = [1],
         Status = Status,
     };

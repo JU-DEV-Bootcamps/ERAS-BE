@@ -19,7 +19,7 @@ public sealed class ValidatableAssessment
     public DateTime CreatedAtUtc { get; set; } = DateTime.Now;
     public string CreatedBy { get; set; } = "System";
     public string Service { get; set; } = "Academic Support";
-    public string? AssignedProfessional { get; set; }
+    public string[] AssignedProfessionals { get; set; } = [];
     public int[] StudentIds { get; set; } = [1, 4, 23];
     public string? Diagnosis { get; set; }
     public string? Objective { get; set; }

@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.DTOs.AssessmentManagement;
+using Eras.Application.DTOs.UsersManagement;
 using Eras.Application.Features.RemissionManagement;
 using Eras.Application.Features.RemissionManagement.Handlers;
 using Eras.Application.Mappers.AssessmentManagement;
@@ -27,10 +29,12 @@ public class UpdateRemissionCommandHandlerTests
     private readonly Mock<IValidator<StatusTransitionRequest<InterventionStatus>>> _interventionStatusValidator;
     private readonly UpdateRemissionCommandHandler _handler;
     private readonly Mock<IAssessmentRepository> _mockRepository;
+    private readonly Mock<IErasUsersRepository> _usersRepository;
 
     public UpdateRemissionCommandHandlerTests()
     {
         _mockRepository = new Mock<IAssessmentRepository>();
+        _usersRepository = new Mock<IErasUsersRepository>();
         _mockLogger = new Mock<ILogger<UpdateRemissionCommandHandler>>();
         _validator = new Mock<IValidator<Assessment>>();
         _assessmentStatusValidator = new Mock<IValidator<StatusTransitionRequest<AssessmentStatus>>>();
@@ -54,7 +58,8 @@ public class UpdateRemissionCommandHandlerTests
             _assessmentStatusValidator.Object,
             _interventionStatusValidator.Object,
             _mockRepository.Object,
-            _mockLogger.Object);
+            _mockLogger.Object,
+            _usersRepository.Object);
     }
 
     [Fact]
@@ -537,5 +542,171 @@ public class UpdateRemissionCommandHandlerTests
 
         _mockRepository.Verify(
             r => r.UpdateAsync(mappedEntity), Times.Once);
+    }
+
+
+    private static Assessment MakeAssessment(string[] Professionals, params Intervention[] Interventions) => new()
+    {
+        Id = 1,
+        CreatedBy = "Any",
+        Service = "Smth",
+        Status = AssessmentStatus.Remitted,
+        StudentIds = [1],
+        AssignedProfessionals = Professionals,
+        Interventions = Interventions.ToList()
+    };
+
+    private static Intervention MakeIntervention(int Id, string? Professional) => new()
+    {
+        Id = Id,
+        DateUtc = DateTime.UtcNow,
+        StudentIds = [1],
+        Professional = Professional
+    };
+
+    private static ErasUserDTO MakeUser(string Sub, string FirstName, string LastName) => new()
+    {
+        Sub = Sub,
+        Email = Sub + "@example.com",
+        FirstName = FirstName,
+        LastName = LastName,
+        Role = "ERAS Professional",
+        Audit = new Eras.Domain.Common.AuditInfo()
+    };
+
+    private void SetupUpdate(Assessment Existing, Assessment Incoming)
+    {
+        var dto = new AssessmentDto { Id = 1, StudentIds = [1], CreatedBy = "", Service = "", Status = AssessmentStatus.Remitted };
+        _toDomainMapper.Setup(M => M.Map(It.IsAny<AssessmentDto>())).Returns(Incoming);
+        _toDtoMapper.Setup(M => M.Map(It.IsAny<Assessment>())).Returns(dto);
+        _validator
+            .Setup(V => V.ValidateAsync(It.IsAny<Assessment>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+        _mockRepository
+            .Setup(R => R.GetByIdNoTrackingAsync(1, It.IsAny<Func<IQueryable<Assessment>, IQueryable<Assessment>>>()))
+            .ReturnsAsync(Existing);
+        _mockRepository.Setup(R => R.UpdateAsync(It.IsAny<Assessment>())).ReturnsAsync((Assessment A) => A);
+        _usersRepository.Setup(R => R.GetErasUserBySubAsync("luis-sub")).ReturnsAsync(MakeUser("luis-sub", "Luis", "Gómez"));
+        _usersRepository.Setup(R => R.GetErasUserBySubAsync("ana-sub")).ReturnsAsync(MakeUser("ana-sub", "Ana", "Pérez"));
+    }
+
+    private static UpdateRemissionCommand Command() =>
+        new(new AssessmentDto { Id = 1, StudentIds = [1], CreatedBy = "", Service = "", Status = AssessmentStatus.Remitted });
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-16")]
+    public async Task HandleAsync_ProfessionalAdded_PersistsFullListAsync()
+    {
+        // Arrange (GIVEN an assessment whose professionals are Ana)
+        SetupUpdate(MakeAssessment(["ana-sub"]), MakeAssessment(["ana-sub", "luis-sub"]));
+
+        // Act (WHEN Luis is added in the assessment form)
+        await _handler.Handle(Command(), CancellationToken.None);
+
+        // Assert (THEN the full list is persisted)
+        _mockRepository.Verify(R => R.UpdateAsync(It.Is<Assessment>(A =>
+            A.AssignedProfessionals.SequenceEqual(new[] { "ana-sub", "luis-sub" }))), Times.Once);
+    }
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-17")]
+    public async Task HandleAsync_RemoveProfessionalWithoutInterventions_SucceedsAsync()
+    {
+        // Arrange (GIVEN Luis has no intervention in the assessment)
+        SetupUpdate(
+            MakeAssessment(["ana-sub", "luis-sub"], MakeIntervention(10, "Ana Pérez")),
+            MakeAssessment(["ana-sub"], MakeIntervention(10, "Ana Pérez")));
+
+        // Act (WHEN Luis is removed)
+        await _handler.Handle(Command(), CancellationToken.None);
+
+        // Assert (THEN only Ana remains and the interventions are unchanged)
+        _mockRepository.Verify(R => R.UpdateAsync(It.Is<Assessment>(A =>
+            A.AssignedProfessionals.SequenceEqual(new[] { "ana-sub" })
+            && A.Interventions.Single().Professional == "Ana Pérez")), Times.Once);
+    }
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-18")]
+    public async Task HandleAsync_RemoveProfessionalWithInterventions_Throws409AndKeepsListAsync()
+    {
+        // Arrange (GIVEN an intervention of the assessment is assigned to Luis)
+        SetupUpdate(
+            MakeAssessment(["ana-sub", "luis-sub"], MakeIntervention(10, "Luis Gómez")),
+            MakeAssessment(["ana-sub"], MakeIntervention(10, "Luis Gómez")));
+
+        // Act (WHEN Luis is removed)
+        OperationCanceledException ex = await Assert.ThrowsAsync<OperationCanceledException>(
+            () => _handler.Handle(Command(), CancellationToken.None));
+
+        // Assert (THEN the save is rejected with a message naming Luis, and nothing is persisted)
+        Assert.Contains("Luis Gómez", ex.Message);
+        _mockRepository.Verify(R => R.UpdateAsync(It.IsAny<Assessment>()), Times.Never);
+    }
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-8")]
+    public async Task HandleAsync_NoProfessionalChange_LeavesInterventionProfessionalsAsync()
+    {
+        // Arrange (GIVEN existing interventions and no change to the professionals)
+        SetupUpdate(
+            MakeAssessment(["ana-sub"], MakeIntervention(10, "Ana Pérez")),
+            MakeAssessment(["ana-sub"], MakeIntervention(10, "Ana Pérez")));
+
+        // Act (WHEN the assessment is saved)
+        await _handler.Handle(Command(), CancellationToken.None);
+
+        // Assert (THEN each intervention keeps its professional and nobody is looked up)
+        _mockRepository.Verify(R => R.UpdateAsync(It.Is<Assessment>(A =>
+            A.Interventions.Single().Professional == "Ana Pérez")), Times.Once);
+        _usersRepository.Verify(R => R.GetErasUserBySubAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Theory]
+    [InlineData("luis-sub")]
+    [InlineData("luis-sub@example.com")]
+    [InlineData("  luis gómez ")]
+    public async Task HandleAsync_RemoveProfessionalStoredInAnotherForm_Throws409Async(string StoredProfessional)
+    {
+        SetupUpdate(
+            MakeAssessment(["ana-sub", "luis-sub"], MakeIntervention(10, StoredProfessional)),
+            MakeAssessment(["ana-sub"], MakeIntervention(10, StoredProfessional)));
+
+        await Assert.ThrowsAsync<OperationCanceledException>(
+            () => _handler.Handle(Command(), CancellationToken.None));
+
+        _mockRepository.Verify(R => R.UpdateAsync(It.IsAny<Assessment>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleAsync_RemoveUnresolvableProfessionalWithInterventions_Throws409Async()
+    {
+        SetupUpdate(
+            MakeAssessment(["ana-sub", "luis-sub"], MakeIntervention(10, "luis-sub")),
+            MakeAssessment(["ana-sub"], MakeIntervention(10, "luis-sub")));
+        _usersRepository.Setup(R => R.GetErasUserBySubAsync("luis-sub")).ReturnsAsync((ErasUserDTO?)null);
+
+        OperationCanceledException ex = await Assert.ThrowsAsync<OperationCanceledException>(
+            () => _handler.Handle(Command(), CancellationToken.None));
+
+        Assert.Contains("luis-sub", ex.Message);
+        _mockRepository.Verify(R => R.UpdateAsync(It.IsAny<Assessment>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task HandleAsync_RemoveUnresolvableProfessionalWithoutInterventions_SucceedsAsync()
+    {
+        SetupUpdate(
+            MakeAssessment(["ana-sub", "luis-sub"], MakeIntervention(10, "Ana Pérez")),
+            MakeAssessment(["ana-sub"], MakeIntervention(10, "Ana Pérez")));
+        _usersRepository.Setup(R => R.GetErasUserBySubAsync("luis-sub")).ReturnsAsync((ErasUserDTO?)null);
+
+        await _handler.Handle(Command(), CancellationToken.None);
+
+        _mockRepository.Verify(R => R.UpdateAsync(It.IsAny<Assessment>()), Times.Once);
     }
 }

@@ -203,13 +203,13 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
     public async Task<IEnumerable<Assessment>> GetByAssignedProfessionalAsync(string assignedProfessionalSub)
         => await _context.Set<Assessment>()
             .Include(A => A.Interventions)
-            .Where(A => A.AssignedProfessional == assignedProfessionalSub)
+            .Where(A => A.AssignedProfessionals.Contains(assignedProfessionalSub))
             .ToListAsync();
 
     public async Task<int> CountActiveAssessmentsForUserAsync(string userSub)
         => await _context.Set<Assessment>()
             .CountAsync(A =>
-                (A.CreatedBy == userSub || A.AssignedProfessional == userSub)
+                (A.CreatedBy == userSub || A.AssignedProfessionals.Contains(userSub))
                 && A.Status != AssessmentStatus.Finalized);
 
     public async Task<int> CountActiveInterventionsForUserAsync(string userSub)
@@ -242,5 +242,21 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
 
         await _context.SaveChangesAsync();
         return existing;
+    }
+
+    public async Task AddAssignedProfessionalAsync(int AssessmentId, string ProfessionalSub)
+    {
+        Assessment? assessment = await _context.Set<Assessment>()
+            .FirstOrDefaultAsync(A => A.Id == AssessmentId);
+
+        if (assessment == null)
+            throw new KeyNotFoundException($"Assessment '{AssessmentId}' not found.");
+
+        if (assessment.AssignedProfessionals.Contains(ProfessionalSub))
+            return;
+
+        _context.Entry(assessment).Property(A => A.AssignedProfessionals).CurrentValue =
+            [.. assessment.AssignedProfessionals, ProfessionalSub];
+        await _context.SaveChangesAsync();
     }
 }
