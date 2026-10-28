@@ -15,6 +15,8 @@ namespace Eras.Application.Features.Students.Commands.UpdateStudentProfile;
 public sealed class UpdateStudentProfileCommandHandler(
     IStudentRepository StudentRepository,
     IStudentProfileRepository ProfileRepository,
+    IStudentCohortRepository StudentCohortRepository,
+    ICohortRepository CohortRepository,
     IUnitOfWork UnitOfWork,
     ICurrentUserService CurrentUserService,
     IValidator<StudentRegistrationDto> Validator
@@ -29,6 +31,15 @@ public sealed class UpdateStudentProfileCommandHandler(
 
         Student student = await StudentRepository.GetByIdAsync(Request.StudentId)
             ?? throw new NotFoundException($"Student with ID {Request.StudentId} not found.");
+
+        // A missing cohort keeps the current one; a given one must exist and replaces it.
+        if (dto.CohortId is <= 0)
+            throw new BussinessException("Cohort is not valid.", 400);
+        if (dto.CohortId is not null)
+        {
+            _ = await CohortRepository.GetByIdAsync(dto.CohortId.Value)
+                ?? throw new NotFoundException($"Cohort with ID {dto.CohortId} not found.");
+        }
 
         string email = dto.PrimaryEmail.Trim();
         bool emailChanged = !string.Equals(email, student.Email, StringComparison.Ordinal);
@@ -77,6 +88,10 @@ public sealed class UpdateStudentProfileCommandHandler(
                 saved = await ProfileRepository.UpdateAsync(existing);
             }
 
+            if (dto.CohortId is not null)
+                await StudentCohortRepository.ChangeCohortAsync(student.Id, dto.CohortId.Value);
+            int? cohortId = dto.CohortId ?? await StudentCohortRepository.GetCohortIdByStudentIdAsync(student.Id);
+
             if (!student.IsImported)
             {
                 await StudentRepository.UpdateIdentityAsync(student.Id, dto.ComposeFullName(), email, actor);
@@ -84,7 +99,7 @@ public sealed class UpdateStudentProfileCommandHandler(
                 student.Email = email;
             }
 
-            return saved.ToDto(student);
+            return saved.ToDto(student, cohortId);
         });
     }
 }

@@ -1,7 +1,10 @@
+using System.Text.Json;
+
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
@@ -48,6 +51,32 @@ public sealed class StudentProfileConfiguration : IEntityTypeConfiguration<Stude
         Builder.Property(Profile => Profile.FacultySchool).HasColumnName("faculty_school").HasMaxLength(150);
         Builder.Property(Profile => Profile.StudyModality).HasColumnName("study_modality").HasMaxLength(100);
         Builder.Property(Profile => Profile.PreviousInstitution).HasColumnName("previous_institution").HasMaxLength(200);
+
+        Builder.Property(Profile => Profile.SisId).HasColumnName("stu_id").HasMaxLength(50);
+        Builder.Property(Profile => Profile.Cgpa).HasColumnName("cgpa").HasPrecision(4, 2);
+        Builder.Property(Profile => Profile.SapStatus).HasColumnName("sap_status").HasMaxLength(50);
+        Builder.Property(Profile => Profile.IsCurrentCourseThirdAttempt).HasColumnName("is_current_course_third_attempt");
+        Builder.Property(Profile => Profile.PassedCoursesCount).HasColumnName("passed_courses_count");
+        Builder.Property(Profile => Profile.FailedCoursesCount).HasColumnName("failed_courses_count");
+        Builder.Property(Profile => Profile.IdentifiedRisks).HasColumnName("identified_risks").HasColumnType("text[]");
+        Builder.Property(Profile => Profile.SupportReceived).HasColumnName("support_received").HasColumnType("text[]");
+
+        // Plain jsonb column (not an owned ToJson collection): the repositories save detached
+        // entities with Update(), which owned collections cannot handle.
+        Builder.Property(Profile => Profile.CurrentCourses)
+            .HasColumnName("current_courses")
+            .HasColumnType("jsonb")
+            .HasConversion(
+                Courses => JsonSerializer.Serialize(Courses, (JsonSerializerOptions?)null),
+                Json => JsonSerializer.Deserialize<List<StudentCurrentCourse>>(Json, (JsonSerializerOptions?)null),
+                new ValueComparer<List<StudentCurrentCourse>?>(
+                    (Left, Right) => JsonSerializer.Serialize(Left, (JsonSerializerOptions?)null)
+                        == JsonSerializer.Serialize(Right, (JsonSerializerOptions?)null),
+                    Courses => Courses == null ? 0 : JsonSerializer.Serialize(Courses, (JsonSerializerOptions?)null).GetHashCode(),
+                    Courses => Courses == null
+                        ? null
+                        : JsonSerializer.Deserialize<List<StudentCurrentCourse>>(
+                            JsonSerializer.Serialize(Courses, (JsonSerializerOptions?)null), (JsonSerializerOptions?)null)));
 
         Builder.Property(Profile => Profile.IsDeleted)
             .HasColumnName("is_deleted")

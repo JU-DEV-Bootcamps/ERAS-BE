@@ -34,6 +34,17 @@ public class StudentProfile : BaseEntity, IAuditableEntity
     public string? StudyModality { get; set; }
     public string? PreviousInstitution { get; set; }
 
+    // Student profile view (all optional: absent until someone fills them in).
+    public string? SisId { get; set; }
+    public decimal? Cgpa { get; set; }
+    public string? SapStatus { get; set; }
+    public bool? IsCurrentCourseThirdAttempt { get; set; }
+    public int? PassedCoursesCount { get; set; }
+    public int? FailedCoursesCount { get; set; }
+    public List<StudentCurrentCourse>? CurrentCourses { get; set; }
+    public List<string>? IdentifiedRisks { get; set; }
+    public List<string>? SupportReceived { get; set; }
+
     /// <summary>Set when the student is soft-deleted; the profile is then hidden with it.</summary>
     public bool IsDeleted { get; set; } = false;
 

@@ -118,6 +118,69 @@ public class StudentRegistrationDtoValidatorTests
     }
 
     [Fact]
+    public void Validate_FullyPopulatedProfileViewFields_Passes()
+    {
+        StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();
+        dto.SisId = "STU-001";
+        dto.Cgpa = 3.45m;
+        dto.SapStatus = "Satisfactory";
+        dto.IsCurrentCourseThirdAttempt = true;
+        dto.PassedCoursesCount = 12;
+        dto.FailedCoursesCount = 0;
+        dto.CurrentCourses = [new StudentCurrentCourseDto { Name = "Algorithms", Group = "G1", Section = "A" }];
+        dto.IdentifiedRisks = ["Low attendance"];
+        dto.SupportReceived = ["Tutoring"];
+
+        Assert.True(_validator.Validate(dto).IsValid);
+    }
+
+    [Theory]
+    [InlineData(-0.01)]
+    [InlineData(100)]
+    public void Validate_CgpaOutOfRange_Fails(double cgpa)
+    {
+        StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();
+        dto.Cgpa = (decimal)cgpa;
+
+        Assert.Contains(_validator.Validate(dto).Errors, Error => Error.PropertyName == nameof(StudentRegistrationDto.Cgpa));
+    }
+
+    [Fact]
+    public void Validate_NegativeCourseCounts_Fail()
+    {
+        StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();
+        dto.PassedCoursesCount = -1;
+        dto.FailedCoursesCount = -1;
+
+        var result = _validator.Validate(dto);
+
+        Assert.Contains(result.Errors, Error => Error.PropertyName == nameof(StudentRegistrationDto.PassedCoursesCount));
+        Assert.Contains(result.Errors, Error => Error.PropertyName == nameof(StudentRegistrationDto.FailedCoursesCount));
+    }
+
+    [Fact]
+    public void Validate_CurrentCourseWithoutName_Fails()
+    {
+        StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();
+        dto.CurrentCourses = [new StudentCurrentCourseDto { Name = " ", Group = "G1" }];
+
+        Assert.False(_validator.Validate(dto).IsValid);
+    }
+
+    [Fact]
+    public void Validate_TooLongProfileViewFields_Fail()
+    {
+        StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();
+        dto.SisId = new string('x', 51);
+        dto.IdentifiedRisks = [new string('x', 501)];
+
+        var result = _validator.Validate(dto);
+
+        Assert.Contains(result.Errors, Error => Error.PropertyName == nameof(StudentRegistrationDto.SisId));
+        Assert.Contains(result.Errors, Error => Error.PropertyName.StartsWith(nameof(StudentRegistrationDto.IdentifiedRisks)));
+    }
+
+    [Fact]
     public void Validate_TooLongFields_Fail()
     {
         StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();

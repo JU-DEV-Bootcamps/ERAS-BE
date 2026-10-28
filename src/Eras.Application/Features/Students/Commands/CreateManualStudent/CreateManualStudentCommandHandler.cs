@@ -63,7 +63,7 @@ public sealed class CreateManualStudentCommandHandler(
             dto.ApplyTo(profile);
             StudentProfile savedProfile = await ProfileRepository.AddAsync(profile);
 
-            return savedProfile.ToDto(created);
+            return savedProfile.ToDto(created, cohort.Id);
         });
     }
 

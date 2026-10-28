@@ -22,6 +22,32 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
             return results?.ToDomain();
         }
 
+        public async Task<int?> GetCohortIdByStudentIdAsync(int StudentId)
+        {
+            return await _context.StudentCohorts
+                .Where(StudentCohort => StudentCohort.StudentId == StudentId)
+                .OrderByDescending(StudentCohort => StudentCohort.Id)
+                .Select(StudentCohort => (int?)StudentCohort.CohortId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task ChangeCohortAsync(int StudentId, int CohortId)
+        {
+            List<StudentCohortJoin> links = await _context.StudentCohorts
+                .Where(StudentCohort => StudentCohort.StudentId == StudentId)
+                .OrderByDescending(StudentCohort => StudentCohort.Id)
+                .ToListAsync();
+
+            if (links.Any(Link => Link.CohortId == CohortId)) return;
+
+            if (links.Count == 0)
+                _context.StudentCohorts.Add(new StudentCohortJoin { StudentId = StudentId, CohortId = CohortId });
+            else
+                links[0].CohortId = CohortId;
+
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<Student>?> GetAllStudentsByCohortIdAsync(int CohortId)
         {
             var cohortStudents = await _context.StudentCohorts.Include(Cs => Cs.Student).Where(StudentCohort => StudentCohort.CohortId.Equals(CohortId)).ToListAsync();

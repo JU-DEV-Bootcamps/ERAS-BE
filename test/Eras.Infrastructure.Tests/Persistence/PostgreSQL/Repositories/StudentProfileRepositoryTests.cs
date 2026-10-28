@@ -69,6 +69,36 @@ public class StudentProfileRepositoryTests : RepositoryTestBase
     }
 
     [Fact]
+    public async Task SaveChanges_DetachedProfileWithCurrentCourses_PersistsThem()
+    {
+        // Regression: courses were an owned JSON collection, and saving a detached profile
+        // (how the repositories update) failed on the owned type's shadow ordinal key.
+        using AppDbContext context = CreateContext();
+        StudentProfile profile = NewProfile(1, "A1");
+        profile.CurrentCourses = [new StudentCurrentCourse { Name = "Algorithms", Group = "G1", Section = "A" }];
+        profile.IdentifiedRisks = ["Low attendance"];
+        await Seed(context, profile);
+        context.ChangeTracker.Clear();
+
+        StudentProfile detached = NewProfile(1, "A1");
+        detached.Id = profile.Id;
+        detached.CurrentCourses =
+        [
+            new StudentCurrentCourse { Name = "Algorithms", Group = "G2", Section = "B" },
+            new StudentCurrentCourse { Name = "Databases" },
+        ];
+        context.StudentProfiles.Update(detached);
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+
+        StudentProfile? reloaded = await new StudentProfileRepository(context).GetByStudentIdAsync(1);
+
+        Assert.Equal(2, reloaded!.CurrentCourses!.Count);
+        Assert.Equal("G2", reloaded.CurrentCourses[0].Group);
+        Assert.Null(reloaded.CurrentCourses[1].Group);
+    }
+
+    [Fact]
     public async Task GetStudentIdsWithProfileAsync_ReturnsOnlyStudentsThatHaveOne()
     {
         using AppDbContext context = CreateContext();

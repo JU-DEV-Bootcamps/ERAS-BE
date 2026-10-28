@@ -1,4 +1,4 @@
-using Eras.Application.Contracts.Infrastructure;
+﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Features.Students.Commands.DeleteStudent;
@@ -97,11 +97,13 @@ public class GetStudentProfileQueryHandlerTests
 {
     private readonly Mock<IStudentRepository> _students = new();
     private readonly Mock<IStudentProfileRepository> _profiles = new();
+    private readonly Mock<IStudentCohortRepository> _studentCohorts = new();
     private readonly GetStudentProfileQueryHandler _handler;
 
     public GetStudentProfileQueryHandlerTests()
     {
-        _handler = new GetStudentProfileQueryHandler(_students.Object, _profiles.Object);
+        _studentCohorts.Setup(R => R.GetCohortIdByStudentIdAsync(7)).ReturnsAsync(3);
+        _handler = new GetStudentProfileQueryHandler(_students.Object, _profiles.Object, _studentCohorts.Object);
     }
 
     private Task<StudentRegistrationDto> Run() =>
@@ -133,6 +135,7 @@ public class GetStudentProfileQueryHandlerTests
         Assert.Equal("Ana", result.FirstName);
         Assert.Equal("Cbba", result.City);
         Assert.Equal("a@b.co", result.PrimaryEmail);
+        Assert.Equal(3, result.CohortId);
     }
 
     [Fact]
@@ -148,5 +151,16 @@ public class GetStudentProfileQueryHandlerTests
         Assert.Equal("Perez Testeador", result.LastName);
         Assert.True(result.IsImported);
         Assert.Equal(string.Empty, result.IdPassportNumber);
+        Assert.Equal(3, result.CohortId);
+    }
+
+    [Fact]
+    public async Task Handle_StudentWithoutCohort_ReturnsNullCohort()
+    {
+        _students.Setup(R => R.GetByIdAsync(7)).ReturnsAsync(new Student { Id = 7, Email = "a@b.co" });
+        _profiles.Setup(R => R.GetByStudentIdAsync(7)).ReturnsAsync(new StudentProfile { StudentId = 7 });
+        _studentCohorts.Setup(R => R.GetCohortIdByStudentIdAsync(7)).ReturnsAsync((int?)null);
+
+        Assert.Null((await Run()).CohortId);
     }
 }
