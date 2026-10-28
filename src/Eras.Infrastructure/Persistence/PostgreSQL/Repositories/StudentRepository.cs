@@ -307,17 +307,45 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return Entity;
         }
-        public async Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize)
+        public async Task<(IEnumerable<Student> Students, int TotalCount)> GetPagedAsyncWithJoins(
+            int Page,
+            int PageSize,
+            string? Search
+        )
         {
-            var persistenceEntity = await _context.Set<StudentEntity>()
-                .AsNoTracking()
-                .Include(E => E.StudentDetail)
-                .OrderBy(Stu => Stu.Name)
-                .Skip((Page - 1) * PageSize)
-                .Take(PageSize)
-                .ToListAsync();
+            string searchText = SearchTextNormalizer.Normalize(Search);
+            IQueryable<StudentEntity> students = _context.Set<StudentEntity>().AsNoTracking();
 
-            return persistenceEntity.Select(Entity => StudentMapper.ToDomain(Entity));
+            if (searchText.Length == 0)
+            {
+                int total = await students.CountAsync();
+                var page = await students
+                    .Include(E => E.StudentDetail)
+                    .OrderBy(Stu => Stu.Name)
+                    .Skip((Page - 1) * PageSize)
+                    .Take(PageSize)
+                    .ToListAsync();
+
+                return (page.Select(Entity => StudentMapper.ToDomain(Entity)), total);
+            }
+
+            var names = await students
+                .OrderBy(Stu => Stu.Name)
+                .Select(Stu => new { Stu.Id, Stu.Name })
+                .ToListAsync();
+            List<int> matchingIds = names
+                .Where(Stu => SearchTextNormalizer.Normalize(Stu.Name).Contains(searchText, StringComparison.Ordinal))
+                .Select(Stu => Stu.Id)
+                .ToList();
+            List<int> pageIds = matchingIds.Skip((Page - 1) * PageSize).Take(PageSize).ToList();
+
+            var entities = await students
+                .Include(E => E.StudentDetail)
+                .Where(Stu => pageIds.Contains(Stu.Id))
+                .ToListAsync();
+            var byId = entities.ToDictionary(Entity => Entity.Id);
+
+            return (pageIds.Select(Id => StudentMapper.ToDomain(byId[Id])), matchingIds.Count);
         }
         public async Task<Dictionary<int, double>> GetAverageRiskByStudentIdsAsync(IEnumerable<int> studentIds)
         {

@@ -5,5 +5,5 @@ using MediatR;
 
 namespace Eras.Application.Features.Students.Queries.GetAll
 {
-    public sealed record GetAllStudentsQuery(Pagination Query) : IRequest<PagedResult<GetAllStudentsQueryResponse>>;
+    public sealed record GetAllStudentsQuery(Pagination Query, string? Search = null) : IRequest<PagedResult<GetAllStudentsQueryResponse>>;
 }

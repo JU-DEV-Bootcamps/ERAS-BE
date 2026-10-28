@@ -55,7 +55,15 @@ namespace Eras.Application.Contracts.Persistence
             int? evaluationId
         );
 
-        Task<IEnumerable<Student>> GetPagedAsyncWithJoins(int Page, int PageSize);
+        /// <summary>
+        /// Students ordered by name, one page at a time. A non-blank <paramref name="Search"/> keeps only the
+        /// students whose name contains it, ignoring case and accents; the total counts every match.
+        /// </summary>
+        Task<(IEnumerable<Student> Students, int TotalCount)> GetPagedAsyncWithJoins(
+            int Page,
+            int PageSize,
+            string? Search
+        );
         Task<IEnumerable<Student>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
         Task<Dictionary<int, double>> GetAverageRiskByStudentIdsAsync(IEnumerable<int> StudentIds);
 
