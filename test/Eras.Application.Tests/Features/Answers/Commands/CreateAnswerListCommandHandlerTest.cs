@@ -1,14 +1,18 @@
-using Xunit;
-using Moq;
-using Microsoft.Extensions.Logging;
 using Eras.Application.Contracts.Persistence;
-using Eras.Application.Features.Answers.Commands.CreateAnswerList;
-using Eras.Domain.Entities;
-using Eras.Application.Models.Response.Common;
 using Eras.Application.DTOs;
+using Eras.Application.Features.Answers.Commands.CreateAnswerList;
 using Eras.Application.Mappers;
+using Eras.Application.Models.Response.Common;
+using Eras.Domain.Entities;
+
+using Microsoft.Extensions.Logging;
+
+using Moq;
+
+using Xunit;
 
 namespace Eras.Application.Tests.Features.Answers.Commands;
+
 public class CreateAnswerListCommandHandlerTests
 {
     private readonly Mock<IAnswerRepository> _answerRepositoryMock;
@@ -221,7 +225,7 @@ public class CreateAnswerListCommandHandlerTests
 
         var request = new CreateAnswerListCommand
         {
-            Answers = new List<AnswerDTO> {incomingAnswer.ToDto() }
+            Answers = new List<AnswerDTO> { incomingAnswer.ToDto() }
         };
 
         _answerRepositoryMock

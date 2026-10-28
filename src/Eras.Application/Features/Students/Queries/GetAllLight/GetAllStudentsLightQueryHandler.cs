@@ -1,7 +1,9 @@
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.DTOs;
 using Eras.Application.DTOs.Student;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Queries.GetAllLight

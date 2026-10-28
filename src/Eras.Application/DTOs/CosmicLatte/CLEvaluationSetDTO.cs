@@ -1,6 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 
 namespace Eras.Application.DTOs.CosmicLatte;
+
 public class CLEvaluationSetDTOList
 {
     [JsonPropertyName("@data")]
@@ -10,7 +11,8 @@ public class CLEvaluationSetDTOList
     public MetaEvaluationsSet meta { get; set; } = new MetaEvaluationsSet();
 }
 
-public class CLEvaluationSetDTO {
+public class CLEvaluationSetDTO
+{
 
     [JsonPropertyName("_id")]
     public string _id { get; set; } = string.Empty;

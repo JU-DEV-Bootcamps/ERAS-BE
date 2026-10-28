@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Cohorts.Queries;
+
 public class GetCohortStudentsRiskByPollQueryHandlerTest
 {
     private readonly Mock<IPollCohortRepository> _mockPollCohortRepository;
@@ -29,7 +30,7 @@ public class GetCohortStudentsRiskByPollQueryHandlerTest
             PollInstanceRiskSum = PollInstanceRiskSum
         };
     }
-    
+
     [Fact]
     public async Task Handle_ShouldReturnListOfCohortComponentsByPoll()
     {

@@ -1,4 +1,6 @@
-﻿using Eras.Application.DTOs;
+﻿using System.Diagnostics.CodeAnalysis;
+
+using Eras.Application.DTOs;
 using Eras.Application.Features.Configurations.Command.CreateConfiguration;
 using Eras.Application.Features.Configurations.Queries.GetAllConfigurations;
 using Eras.Application.Features.ServiceProviders.Command;
@@ -9,7 +11,6 @@ using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Eras.Api.Controllers;
 
@@ -20,7 +21,7 @@ public class ServiceProvidersController(IMediator Mediator, ILogger<ServiceProvi
 {
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<ServiceProvidersController> _logger = Logger;
-    
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

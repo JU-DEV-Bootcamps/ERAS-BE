@@ -1,7 +1,9 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Services;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests

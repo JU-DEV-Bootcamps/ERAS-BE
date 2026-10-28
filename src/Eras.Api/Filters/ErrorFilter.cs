@@ -1,5 +1,6 @@
 ﻿using Eras.Error;
 using Eras.Error.Critical;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -57,7 +58,7 @@ public class ErrorFilter : IActionFilter
                 StatusCode = exception?.StatusCode,
             };
         }
-       
+
         Context.ExceptionHandled = true;
     }
 

@@ -17,7 +17,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Mappers
 
         public static JUServiceEntity ToPersistence(this JUService Model)
         {
-            return new JUServiceEntity 
+            return new JUServiceEntity
             {
                 Id = Model.Id,
                 Name = Model.Name,

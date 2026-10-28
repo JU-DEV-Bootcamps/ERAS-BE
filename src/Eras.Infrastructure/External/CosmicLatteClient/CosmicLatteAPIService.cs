@@ -95,7 +95,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                     throw new ArgumentException($"There was an error during the import: Poll Name exceeds the maximum length of 100 characters.");
 
                 CreateCommandResponse<CreatedPollDTO> createdPoll = await _pollOrchestratorService.ImportPollInstancesAsync(PollsDtos, EvaluationId);
-                
+
                 if (createdPoll.Entity == null)
                 {
                     _logger.LogError("Error saving data: createdPoll is null");
@@ -182,7 +182,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                             Components = SanitizeComponents(populatedComponent),
                             ParentId = responseToPollInstance.parent.Split(':')[1]
                         };
-                        
+
                         var studentEmail = pollDto.Components?
                             .FirstOrDefault()?.Variables?
                             .FirstOrDefault()?.Answer?.Student?.Email;
@@ -780,14 +780,14 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 {
                     int minPos = positions.Min();
                     int maxPos = positions.Max();
-                    
+
                     if (Position >= minPos && Position <= maxPos)
                     {
                         return component.Key;
                     }
                 }
             }
-            
+
             return "personalData";
         }
 
@@ -830,16 +830,16 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             foreach (var component in components)
             {
                 component.Name = SqlInjectionValidator.Sanitize(component.Name);
-                
+
                 foreach (var variable in component.Variables)
                 {
                     variable.Name = SqlInjectionValidator.Sanitize(variable.Name);
-                    
+
                     if (!string.IsNullOrEmpty(variable.Type))
                     {
                         variable.Type = SqlInjectionValidator.Sanitize(variable.Type);
                     }
-                    
+
                     if (variable.Answer != null && !string.IsNullOrEmpty(variable.Answer.Answer))
                     {
                         variable.Answer.Answer = SqlInjectionValidator.Sanitize(variable.Answer.Answer);
@@ -850,9 +850,9 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
 
         private void ProcessOpenEndedQuestions(
-            List<ComponentDTO> Results, 
-            Dictionary<int, Answers> AnswersList, 
-            HashSet<int> ProcessedPositions, 
+            List<ComponentDTO> Results,
+            Dictionary<int, Answers> AnswersList,
+            HashSet<int> ProcessedPositions,
             Dictionary<string, List<int>> VariablesPositionByComponents)
         {
             var openEndedByComponent = CollectOpenEndedQuestionsByComponent(AnswersList, ProcessedPositions, VariablesPositionByComponents);
@@ -860,8 +860,8 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
         }
 
         private Dictionary<string, List<VariableDTO>> CollectOpenEndedQuestionsByComponent(
-            Dictionary<int, Answers> AnswersList, 
-            HashSet<int> ProcessedPositions, 
+            Dictionary<int, Answers> AnswersList,
+            HashSet<int> ProcessedPositions,
             Dictionary<string, List<int>> VariablesPositionByComponents)
         {
             var openEndedByComponent = new Dictionary<string, List<VariableDTO>>();
@@ -872,7 +872,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 {
                     var newVariable = CreateVariableFromAnswer(itemVariable);
                     var targetComponent = DetermineComponentForOpenEndedQuestion(itemVariable.Value.Position, VariablesPositionByComponents);
-                    
+
                     AddVariableToComponentGroup(openEndedByComponent, targetComponent, newVariable);
                 }
             }
@@ -886,12 +886,12 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             {
                 string componentName = openEndedGroup.Key;
                 var openEndedVariables = openEndedGroup.Value;
-                
+
                 if (componentName == "personalData")
                 {
                     continue;
                 }
-                
+
                 var existingComponent = Results.FirstOrDefault(c => c.Name == componentName);
                 if (existingComponent != null)
                 {
@@ -906,7 +906,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
 
         private static bool ShouldProcessOpenEndedQuestion(KeyValuePair<int, Answers> ItemVariable, HashSet<int> ProcessedPositions)
         {
-            return !ProcessedPositions.Contains(ItemVariable.Value.Position) && 
+            return !ProcessedPositions.Contains(ItemVariable.Value.Position) &&
                    IsOpenEndedQuestion(ItemVariable.Value.Type);
         }
 
@@ -928,7 +928,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             {
                 OpenEndedByComponent[TargetComponent] = new List<VariableDTO>();
             }
-            
+
             OpenEndedByComponent[TargetComponent].Add(Variable);
         }
 
@@ -964,14 +964,14 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
             bool wasStartDateProvided = !string.IsNullOrEmpty(StartDate);
             bool wasEndDateProvided = !string.IsNullOrEmpty(EndDate);
 
-            if(!wasStartDateProvided && !wasEndDateProvided)
+            if (!wasStartDateProvided && !wasEndDateProvided)
             {
                 return true;
             }
-            
+
             // Add 1 day to EndDate to account for evaluations finished
             // on the EndDate.
-            if(wasStartDateProvided && wasEndDateProvided && 
+            if (wasStartDateProvided && wasEndDateProvided &&
                EvaluationFinishedAtDate >= DateTime.Parse(StartDate).ToUniversalTime() &&
                EvaluationFinishedAtDate <= DateTime.Parse(EndDate).ToUniversalTime().AddDays(1)
               )
@@ -979,7 +979,7 @@ namespace Eras.Infrastructure.External.CosmicLatteClient
                 return true;
             }
 
-            if(wasStartDateProvided && !wasEndDateProvided &&
+            if (wasStartDateProvided && !wasEndDateProvided &&
                EvaluationFinishedAtDate >= DateTime.Parse(StartDate).ToUniversalTime()
               )
             {

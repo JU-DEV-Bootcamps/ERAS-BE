@@ -1,6 +1,7 @@
-using MediatR;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Utils;
+
+using MediatR;
 
 namespace Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohortAndPoll
 {

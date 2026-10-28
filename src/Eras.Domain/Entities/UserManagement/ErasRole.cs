@@ -1,10 +1,11 @@
 namespace Eras.Domain.Entities.UserManagement;
+
 public sealed class ErasRole
 {
-    public static readonly ErasRole Administrator = new ("ERAS Administrator");
-    public static readonly ErasRole Officer = new ("ERAS Student Services Officer");
-    public static readonly ErasRole Professional = new ("ERAS Professional");
-    public static readonly ErasRole Guest = new ("ERAS Guest");
+    public static readonly ErasRole Administrator = new("ERAS Administrator");
+    public static readonly ErasRole Officer = new("ERAS Student Services Officer");
+    public static readonly ErasRole Professional = new("ERAS Professional");
+    public static readonly ErasRole Guest = new("ERAS Guest");
 
     public string Label { get; }
 

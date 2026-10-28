@@ -1,6 +1,7 @@
 ﻿using Eras.Domain.Entities;
 
 namespace Eras.Application.Validation;
+
 public static class EvaluationDateRangeValidator
 {
     public static void EnsureWithinRange(Evaluation evaluation, DateTime requestedStart, DateTime requestedEnd)

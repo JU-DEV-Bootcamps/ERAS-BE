@@ -3,6 +3,7 @@ using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 namespace Eras.Application.Tests.Mappers;
+
 public class AnswerMapperTest
 {
     [Fact]

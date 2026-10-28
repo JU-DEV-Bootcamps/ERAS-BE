@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+
 using Eras.Application.DTOs;
 using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class JUServiceDTOValidationTests
 {
     private static JUServiceDTO CreateValidDTO() => new JUServiceDTO
@@ -29,7 +31,7 @@ public class JUServiceDTOValidationTests
         dto.Id = InvalidId;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-        
+
         Assert.Single(results);
         Assert.Equal("Id must be greater or equal to 0.", results.First().ErrorMessage);
         Assert.Contains(nameof(JUServiceDTO.Id), results.First().MemberNames);

@@ -70,8 +70,8 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                 new CohortEntity { Id = 2, Name = "Cohort2", CourseCode = "Course2" }
             }.AsQueryable().BuildMockDbSet();
 
-            var students = new List<StudentEntity> 
-            { 
+            var students = new List<StudentEntity>
+            {
                 new StudentEntity { Id = 1 },
                 new StudentEntity { Id = 2 }
             }.AsQueryable().BuildMockDbSet();
@@ -282,7 +282,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
                 () => _repository.GetHeatMapAnswersPercentageByVariableAsync(PollUuid));
 
             Assert.Equal("PollUUID", exception.ParamName);
-            Assert.Equal("The Poll UUID can't be null or empty. (Parameter 'PollUUID')",exception.Message);
+            Assert.Equal("The Poll UUID can't be null or empty. (Parameter 'PollUUID')", exception.Message);
         }
 
     }

@@ -27,19 +27,19 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
             migrationBuilder.DropColumn(
                 name: "participant_ids",
                 table: "Interventions");
-            
+
             migrationBuilder.RenameColumn(
                 name: "new_participant_ids",
                 table: "Interventions",
                 newName: "participant_ids"
             );
 
-           migrationBuilder.AddColumn<int[]>(
-                name: "new_student_ids",
-                table: "remissions",
-                type: "integer[]",
-                nullable: false,
-                defaultValue: new int[] { });
+            migrationBuilder.AddColumn<int[]>(
+                 name: "new_student_ids",
+                 table: "remissions",
+                 type: "integer[]",
+                 nullable: false,
+                 defaultValue: new int[] { });
 
             migrationBuilder.Sql(@"
                 UPDATE ""remissions"" r

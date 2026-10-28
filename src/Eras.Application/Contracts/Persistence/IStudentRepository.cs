@@ -1,5 +1,5 @@
-﻿using Eras.Application.DTOs.HeatMap;
-using Eras.Application.DTOs;
+﻿using Eras.Application.DTOs;
+using Eras.Application.DTOs.HeatMap;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;

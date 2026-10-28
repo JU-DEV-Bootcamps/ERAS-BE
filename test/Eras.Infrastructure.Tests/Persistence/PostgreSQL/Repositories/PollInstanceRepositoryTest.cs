@@ -202,7 +202,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             var now = DateTime.UtcNow;
 
             var student = new StudentEntity
-            { Id = 1, Uuid = "student-1", Name = "Student", Email = "student@test.com"};
+            { Id = 1, Uuid = "student-1", Name = "Student", Email = "student@test.com" };
 
             context.Polls.Add(new PollEntity { Uuid = "poll-Uuid", LastVersion = 2 });
 
@@ -211,15 +211,33 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             context.PollInstances.AddRange(
                 new PollInstanceEntity
                 {
-                    Id = 1, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = now.AddDays(-2), LastVersion = 2,Student = student
+                    Id = 1,
+                    Uuid = "poll-Uuid",
+                    StudentId = 1,
+                    EvaluationId = 10,
+                    FinishedAt = now.AddDays(-2),
+                    LastVersion = 2,
+                    Student = student
                 },
                 new PollInstanceEntity
                 {
-                    Id = 2, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = now.AddDays(-10), LastVersion = 2, Student = student
+                    Id = 2,
+                    Uuid = "poll-Uuid",
+                    StudentId = 1,
+                    EvaluationId = 10,
+                    FinishedAt = now.AddDays(-10),
+                    LastVersion = 2,
+                    Student = student
                 },
                 new PollInstanceEntity
                 {
-                    Id = 3, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = now.AddDays(-1), LastVersion = 1, Student = student
+                    Id = 3,
+                    Uuid = "poll-Uuid",
+                    StudentId = 1,
+                    EvaluationId = 10,
+                    FinishedAt = now.AddDays(-1),
+                    LastVersion = 1,
+                    Student = student
                 }
             );
 
@@ -236,7 +254,7 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
         {
             using var context = CreateContext();
 
-            var student = new StudentEntity { Id = 1, Uuid = "student-1", Name = "Student", Email = "student@test.com"};
+            var student = new StudentEntity { Id = 1, Uuid = "student-1", Name = "Student", Email = "student@test.com" };
 
             context.Polls.Add(new PollEntity { Uuid = "poll-Uuid", LastVersion = 2 });
 
@@ -245,11 +263,23 @@ namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories
             context.PollInstances.AddRange(
                 new PollInstanceEntity
                 {
-                    Id = 1, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = DateTime.UtcNow, LastVersion = 1, Student = student
+                    Id = 1,
+                    Uuid = "poll-Uuid",
+                    StudentId = 1,
+                    EvaluationId = 10,
+                    FinishedAt = DateTime.UtcNow,
+                    LastVersion = 1,
+                    Student = student
                 },
                 new PollInstanceEntity
                 {
-                    Id = 2, Uuid = "poll-Uuid", StudentId = 1, EvaluationId = 10, FinishedAt = DateTime.UtcNow, LastVersion = 2, Student = student
+                    Id = 2,
+                    Uuid = "poll-Uuid",
+                    StudentId = 1,
+                    EvaluationId = 10,
+                    FinishedAt = DateTime.UtcNow,
+                    LastVersion = 2,
+                    Student = student
                 }
             );
 

@@ -201,5 +201,5 @@ public sealed class ReplaceInterventionCommandHandler
             _ => throw new NotSupportedException(
                $"Intervention type '{intervention.GetType().Name}' is not supported.")
         };
-     }
+    }
 }

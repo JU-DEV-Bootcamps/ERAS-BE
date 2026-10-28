@@ -2,6 +2,7 @@
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
 namespace Eras.Application.Tests.Mappers;
+
 public class PollInstanceMapperTest
 {
     [Fact]

@@ -2,7 +2,9 @@
 using Eras.Application.Features.StudentsDetails.Commands.CreateStudentDetail;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.StudentsDetails.Queries.GetStudentDetailByStudentId;
@@ -23,7 +25,8 @@ public class GetStudentDetailByStudentIdQueryHandler : IRequestHandler<GetStuden
         try
         {
             StudentDetail? response = await _StudentDetailRepository.GetByStudentId(Request.StudentId);
-            if (response == null) {
+            if (response == null)
+            {
                 return new GetQueryResponse<StudentDetail?>(null, "Student Detail doesn't exist", false);
             }
             return new GetQueryResponse<StudentDetail?>(response, "Success", true);

@@ -3,7 +3,9 @@ using Eras.Application.DTOs;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Utils;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays
@@ -13,7 +15,7 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
     {
 
         private readonly IPollInstanceRepository _pollInstanceRepository;
-        private readonly IEvaluationRepository _evaluationRepository; 
+        private readonly IEvaluationRepository _evaluationRepository;
         private readonly ILogger<GetPollInstanceByCohortAndDaysQueryHandler> _logger;
 
         public GetPollInstanceByCohortAndDaysQueryHandler(IPollInstanceRepository PollInstanceRepository, IEvaluationRepository EvaluationRepository, ILogger<GetPollInstanceByCohortAndDaysQueryHandler> Logger)
@@ -26,22 +28,22 @@ namespace Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCoho
         {
             try
             {
-                DateTime? startDate = null;  
+                DateTime? startDate = null;
                 DateTime? endDate = null;
 
-            if (Request.EvaluationId.HasValue)
-            {
-                var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId.Value);
-                if (evaluation is null)
+                if (Request.EvaluationId.HasValue)
                 {
-                    throw new KeyNotFoundException($"Evaluation '{Request.EvaluationId}' not found.");
+                    var evaluation = await _evaluationRepository.GetByIdAsync(Request.EvaluationId.Value);
+                    if (evaluation is null)
+                    {
+                        throw new KeyNotFoundException($"Evaluation '{Request.EvaluationId}' not found.");
+                    }
+                    startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
+                    endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
+                      .Date
+                      .AddDays(1)
+                      .AddTicks(-1);
                 }
-                startDate = DateTime.SpecifyKind(evaluation.StartDate, DateTimeKind.Utc);
-                endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
-                  .Date
-                  .AddDays(1)
-                  .AddTicks(-1);
-            }
 
                 var pollInstances = await _pollInstanceRepository.GetByCohortIdAndLastDays(Request.Pagination.Page, Request.Pagination.PageSize, Request.CohortId, Request.Days, Request.LastVersion, Request.PollUuid, startDate, endDate, Request.EvaluationId);
                 var pollInstanceDTOs =

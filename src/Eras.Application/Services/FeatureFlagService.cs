@@ -12,7 +12,8 @@ public sealed class FeatureFlagService(IMediator Mediator) : IFeatureFlagService
 {
     private readonly IMediator _mediator = Mediator;
 
-    public async Task<bool> UseEnhancedEvaluationImport() {
+    public async Task<bool> UseEnhancedEvaluationImport()
+    {
         var v2Override = await IsFeatureFlagEnabledAsync(FeatureFlags.Version2);
         if (v2Override)
         {
@@ -34,7 +35,7 @@ public sealed class FeatureFlagService(IMediator Mediator) : IFeatureFlagService
 
             return featureFlag?.IsEnabled ?? false;
         }
-        catch(NotFoundException)
+        catch (NotFoundException)
         {
             return false;
         }

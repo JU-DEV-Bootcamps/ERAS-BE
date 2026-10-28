@@ -628,7 +628,7 @@ public sealed class GetAllRemissionsQueryHandlerTests
         Assert.Same(expectedException, exception);
 
         _mapper.Verify(
-            x => x.Map(It.IsAny<Assessment>()),Times.Never);
+            x => x.Map(It.IsAny<Assessment>()), Times.Never);
     }
 
     private static AssessmentDto CreateAssessmentDto()

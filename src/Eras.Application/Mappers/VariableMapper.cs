@@ -13,7 +13,7 @@ namespace Eras.Application.Mappers
             {
                 Name = Dto.Name,
                 Position = Dto.Position,
-                Audit = Dto.Audit?? new AuditInfo(),
+                Audit = Dto.Audit ?? new AuditInfo(),
                 Version = Dto.Version,
                 Type = Dto.Type,
             };

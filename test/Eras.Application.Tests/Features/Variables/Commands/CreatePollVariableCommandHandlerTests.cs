@@ -4,7 +4,9 @@ using Eras.Application.DTOs;
 using Eras.Application.Features.Variables.Commands.CreatePollVariable;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Variables.Commands
@@ -25,7 +27,7 @@ namespace Eras.Application.Tests.Features.Variables.Commands
         [Fact]
         public async Task HandlePollVariableCreatesNewPollVariableAsync()
         {
-            var newVariableDto = new VariableDTO() { Name= "newPollVariable" };
+            var newVariableDto = new VariableDTO() { Name = "newPollVariable" };
             var command = new CreatePollVariableCommand { Variable = newVariableDto };
             var newPollVariable = newVariableDto.ToDomain;
 

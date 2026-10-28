@@ -123,7 +123,7 @@ public class CohortsHelperTests
 
         var result = CohortsHelper.GetCohortsFromDateRange(startDate, endDate);
 
-        Assert.Equal(new[]{"Cohort 1 (2024)", "Cohort 2 (2024)"}, result);
+        Assert.Equal(new[] { "Cohort 1 (2024)", "Cohort 2 (2024)" }, result);
     }
 
     [Fact]
@@ -234,5 +234,5 @@ public class CohortsHelperTests
         Assert.Equal(DateTimeKind.Utc, result.Start.Kind);
         Assert.Equal(DateTimeKind.Utc, result.End.Kind);
         Assert.True(result.Start < result.End);
-    } 
+    }
 }

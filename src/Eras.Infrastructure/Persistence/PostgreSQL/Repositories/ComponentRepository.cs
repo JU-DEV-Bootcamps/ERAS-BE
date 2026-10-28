@@ -38,15 +38,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 .Join(_context.Variables,
                     Component => Component.Id,
                     Variable => Variable.ComponentId,
-                    (Component,Variable)=> new { Component,Variable})
+                    (Component, Variable) => new { Component, Variable })
                 .Join(_context.PollVariables,
                     Cv => Cv.Variable.Id,
                     Pv => Pv.VariableId,
                     (Cv, PollVariable) => new { Cv.Component, Cv.Variable, PollVariable })
                 .Where(Cv => Cv.PollVariable.PollId == PollId)
-                .Select( Cv => Cv.Component)
+                .Select(Cv => Cv.Component)
                 .FirstOrDefaultAsync();
             return component?.ToDomain();
-        } 
+        }
     }
 }

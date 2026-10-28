@@ -10,9 +10,11 @@ using Eras.Application.Features.Variables.Queries.GetByNameAndPollId;
 using Eras.Domain.Entities;
 
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Polls.Queries;
+
 public class GetAllPollsQueryHandlerTest
 {
     private readonly Mock<IPollRepository> _mockVariableRepository;

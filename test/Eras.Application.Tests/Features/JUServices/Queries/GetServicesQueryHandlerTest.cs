@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.JUServices.Queries;
+
 public class GetJUServicesQueryHandlerTests
 {
     private readonly Mock<IJUServiceRepository> _mockJuServiceRepository;
@@ -50,7 +51,7 @@ public class GetJUServicesQueryHandlerTests
         var query = new GetJUServicesQuery();
         _mockJuServiceRepository.Setup(Repo => Repo.GetAllAsync())
             .ThrowsAsync(new Exception("Error querying JU Services."));
-        
+
         PagedResult<JUService> result = await _handler.Handle(query, CancellationToken.None);
 
         Assert.Equal(0, result.Count);

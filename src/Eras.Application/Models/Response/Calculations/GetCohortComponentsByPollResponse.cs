@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Eras.Application.Models.Response.Calculations;
+
 public class GetCohortComponentsByPollResponse
 {
     [Column("cohort_id")]

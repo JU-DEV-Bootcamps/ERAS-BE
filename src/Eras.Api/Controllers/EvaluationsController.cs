@@ -4,6 +4,7 @@ using Eras.Application.Features.Evaluations.Commands.DeleteEvaluation;
 using Eras.Application.Features.Evaluations.Commands.UpdateEvaluation;
 using Eras.Application.Features.Evaluations.Queries;
 using Eras.Application.Features.Evaluations.Queries.GetAll;
+using Eras.Application.Features.Evaluations.Queries.GetByDateRange;
 using Eras.Application.Models.Response;
 using Eras.Application.Models.Response.Common;
 using Eras.Application.Utils;
@@ -12,9 +13,8 @@ using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Eras.Application.Features.Evaluations.Queries.GetByDateRange;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 

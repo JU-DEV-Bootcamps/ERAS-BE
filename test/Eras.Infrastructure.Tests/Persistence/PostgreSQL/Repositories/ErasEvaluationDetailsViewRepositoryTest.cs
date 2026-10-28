@@ -698,7 +698,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
 
         // Act
-        var result = await _repository.GetStudentsByEvaluationIdFilters(10, ["Academic"], [20],[100], null, startDate, endDate);
+        var result = await _repository.GetStudentsByEvaluationIdFilters(10, ["Academic"], [20], [100], null, startDate, endDate);
 
         // Assert
         var student = Assert.Single(result);
@@ -882,7 +882,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
         var result = await _repository.GetStudentsByEvaluationIdFilters(10, ["Academic"], [20], null, null, startDate, endDate);
 
         // Assert
-        Assert.Equal(2,result.Count);
+        Assert.Equal(2, result.Count);
     }
 
 
@@ -1001,7 +1001,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
         _repository = new ErasEvaluationDetailsViewRepository(_mockContext.Object);
 
         // Act
-        var result = (await _repository.GetStudentsByFilters(["Academic"], [20], [100],null,1, 10, startDate, endDate)).ToList();
+        var result = (await _repository.GetStudentsByFilters(["Academic"], [20], [100], null, 1, 10, startDate, endDate)).ToList();
 
         // Assert
         var student = Assert.Single(result);
@@ -1113,7 +1113,7 @@ public class ErasEvaluationDetailsViewRepositoryTest : RepositoryTestBase
 
         // Act
         var result = (await _repository.GetStudentsByFilters(
-            ["Academic"], [20], null, null, 1, 10,startDate, endDate, 10)).ToList();
+            ["Academic"], [20], null, null, 1, 10, startDate, endDate, 10)).ToList();
 
         // Assert
         var student = Assert.Single(result);

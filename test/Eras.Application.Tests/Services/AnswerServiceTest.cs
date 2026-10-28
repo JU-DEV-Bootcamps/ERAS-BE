@@ -14,7 +14,7 @@ public class AnswerServiceTest
     private readonly Mock<IAnswerRepository> _repository;
     private readonly AnswerService _answerService;
 
-    public AnswerServiceTest() 
+    public AnswerServiceTest()
     {
         _repository = new Mock<IAnswerRepository>();
         _answerService = new AnswerService(_repository.Object);
@@ -23,7 +23,8 @@ public class AnswerServiceTest
     [Fact]
     public async Task Handle_Should_AddAnswerToRepository()
     {
-        var answer = new Answer() { 
+        var answer = new Answer()
+        {
             AnswerText = "new response",
             PollInstanceId = 1
         };

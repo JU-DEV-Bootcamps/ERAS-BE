@@ -128,7 +128,7 @@ public class AssessmentRepositoryTest : RepositoryTestBase
             BuildIntervention(1, 1, 2),
             BuildIntervention(2, 3, 4)
         };
-        
+
         var assessment = new Assessment
         {
             Id = 1,
@@ -769,7 +769,7 @@ public class AssessmentRepositoryTest : RepositoryTestBase
 
         // Act
         var exception = await Assert.ThrowsAsync<KeyNotFoundException>(
-            () => repository.DeleteInterventionAsync(1,1));
+            () => repository.DeleteInterventionAsync(1, 1));
 
         // Assert
         Assert.Equal(
@@ -985,7 +985,7 @@ public class AssessmentRepositoryTest : RepositoryTestBase
             NumberOfParticipants = 5,
             Professional = "Jane",
             StudentIds = [10, 20],
-            Attendance = {},
+            Attendance = { },
             Mode = InterventionMode.Remote,
             Status = InterventionStatus.Finalized,
             Remarks = "New Remarks",

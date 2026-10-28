@@ -27,7 +27,7 @@ public class PollInstanceImporterTest
     private readonly Mock<IPollInstanceRepository> _repository;
     private readonly Mock<ILogger<PollInstanceImporter>> _logger;
     private readonly PollInstanceImporter _pollInstanceImporter;
-    
+
     public PollInstanceImporterTest()
     {
         _mediator = new Mock<IMediator>();

@@ -38,7 +38,7 @@ namespace Eras.Application.Tests.Services;
 
 using Component = Domain.Entities.Component;
 using Variable = Domain.Entities.Variable;
- public class PollOrchestratorServiceTest
+public class PollOrchestratorServiceTest
 {
     private readonly Mock<IMediator> _mediator;
     private readonly Mock<ILogger<PollOrchestratorService>> _logger;
@@ -185,7 +185,7 @@ using Variable = Domain.Entities.Variable;
 
         var poll = new PollDTO
         {
-            Components = [ new ComponentDTO { Variables = [new VariableDTO { Answer = 
+            Components = [ new ComponentDTO { Variables = [new VariableDTO { Answer =
             new AnswerDTO { Student = student.ToDto() } }] } ]
         };
 
@@ -241,7 +241,7 @@ using Variable = Domain.Entities.Variable;
         var poll = new PollDTO
         {
             Components = [
-                new ComponentDTO { 
+                new ComponentDTO {
                     Variables = [ new VariableDTO {
                     Answer = new AnswerDTO
                     {
@@ -421,7 +421,7 @@ using Variable = Domain.Entities.Variable;
             .ReturnsAsync(new CreateCommandResponse<List<Variable>>([pollVariable], 1, "Created", true));
 
         var result = await service.CreateVariablesAsync(
-            [ new VariableDTO { Name = "Variable" } ], 10, 20);
+            [new VariableDTO { Name = "Variable" }], 10, 20);
 
         Assert.Single(result);
         Assert.Equal(100, result[0].PollVariableId);
@@ -430,7 +430,7 @@ using Variable = Domain.Entities.Variable;
     [Fact]
     public async Task CreateComponentAsync_WhenCreationSucceeds_ReturnsComponent()
     {
-        var component = new ComponentDTO { Name = "Component"  };
+        var component = new ComponentDTO { Name = "Component" };
 
         var expected = new CreateCommandResponse<Component>(
             new Component { Id = 10, Name = "Component" }, 1, "Created", true);
@@ -691,9 +691,10 @@ using Variable = Domain.Entities.Variable;
     [Fact]
     public async Task ImportPollInstancesAsync_WhenStudentSuccessfullyIsCreated()
     {
-        var poll = new PollDTO { 
+        var poll = new PollDTO
+        {
             Name = "Poll 1",
-            Components =  new List<ComponentDTO>
+            Components = new List<ComponentDTO>
             {
                 new ComponentDTO {
                     Variables = new List<VariableDTO>
@@ -708,8 +709,8 @@ using Variable = Domain.Entities.Variable;
                     }
                 }
             }
-                
-          
+
+
         };
 
         var existingPoll = new Poll

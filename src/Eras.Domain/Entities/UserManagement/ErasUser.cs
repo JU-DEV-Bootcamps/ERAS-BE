@@ -1,6 +1,7 @@
 using Eras.Domain.Common;
 
 namespace Eras.Domain.Entities.UserManagement;
+
 public class ErasUser : BaseEntity, IAuditableEntity
 {
     public string? Sub { get; set; }
@@ -8,7 +9,7 @@ public class ErasUser : BaseEntity, IAuditableEntity
     public required string FirstName { get; set; } = string.Empty;
     public required string LastName { get; set; } = string.Empty;
     public required string Role { get; set; } = ErasRole.Guest.Label;
-    public bool IsSynced {get; set; } = false;
+    public bool IsSynced { get; set; } = false;
     public string? EmployeeId { get; set; }
     public string? Department { get; set; }
     public string? Phone { get; set; }

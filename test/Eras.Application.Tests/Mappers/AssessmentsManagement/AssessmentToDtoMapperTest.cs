@@ -102,11 +102,13 @@ public sealed class AssessmentToDtoMapperTests
     [Fact]
     public void Map_WhenIndividualIntervention_ShouldMapIndividual()
     {
-        var intervention = new IndividualIntervention() {
+        var intervention = new IndividualIntervention()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1]
         };
-        var interventionDto = new IndividualInterventionDto() {
+        var interventionDto = new IndividualInterventionDto()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1]
         };
@@ -133,11 +135,13 @@ public sealed class AssessmentToDtoMapperTests
     [Fact]
     public void Map_WhenGroupIntervention_ShouldMapGroup()
     {
-        var intervention = new GroupIntervention() {
+        var intervention = new GroupIntervention()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1, 3]
         };
-        var interventionDto = new GroupInterventionDto() {
+        var interventionDto = new GroupInterventionDto()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1, 3]
         };
@@ -163,7 +167,8 @@ public sealed class AssessmentToDtoMapperTests
     [Fact]
     public void Map_WhenUnsupportedInterventionType_ShouldThrow()
     {
-        var intervention = new UnsupportedIntervention() {
+        var intervention = new UnsupportedIntervention()
+        {
             DateUtc = DateTime.UtcNow,
             StudentIds = [1]
         };
@@ -187,11 +192,13 @@ public sealed class AssessmentToDtoMapperTests
     {
         return new AssessmentToDtoMapper(
             planMapper ?? new FakeMapper<InterventionPlan, InterventionPlanDto>(new()),
-            individualMapper ?? new FakeMapper<IndividualIntervention, IndividualInterventionDto>(new() {
+            individualMapper ?? new FakeMapper<IndividualIntervention, IndividualInterventionDto>(new()
+            {
                 DateUtc = DateTime.UtcNow,
                 StudentIds = [2]
             }),
-            groupMapper ?? new FakeMapper<GroupIntervention, GroupInterventionDto>(new() {
+            groupMapper ?? new FakeMapper<GroupIntervention, GroupInterventionDto>(new()
+            {
                 DateUtc = DateTime.UtcNow,
                 StudentIds = [1, 3]
             }));

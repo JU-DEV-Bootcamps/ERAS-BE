@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+
 using Eras.Application.Utils;
 
 namespace Eras.Application.Attributes

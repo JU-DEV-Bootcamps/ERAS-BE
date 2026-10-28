@@ -4,6 +4,7 @@ using Eras.Domain.Entities.AssessmentManagement.Validators;
 using FluentValidation.TestHelper;
 
 namespace Eras.Domain.Tests.Entities.Validators;
+
 public class InterventionPlanValidatorTests
 {
     private readonly InterventionPlanValidator _validator = new();
@@ -15,7 +16,7 @@ public class InterventionPlanValidatorTests
             SessionsPerWeek = Data.SessionsPerWeek,
             ScheduleNotes = Data.ScheduleNotes
         };
-    
+
     [Fact]
     public void Should_NotHaveAnyValidationErrors_When_PlanIsValid()
     {

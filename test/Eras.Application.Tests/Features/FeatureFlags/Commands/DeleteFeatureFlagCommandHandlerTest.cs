@@ -18,7 +18,7 @@ public class DeleteFeatureFlagCommandHandlerTest
 {
     private readonly Mock<IFeatureFlagRepository> _repositoryMock;
     private readonly DeleteFeatureFlagCommandHandler _handler;
-    
+
     public DeleteFeatureFlagCommandHandlerTest()
     {
         _repositoryMock = new Mock<IFeatureFlagRepository>();

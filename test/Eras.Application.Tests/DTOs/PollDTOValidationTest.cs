@@ -4,6 +4,7 @@ using Eras.Application.Dtos;
 using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class PollDTOValidationTests
 {
     private static PollDTO CreateValidDTO() => new PollDTO
@@ -35,7 +36,7 @@ public class PollDTOValidationTests
         dto.Id = InvalidId;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-        
+
         Assert.Single(results);
         Assert.Equal("Id must be zero or greater.", results.First().ErrorMessage);
         Assert.Contains(nameof(PollDTO.Id), results.First().MemberNames);
@@ -49,7 +50,7 @@ public class PollDTOValidationTests
         dto.IdCosmicLatte = InvalidId;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("Cosmic Latte Id is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(PollDTO.IdCosmicLatte), results.First().MemberNames);
@@ -104,7 +105,7 @@ public class PollDTOValidationTests
         dto.Uuid = InvalidUuid;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("UUID is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(PollDTO.Uuid), results.First().MemberNames);
@@ -132,7 +133,7 @@ public class PollDTOValidationTests
         dto.Name = InvalidId;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("Name is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(PollDTO.Name), results.First().MemberNames);
@@ -226,7 +227,7 @@ public class PollDTOValidationTests
         dto.ParentId = InvalidId!;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("Parent Id is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(PollDTO.ParentId), results.First().MemberNames);

@@ -7,6 +7,7 @@ using Eras.Error.Bussiness;
 using MediatR;
 
 namespace Eras.Application.Features.FeatureFlags.Handlers.QueryHandlers;
+
 public class GetFeatureFlagByNameQueryHandler
     : IRequestHandler<GetFeatureFlagByNameQuery, FeatureFlagDTO?>
 {

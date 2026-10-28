@@ -5,6 +5,7 @@ using Eras.Domain.Tests.TestUtils;
 using FluentValidation.TestHelper;
 
 namespace Eras.Domain.Tests.Entities.Validators;
+
 public class ErasUserValidatorTests
 {
     private readonly ErasUserValidator _validator = new();
@@ -16,14 +17,14 @@ public class ErasUserValidatorTests
         string Role = "ERAS Administrator",
         string? Sub = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
         AuditInfo? Audit = null
-    ) => new ()
+    ) => new()
     {
-      Email = Email,
-      FirstName = FirstName,
-      LastName = LastName,
-      Role = Role,
-      Sub = Sub,
-      Audit = Audit ?? new AuditInfo()  
+        Email = Email,
+        FirstName = FirstName,
+        LastName = LastName,
+        Role = Role,
+        Sub = Sub,
+        Audit = Audit ?? new AuditInfo()
     };
 
     [Fact]

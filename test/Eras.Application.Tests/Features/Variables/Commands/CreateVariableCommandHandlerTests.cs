@@ -29,7 +29,7 @@ namespace Eras.Application.Tests.Features.Variables.Commands
         [Fact]
         public async Task HandleVariableCreatesNewVariableAsync()
         {
-            var newVariableDto = new VariableDTO() { Name= "newVariable" };
+            var newVariableDto = new VariableDTO() { Name = "newVariable" };
             var command = new CreateVariableCommand { Variable = newVariableDto };
             var newVariable = newVariableDto.ToDomain;
 

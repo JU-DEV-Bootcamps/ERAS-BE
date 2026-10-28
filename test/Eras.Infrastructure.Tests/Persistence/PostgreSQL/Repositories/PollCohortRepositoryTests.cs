@@ -434,7 +434,7 @@ public class PollCohortRepositoryTests : RepositoryTestBase
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
 
-        Assert.Contains(result, X =>X.PollId == 1 && X.VariableId == 1 && X.VariableName == "Variable 1");
+        Assert.Contains(result, X => X.PollId == 1 && X.VariableId == 1 && X.VariableName == "Variable 1");
 
         Assert.Contains(
             result,
@@ -520,7 +520,7 @@ public class PollCohortRepositoryTests : RepositoryTestBase
         var repository = CreateRepository(context);
 
         // Act
-        var result = await repository.GetCohortComponentsByPoll("does-not-exist",true);
+        var result = await repository.GetCohortComponentsByPoll("does-not-exist", true);
 
         // Assert
         Assert.NotNull(result);

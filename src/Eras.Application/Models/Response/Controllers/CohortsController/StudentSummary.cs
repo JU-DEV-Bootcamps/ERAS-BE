@@ -1,4 +1,5 @@
 ﻿namespace Eras.Application.Models.Response.Controllers.CohortsController;
+
 public class StudentSummary
 {
     public required string StudentUuid { get; set; } = string.Empty;

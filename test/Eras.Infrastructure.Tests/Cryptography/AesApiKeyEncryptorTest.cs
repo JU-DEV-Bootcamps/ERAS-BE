@@ -1,8 +1,10 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+
 using Eras.Domain.Common;
-using Microsoft.Extensions.Configuration;
 using Eras.Infrastructure.Cryptography;
+
+using Microsoft.Extensions.Configuration;
 
 using Xunit;
 

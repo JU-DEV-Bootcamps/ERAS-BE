@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Commands;
+
 public class UpdateStudentCommandHandlerTest
 {
     private readonly Mock<IStudentRepository> _mockStudentRepository;
@@ -28,7 +29,7 @@ public class UpdateStudentCommandHandlerTest
         string Name = "Jimena Lopez",
         string Email = "jimena.l@test.com"
     )
-        => new ()
+        => new()
         {
             Id = Id,
             Uuid = Uuid,
@@ -48,7 +49,7 @@ public class UpdateStudentCommandHandlerTest
             .ReturnsAsync(existingStudent);
         _mockStudentRepository.Setup(Repo => Repo.UpdateAsync(It.IsAny<Student>()))
             .ReturnsAsync(updatedStudent);
-        
+
         var command = new UpdateStudentCommand { StudentDTO = studentDTO };
 
         CreateCommandResponse<Student> result = await _handler.Handle(command, CancellationToken.None);
@@ -103,7 +104,7 @@ public class UpdateStudentCommandHandlerTest
 
         _mockStudentRepository.Setup(Repo => Repo.GetByEmailAsync(It.IsAny<string>()))
             .ThrowsAsync(new Exception("DB Error."));
-    
+
         var command = new UpdateStudentCommand { StudentDTO = studentDTO };
 
         CreateCommandResponse<Student> result = await _handler.Handle(command, CancellationToken.None);

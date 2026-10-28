@@ -6,6 +6,6 @@ public interface IErasException
 {
     event LogDelegate OnLoggingException;
     int StatusCode { get; }
-    string FriendlyMessage { get; }    
+    string FriendlyMessage { get; }
     void LogException();
 }

@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Infrastructure.External.KeycloakClient;
 
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 

@@ -1,4 +1,5 @@
 ﻿namespace Eras.Application.Models.Response.Controllers.PollsController;
+
 public class GetPollsQueryResponse
 {
     public int Id { get; set; }

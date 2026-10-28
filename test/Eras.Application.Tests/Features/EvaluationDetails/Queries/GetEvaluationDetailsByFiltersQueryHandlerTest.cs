@@ -80,7 +80,7 @@ public class GetEvaluationDetailsByFiltersQueryHandlerTest
         var result = await _handler.Handle(query, CancellationToken.None);
 
         _repositoryMock.Verify(
-            x => x.GetByFiltersAsync(pollId, componentIds, cohortIds,variableIds), Times.Once);
+            x => x.GetByFiltersAsync(pollId, componentIds, cohortIds, variableIds), Times.Once);
         Assert.Same(expectedResult, result);
     }
 
@@ -154,7 +154,7 @@ public class GetEvaluationDetailsByFiltersQueryHandlerTest
         };
         var expectedException = new Exception("Repository error");
         _repositoryMock
-            .Setup(x => x.GetByFiltersAsync( query.PollId, query.ComponentIds, query.CohortIds, query.VariableIds))
+            .Setup(x => x.GetByFiltersAsync(query.PollId, query.ComponentIds, query.CohortIds, query.VariableIds))
             .ThrowsAsync(expectedException);
 
         var exception = await Assert.ThrowsAsync<Exception>(
@@ -163,6 +163,6 @@ public class GetEvaluationDetailsByFiltersQueryHandlerTest
         Assert.Same(expectedException, exception);
 
         _repositoryMock.Verify(
-            x => x.GetByFiltersAsync(query.PollId, query.ComponentIds, query.CohortIds, query.VariableIds),Times.Once);
+            x => x.GetByFiltersAsync(query.PollId, query.ComponentIds, query.CohortIds, query.VariableIds), Times.Once);
     }
 }

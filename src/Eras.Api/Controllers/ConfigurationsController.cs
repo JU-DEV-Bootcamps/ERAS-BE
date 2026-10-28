@@ -20,7 +20,7 @@ public class ConfigurationsController(IMediator Mediator, ILogger<Configurations
 {
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<ConfigurationsController> _logger = Logger;
-    
+
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -34,7 +34,7 @@ public class ConfigurationsController(IMediator Mediator, ILogger<Configurations
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetUserConfigurationsAsync([FromRoute] string UserId)
     {
-        return Ok(await _mediator.Send(new GetUserConfigurationsQuery() { UserId = UserId}));
+        return Ok(await _mediator.Send(new GetUserConfigurationsQuery() { UserId = UserId }));
     }
 
     [HttpPost]

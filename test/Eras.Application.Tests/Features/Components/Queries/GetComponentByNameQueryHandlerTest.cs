@@ -2,10 +2,13 @@
 using Eras.Application.Features.Components.Queries.GetByName;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Components.Queries;
+
 public class GetComponentByNameQueryHandlerTest
 {
     private readonly Mock<IComponentRepository> _mockComponentRepository;

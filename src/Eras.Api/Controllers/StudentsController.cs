@@ -13,6 +13,7 @@ using Eras.Application.Features.Students.Commands.UpdateStudentProfile;
 using Eras.Application.Features.Students.Queries.GetAll;
 using Eras.Application.Features.Students.Queries.GetAllAverageRiskByCohortAndPoll;
 using Eras.Application.Features.Students.Queries.GetAllByPollAndDate;
+using Eras.Application.Features.Students.Queries.GetAllLight;
 using Eras.Application.Features.Students.Queries.GetStudentDetails;
 using Eras.Application.Features.Students.Queries.GetStudentProfile;
 using Eras.Application.Models.Response.Calculations;
@@ -20,13 +21,12 @@ using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
-using Eras.Application.Features.Students.Queries.GetAllLight;
 using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 
@@ -125,7 +125,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
         [FromQuery] string PollUuid,
         [FromQuery] Pagination Query,
         [FromQuery] bool LastVersion,
-        [FromQuery] int? evaluationId 
+        [FromQuery] int? evaluationId
     )
     {
         List<int> Ids = QueryParameterFilter.GetCohortIdsAsInts(CohortIds);

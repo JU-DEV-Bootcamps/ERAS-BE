@@ -12,11 +12,11 @@ namespace Eras.Application.Features.Consolidator.Queries.Polls;
 public class PollAvgHandler(
     ILogger<PollAvgHandler> Logger,
     IPollInstanceRepository PollInstanceRepository,
-    IEvaluationRepository EvaluationRepository 
+    IEvaluationRepository EvaluationRepository
     ) : IRequestHandler<PollAvgQuery, GetQueryResponse<AvgReportResponseVm>>
 {
     private readonly IPollInstanceRepository _pollInstanceRepository = PollInstanceRepository;
-    private readonly IEvaluationRepository _evaluationRepository = EvaluationRepository; 
+    private readonly IEvaluationRepository _evaluationRepository = EvaluationRepository;
     private readonly ILogger<PollAvgHandler> _logger = Logger;
 
     public async Task<GetQueryResponse<AvgReportResponseVm>> Handle(PollAvgQuery Request, CancellationToken CancellationToken)
@@ -35,7 +35,7 @@ public class PollAvgHandler(
             var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
                                 .Date
                                 .AddDays(1)
-                                .AddTicks(-1); 
+                                .AddTicks(-1);
 
             var answersByFilters = await _pollInstanceRepository.GetReportByPollCohortAsync(Request.EvaluationId, Request.CohortIds, Request.LastVersion, startDate, endDate)
                 ?? throw new NotFoundException($"Error in query for filters: {Request.PollUuid}; {Request.CohortIds}");

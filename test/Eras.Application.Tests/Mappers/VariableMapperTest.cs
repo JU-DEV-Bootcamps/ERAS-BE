@@ -1,17 +1,18 @@
-﻿using Eras.Application.Mappers;
-using Eras.Application.DTOs;
-using Eras.Domain.Entities;
+﻿using Eras.Application.DTOs;
+using Eras.Application.Mappers;
 using Eras.Domain.Common;
+using Eras.Domain.Entities;
 
 namespace Eras.Application.Tests.Mappers;
+
 public class VariableMapperTest
 {
     [Fact]
     public void ToDomain_Should_Convert_VariableDTO_To_Variable()
     {
         var dto = new VariableDTO()
-        { 
-           Name = "Name",
+        {
+            Name = "Name",
         };
         var result = dto.ToDomain();
         Assert.NotNull(result);

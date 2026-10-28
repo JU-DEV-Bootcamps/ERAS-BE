@@ -9,7 +9,7 @@ namespace Eras.Application.Features.Cohorts.Queries
 {
     public class GetCohortsSummaryQueryHandler(
         IStudentCohortRepository ScRepository,
-        IEvaluationRepository EvaluationRepository, 
+        IEvaluationRepository EvaluationRepository,
         ILogger<GetCohortsSummaryQuery> Logger)
         : IRequestHandler<GetCohortsSummaryQuery, CohortSummaryResponse>
     {

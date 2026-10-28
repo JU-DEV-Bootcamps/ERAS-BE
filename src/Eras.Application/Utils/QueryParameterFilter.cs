@@ -1,4 +1,5 @@
 ﻿namespace Eras.Application.Utils;
+
 public class QueryParameterFilter
 {
     public static List<int> GetCohortIdsAsInts(string StrIds) => StrIds.Split(",", StringSplitOptions.RemoveEmptyEntries)

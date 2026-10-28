@@ -32,7 +32,7 @@ public class CohortRepository(AppDbContext Context) : BaseRepository<Cohort, Coh
             .ToListAsync();
         return [.. cohorts.Select(P => P.ToDomain())];
     }
-   
+
     public async Task<IEnumerable<GetCohortTopRiskStudentsByComponentResponse>> GetCohortTopRiskStudentsByComponentAsync(
     string PollUuid, string ComponentName, int CohortId, bool LastVersion, int Page, int PageSize)
     {

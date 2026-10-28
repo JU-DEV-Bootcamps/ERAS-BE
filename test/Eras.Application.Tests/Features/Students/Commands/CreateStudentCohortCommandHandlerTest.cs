@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Commands;
+
 public class CreateStudentCohortCommandHandlerTest
 {
     private readonly Mock<IStudentCohortRepository> _mockStudentCohortRepository;
@@ -17,7 +18,7 @@ public class CreateStudentCohortCommandHandlerTest
     {
         _mockStudentCohortRepository = new Mock<IStudentCohortRepository>();
         _mockLogger = new Mock<ILogger<CreateStudentCohortCommandHandler>>();
-        _handler = new CreateStudentCohortCommandHandler(_mockStudentCohortRepository.Object, _mockLogger.Object);   
+        _handler = new CreateStudentCohortCommandHandler(_mockStudentCohortRepository.Object, _mockLogger.Object);
     }
 
     [Fact]
@@ -54,7 +55,7 @@ public class CreateStudentCohortCommandHandlerTest
 
         _mockStudentCohortRepository.Setup(Repo => Repo.GetByCohortIdAndStudentIdAsync(It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(existingStudent);
-        
+
         var command = new CreateStudentCohortCommand { CohortId = 1, StudentId = 1 };
 
         CreateCommandResponse<Student> result = await _handler.Handle(command, CancellationToken.None);
@@ -72,14 +73,14 @@ public class CreateStudentCohortCommandHandlerTest
     {
         _mockStudentCohortRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Student>()))
             .ThrowsAsync(new Exception("DB Error."));
-        
+
         var command = new CreateStudentCohortCommand { CohortId = 1, StudentId = 1 };
 
         CreateCommandResponse<Student> result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Null(result.Entity);
         Assert.False(result.Success);
-        Assert.Equal(0, result.SuccessfullImports);   
-        Assert.Equal("Error", result.Message);   
+        Assert.Equal(0, result.SuccessfullImports);
+        Assert.Equal("Error", result.Message);
     }
 }

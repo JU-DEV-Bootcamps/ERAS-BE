@@ -1,8 +1,9 @@
 ﻿using Eras.Application.DTOs;
-using Eras.Domain.Entities;
 using Eras.Application.Mappers;
 using Eras.Domain.Common;
+using Eras.Domain.Entities;
 namespace Eras.Application.Tests.Mappers;
+
 public class StudentDetailMapperTest
 {
     [Fact]

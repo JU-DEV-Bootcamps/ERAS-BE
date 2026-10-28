@@ -169,7 +169,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                 oldClrType: typeof(Guid),
                 oldType: "uuid",
                 oldNullable: true);
-            
+
             migrationBuilder.AlterColumn<Guid>(
                 name: "remission_id",
                 table: "Interventions",

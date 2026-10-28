@@ -21,13 +21,13 @@ public class AssessmentRepositoryActiveWorkTests : RepositoryTestBase
         string CreatedBy,
         AssessmentStatus Status,
         string? AssignedProfessional = null) => new()
-    {
-        CreatedBy = CreatedBy,
-        Service = "Speech",
-        AssignedProfessionals = AssignedProfessional is null ? [] : [AssignedProfessional],
-        StudentIds = [1],
-        Status = Status,
-    };
+        {
+            CreatedBy = CreatedBy,
+            Service = "Speech",
+            AssignedProfessionals = AssignedProfessional is null ? [] : [AssignedProfessional],
+            StudentIds = [1],
+            Status = Status,
+        };
 
     private static IndividualIntervention NewIntervention(string? CreatedBy, InterventionStatus Status) => new()
     {

@@ -86,7 +86,7 @@ public class CreateServiceProviderCommandHandlerTests
         var serviceProviderDto = new ServiceProvidersDTO
         {
             ServiceProviderName = "Provider 1",
-            ServiceProviderLogo = "logo"  
+            ServiceProviderLogo = "logo"
         };
 
         var createdServiceProvider = new Domain.Entities.ServiceProviders()

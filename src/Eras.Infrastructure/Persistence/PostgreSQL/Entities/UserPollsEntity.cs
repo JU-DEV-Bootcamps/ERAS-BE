@@ -1,6 +1,7 @@
 ﻿using Eras.Domain.Common;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 public class UserPollsEntity : BaseEntity, IAuditableEntity
 {
     public required string UserId { get; set; }

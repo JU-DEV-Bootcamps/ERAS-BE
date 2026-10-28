@@ -1,4 +1,5 @@
 namespace Eras.Application.Tests.TestUtils;
+
 public class SqlInjectionTestData : TheoryData<string>
 {
     public SqlInjectionTestData()

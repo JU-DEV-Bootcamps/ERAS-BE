@@ -3,9 +3,11 @@ using Eras.Application.Utils;
 using Eras.Domain.Entities;
 
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Professionals.Queries.GetProfessionals;
+
 public class GetProfessionalsQueryHandler : IRequestHandler<GetProfessionalsQuery, PagedResult<JUProfessional>>
 {
     private readonly IProfessionalRepository _professionalRepository;

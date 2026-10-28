@@ -102,7 +102,7 @@ public sealed class UpdateRemissionCommandHandler
 
             return _toDtoMapper.Map(persisted);
         }
-        catch (ValidationException ex) 
+        catch (ValidationException ex)
         {
             _logger.LogWarning(ex, "Validation failed updating assessment {AssessmentId}.", request.Remission.Id);
             throw new OperationCanceledException($"Error updating assessment: Some status cannot be updated. ${ex.Message}");

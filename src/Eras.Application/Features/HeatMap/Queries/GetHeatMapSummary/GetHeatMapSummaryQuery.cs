@@ -1,6 +1,7 @@
-﻿using MediatR;
-using Eras.Application.Models.Response.Common;
+﻿using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.HeatMap;
+
+using MediatR;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
 {
@@ -8,7 +9,8 @@ namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummary
     {
         public string PollInstanceUUID { get; }
 
-        public GetHeatMapSummaryQuery(string PollInstanceUUID) { 
+        public GetHeatMapSummaryQuery(string PollInstanceUUID)
+        {
             this.PollInstanceUUID = PollInstanceUUID;
         }
     }

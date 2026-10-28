@@ -8,14 +8,15 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.PollInstances.Commands.UpdatePollInstance;
-public class UpdatePollInstanceByIdCommandHandler: 
+
+public class UpdatePollInstanceByIdCommandHandler :
     IRequestHandler<UpdatePollInstanceByIdCommand, CreateCommandResponse<PollInstance>>
 {
     private IPollInstanceRepository _pollInstanceRepository;
     private ILogger<UpdatePollInstanceByIdCommandHandler> _logger;
 
     public UpdatePollInstanceByIdCommandHandler(IPollInstanceRepository PollInstanceRepository,
-        ILogger<UpdatePollInstanceByIdCommandHandler> Logger) 
+        ILogger<UpdatePollInstanceByIdCommandHandler> Logger)
     {
         _pollInstanceRepository = PollInstanceRepository;
         _logger = Logger;
@@ -26,7 +27,7 @@ public class UpdatePollInstanceByIdCommandHandler:
     {
         var query = await _pollInstanceRepository.GetByIdAsync(Request.PollInstanceDTO.Id);
         if (query == null)
-            return new CreateCommandResponse<PollInstance>(new PollInstance(),"Poll Instance Not Found",false,
+            return new CreateCommandResponse<PollInstance>(new PollInstance(), "Poll Instance Not Found", false,
                 Models.Enums.CommandEnums.CommandResultStatus.NotFound);
         var updatedPoll = await _pollInstanceRepository.UpdateAsync(Request.PollInstanceDTO.ToDomain());
         return new CreateCommandResponse<PollInstance>(updatedPoll, "Updated Poll Instance", true);

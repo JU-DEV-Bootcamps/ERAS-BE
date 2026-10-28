@@ -105,7 +105,7 @@ namespace Eras.Infrastructure.Tests.External.CosmicLatteClient
             await Assert.ThrowsAsync<ArgumentException>(() => service.SavePreviewPolls(polls, 1));
         }
 
-        
+
 
         // ---------- GetListOfVariablePositionByComponents ----------
 
@@ -115,10 +115,21 @@ namespace Eras.Infrastructure.Tests.External.CosmicLatteClient
             var service = CreateService();
             var dataItem = new DataItem
             {
-                name = "x", parent = "x", configuration = new Configuration(), access = "x",
-                inventoryKey = "x", inventoryAccess = "x", inventoryId = "x", owner = "x",
-                customFieldsSchema = new List<string>(), TenantName = "x", changeHistory = new List<ChangeHistoryItem>(),
-                customFields = new List<string>(), status = "x", accessToken = "x", score = null
+                name = "x",
+                parent = "x",
+                configuration = new Configuration(),
+                access = "x",
+                inventoryKey = "x",
+                inventoryAccess = "x",
+                inventoryId = "x",
+                owner = "x",
+                customFieldsSchema = new List<string>(),
+                TenantName = "x",
+                changeHistory = new List<ChangeHistoryItem>(),
+                customFields = new List<string>(),
+                status = "x",
+                accessToken = "x",
+                score = null
             };
 
             var result = service.GetListOfVariablePositionByComponents(dataItem);
@@ -145,10 +156,20 @@ namespace Eras.Infrastructure.Tests.External.CosmicLatteClient
 
             var dataItem = new DataItem
             {
-                name = "x", parent = "x", configuration = new Configuration(), access = "x",
-                inventoryKey = "x", inventoryAccess = "x", inventoryId = "x", owner = "x",
-                customFieldsSchema = new List<string>(), TenantName = "x", changeHistory = new List<ChangeHistoryItem>(),
-                customFields = new List<string>(), status = "x", accessToken = "x",
+                name = "x",
+                parent = "x",
+                configuration = new Configuration(),
+                access = "x",
+                inventoryKey = "x",
+                inventoryAccess = "x",
+                inventoryId = "x",
+                owner = "x",
+                customFieldsSchema = new List<string>(),
+                TenantName = "x",
+                changeHistory = new List<ChangeHistoryItem>(),
+                customFields = new List<string>(),
+                status = "x",
+                accessToken = "x",
                 score = new Score { byPosition = new List<ByPosition>(), byTrait = new ByTrait { Traits = traits } }
             };
 
@@ -515,7 +536,7 @@ namespace Eras.Infrastructure.Tests.External.CosmicLatteClient
             // Assert
             Assert.Equal(2, result.Count);
             Assert.Contains(result, p => p.name == "Encuesta A");
-            
+
         }
 
         // ---------- GetListOfVariablePositionByComponents (rama de excepción) ----------
@@ -530,10 +551,20 @@ namespace Eras.Infrastructure.Tests.External.CosmicLatteClient
 
             var dataItem = new DataItem
             {
-                name = "x", parent = "x", configuration = new Configuration(), access = "x",
-                inventoryKey = "x", inventoryAccess = "x", inventoryId = "x", owner = "x",
-                customFieldsSchema = new List<string>(), TenantName = "x", changeHistory = new List<ChangeHistoryItem>(),
-                customFields = new List<string>(), status = "x", accessToken = "x",
+                name = "x",
+                parent = "x",
+                configuration = new Configuration(),
+                access = "x",
+                inventoryKey = "x",
+                inventoryAccess = "x",
+                inventoryId = "x",
+                owner = "x",
+                customFieldsSchema = new List<string>(),
+                TenantName = "x",
+                changeHistory = new List<ChangeHistoryItem>(),
+                customFields = new List<string>(),
+                status = "x",
+                accessToken = "x",
                 score = new Score { byPosition = new List<ByPosition>(), byTrait = new ByTrait { Traits = traits } }
             };
 

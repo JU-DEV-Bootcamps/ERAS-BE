@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.EvaluationDetails.Queries.GetStudentsByFilters;
 
-public class GetStudentsByFiltersQueryHandler : 
+public class GetStudentsByFiltersQueryHandler :
     IRequestHandler<GetStudentsByFiltersQuery, PagedResult<StudentsByFiltersResponse>>
 {
     private readonly IErasEvaluationDetailsViewRepository _repository;
@@ -26,7 +26,7 @@ public class GetStudentsByFiltersQueryHandler :
         try
         {
             var evaluation = // Only the dates are needed: GetByIdAsync also loads every poll instance of the polls.
-            await _evaluationRepository.GetByIdWithoutRelationsAsync(Request.EvaluationId); 
+            await _evaluationRepository.GetByIdWithoutRelationsAsync(Request.EvaluationId);
             if (evaluation is null)
             {
                 throw new KeyNotFoundException($"Evaluation '{Request.EvaluationId}' not found.");
@@ -35,10 +35,10 @@ public class GetStudentsByFiltersQueryHandler :
             var endDate = DateTime.SpecifyKind(evaluation.EndDate, DateTimeKind.Utc)
                                 .Date
                                 .AddDays(1)
-                                .AddTicks(-1); 
+                                .AddTicks(-1);
 
             var studentsList = await _repository.GetStudentsByFilters(
-                Request.ComponentNames, 
+                Request.ComponentNames,
                 Request.CohortIds,
                 Request.VariableIds,
                 Request.RiskLevels,

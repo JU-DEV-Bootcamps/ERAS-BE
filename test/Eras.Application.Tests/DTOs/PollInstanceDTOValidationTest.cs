@@ -32,7 +32,7 @@ public class PollInstanceDTOValidationTests
         dto.Uuid = InvalidUuid;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("UUID is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(PollInstanceDTO.Uuid), results.First().MemberNames);

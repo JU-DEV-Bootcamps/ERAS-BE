@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+
 using Eras.Application.DTOs;
 using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class AnswerDTOValidationTests
 {
     private static AnswerDTO CreateValidDTO() => new AnswerDTO

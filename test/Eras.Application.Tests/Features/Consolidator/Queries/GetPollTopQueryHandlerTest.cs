@@ -37,10 +37,10 @@ public class GetPollTopQueryHandlerTest
 
         var expectedResult = new PagedResult<ErasCalculationsByPollDTO>
         (
-            Count : 1,
-            Items : [new ErasCalculationsByPollDTO { 
-                AnswerText = "", 
-                ComponentName = "Component", 
+            Count: 1,
+            Items: [new ErasCalculationsByPollDTO {
+                AnswerText = "",
+                ComponentName = "Component",
                 StudentEmail = "abby@gmail.com",
                 Question = "First question"
             }]

@@ -6,13 +6,13 @@ namespace Eras.Application.Contracts.Persistence;
 
 public interface IPollVariableRepository : IBaseRepository<Variable>
 {
-        Task<Variable?> GetByPollIdAndVariableIdAsync(int PollId, int VariableId);
+    Task<Variable?> GetByPollIdAndVariableIdAsync(int PollId, int VariableId);
 
-        Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, List<int> VariableIds, Pagination Pagination, int? EvaluationId = null);
-        Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, string VariableIds);
+    Task<PagedResult<ErasCalculationsByPollDTO>?> GetByPollUuidVariableIdAsync(string PollUuid, List<int> VariableIds, Pagination Pagination, int? EvaluationId = null);
+    Task<List<(Answer Answer, Variable Variable, Student Student)>> GetByPollUuidAsync(string PollUuid, string VariableIds);
 
-        Task<List<Answer>> GetAnswersByPollUuidAsync(string PollUuid);
-        Task<List<Variable>> AddBatchPollVariablesAsync(List<Variable> Variables);
-        Task<List<Variable>> GetAllWithVariablesAsync();
-        Task<List<Variable>> GetAllWithVariablesByPollIdAsync(int PollId);
+    Task<List<Answer>> GetAnswersByPollUuidAsync(string PollUuid);
+    Task<List<Variable>> AddBatchPollVariablesAsync(List<Variable> Variables);
+    Task<List<Variable>> GetAllWithVariablesAsync();
+    Task<List<Variable>> GetAllWithVariablesByPollIdAsync(int PollId);
 }

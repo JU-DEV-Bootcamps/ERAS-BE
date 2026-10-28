@@ -20,7 +20,7 @@ namespace Eras.Api.Controllers;
 [ApiController]
 [Route("api/v1/feature-flags")]
 [Authorize(Policy = ErasPolicies.AnyErasRole)]
-public class FeatureFlagController(IMediator Mediator, ILogger<FeatureFlagController> Logger): ControllerBase
+public class FeatureFlagController(IMediator Mediator, ILogger<FeatureFlagController> Logger) : ControllerBase
 {
     private readonly IMediator _mediator = Mediator;
     private readonly ILogger<FeatureFlagController> _logger = Logger;
@@ -60,12 +60,12 @@ public class FeatureFlagController(IMediator Mediator, ILogger<FeatureFlagContro
     {
         try
         {
-           FeatureFlagDTO response = await _mediator.Send(new CreateFeatureFlagCommand(DTO));
-            return Created(string.Empty, response); 
+            FeatureFlagDTO response = await _mediator.Send(new CreateFeatureFlagCommand(DTO));
+            return Created(string.Empty, response);
         }
-        catch(InvalidOperationException Ex)
+        catch (InvalidOperationException Ex)
         {
-            return Conflict(new { Status=409, Ex.Message });
+            return Conflict(new { Status = 409, Ex.Message });
         }
     }
 
@@ -92,11 +92,11 @@ public class FeatureFlagController(IMediator Mediator, ILogger<FeatureFlagContro
             _logger.LogInformation($"Feature Flag with ID ${Id} has been deleted.");
             return NoContent();
         }
-        catch(KeyNotFoundException Exception)
+        catch (KeyNotFoundException Exception)
         {
             _logger.LogError(Exception.Message);
             return NotFound();
         }
     }
-    
+
 }

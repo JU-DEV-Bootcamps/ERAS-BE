@@ -15,7 +15,7 @@ namespace Eras.Application.Mappers
                 Id = default,
                 Name = Dto.Name,
                 Variables = variables,
-                Audit = Dto.Audit?? new AuditInfo()
+                Audit = Dto.Audit ?? new AuditInfo()
                 {
                     CreatedBy = "Component Mapper",
                     CreatedAt = DateTime.UtcNow,

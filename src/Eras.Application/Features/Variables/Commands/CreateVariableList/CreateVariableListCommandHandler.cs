@@ -36,7 +36,7 @@ public sealed class CreateVariableListCommandHandler : IRequestHandler<CreateVar
             : [];
         try
         {
-            foreach(VariableListCommandDTO variableDTO in Request.Variables)
+            foreach (VariableListCommandDTO variableDTO in Request.Variables)
             {
                 Variable variable = variableDTO.variable.ToDomain();
                 Variable? existingVariable = existingVariables.FirstOrDefault(
@@ -58,7 +58,7 @@ public sealed class CreateVariableListCommandHandler : IRequestHandler<CreateVar
                 response.AddRange(await _variableRepository.AddTrackedBatchAsync(variablesToCreate));
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "An error occured creating variables.");
             return new CreateCommandResponse<List<Variable>>(null, 0, "Error creating variables", false);

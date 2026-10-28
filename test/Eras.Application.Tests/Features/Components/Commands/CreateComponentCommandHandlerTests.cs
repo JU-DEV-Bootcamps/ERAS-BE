@@ -4,10 +4,13 @@ using Eras.Application.Features.Components.Commands.CreateCommand;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Components.Commands;
+
 public class CreateComponentCommandHandlerTests
 {
     private readonly Mock<IComponentRepository> _mockComponentRepository;
@@ -48,7 +51,7 @@ public class CreateComponentCommandHandlerTests
 
         _mockComponentRepository.Setup(Repo => Repo.GetByNameAsync("existingComponent"))
             .ReturnsAsync(persistedComponent);
-        
+
         CreateCommandResponse<Component> result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.NotNull(result.Entity);
@@ -68,7 +71,7 @@ public class CreateComponentCommandHandlerTests
 
         _mockComponentRepository.Setup(Repo => Repo.AddAsync(It.IsAny<Component>()))
             .ThrowsAsync(new Exception("Error saving component."));
-        
+
         CreateCommandResponse<Component> result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Null(result.Entity);

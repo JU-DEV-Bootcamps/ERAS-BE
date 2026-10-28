@@ -16,7 +16,7 @@ public sealed class FeatureFlagValidator : AbstractValidator<FeatureFlag>
             .WithMessage("Description is required.")
             .MaximumLength(1000)
             .WithMessage("Description must be under 1000 characters.");
-        
+
         RuleFor(F => F.Audit)
             .NotEmpty()
             .WithMessage("Audit information is required");

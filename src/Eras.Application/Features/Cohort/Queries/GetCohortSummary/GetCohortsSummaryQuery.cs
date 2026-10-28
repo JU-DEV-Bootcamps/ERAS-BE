@@ -4,9 +4,9 @@ using Eras.Application.Utils;
 using MediatR;
 namespace Eras.Application.Features.Cohorts.Queries
 {
-    public class GetCohortsSummaryQuery: IRequest<CohortSummaryResponse>
+    public class GetCohortsSummaryQuery : IRequest<CohortSummaryResponse>
     {
         public required Pagination Pagination { get; set; }
-        public int? EvaluationId { get; set; } 
+        public int? EvaluationId { get; set; }
     }
 }

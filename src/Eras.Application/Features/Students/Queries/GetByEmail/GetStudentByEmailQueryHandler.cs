@@ -4,6 +4,7 @@ using Eras.Domain.Entities;
 using Eras.Error.Bussiness;
 
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Students.Queries.GetByEmail

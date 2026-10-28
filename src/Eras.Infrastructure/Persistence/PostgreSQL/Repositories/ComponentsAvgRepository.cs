@@ -21,7 +21,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
         {
             var rows = await _context.ErasCalculationsByPoll
                 .Where(V => V.StudentId == StudentId && V.PollId == PollId)
-                .Select(V => new 
+                .Select(V => new
                 {
                     V.PollId,
                     V.ComponentId,
@@ -38,8 +38,8 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                     PollId = G.Key.PollId,
                     ComponentId = G.Key.ComponentId,
                     Name = G.Key.ComponentName,
-                    ComponentAvg = (float) Math.Round(
-                        G.Where(V => 
+                    ComponentAvg = (float)Math.Round(
+                        G.Where(V =>
                             _answerRiskValidator.IsValidAnswer(V.AnswerText))
                         .Average(V => (double)V.AnswerRisk), 2)
                 })

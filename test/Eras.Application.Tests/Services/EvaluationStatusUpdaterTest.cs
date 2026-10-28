@@ -64,7 +64,7 @@ public class EvaluationStatusUpdaterTests
 
         // Assert
         Assert.Equal("Ready", evaluation.Status);
-      
+
         _repositoryMock.Verify(x => x.GetByIdAsync(evaluationId), Times.Once);
 
         _repositoryMock.Verify(
@@ -135,7 +135,7 @@ public class EvaluationStatusUpdaterTests
 
         var originalModifiedAt = DateTime.UtcNow.AddHours(-1);
 
-        var evaluation = CreateEvaluation(evaluationId,  "Ready", DateTime.UtcNow.AddHours(1));
+        var evaluation = CreateEvaluation(evaluationId, "Ready", DateTime.UtcNow.AddHours(1));
 
         evaluation.Audit.ModifiedAt = originalModifiedAt;
 

@@ -41,7 +41,7 @@ public sealed class GetRemissionByIdQueryHandler
         if (assessment is null) return null;
 
         var uniqueIds = assessment.StudentIds ?? Array.Empty<int>();
-        
+
         var students = uniqueIds.Any()
             ? await _studentRepository.GetByIdsAsync(uniqueIds, cancellationToken)
             : Array.Empty<Student>();

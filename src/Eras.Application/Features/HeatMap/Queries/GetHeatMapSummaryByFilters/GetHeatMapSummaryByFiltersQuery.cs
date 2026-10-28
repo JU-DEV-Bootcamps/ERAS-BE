@@ -1,5 +1,6 @@
 ﻿using Eras.Application.Models.Response.Common;
 using Eras.Application.Models.Response.HeatMap;
+
 using MediatR;
 
 namespace Eras.Application.Features.HeatMap.Queries.GetHeatMapSummaryByFilters

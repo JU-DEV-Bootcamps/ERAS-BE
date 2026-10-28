@@ -136,7 +136,8 @@ public class AddInterventionCommandHandlerTests
 
         var command = new AddInterventionCommand(1, dto);
 
-        var assessment = new Assessment {
+        var assessment = new Assessment
+        {
             Id = 1,
             CreatedBy = "",
             Service = "",

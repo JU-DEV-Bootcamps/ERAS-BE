@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+
 using Eras.Application.DTOs;
 using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class CohortDTOValidationTests
 {
     private static CohortDTO CreateValidDTO() => new CohortDTO

@@ -26,10 +26,12 @@ public class DashboardControllerTests
     public async Task GetKpis_Should_Return_Ok_WithSuccessQueryAsync()
     {
         // Arrange
-        var dashboardDTO = new DashboardKpiDto() { 
-                TotalEvaluations = new KpiMetricDto { PercentageChange = 20, Value = 2 }, 
-                TotalPollsAnswered = new KpiMetricDto { PercentageChange = 20, Value = 2 }, 
-                TotalStudents = new KpiMetricDto { PercentageChange = 20, Value = 2 }};
+        var dashboardDTO = new DashboardKpiDto()
+        {
+            TotalEvaluations = new KpiMetricDto { PercentageChange = 20, Value = 2 },
+            TotalPollsAnswered = new KpiMetricDto { PercentageChange = 20, Value = 2 },
+            TotalStudents = new KpiMetricDto { PercentageChange = 20, Value = 2 }
+        };
         var commandResponse = new GetQueryResponse<DashboardKpiDto>(dashboardDTO, "Success", true);
         _mediatorMock
             .Setup(M => M.Send(It.IsAny<GetDashboardKpisQuery>(), It.IsAny<CancellationToken>()))

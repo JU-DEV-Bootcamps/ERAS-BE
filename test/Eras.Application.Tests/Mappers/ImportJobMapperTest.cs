@@ -3,6 +3,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 
 namespace Eras.Application.Tests.Mappers;
+
 public class ImportJobMapperTest
 {
     [Fact]

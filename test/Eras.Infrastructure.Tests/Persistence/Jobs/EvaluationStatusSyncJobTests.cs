@@ -15,7 +15,9 @@ namespace Eras.Infrastructure.Tests.Persistence.Jobs;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+
 using Moq;
+
 using Xunit;
 
 public class EvaluationStatusSyncJobTests
@@ -23,7 +25,7 @@ public class EvaluationStatusSyncJobTests
     private sealed class TestableEvaluationStatusSyncJob : EvaluationStatusSyncJob
     {
         public TestableEvaluationStatusSyncJob(IServiceScopeFactory scopeFactory, ILogger<EvaluationStatusSyncJob> logger, TimeSpan timespan)
-            : base(scopeFactory, logger, timespan){ }
+            : base(scopeFactory, logger, timespan) { }
 
         public TestableEvaluationStatusSyncJob(IServiceScopeFactory scopeFactory, ILogger<EvaluationStatusSyncJob> logger)
             : base(scopeFactory, logger) { }

@@ -18,6 +18,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Configurations.Command.EditConfiguration;
+
 public class EditConfigurationCommandHandler : IRequestHandler<EditConfigurationCommand, CreateCommandResponse<Domain.Entities.Configurations>>
 {
     private readonly IConfigurationsRepository _configurationsRepository;
@@ -57,7 +58,7 @@ public class EditConfigurationCommandHandler : IRequestHandler<EditConfiguration
             configurationDB.EncryptedKey = _encryptor.Encrypt(Request.ConfigurationDTO.EncryptedKey);
             configurationDB.Audit.ModifiedAt = DateTime.UtcNow;
             configurationDB.Audit.ModifiedBy = Request.ConfigurationDTO.UserId;
-            
+
             Domain.Entities.ServiceProviders? serviceProvider = await _serviceProvidersRepository.GetByIdAsync(Request.ConfigurationDTO.ServiceProviderId);
             if (serviceProvider is null)
             {
@@ -65,7 +66,7 @@ public class EditConfigurationCommandHandler : IRequestHandler<EditConfiguration
                 return new CreateCommandResponse<Domain.Entities.Configurations>(null, 0, "ServiceProvider not found", false);
             }
             configurationDB.ServiceProvider = serviceProvider;
-            
+
             await _configurationsRepository.UpdateAsync(configurationDB);
 
             _logger.LogInformation("Successfully updated Configuration ID {Id}", configurationDB.Id);

@@ -4,6 +4,7 @@ using Eras.Application.DTOs;
 using Eras.Application.Tests.TestUtils;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class StudentDTOValidationTests
 {
     private static StudentDTO CreateValidDTO() => new StudentDTO
@@ -46,7 +47,7 @@ public class StudentDTOValidationTests
         dto.Uuid = InvalidUuid;
 
         IList<ValidationResult> results = ValidationTestHelper.Validate(dto);
-    
+
         Assert.Single(results);
         Assert.Equal("UUID is required.", results.First().ErrorMessage);
         Assert.Contains(nameof(StudentDTO.Uuid), results.First().MemberNames);

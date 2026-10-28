@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Cohorts.Queries;
+
 public class GetCohortsListQueryHandlerTest
 {
     private readonly Mock<ICohortRepository> _mockRepository;

@@ -13,8 +13,8 @@ public class EvaluationStatusServiceTests
     public void ComputeStatus_ShouldReturnPending_WhenPollsAreNull()
     {
         // Arrange
-        var evaluation = new Evaluation() 
-        { 
+        var evaluation = new Evaluation()
+        {
             Polls = null!
         };
 
@@ -29,8 +29,8 @@ public class EvaluationStatusServiceTests
     public void ComputeStatus_ShouldReturnPending_WhenPollsAreEmpty()
     {
         // Arrange
-        var evaluation = new Evaluation 
-        { 
+        var evaluation = new Evaluation
+        {
             Polls = new List<Poll>()
         };
 
@@ -192,7 +192,7 @@ public class EvaluationStatusServiceTests
 
         // Act
         var result = EvaluationStatusService.ComputeStatus(evaluation);
-        
+
         // Assert
         Assert.Equal(EvaluationConstants.EvaluationStatus.InProgress, result);
     }
@@ -254,7 +254,7 @@ public class EvaluationStatusServiceTests
         var result = EvaluationStatusService.ComputeStatus(evaluation);
 
         // Assert
-        Assert.Equal(EvaluationConstants.EvaluationStatus.Ready,result);
+        Assert.Equal(EvaluationConstants.EvaluationStatus.Ready, result);
     }
 
     [Fact]

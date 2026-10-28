@@ -13,7 +13,7 @@ namespace Eras.Application.Mappers
             {
                 Name = Dto.Name,
                 CourseCode = Dto.CourseCode,
-                Audit = Dto.Audit?? new AuditInfo()
+                Audit = Dto.Audit ?? new AuditInfo()
                 {
                     CreatedBy = "Cohort Mapper",
                     CreatedAt = DateTime.UtcNow,

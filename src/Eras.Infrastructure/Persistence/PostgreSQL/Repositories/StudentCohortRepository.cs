@@ -4,6 +4,7 @@ using Eras.Application.Utils;
 using Eras.Domain.Entities;
 using Eras.Infrastructure.Persistence.PostgreSQL.Joins;
 using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
@@ -54,7 +55,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
                 Student = C.ToJoinDomain(),
                 PollInstances = C.Student.PollInstances
                     .Where(P => (!startDate.HasValue || P.FinishedAt >= startDate) &&
-                                (!endDate.HasValue   || P.FinishedAt <= endDate))
+                                (!endDate.HasValue || P.FinishedAt <= endDate))
                     .Select(P => P.ToSummaryDomain())
                     .ToList()
             })

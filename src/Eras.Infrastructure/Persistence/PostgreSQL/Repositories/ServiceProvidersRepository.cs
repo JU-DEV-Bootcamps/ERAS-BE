@@ -6,6 +6,7 @@ using Eras.Infrastructure.Persistence.PostgreSQL.Mappers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
+
 public class ServiceProvidersRepository : BaseRepository<ServiceProviders, ServiceProvidersEntity>, IServiceProvidersRepository
 {
     public ServiceProvidersRepository(AppDbContext Context)

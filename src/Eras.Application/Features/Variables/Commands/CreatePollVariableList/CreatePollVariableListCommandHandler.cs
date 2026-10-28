@@ -30,7 +30,7 @@ public sealed class CreatePollVariableListCommandHandler : IRequestHandler<Creat
         List<Variable> mappedPollVariables = await _pollVariableRepository.GetAllWithVariablesByPollIdAsync(pollId);
         try
         {
-            foreach(Variable variable in Request.Variables.variables)
+            foreach (Variable variable in Request.Variables.variables)
             {
                 Variable? existingVariable = mappedPollVariables.FirstOrDefault(
                     PollVar => variable.Id == PollVar.Id && pollId == PollVar.IdPoll
@@ -51,7 +51,7 @@ public sealed class CreatePollVariableListCommandHandler : IRequestHandler<Creat
                 response.AddRange(await _pollVariableRepository.AddBatchPollVariablesAsync(pollVariablesToCreate));
             }
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating Poll Variables");
             return new CreateCommandResponse<List<Variable>>(null, 0, "Error creating Poll Variables", false);

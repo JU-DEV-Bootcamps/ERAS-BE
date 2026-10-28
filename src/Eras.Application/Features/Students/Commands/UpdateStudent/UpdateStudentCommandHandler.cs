@@ -1,10 +1,12 @@
 ﻿using Eras.Application.Contracts.Persistence;
 using Eras.Application.Features.Students.Commands.CreateStudent;
+using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
-using Eras.Application.Mappers;
 
 namespace Eras.Application.Features.Students.Commands.UpdateStudent
 {

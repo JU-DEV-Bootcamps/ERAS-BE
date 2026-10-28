@@ -52,7 +52,7 @@ public class EvaluationDetailsControllerTests
 
         _mockMediator.Verify(X => X.Send(
             It.IsAny<GetStudentsRecentAlertsQuery>(),
-            It.IsAny<CancellationToken>()),Times.Once);
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

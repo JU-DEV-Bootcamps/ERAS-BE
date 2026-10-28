@@ -9,10 +9,13 @@ using Eras.Application.Features.Evaluations.Queries.GetAll;
 using Eras.Application.Features.Polls.Queries.GetAllPollsQuery;
 using Eras.Domain.Common;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Evaluations.Queries;
+
 public class GetAllEvaluationsQueryHandlerTest
 {
     private readonly Mock<IEvaluationRepository> _mockEvaluationRepository;
@@ -39,8 +42,8 @@ public class GetAllEvaluationsQueryHandlerTest
         var polls = new List<Poll>();
         var pollInstances = new List<PollInstance>();
         var evaluations = new List<Evaluation>() {
-            new Evaluation(){ Name = "Evaluation", Status = "Active", 
-                StartDate = DateTime.Now, EndDate = DateTime.Now, Polls = polls, 
+            new Evaluation(){ Name = "Evaluation", Status = "Active",
+                StartDate = DateTime.Now, EndDate = DateTime.Now, Polls = polls,
                 PollInstances = pollInstances, Audit = new AuditInfo() },
             new Evaluation(){ Name = "Evaluation2", Status = "Active",
                 StartDate = DateTime.Now, EndDate = DateTime.Now, Polls = polls,

@@ -10,6 +10,7 @@ using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Tests.Mappers;
+
 public class StudentMapperTest
 {
     [Fact]

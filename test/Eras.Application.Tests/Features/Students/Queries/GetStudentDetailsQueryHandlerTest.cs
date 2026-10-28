@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Queries;
+
 public class GetStudentDetailsQueryHandlerTest
 {
     private readonly Mock<IStudentRepository> _mockStudentRepository;
@@ -30,8 +31,11 @@ public class GetStudentDetailsQueryHandlerTest
         => new() { Id = Id, Name = Name };
 
     private static StudentDetail BuildStudentDetail(int StudentId = 1)
-        => new() {
-            StudentId = StudentId, Audit = new Domain.Common.AuditInfo() };
+        => new()
+        {
+            StudentId = StudentId,
+            Audit = new Domain.Common.AuditInfo()
+        };
 
     [Fact]
     public async Task Handler_ShouldReturnSuccessCommandResponse()
@@ -43,7 +47,7 @@ public class GetStudentDetailsQueryHandlerTest
             .ReturnsAsync(student);
         _mockStudentDetailRepository.Setup(Repo => Repo.GetByStudentId(It.IsAny<int>()))
             .ReturnsAsync(studentDetail);
-        
+
         var query = new GetStudentDetailsQuery { StudentId = 1 };
 
         CreateCommandResponse<Student> response = await _handler.Handle(query, CancellationToken.None);
@@ -60,7 +64,7 @@ public class GetStudentDetailsQueryHandlerTest
     {
         _mockStudentRepository.Setup(Repo => Repo.GetByIdAsync(It.IsAny<int>()))
             .ReturnsAsync(value: null);
-        
+
         var query = new GetStudentDetailsQuery { StudentId = 1 };
 
         CreateCommandResponse<Student> response = await _handler.Handle(query, CancellationToken.None);
@@ -80,7 +84,7 @@ public class GetStudentDetailsQueryHandlerTest
             .ReturnsAsync(student);
         _mockStudentDetailRepository.Setup(Repo => Repo.GetByStudentId(It.IsAny<int>()))
             .ReturnsAsync(value: null);
-        
+
         var query = new GetStudentDetailsQuery { StudentId = 1 };
 
         CreateCommandResponse<Student> response = await _handler.Handle(query, CancellationToken.None);
@@ -97,7 +101,7 @@ public class GetStudentDetailsQueryHandlerTest
     {
         _mockStudentRepository.Setup(Repo => Repo.GetByIdAsync(It.IsAny<int>()))
             .ThrowsAsync(new Exception("DB Error."));
-        
+
         var query = new GetStudentDetailsQuery { StudentId = 1 };
 
         CreateCommandResponse<Student> response = await _handler.Handle(query, CancellationToken.None);

@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Queries;
+
 public class GetAllAverageRiskByCohortAndPollQueryHandlerTest
 {
     private readonly Mock<IStudentRepository> _mockStudentRepository;
@@ -26,7 +27,8 @@ public class GetAllAverageRiskByCohortAndPollQueryHandlerTest
         string StudentName = "Andres Soto",
         string Email = "andres.soto@test.com"
     )
-        => new () {
+        => new()
+        {
             StudentId = StudentId,
             StudentName = StudentName,
             Email = Email,

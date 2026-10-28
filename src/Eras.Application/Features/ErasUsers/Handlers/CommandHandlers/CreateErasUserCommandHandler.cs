@@ -9,10 +9,11 @@ using FluentValidation;
 using MediatR;
 
 namespace Eras.Application.Features.ErasUsers.Handlers.CommandHandlers;
+
 public sealed class CreateErasUserCommandHandler(
     IErasUsersRepository Repository,
     IValidator<ErasUser> Validator
-    ): IRequestHandler<CreateErasUserCommand, ErasUserDTO>
+    ) : IRequestHandler<CreateErasUserCommand, ErasUserDTO>
 {
     private readonly IErasUsersRepository _repository = Repository;
     private readonly IValidator<ErasUser> _validator = Validator;
@@ -36,7 +37,7 @@ public sealed class CreateErasUserCommandHandler(
 
         if (string.IsNullOrEmpty(dto.Audit.CreatedBy))
             dto.Audit.CreatedBy = "System";
-        
+
         ErasUser entity = dto.ToDomain();
 
         await ValidationHelper.ValidateAndThrowAsync(_validator, entity, cancellationToken);

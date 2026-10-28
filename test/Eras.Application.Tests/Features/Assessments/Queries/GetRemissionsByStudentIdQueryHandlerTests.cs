@@ -25,14 +25,14 @@ public class GetRemissionsByStudentIdQueryHandlerTests
         // Arrange
         var studentId = 123;
 
-        var assessment1 = new Assessment 
+        var assessment1 = new Assessment
         {
             CreatedBy = "me",
             Service = "workshop",
             Status = AssessmentStatus.Finalized,
-            StudentIds = [1,2,123],
+            StudentIds = [1, 2, 123],
         };
-        var assessment2 = new Assessment 
+        var assessment2 = new Assessment
         {
             CreatedBy = "me",
             Service = "workshop",
@@ -47,7 +47,7 @@ public class GetRemissionsByStudentIdQueryHandlerTests
             Status = AssessmentStatus.Finalized,
             StudentIds = [1, 2, 123],
         };
-        var dto2 = new AssessmentDto 
+        var dto2 = new AssessmentDto
         {
             CreatedBy = "me",
             Service = "workshop",
@@ -100,6 +100,6 @@ public class GetRemissionsByStudentIdQueryHandlerTests
         // Assert
         Assert.Empty(result);
 
-        _mapper.Verify(x => x.Map(It.IsAny<Assessment>()),Times.Never);
+        _mapper.Verify(x => x.Map(It.IsAny<Assessment>()), Times.Never);
     }
 }

@@ -1,4 +1,5 @@
 namespace Eras.Domain.Tests.TestUtils;
+
 public class RequiredStringTestData : TheoryData<string?>
 {
     public RequiredStringTestData()

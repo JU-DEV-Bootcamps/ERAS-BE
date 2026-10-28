@@ -39,18 +39,18 @@ public sealed class ErasUserConfiguration : IEntityTypeConfiguration<ErasUser>
             .HasMaxLength(100)
             .HasDefaultValue(string.Empty)
             .IsRequired();
-        
+
         Builder.Property(entity => entity.LastName)
             .HasColumnName("last_name")
             .HasMaxLength(100)
             .HasDefaultValue(string.Empty)
             .IsRequired();
-        
+
         Builder.Property(entity => entity.Role)
             .HasColumnName("role")
             .HasDefaultValue(ErasRole.Guest.Label)
             .IsRequired();
-        
+
         Builder.Property(entity => entity.IsSynced)
             .HasColumnName("is_synced")
             .HasDefaultValue(false)

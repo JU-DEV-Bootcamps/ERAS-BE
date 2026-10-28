@@ -48,7 +48,7 @@ public class GetStudentsByFiltersQueryHandlerTest
             "Science"
         };
         var cohortIds = new List<int> { 1, 2 };
-        var variableIds = new List<int> { 10, 20};
+        var variableIds = new List<int> { 10, 20 };
         var riskLevels = new List<decimal> { 10, 20 };
 
         var query = new GetStudentsByFiltersQuery
@@ -76,7 +76,7 @@ public class GetStudentsByFiltersQueryHandlerTest
                 AnswerText = "Answer 1",
                 ComponentName = "Science",
                 EvaluationName = "Test",
-                Status = "Pending",       
+                Status = "Pending",
                 PollName = "Poll",
                 PollUuid = "1234",
                 VariableName = "Question",

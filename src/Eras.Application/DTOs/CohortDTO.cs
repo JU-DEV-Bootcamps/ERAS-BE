@@ -1,6 +1,7 @@
-﻿using Eras.Domain.Common;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
+
+using Eras.Domain.Common;
 
 namespace Eras.Application.DTOs;
 

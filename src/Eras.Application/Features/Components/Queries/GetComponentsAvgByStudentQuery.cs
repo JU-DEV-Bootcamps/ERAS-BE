@@ -1,4 +1,5 @@
 ﻿using Eras.Domain.Entities;
+
 using MediatR;
 
 namespace Eras.Application.Features.Components.Queries

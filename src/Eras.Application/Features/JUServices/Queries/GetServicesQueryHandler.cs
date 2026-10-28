@@ -13,7 +13,7 @@ namespace Eras.Application.Features.JUServices.Queries.GetJUServices
     {
         private readonly IJUServiceRepository _serviceRepository;
         private readonly ILogger<GetJUServicesQuery> _logger;
-            
+
         public GetJUServicesQueryHandler(IJUServiceRepository ServiceRepository, ILogger<GetJUServicesQuery> Logger)
         {
             _serviceRepository = ServiceRepository;

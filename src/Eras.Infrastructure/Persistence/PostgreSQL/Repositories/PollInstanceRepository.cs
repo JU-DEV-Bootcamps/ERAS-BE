@@ -310,7 +310,7 @@ public class PollInstanceRepository(AppDbContext Context) : BaseRepository<PollI
                 g => g.Key,
                 g => g.First().VariableAverageRisk
             );
-            
+
         List<CountReportComponent> report = [.. results
             .OrderBy(A => A.ComponentId)
             .GroupBy(A => A.ComponentName)

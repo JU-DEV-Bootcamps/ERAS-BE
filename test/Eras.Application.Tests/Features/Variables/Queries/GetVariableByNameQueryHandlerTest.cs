@@ -9,10 +9,13 @@ using Eras.Application.Features.Components.Queries.GetByName;
 using Eras.Application.Features.PollInstances.Queries.GetPollInstancesByCohortAndDays;
 using Eras.Application.Features.Variables.Queries.GetByName;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Variables.Queries;
+
 public class GetVariableByNameQueryHandlerTest
 {
     private readonly Mock<IVariableRepository> _mockVariableRepository;
@@ -45,7 +48,7 @@ public class GetVariableByNameQueryHandlerTest
 
         // Assert
         Assert.True(result.Success);
-        Assert.Equal("Variable",result.Body!.Name);
+        Assert.Equal("Variable", result.Body!.Name);
     }
 
     [Fact]

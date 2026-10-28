@@ -9,6 +9,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Cohorts.Queries.GetCohortTopRiskStudents;
+
 public class GetCohortTopRiskStudentsQueryHandler : IRequestHandler<GetCohortTopRiskStudentsQuery, GetQueryResponse<PagedResult<GetCohortTopRiskStudentsByComponentResponse>>>
 {
     private readonly ICohortRepository _cohortRepository;
@@ -35,7 +36,8 @@ public class GetCohortTopRiskStudentsQueryHandler : IRequestHandler<GetCohortTop
             var pagedResult = new PagedResult<GetCohortTopRiskStudentsByComponentResponse>(totalCount, studentsList.ToList());
             return new GetQueryResponse<PagedResult<GetCohortTopRiskStudentsByComponentResponse>>(pagedResult);
         }
-        catch (Exception ex) {
+        catch (Exception ex)
+        {
             _logger.LogError(ex, "An error occurred while getting cohort top risk: " + ex.Message);
             return new GetQueryResponse<PagedResult<GetCohortTopRiskStudentsByComponentResponse>>(
                 new PagedResult<GetCohortTopRiskStudentsByComponentResponse>(0, []));

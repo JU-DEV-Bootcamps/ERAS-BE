@@ -10,7 +10,8 @@ using Eras.Domain.Entities;
 using MediatR;
 
 namespace Eras.Application.Features.PollInstances.Queries.GetByUuidAndStudentId;
-public class GetPollInstanceByUuidAndStudentIdQuery: IRequest<GetQueryResponse<PollInstance>>
+
+public class GetPollInstanceByUuidAndStudentIdQuery : IRequest<GetQueryResponse<PollInstance>>
 {
     public required string PollUuid;
     public required int StudentId;

@@ -6,10 +6,11 @@ using Eras.Domain.Entities.FeatureFlagManagement;
 using MediatR;
 
 namespace Eras.Application.Features.FeatureFlags.Handlers.QueryHandlers;
+
 public class GetAllFeatureFlagsQueryHandler
     : IRequestHandler<GetAllFeatureFlagsQuery, IReadOnlyCollection<FeatureFlagDTO>>
 {
-    private readonly IFeatureFlagRepository _repository; 
+    private readonly IFeatureFlagRepository _repository;
     public GetAllFeatureFlagsQueryHandler(IFeatureFlagRepository Repository)
     {
         _repository = Repository;

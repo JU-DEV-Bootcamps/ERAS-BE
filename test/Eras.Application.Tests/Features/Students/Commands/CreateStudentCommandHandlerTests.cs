@@ -4,7 +4,9 @@ using Eras.Application.Features.Students.Commands.CreateStudent;
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.Students.Commands
@@ -25,7 +27,7 @@ namespace Eras.Application.Tests.Features.Students.Commands
         [Fact]
         public async Task Handler_ShouldCreatesNewStudentAndReturnSuccessResponse()
         {
-            var newStudentDto = new StudentDTO() { Name= "newStudent" };
+            var newStudentDto = new StudentDTO() { Name = "newStudent" };
             var command = new CreateStudentCommand { StudentDTO = newStudentDto };
             Student newStudent = newStudentDto.ToDomain();
 

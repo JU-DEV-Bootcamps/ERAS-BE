@@ -3,10 +3,13 @@ using Eras.Application.Features.PollInstances.Queries.GetByUuidAndStudentId;
 using Eras.Application.Models.Enums;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.PollInstances.Queries;
+
 public class GetPollInstanceByUuidAndStudentIdQueryHandlerTest
 {
     private readonly Mock<IPollInstanceRepository> _mockPollRepository;
@@ -21,7 +24,7 @@ public class GetPollInstanceByUuidAndStudentIdQueryHandlerTest
     }
 
     private static PollInstance BuildPollInstance(int Id = 1, string Uuid = "m0ck-Uu1D")
-        => new ()
+        => new()
         {
             Id = Id,
             Uuid = Uuid,
@@ -56,7 +59,7 @@ public class GetPollInstanceByUuidAndStudentIdQueryHandlerTest
         _mockPollRepository
             .Setup(Repo => Repo.GetByUuidAndStudentIdAsync(It.IsAny<string>(), It.IsAny<int>()))
             .ReturnsAsync(value: null);
-        
+
         GetQueryResponse<PollInstance> result = await _handler.Handle(query, CancellationToken.None);
 
         Assert.True(result.Success);

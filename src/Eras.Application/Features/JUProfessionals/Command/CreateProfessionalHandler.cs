@@ -1,10 +1,12 @@
-using Eras.Application.Mappers;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Eras.Domain.Entities;
-using Eras.Application.Models.Response.Common;
-using Eras.Application.Models.Enums;
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Mappers;
+using Eras.Application.Models.Enums;
+using Eras.Application.Models.Response.Common;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Professionals.Commands.CreateProfessional
 {
@@ -24,14 +26,14 @@ namespace Eras.Application.Features.Professionals.Commands.CreateProfessional
             try
             {
                 int? Id = Request.Professional.Id;
-                
+
                 if (Id != null)
                 {
-                    JUProfessional? entityInDB = await _professionalRepository.GetByIdAsync((int) Id);
+                    JUProfessional? entityInDB = await _professionalRepository.GetByIdAsync((int)Id);
                     if (entityInDB != null) return new CreateCommandResponse<JUProfessional>(new JUProfessional(), "Entity already exists", false,
                         CommandEnums.CommandResultStatus.AlreadyExists);
                 }
-                
+
                 JUProfessional professional = Request.Professional.ToDomain();
                 JUProfessional response = await _professionalRepository.AddAsync(professional);
                 return new CreateCommandResponse<JUProfessional>(response, 1, "Success", true);

@@ -1,6 +1,7 @@
 ﻿using Eras.Domain.Common;
 
 namespace Eras.Domain.Entities;
+
 public class Configurations : BaseEntity, IAuditableEntity
 {
     public required string UserId { get; set; }

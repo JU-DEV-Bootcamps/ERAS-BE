@@ -11,7 +11,8 @@ using Eras.Domain.Entities;
 using MediatR;
 
 namespace Eras.Application.Features.Polls.Commands.UpdatePoll;
-public class UpdatePollByIdCommand: IRequest<CreateCommandResponse<Poll>>
+
+public class UpdatePollByIdCommand : IRequest<CreateCommandResponse<Poll>>
 {
     public required PollDTO PollDTO;
 }

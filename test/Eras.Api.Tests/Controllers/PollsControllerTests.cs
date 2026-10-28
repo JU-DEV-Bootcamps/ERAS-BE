@@ -70,7 +70,7 @@ public class PollsControllerTests
         var ok = Assert.IsType<OkObjectResult>(result);
         Assert.Same(expected, ok.Value);
         _mediatorMock.Verify(M =>
-            M.Send(It.IsAny<GetAllPollsQuery>(),It.IsAny<CancellationToken>()),
+            M.Send(It.IsAny<GetAllPollsQuery>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -138,7 +138,7 @@ public class PollsControllerTests
     public async Task GetVariablesByComponentsAsync_ReturnsVariablesAsync()
     {
         // Arrange
-        var components = new List<string>{ "A", "B"};
+        var components = new List<string> { "A", "B" };
 
         var expected = new List<Variable>
         {

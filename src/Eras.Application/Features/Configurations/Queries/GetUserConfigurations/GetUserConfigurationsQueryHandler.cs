@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Configurations.Queries.GetUserConfigurations;
+
 public class GetUserConfigurationsQueryHandler : IRequestHandler<GetUserConfigurationsQuery, List<Domain.Entities.Configurations>>
 {
     private readonly IConfigurationsRepository _configurationsRepository;
@@ -18,10 +19,10 @@ public class GetUserConfigurationsQueryHandler : IRequestHandler<GetUserConfigur
         _encryptor = Encryptor;
     }
 
-    public async Task<List<Domain.Entities.Configurations>> Handle(GetUserConfigurationsQuery Request, CancellationToken CancellationToken) 
+    public async Task<List<Domain.Entities.Configurations>> Handle(GetUserConfigurationsQuery Request, CancellationToken CancellationToken)
     {
         var listOfConfigurations = await _configurationsRepository.GetUserConfigurationsAsync(Request.UserId);
-        var response = listOfConfigurations.Select(c => 
+        var response = listOfConfigurations.Select(c =>
         {
             if (!string.IsNullOrWhiteSpace(c.EncryptedKey))
             {

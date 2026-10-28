@@ -1,19 +1,19 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
+using Eras.Application.DTOs.Views;
 using Eras.Application.Features.Consolidator.Queries;
 using Eras.Application.Features.Consolidator.Queries.Polls;
 using Eras.Application.Features.Consolidator.Queries.Students;
 using Eras.Application.Models.Consolidator;
 using Eras.Application.Models.Response.Common;
-using Eras.Domain.Entities;
 using Eras.Application.Utils;
-using Eras.Application.DTOs.Views;
+using Eras.Domain.Entities;
 using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Eras.Api.Controllers;
 

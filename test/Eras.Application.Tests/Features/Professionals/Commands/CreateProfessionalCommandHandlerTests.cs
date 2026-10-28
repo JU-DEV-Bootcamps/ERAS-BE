@@ -15,7 +15,7 @@ namespace Eras.Application.Tests.Features.Professionals.Commands;
 
 public class CreateProfessionalCommandHandlerTests
 {
-    private readonly Mock<IProfessionalRepository> _repository ;
+    private readonly Mock<IProfessionalRepository> _repository;
     private readonly Mock<ILogger<CreateProfessionalCommandHandler>> _logger;
     private readonly CreateProfessionalCommandHandler _handler;
 
@@ -43,8 +43,8 @@ public class CreateProfessionalCommandHandlerTests
             Professional = professional
         };
 
-        var createdProfessional = new JUProfessional() 
-        { 
+        var createdProfessional = new JUProfessional()
+        {
             Id = 1,
             Name = "Anne",
             Uuid = "123",

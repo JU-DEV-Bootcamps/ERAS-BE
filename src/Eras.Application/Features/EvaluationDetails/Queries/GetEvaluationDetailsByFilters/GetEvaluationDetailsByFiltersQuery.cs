@@ -18,5 +18,5 @@ public class GetEvaluationDetailsByFiltersQuery : IRequest<List<ErasEvaluationDe
     public List<int>? ComponentIds { get; set; }
     public List<int>? CohortIds { get; set; }
     public List<int>? VariableIds { get; set; }
-    
+
 }

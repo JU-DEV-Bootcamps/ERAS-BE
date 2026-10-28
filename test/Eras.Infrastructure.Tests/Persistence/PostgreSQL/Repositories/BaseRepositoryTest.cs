@@ -186,7 +186,7 @@ public class BaseRepositoryTest : RepositoryTestBase
                 return null!;
             });
     }
-    
+
     [Fact]
     public async Task AddBatchAsync_WithoutAmbientTransaction_BeginsCommitsAndDisposesTransactionAsync()
     {

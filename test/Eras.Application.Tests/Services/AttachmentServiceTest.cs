@@ -463,8 +463,12 @@ public class AttachmentServiceTest
         // Arrange
         var attachment = new Attachment
         {
-            Id = 1, EntityType = EntityType, EntityId = 1, StorageKey = "interventions/1/x.pdf",
-            ContentHash = "h", CreatedBy = "u"
+            Id = 1,
+            EntityType = EntityType,
+            EntityId = 1,
+            StorageKey = "interventions/1/x.pdf",
+            ContentHash = "h",
+            CreatedBy = "u"
         };
         _mockRepository.Setup(X => X.GetByIdAsync(1)).ReturnsAsync(attachment);
 
@@ -482,8 +486,12 @@ public class AttachmentServiceTest
         // Arrange
         var attachment = new Attachment
         {
-            Id = 1, EntityType = EntityType, EntityId = 1, StorageKey = "interventions/1/x.pdf",
-            ContentHash = "h", CreatedBy = "u"
+            Id = 1,
+            EntityType = EntityType,
+            EntityId = 1,
+            StorageKey = "interventions/1/x.pdf",
+            ContentHash = "h",
+            CreatedBy = "u"
         };
         _mockRepository.Setup(X => X.GetByIdAsync(1)).ReturnsAsync(attachment);
         _mockFileStorage.Setup(X => X.DeleteAsync(attachment.StorageKey)).ThrowsAsync(new IOException("disk error"));

@@ -1,11 +1,13 @@
 
-using Eras.Application.Mappers;
 using Eras.Application.Contracts.Persistence;
-using MediatR;
-using Microsoft.Extensions.Logging;
-using Eras.Domain.Entities;
-using Eras.Application.Models.Response.Common;
+using Eras.Application.Mappers;
 using Eras.Application.Models.Enums;
+using Eras.Application.Models.Response.Common;
+using Eras.Domain.Entities;
+
+using MediatR;
+
+using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.JUServices.Commands.CreateJUService
 {
@@ -28,11 +30,11 @@ namespace Eras.Application.Features.JUServices.Commands.CreateJUService
 
                 if (Id != null)
                 {
-                    JUService? entityInDB = await _juServiceRepository.GetByIdAsync((int) Request.Service.Id);
+                    JUService? entityInDB = await _juServiceRepository.GetByIdAsync((int)Request.Service.Id);
                     if (entityInDB != null) return new CreateCommandResponse<JUService>(new JUService(), "Entity already exists", false,
                         CommandEnums.CommandResultStatus.AlreadyExists);
                 }
-                
+
                 JUService juService = Request.Service.ToDomain();
                 JUService response = await _juServiceRepository.AddAsync(juService);
                 return new CreateCommandResponse<JUService>(response, 1, "Success", true);

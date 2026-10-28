@@ -8,9 +8,11 @@ using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
 
 using Microsoft.Extensions.Logging;
+
 using Moq;
 
 namespace Eras.Application.Tests.Features.PollInstances.Commands;
+
 public class UpdatePollInstanceByIdCommandHandlerTest
 {
     private readonly Mock<IPollInstanceRepository> _mockPollRepository;
@@ -27,7 +29,7 @@ public class UpdatePollInstanceByIdCommandHandlerTest
     [Fact]
     public async Task Handler_ReturnsSuccessResponseWithUpdatedPoll()
     {
-        var updatedPollInstanceDTO = new PollInstanceDTO() { Uuid = "Uuid1", Id = 1, LastVersion = 2};
+        var updatedPollInstanceDTO = new PollInstanceDTO() { Uuid = "Uuid1", Id = 1, LastVersion = 2 };
         PollInstance oldPoll = updatedPollInstanceDTO.ToDomain();
         oldPoll.LastVersion = 1;
         PollInstance responsePoll = updatedPollInstanceDTO.ToDomain();
@@ -50,7 +52,7 @@ public class UpdatePollInstanceByIdCommandHandlerTest
     [Fact]
     public async Task Handler_ReturnsErrorResponseWhenNoPollExists()
     {
-        var updatedPollInstanceDTO = new PollInstanceDTO() { Uuid = "Uuid1", Id = 1, LastVersion = 2};
+        var updatedPollInstanceDTO = new PollInstanceDTO() { Uuid = "Uuid1", Id = 1, LastVersion = 2 };
         PollInstance responsePoll = updatedPollInstanceDTO.ToDomain();
 
         var command = new UpdatePollInstanceByIdCommand { PollInstanceDTO = updatedPollInstanceDTO };

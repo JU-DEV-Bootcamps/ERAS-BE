@@ -11,5 +11,5 @@ public class PollCountQuery : IRequest<GetQueryResponse<CountReportResponseVm>>
     public required List<int> CohortIds { get; set; }
     public required List<int> VariableIds { get; set; }
     public bool LastVersion { get; set; }
-    public int EvaluationId { get; set; } 
+    public int EvaluationId { get; set; }
 }

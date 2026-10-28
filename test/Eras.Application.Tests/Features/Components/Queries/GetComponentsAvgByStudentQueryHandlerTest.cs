@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Components.Queries;
+
 public class GetComponentsAvgByStudentQueryHandlerTest
 {
     private readonly Mock<IComponentsAvgRepository> _mockComponentsAvgRepository;
@@ -27,7 +28,7 @@ public class GetComponentsAvgByStudentQueryHandlerTest
             PollId = PollId,
             ComponentId = ComponentId,
             Name = Name,
-            ComponentAvg = ComponentAvg 
+            ComponentAvg = ComponentAvg
         };
     }
 
@@ -37,7 +38,7 @@ public class GetComponentsAvgByStudentQueryHandlerTest
         var components = new List<ComponentsAvg>
         {
             BuildComponentsAvgObject(1, 1, "Test", 2),
-            BuildComponentsAvgObject(1, 2, "Test2", 4)    
+            BuildComponentsAvgObject(1, 2, "Test2", 4)
         };
 
         _mockComponentsAvgRepository.Setup(Repo => Repo.ComponentsAvgByStudent(1, 1))

@@ -1,8 +1,10 @@
 ﻿using Eras.Infrastructure.Persistence.PostgreSQL.Entities;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
+
 public class ServiceProvidersConfiguration : IEntityTypeConfiguration<ServiceProvidersEntity>
 {
     public void Configure(EntityTypeBuilder<ServiceProvidersEntity> Builder)
@@ -65,7 +67,7 @@ public class ServiceProvidersConfiguration : IEntityTypeConfiguration<ServicePro
             {
                 Id = 1,
                 ServiceProviderName = "Cosmic Latte",
-                ServiceProviderLogo = "https://i.imgur.com/cDQU1M7.png"               
+                ServiceProviderLogo = "https://i.imgur.com/cDQU1M7.png"
             }
         );
     }

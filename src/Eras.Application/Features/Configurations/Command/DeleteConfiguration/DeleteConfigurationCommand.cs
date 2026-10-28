@@ -9,6 +9,7 @@ using Eras.Application.Models.Response;
 using MediatR;
 
 namespace Eras.Application.Features.Configurations.Command.DeleteConfiguration;
+
 public class DeleteConfigurationCommand : IRequest<BaseResponse>
 {
     public int ConfigurationId { get; set; }

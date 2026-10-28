@@ -3,6 +3,7 @@ using Eras.Domain.Common;
 using Eras.Domain.Entities;
 
 namespace Eras.Application.Mappers;
+
 public static class ConfigurationsMapper
 {
     public static Configurations ToDomain(this ConfigurationsDTO Dto)

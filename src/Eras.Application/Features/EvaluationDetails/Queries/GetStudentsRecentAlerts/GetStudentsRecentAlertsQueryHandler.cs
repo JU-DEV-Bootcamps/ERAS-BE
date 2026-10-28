@@ -25,7 +25,7 @@ public class GetStudentsRecentAlertsQueryHandler
     }
 
     public async Task<PagedResult<GetStudentsRecentAlertsResponse>> Handle(
-        GetStudentsRecentAlertsQuery Request, 
+        GetStudentsRecentAlertsQuery Request,
         CancellationToken CancellationToken)
     {
         try

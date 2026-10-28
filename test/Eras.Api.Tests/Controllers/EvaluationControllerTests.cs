@@ -73,11 +73,12 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async Task UpdateEvaluation_Should_Return_BadRequest_WhenIdsDoNotMatchAsync()
         {
-            var dto = new EvaluationDTO {
+            var dto = new EvaluationDTO
+            {
                 Id = 2,
                 Name = "Evaluation",
                 StartDate = DateTime.Now,
-                EndDate= DateTime.Now,
+                EndDate = DateTime.Now,
             };
             var result = await _controller.UpdateEvaluationAsync(1, dto);
             var badRequest = Assert.IsType<BadRequestObjectResult>(result);
@@ -143,7 +144,7 @@ namespace Eras.Api.Tests.Controllers
         [Fact]
         public async Task GetAllEvaluationsByDateRange_Should_Return_OkAsync()
         {
-            var evaluations = new List<Evaluation>{new Evaluation()};
+            var evaluations = new List<Evaluation> { new Evaluation() };
             _mockMediator
                 .Setup(X => X.Send(It.IsAny<GetEvaluationsByDateRangeQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(evaluations);

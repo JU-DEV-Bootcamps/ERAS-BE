@@ -5,6 +5,7 @@ using Eras.Domain.Entities.AssessmentManagement.Validators;
 using FluentValidation.TestHelper;
 
 namespace Eras.Domain.Tests.Entities.Validators;
+
 public class StatusTransitionValidatorTests
 {
     private readonly AssessmentStatusTransitionValidator _assessmentValidator = new();
@@ -29,7 +30,7 @@ public class StatusTransitionValidatorTests
 
         TestValidationResult<StatusTransitionRequest<AssessmentStatus>> result =
             _assessmentValidator.TestValidate(_assessmentStatusTransitionRequest);
-        
+
         result.ShouldNotHaveAnyValidationErrors();
     }
 
@@ -42,7 +43,7 @@ public class StatusTransitionValidatorTests
 
         TestValidationResult<StatusTransitionRequest<AssessmentStatus>> result =
             _assessmentValidator.TestValidate(_assessmentStatusTransitionRequest);
-        
+
         result.ShouldNotHaveAnyValidationErrors();
     }
 
@@ -97,7 +98,7 @@ public class StatusTransitionValidatorTests
 
         TestValidationResult<StatusTransitionRequest<InterventionStatus>> result =
             _interventionValidator.TestValidate(_interventionStatusTransitionRequest);
-        
+
         result.ShouldNotHaveAnyValidationErrors();
     }
 
@@ -110,7 +111,7 @@ public class StatusTransitionValidatorTests
 
         TestValidationResult<StatusTransitionRequest<InterventionStatus>> result =
             _interventionValidator.TestValidate(_interventionStatusTransitionRequest);
-        
+
         result.ShouldNotHaveAnyValidationErrors();
     }
 

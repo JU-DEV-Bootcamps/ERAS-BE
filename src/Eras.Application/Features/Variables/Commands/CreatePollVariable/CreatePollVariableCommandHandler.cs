@@ -2,7 +2,9 @@
 using Eras.Application.Mappers;
 using Eras.Application.Models.Response.Common;
 using Eras.Domain.Entities;
+
 using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
@@ -38,7 +40,8 @@ namespace Eras.Application.Features.Variables.Commands.CreatePollVariable
                     createdVariable.Id = variableId;
                     Variable response = await _pollVariableRepository.AddAsync(createdVariable);
                     return new CreateCommandResponse<Variable>(response, 1, "Success", true);
-                } else
+                }
+                else
                 {
                     _logger.LogError("An error occurred creating the variable: Request.Variable is null.");
                     return new CreateCommandResponse<Variable>(null, 0, "Error", false);

@@ -28,7 +28,7 @@ public class UpdateFeatureFlagCommandHandler : IRequestHandler<UpdateFeatureFlag
     {
         FeatureFlag? existingEntity = await _repository.GetByIdNoTrackingAsync(request.FeatureFlag.Id ?? default);
         if (existingEntity == null)
-            throw new NotFoundException($"Feature Flag with ID ${request.FeatureFlag.Id} not found."); 
+            throw new NotFoundException($"Feature Flag with ID ${request.FeatureFlag.Id} not found.");
 
         FeatureFlagDTO dto = request.FeatureFlag;
 

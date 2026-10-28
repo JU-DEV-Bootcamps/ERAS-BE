@@ -14,6 +14,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.ServiceProviders.Command;
+
 public class CreateServiceProviderCommandHandler : IRequestHandler<CreateServiceProviderCommand, CreateCommandResponse<Domain.Entities.ServiceProviders>>
 {
     private readonly IServiceProvidersRepository _serviceProvidersRepository;

@@ -56,8 +56,9 @@ public class AssessmentsControllerTests
     [Fact]
     public async Task GetById_ReturnsOkAsync()
     {
-        var dto = new AssessmentDto { 
-            Id = 1, 
+        var dto = new AssessmentDto
+        {
+            Id = 1,
             CreatedBy = "",
             Status = AssessmentStatus.Remitted,
             Service = "",
@@ -141,7 +142,8 @@ public class AssessmentsControllerTests
     [Fact]
     public async Task Create_ReturnsOkAsync()
     {
-        var dto = new AssessmentDto {
+        var dto = new AssessmentDto
+        {
             Id = 1,
             CreatedBy = "",
             Status = AssessmentStatus.Remitted,
@@ -269,7 +271,7 @@ public class AssessmentsControllerTests
 
     [Fact]
     public async Task UpsertInterventions_ReturnsConflictResponseAsync()
-    { 
+    {
         _mediatorMock
             .Setup(X => X.Send(It.IsAny<UpsertInterventionsCommand>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new OperationCanceledException("busy"));
@@ -324,7 +326,7 @@ public class AssessmentsControllerTests
     {
         var stream = new MemoryStream(new byte[] { 1, 2, 3 });
         IFormFile file = new FormFile(stream, 0, stream.Length, "file", "test.pdf");
-        var files = new FormFileCollection{file};
+        var files = new FormFileCollection { file };
 
         _mediatorMock
             .Setup(X => X.Send(It.IsAny<UploadInterventionAttachmentsCommand>(), It.IsAny<CancellationToken>()))
@@ -441,7 +443,7 @@ public class AssessmentsControllerTests
             DateTime.Now, "act", "Dream", 1, "trish", "", [1], new Dictionary<int, bool> { { 2, true } }, InterventionMode.Remote, InterventionKind.Individual,
             InterventionStatus.InProgress, "", 2.0, InterventionLevel.Medium, InterventionLevel.Low, 1);
         var dto = new UpdateInterventionRequestDto(intervention, [], 1);
-        
+
         _mediatorMock
             .Setup(X => X.Send(It.IsAny<UpdateInterventionCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(intervention);

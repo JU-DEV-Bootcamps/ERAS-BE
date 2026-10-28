@@ -36,7 +36,7 @@ public class UpdateFeatureFlagCommandHandlerTest
     public async Task Handle_ShouldUpdateFeatureFlag_WhenEntityExists()
     {
         // Arrange
-        var existingEntity = CreateFeatureFlag(1,"ExistingFeature");
+        var existingEntity = CreateFeatureFlag(1, "ExistingFeature");
 
         var requestDto = existingEntity.ToDTO();
         requestDto.Name = "UpdatedFeature";

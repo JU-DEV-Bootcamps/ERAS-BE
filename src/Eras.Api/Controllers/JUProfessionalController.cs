@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 using Eras.Application.DTOs;
 using Eras.Application.Features.Professionals.Commands.CreateProfessional;
 using Eras.Application.Features.Professionals.Queries.GetProfessionals;
@@ -8,7 +10,6 @@ using MediatR;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Eras.Api.Controllers;
 

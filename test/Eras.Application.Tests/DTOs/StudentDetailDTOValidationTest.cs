@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using Eras.Application.DTOs;
 
 namespace Eras.Application.Tests.DTOs;
+
 public class StudentDetailDTOValidationTests
 {
     private static StudentDetailDTO CreateValidDTO() => new StudentDetailDTO

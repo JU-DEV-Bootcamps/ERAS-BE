@@ -5,6 +5,7 @@ using Eras.Application.Utils;
 using MediatR;
 
 namespace Eras.Application.Features.Cohorts.Queries.GetCohortTopRiskStudents;
+
 public class GetCohortTopRiskStudentsQuery : IRequest<GetQueryResponse<PagedResult<GetCohortTopRiskStudentsByComponentResponse>>>
 {
     public required string PollUuid { get; set; }

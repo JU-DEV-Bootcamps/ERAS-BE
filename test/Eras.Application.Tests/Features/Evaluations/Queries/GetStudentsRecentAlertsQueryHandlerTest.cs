@@ -23,9 +23,9 @@ public class GetStudentsRecentAlertsQueryHandlerTest
 
     public GetStudentsRecentAlertsQueryHandlerTest()
     {
-        _mockRepository =  new Mock<IErasEvaluationDetailsViewRepository>();
+        _mockRepository = new Mock<IErasEvaluationDetailsViewRepository>();
         _mockLogger = new Mock<ILogger<GetStudentsRecentAlertsQueryHandler>>();
-        _handler = new GetStudentsRecentAlertsQueryHandler( _mockRepository.Object, _mockLogger.Object );
+        _handler = new GetStudentsRecentAlertsQueryHandler(_mockRepository.Object, _mockLogger.Object);
     }
 
     [Fact]
@@ -56,14 +56,14 @@ public class GetStudentsRecentAlertsQueryHandlerTest
         };
 
         _mockRepository
-            .Setup(Repo => Repo.GetRecentAlertsStudentAsync(0,4))
+            .Setup(Repo => Repo.GetRecentAlertsStudentAsync(0, 4))
             .ReturnsAsync(recentAlerts);
         _mockRepository.Setup(Repo => Repo.CountRecentAlerts()).ReturnsAsync(2);
         // Act
         var result = await _handler.Handle(query, CancellationToken.None);
-        _mockRepository.Verify(x => x.GetRecentAlertsStudentAsync(It.IsAny<int>(), It.IsAny<int>()),Times.Once);
+        _mockRepository.Verify(x => x.GetRecentAlertsStudentAsync(It.IsAny<int>(), It.IsAny<int>()), Times.Once);
 
-        _mockRepository.Verify(x => x.CountRecentAlerts(),Times.Once);
+        _mockRepository.Verify(x => x.CountRecentAlerts(), Times.Once);
         // Assert
         Assert.Equal(2, result.Count);
     }

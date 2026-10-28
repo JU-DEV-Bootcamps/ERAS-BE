@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Eras.Application.Tests.Features.Polls.Queries;
+
 public class GetAllByPollAndCohortQueryHandlerTest
 {
     private readonly Mock<IPollCohortRepository> _mockPollCohortRepository;
@@ -25,8 +26,8 @@ public class GetAllByPollAndCohortQueryHandlerTest
     {
         var pollVariables = new List<PollVariableDto>
         {
-          new () { PollId = 1, VariableId = 1, VariableName = "Academic"},  
-          new () { PollId = 1, VariableId = 2, VariableName = "Social"}  
+          new () { PollId = 1, VariableId = 1, VariableName = "Academic"},
+          new () { PollId = 1, VariableId = 2, VariableName = "Social"}
         };
         var query = new GetAllByPollAndCohortQuery(1, 1);
 

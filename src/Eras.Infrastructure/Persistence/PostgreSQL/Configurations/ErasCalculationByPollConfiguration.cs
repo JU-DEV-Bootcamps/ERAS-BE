@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Eras.Infrastructure.Persistence.PostgreSQL.Configurations;
+
 public class ErasCalculationByPollConfiguration : IEntityTypeConfiguration<ErasCalculationsByPollEntity>
 {
     public void Configure(EntityTypeBuilder<ErasCalculationsByPollEntity> Builder)

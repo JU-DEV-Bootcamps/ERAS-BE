@@ -14,6 +14,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Eras.Application.Features.Configurations.Command.DeleteConfiguration;
+
 public class DeleteConfigurationCommandHandler : IRequestHandler<DeleteConfigurationCommand, BaseResponse>
 {
     private readonly IConfigurationsRepository _configurationsRepository;

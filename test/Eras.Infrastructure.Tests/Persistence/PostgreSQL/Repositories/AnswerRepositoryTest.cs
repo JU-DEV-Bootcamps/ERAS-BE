@@ -11,6 +11,7 @@ using MockQueryable.Moq;
 using Moq;
 
 namespace Eras.Infrastructure.Tests.Persistence.PostgreSQL.Repositories;
+
 public class AnswerRepositoryTest : RepositoryTestBase
 {
     private Mock<DbSet<AnswerEntity>> _mockSet;
@@ -32,7 +33,7 @@ public class AnswerRepositoryTest : RepositoryTestBase
         var dataPollIsntances = new List<PollInstanceEntity>()
         { new PollInstanceEntity { Id = 1, StudentId = 1 } }.AsQueryable().BuildMockDbSet();
         var data = new List<AnswerEntity>()
-        { 
+        {
             new AnswerEntity()
             {
                 Id = 1,
