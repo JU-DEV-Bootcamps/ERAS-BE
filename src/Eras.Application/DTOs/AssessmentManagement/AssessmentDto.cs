@@ -11,7 +11,7 @@ public sealed record AssessmentDto
     public required string CreatedBy { get; init; }
     public required string Service { get; init; }
 
-    public string? AssignedProfessional { get; init; }
+    public string[] AssignedProfessionals { get; init; } = [];
 
     public required int[] StudentIds { get; init; }
 

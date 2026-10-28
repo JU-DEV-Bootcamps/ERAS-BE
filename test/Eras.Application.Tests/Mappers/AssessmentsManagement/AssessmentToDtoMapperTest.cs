@@ -17,7 +17,7 @@ public sealed class AssessmentToDtoMapperTests
             CreatedAtUtc = DateTime.UtcNow,
             CreatedBy = "user",
             Service = "Service",
-            AssignedProfessional = "Professional",
+            AssignedProfessionals = ["Professional"],
             StudentIds = [1],
             Diagnosis = "Diagnosis",
             Objective = "Objective",
@@ -32,7 +32,7 @@ public sealed class AssessmentToDtoMapperTests
         Assert.Equal(source.CreatedAtUtc, result.CreatedAtUtc);
         Assert.Equal(source.CreatedBy, result.CreatedBy);
         Assert.Equal(source.Service, result.Service);
-        Assert.Equal(source.AssignedProfessional, result.AssignedProfessional);
+        Assert.Equal(source.AssignedProfessionals, result.AssignedProfessionals);
         Assert.Equal(source.StudentIds, result.StudentIds);
         Assert.Equal(source.Diagnosis, result.Diagnosis);
         Assert.Equal(source.Objective, result.Objective);

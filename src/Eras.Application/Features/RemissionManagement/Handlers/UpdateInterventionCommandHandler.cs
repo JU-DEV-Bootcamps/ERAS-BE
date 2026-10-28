@@ -109,6 +109,12 @@ public sealed class UpdateInterventionCommandHandler : IRequestHandler<UpdateInt
                         _userIdentityProvider.UserId,
                         CancellationToken);
                 }
+                if (!string.IsNullOrWhiteSpace(Request.Intervention.ProfessionalSub)
+                    && !assessment.AssignedProfessionals.Contains(Request.Intervention.ProfessionalSub))
+                {
+                    await _assessmentRepository.AddAssignedProfessionalAsync(
+                        Request.AssessmentId, Request.Intervention.ProfessionalSub);
+                }
                 return updated;
             });
 

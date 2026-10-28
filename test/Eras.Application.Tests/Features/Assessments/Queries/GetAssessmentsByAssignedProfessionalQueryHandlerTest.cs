@@ -52,7 +52,7 @@ public class GetAssessmentsByAssignedProfessionalQueryHandlerTests
                 StudentIds = [1],
                 CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
                 Service = "Service1",
-                AssignedProfessional = "e8298efe-a6d0-4474-9607-dc5854115229"
+                AssignedProfessionals = ["e8298efe-a6d0-4474-9607-dc5854115229"]
             },
              new Assessment
             {
@@ -61,7 +61,7 @@ public class GetAssessmentsByAssignedProfessionalQueryHandlerTests
                 StudentIds = [1],
                 CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
                 Service = "Service2",
-                AssignedProfessional = "e8298efe-a6d0-4474-9607-dc5854115229"
+                AssignedProfessionals = ["e8298efe-a6d0-4474-9607-dc5854115229"]
             }
         ];
         var dto1 = new AssessmentDto
@@ -71,7 +71,7 @@ public class GetAssessmentsByAssignedProfessionalQueryHandlerTests
             StudentIds = [1],
             CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
             Service = "Service1",
-            AssignedProfessional = "e8298efe-a6d0-4474-9607-dc5854115229"
+            AssignedProfessionals = ["e8298efe-a6d0-4474-9607-dc5854115229"]
         };
         var dto2 = new AssessmentDto
         {
@@ -80,7 +80,7 @@ public class GetAssessmentsByAssignedProfessionalQueryHandlerTests
             StudentIds = [1],
             CreatedBy = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526",
             Service = "Service2",
-            AssignedProfessional = "e8298efe-a6d0-4474-9607-dc5854115229"
+            AssignedProfessionals = ["e8298efe-a6d0-4474-9607-dc5854115229"]
         };
 
         _mockRepository

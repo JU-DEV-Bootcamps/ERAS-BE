@@ -42,4 +42,9 @@ public interface IAssessmentRepository : IBaseRepository<Assessment>
     Task<int> CountActiveInterventionsForUserAsync(string userSub);
 
     Task<Intervention> UpdateInterventionAsync(int AssessmentId, Intervention Intervention);
+
+    /// <summary>
+    /// Adds a professional (Keycloak sub) to the assessment's list. Does nothing if already present.
+    /// </summary>
+    Task AddAssignedProfessionalAsync(int AssessmentId, string ProfessionalSub);
 }
