@@ -28,7 +28,7 @@ public sealed class AssessmentMapper : IMapper<AssessmentDto, Assessment>
             CreatedAtUtc = source.CreatedAtUtc,
             CreatedBy = source.CreatedBy,
             Service = source.Service,
-            AssignedProfessional = source.AssignedProfessional,
+            AssignedProfessionals = source.AssignedProfessionals,
 
             StudentIds = source.StudentIds,
 

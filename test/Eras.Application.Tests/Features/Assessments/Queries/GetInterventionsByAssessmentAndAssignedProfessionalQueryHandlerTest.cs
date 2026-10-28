@@ -27,7 +27,7 @@ public class GetInterventionsByAssessmentAndAssignedProfessionalQueryHandlerTest
     private static Assessment BuildAssessment() => new()
     {
         CreatedBy = "officer-sub",
-        AssignedProfessional = "professional-sub",
+        AssignedProfessionals = ["professional-sub"],
         Service = "workshop",
         Status = AssessmentStatus.Finalized,
         StudentIds = [1],
@@ -36,7 +36,7 @@ public class GetInterventionsByAssessmentAndAssignedProfessionalQueryHandlerTest
     private static AssessmentDto BuildAssessmentDto(IReadOnlyCollection<InterventionDto> interventions) => new()
     {
         CreatedBy = "officer-sub",
-        AssignedProfessional = "professional-sub",
+        AssignedProfessionals = ["professional-sub"],
         Service = "workshop",
         Status = AssessmentStatus.Finalized,
         StudentIds = [1],

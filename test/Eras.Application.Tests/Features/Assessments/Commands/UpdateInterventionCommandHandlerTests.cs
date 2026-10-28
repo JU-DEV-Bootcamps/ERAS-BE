@@ -59,13 +59,17 @@ public sealed class UpdateInterventionCommandHandlerTests
             );
     }
 
-    private static UpdateInterventionDto MakeDto(InterventionStatus Status = InterventionStatus.Remitted) => new(
+    private static UpdateInterventionDto MakeDto(
+        InterventionStatus Status = InterventionStatus.Remitted,
+        string? Professional = null,
+        string? ProfessionalSub = null,
+        string? Comments = null) => new(
         DateUtc: DateTime.UtcNow,
         Activity: "activity",
         Area: "area",
         NumberOfParticipants: 1,
-        Professional: null,
-        Comments: null,
+        Professional: Professional,
+        Comments: Comments,
         StudentIds: Array.Empty<int>(),
         Attendance: new Dictionary<int, bool>(),
         Mode: InterventionMode.Remote,
@@ -75,7 +79,8 @@ public sealed class UpdateInterventionCommandHandlerTests
         RiskLevel: null,
         RiskLevelName: InterventionLevel.Medium,
         EndRiskLevelName: null,
-        Id: null);
+        Id: null,
+        ProfessionalSub: ProfessionalSub);
 
     private static Intervention MakeIntervention(int Id, InterventionStatus Status = InterventionStatus.Remitted) => new()
     {
@@ -85,8 +90,11 @@ public sealed class UpdateInterventionCommandHandlerTests
         Status = Status
     };
 
-    private static Assessment MakeAssessment(params Intervention[] Interventions) => new()
+    private static Assessment MakeAssessment(params Intervention[] Interventions) => MakeAssessmentWith([], Interventions);
+
+    private static Assessment MakeAssessmentWith(string[] Professionals, params Intervention[] Interventions) => new()
     {
+        AssignedProfessionals = Professionals,
         Interventions = Interventions.ToList(),
         CreatedBy = "auto",
         Service = "Any",
@@ -280,4 +288,112 @@ public sealed class UpdateInterventionCommandHandlerTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-10")]
+    public async Task HandleAsync_NewProfessional_IsAddedToAssessmentAsync()
+    {
+        // Arrange (GIVEN an assessment whose professionals are Ana)
+        var existing = MakeIntervention(1);
+        _assessmentRepository
+            .Setup(R => R.GetByIdWithInterventionsAsync(1))
+            .ReturnsAsync(MakeAssessmentWith(["ana-sub"], existing));
+        _mapper.Setup(M => M.Map(It.IsAny<UpdateInterventionDto>())).Returns(MakeIntervention(1));
+        SetupTransaction(MakeIntervention(1));
+        var command = new UpdateInterventionCommand(1, 1, MakeDto(Professional: "Luis Gómez", ProfessionalSub: "luis-sub"), null, null);
+
+        // Act (WHEN the intervention is reassigned to Luis)
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert (THEN Luis is added to the assessment)
+        _assessmentRepository.Verify(R => R.AddAssignedProfessionalAsync(1, "luis-sub"), Times.Once);
+    }
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-11")]
+    public async Task HandleAsync_ProfessionalAlreadyInAssessment_IsNotDuplicatedAsync()
+    {
+        // Arrange (GIVEN Ana and Luis are already in the assessment)
+        var existing = MakeIntervention(1);
+        _assessmentRepository
+            .Setup(R => R.GetByIdWithInterventionsAsync(1))
+            .ReturnsAsync(MakeAssessmentWith(["ana-sub", "luis-sub"], existing));
+        _mapper.Setup(M => M.Map(It.IsAny<UpdateInterventionDto>())).Returns(MakeIntervention(1));
+        SetupTransaction(MakeIntervention(1));
+        var command = new UpdateInterventionCommand(1, 1, MakeDto(Professional: "Luis Gómez", ProfessionalSub: "luis-sub"), null, null);
+
+        // Act (WHEN the intervention is reassigned to Luis)
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert (THEN the list is not touched again)
+        _assessmentRepository.Verify(R => R.AddAssignedProfessionalAsync(It.IsAny<int>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-12")]
+    public async Task HandleAsync_ReassignOneIntervention_LeavesOthersAndAssessmentUnchangedAsync()
+    {
+        // Arrange (GIVEN two interventions in one assessment)
+        var first = MakeIntervention(1);
+        var second = MakeIntervention(2);
+        _assessmentRepository
+            .Setup(R => R.GetByIdWithInterventionsAsync(1))
+            .ReturnsAsync(MakeAssessmentWith(["ana-sub"], first, second));
+        _mapper.Setup(M => M.Map(It.IsAny<UpdateInterventionDto>())).Returns(MakeIntervention(1));
+        SetupTransaction(MakeIntervention(1));
+        var command = new UpdateInterventionCommand(1, 1, MakeDto(Professional: "Luis Gómez", ProfessionalSub: "luis-sub"), null, null);
+
+        // Act (WHEN only the first is reassigned)
+        await _handler.Handle(command, CancellationToken.None);
+
+        // Assert (THEN only that intervention is updated and the assessment itself is not rewritten)
+        _assessmentRepository.Verify(R => R.UpdateInterventionAsync(1, It.IsAny<Intervention>()), Times.Once);
+        _assessmentRepository.Verify(R => R.UpdateInterventionAsync(2, It.IsAny<Intervention>()), Times.Never);
+        _assessmentRepository.Verify(R => R.UpdateAsync(It.IsAny<Assessment>()), Times.Never);
+    }
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-7")]
+    public async Task HandleAsync_ChangeOnlyProfessional_KeepsOtherFieldsAsync()
+    {
+        // Arrange (GIVEN a handler wired with the real mapper)
+        var handler = new UpdateInterventionCommandHandler(
+            _attachmentService.Object,
+            _attachmentRepository.Object,
+            _assessmentRepository.Object,
+            _unitOfWork.Object,
+            _userIdentityProvider.Object,
+            _logger.Object,
+            new UpdateInterventionMapper(),
+            _statusValidator.Object);
+        _assessmentRepository
+            .Setup(R => R.GetByIdWithInterventionsAsync(1))
+            .ReturnsAsync(MakeAssessmentWith(["ana-sub"], MakeIntervention(1)));
+        Intervention? sent = null;
+        _unitOfWork
+            .Setup(U => U.ExecuteInTransactionAsync(It.IsAny<Func<Task<Intervention>>>()))
+            .Returns<Func<Task<Intervention>>>(F => F());
+        _assessmentRepository
+            .Setup(R => R.UpdateInterventionAsync(It.IsAny<int>(), It.IsAny<Intervention>()))
+            .Callback<int, Intervention>((_, I) => sent = I)
+            .ReturnsAsync((int _, Intervention I) => I);
+        UpdateInterventionDto dto = MakeDto(Professional: "Luis Gómez", ProfessionalSub: "luis-sub", Comments: "First session");
+
+        // Act (WHEN only the professional changes)
+        await handler.Handle(new UpdateInterventionCommand(1, 1, dto, null, null), CancellationToken.None);
+
+        // Assert (THEN everything else matches what was sent)
+        Assert.NotNull(sent);
+        Assert.Equal("Luis Gómez", sent!.Professional);
+        Assert.Equal("activity", sent.Activity);
+        Assert.Equal("area", sent.Area);
+        Assert.Equal("First session", sent.Comments);
+        Assert.Equal(InterventionStatus.Remitted, sent.Status);
+        Assert.Equal(dto.StudentIds, sent.StudentIds);
+        Assert.Equal(dto.Attendance, sent.Attendance);
+    }
 }

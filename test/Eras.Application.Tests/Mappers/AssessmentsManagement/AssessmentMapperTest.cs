@@ -52,7 +52,7 @@ public class AssessmentMapperTest
             CreatedAtUtc = DateTime.UtcNow,
             CreatedBy = "user-1",
             Service = "Counselling",
-            AssignedProfessional = "professional-1",
+            AssignedProfessionals = ["professional-1"],
             StudentIds = new[] { 1, 2 },
             Diagnosis = "Diagnosis",
             Objective = "Objective",
@@ -75,7 +75,7 @@ public class AssessmentMapperTest
         Assert.Equal(source.CreatedAtUtc, result.CreatedAtUtc);
         Assert.Equal(source.CreatedBy, result.CreatedBy);
         Assert.Equal(source.Service, result.Service);
-        Assert.Equal(source.AssignedProfessional, result.AssignedProfessional);
+        Assert.Equal(source.AssignedProfessionals, result.AssignedProfessionals);
         Assert.Equal(source.StudentIds, result.StudentIds);
         Assert.Equal(source.Diagnosis, result.Diagnosis);
         Assert.Equal(source.Objective, result.Objective);

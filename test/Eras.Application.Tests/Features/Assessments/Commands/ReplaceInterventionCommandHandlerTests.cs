@@ -331,4 +331,24 @@ public sealed class ReplaceInterventionCommandHandlerTests
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
     }
+
+    [Fact]
+    public async Task Handle_Should_AddProfessionalToAssessment_WhenProfessionalSubProvidedAsync()
+    {
+        var old = MakeIntervention(1);
+        var created = MakeIntervention(5);
+        _assessmentRepository
+            .Setup(R => R.GetByIdWithInterventionsAsync(1))
+            .ReturnsAsync(MakeAssessment(old));
+        _mapper.Setup(M => M.Map(It.IsAny<UpdateInterventionDto>())).Returns(created);
+        SetupTransaction(created);
+        _attachmentRepository
+            .Setup(R => R.GetByEntityAsync(InterventionConstants.AttachmentEntityType, It.IsAny<int>()))
+            .ReturnsAsync(Array.Empty<Attachment>());
+        UpdateInterventionDto dto = MakeDto() with { Professional = "Luis Gómez", ProfessionalSub = "luis-sub" };
+
+        await _handler.Handle(new ReplaceInterventionCommand(1, 1, dto, null, null), CancellationToken.None);
+
+        _assessmentRepository.Verify(R => R.AddAssignedProfessionalAsync(1, "luis-sub"), Times.Once);
+    }
 }

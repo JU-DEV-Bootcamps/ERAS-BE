@@ -725,7 +725,7 @@ public class AssessmentRepositoryTest : RepositoryTestBase
         {
             CreatedAtUtc = DateTime.UtcNow,
             CreatedBy = "Any",
-            AssignedProfessional = "professional-sub",
+            AssignedProfessionals = ["professional-sub"],
             Service = "Service",
             StudentIds = [1],
             Status = AssessmentStatus.Remitted
@@ -1131,7 +1131,7 @@ public class AssessmentRepositoryTest : RepositoryTestBase
                 Service = "",
                 Status = AssessmentStatus.Remitted,
                 StudentIds = [1, 2],
-                AssignedProfessional = "bec8bcf9-9824-4524-952c-f4e728ca0daa"
+                AssignedProfessionals = ["bec8bcf9-9824-4524-952c-f4e728ca0daa"]
             },
             new() {
                  Id = 2,
@@ -1139,7 +1139,7 @@ public class AssessmentRepositoryTest : RepositoryTestBase
                 Service = "",
                 Status = AssessmentStatus.InProgress,
                 StudentIds = [5, 8],
-                AssignedProfessional = "1e9f0af2-e3e7-4069-8e14-764d7e7b7526"
+                AssignedProfessionals = ["1e9f0af2-e3e7-4069-8e14-764d7e7b7526"]
             },
             new() {
                  Id = 3,
@@ -1147,7 +1147,7 @@ public class AssessmentRepositoryTest : RepositoryTestBase
                 Service = "",
                 Status = AssessmentStatus.Remitted,
                 StudentIds = [10, 20],
-                AssignedProfessional = "bec8bcf9-9824-4524-952c-f4e728ca0daa"
+                AssignedProfessionals = ["bec8bcf9-9824-4524-952c-f4e728ca0daa"]
             },
         };
 
@@ -1172,7 +1172,7 @@ public class AssessmentRepositoryTest : RepositoryTestBase
                 Service = "",
                 Status = AssessmentStatus.Remitted,
                 StudentIds = [1, 2],
-                AssignedProfessional = "bec8bcf9-9824-4524-952c-f4e728ca0daa"
+                AssignedProfessionals = ["bec8bcf9-9824-4524-952c-f4e728ca0daa"]
             },
             new() {
                  Id = 3,
@@ -1180,7 +1180,7 @@ public class AssessmentRepositoryTest : RepositoryTestBase
                 Service = "",
                 Status = AssessmentStatus.Remitted,
                 StudentIds = [10, 20],
-                AssignedProfessional = "bec8bcf9-9824-4524-952c-f4e728ca0daa"
+                AssignedProfessionals = ["bec8bcf9-9824-4524-952c-f4e728ca0daa"]
             },
         };
 
@@ -1190,6 +1190,95 @@ public class AssessmentRepositoryTest : RepositoryTestBase
         IEnumerable<Assessment> result = await _repository.GetByAssignedProfessionalAsync("1e9f0af2-e3e7-4069-8e14-764d7e7b7526");
 
         Assert.Empty(result);
+    }
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-14")]
+    public async Task GetByAssignedProfessionalAsync_SingleLegacyProfessional_ReturnsAssessmentWithThatOneProfessionalAsync()
+    {
+        // Arrange (GIVEN an assessment that had one professional before the list existed)
+        var assessments = new List<Assessment>
+        {
+            new() {
+                Id = 1,
+                CreatedBy = "creator-sub",
+                Service = "",
+                Status = AssessmentStatus.Remitted,
+                StudentIds = [1],
+                AssignedProfessionals = ["ana-sub"]
+            },
+        };
+        Mock<DbSet<Assessment>> mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
+
+        // Act
+        IEnumerable<Assessment> result = await _repository.GetByAssignedProfessionalAsync("ana-sub");
+
+        // Assert (THEN visible to that professional, with exactly that professional)
+        Assessment found = Assert.Single(result);
+        Assert.Equal(["ana-sub"], found.AssignedProfessionals);
+    }
+
+    [Fact]
+    [Trait("Change", "635-allow-reassign-intervention-professional")]
+    [Trait("AC", "635-allow-reassign-intervention-professional/AC-13")]
+    public async Task GetByAssignedProfessionalAsync_ProfessionalInList_ReturnsAssessmentForEveryMemberAsync()
+    {
+        // Arrange (GIVEN an assessment whose list holds Ana and Luis)
+        var assessments = new List<Assessment>
+        {
+            new() {
+                Id = 1,
+                CreatedBy = "creator-sub",
+                Service = "",
+                Status = AssessmentStatus.InProgress,
+                StudentIds = [1],
+                AssignedProfessionals = ["ana-sub", "luis-sub"]
+            },
+        };
+        Mock<DbSet<Assessment>> mockSet = assessments.AsQueryable().BuildMockDbSet();
+        _mockContext.Setup(R => R.Set<Assessment>()).Returns(mockSet.Object);
+
+        // Act
+        IEnumerable<Assessment> forLuis = await _repository.GetByAssignedProfessionalAsync("luis-sub");
+        IEnumerable<Assessment> forAna = await _repository.GetByAssignedProfessionalAsync("ana-sub");
+
+        // Assert (THEN both see it)
+        Assert.Single(forLuis);
+        Assert.Single(forAna);
+    }
+    [Fact]
+    public async Task AddAssignedProfessionalAsync_NewProfessional_AppendsAndPersistsAsync()
+    {
+        using var context = CreateContext();
+        var assessment = new Assessment
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            AssignedProfessionals = ["ana-sub"],
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.Remitted
+        };
+        context.Set<Assessment>().Add(assessment);
+        await context.SaveChangesAsync();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        await repository.AddAssignedProfessionalAsync(assessment.Id, "luis-sub");
+        await repository.AddAssignedProfessionalAsync(assessment.Id, "luis-sub");
+
+        Assessment saved = await context.Set<Assessment>().AsNoTracking().SingleAsync(A => A.Id == assessment.Id);
+        Assert.Equal(["ana-sub", "luis-sub"], saved.AssignedProfessionals);
+    }
+
+    [Fact]
+    public async Task AddAssignedProfessionalAsync_UnknownAssessment_ThrowsKeyNotFoundAsync()
+    {
+        using var context = CreateContext();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => repository.AddAssignedProfessionalAsync(999, "luis-sub"));
     }
 }
 

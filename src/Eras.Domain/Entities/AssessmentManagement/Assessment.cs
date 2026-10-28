@@ -9,7 +9,10 @@ public sealed class Assessment : BaseEntity
     public required string CreatedBy { get; init; }
     public required string Service { get; init; }
 
-    public string? AssignedProfessional { get; init; }
+    /// <summary>
+    /// Keycloak subs of every professional working on the assessment.
+    /// </summary>
+    public string[] AssignedProfessionals { get; init; } = [];
 
     /// <summary>
     /// Supports one or more students, since Marcel mentioned possible group cases.

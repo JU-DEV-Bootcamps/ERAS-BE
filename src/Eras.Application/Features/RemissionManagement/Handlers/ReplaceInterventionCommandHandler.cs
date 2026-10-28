@@ -109,6 +109,12 @@ public sealed class ReplaceInterventionCommandHandler
                         created.Id, _userIdentityProvider.UserId,
                         CancellationToken);
 
+                if (!string.IsNullOrWhiteSpace(Request.NewIntervention.ProfessionalSub)
+                    && !assessment.AssignedProfessionals.Contains(Request.NewIntervention.ProfessionalSub))
+                {
+                    await _assessmentRepository.AddAssignedProfessionalAsync(
+                        Request.AssessmentId, Request.NewIntervention.ProfessionalSub);
+                }
                 return created;
             });
 
