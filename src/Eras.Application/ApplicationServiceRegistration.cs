@@ -4,7 +4,9 @@ using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.DTOs.Student;
+using Eras.Application.DTOs.UserManuals;
 using Eras.Application.Mappers.AssessmentManagement;
+using Eras.Application.Mappers.UserManuals;
 using Eras.Application.Validation;
 using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
@@ -57,6 +59,7 @@ namespace Eras.Application.Services
         {
 
             services.AddScoped<IMapper<StudentProfileDto, Student>, StudentProfileMapper>();
+            services.AddScoped<IMapper<UserManual, UserManualDto>, UserManualMapper>();
             services.AddScoped<IMapper<Student, StudentProfileDto>, StudentProfileToDtoMapper>();
 
             services.AddScoped<IMapper<InterventionPlanDto, InterventionPlan>, InterventionPlanMapper>();
