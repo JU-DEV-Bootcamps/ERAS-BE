@@ -64,6 +64,17 @@ namespace Eras.Application.Contracts.Persistence
             int PageSize,
             string? Search
         );
+
+        /// <summary>
+        /// Same as the overload without ids, limited to <paramref name="AllowedStudentIds"/> when it is not null
+        /// (an empty collection allows no student); the total counts only the allowed matches.
+        /// </summary>
+        Task<(IEnumerable<Student> Students, int TotalCount)> GetPagedAsyncWithJoins(
+            int Page,
+            int PageSize,
+            string? Search,
+            IReadOnlyCollection<int>? AllowedStudentIds
+        );
         Task<IEnumerable<Student>> GetByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken = default);
         Task<Dictionary<int, double>> GetAverageRiskByStudentIdsAsync(IEnumerable<int> StudentIds);
 

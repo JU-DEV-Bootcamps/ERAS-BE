@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Services;
 using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Application.Utils;
 using Eras.Domain.Entities;
@@ -14,16 +15,19 @@ namespace Eras.Application.Features.Students.Queries.GetAll
     {
         private readonly IStudentRepository _studentRepository;
         private readonly IStudentProfileRepository _profileRepository;
+        private readonly IStudentAccessService _accessService;
         private readonly ILogger<GetAllStudentsQueryHandler> _logger;
 
         public GetAllStudentsQueryHandler(
             IStudentRepository StudentRepository,
             IStudentProfileRepository ProfileRepository,
+            IStudentAccessService AccessService,
             ILogger<GetAllStudentsQueryHandler> Logger
         )
         {
             _studentRepository = StudentRepository;
             _profileRepository = ProfileRepository;
+            _accessService = AccessService;
             _logger = Logger;
         }
 
@@ -32,12 +36,16 @@ namespace Eras.Application.Features.Students.Queries.GetAll
             CancellationToken CancellationToken
         )
         {
+            // Resolved outside the try below so a forbidden user gets a 403 instead of an empty page (ADR-0004).
+            IReadOnlyCollection<int>? allowedStudentIds = await _accessService.GetVisibleStudentIdsAsync(CancellationToken);
+
             try
             {
                 var (students, totalCount) = await _studentRepository.GetPagedAsyncWithJoins(
                     Request.Query.Page,
                     Request.Query.PageSize,
-                    Request.Search
+                    Request.Search,
+                    allowedStudentIds
                 );
                 HashSet<int> studentsWithProfile = await _profileRepository
                     .GetStudentIdsWithProfileAsync(students.Select(Student => Student.Id).ToList());

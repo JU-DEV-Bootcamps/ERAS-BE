@@ -270,6 +270,61 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("feature_flag", (string)null);
                 });
 
+            modelBuilder.Entity("Eras.Domain.Entities.StudentInterventionEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedByName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("created_by_name");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
+
+                    b.Property<DateOnly>("EntryDate")
+                        .HasColumnType("date")
+                        .HasColumnName("entry_date");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("kind");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("student_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId")
+                        .HasDatabaseName("ix_student_intervention_entries_student_id");
+
+                    b.ToTable("student_intervention_entries", (string)null);
+                });
+
             modelBuilder.Entity("Eras.Domain.Entities.StudentProfile", b =>
                 {
                     b.Property<int>("Id")
@@ -1696,6 +1751,50 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                             b1.WithOwner()
                                 .HasForeignKey("FeatureFlagId");
+                        });
+
+                    b.Navigation("Audit")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Eras.Domain.Entities.StudentInterventionEntry", b =>
+                {
+                    b.HasOne("Eras.Infrastructure.Persistence.PostgreSQL.Entities.StudentEntity", null)
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
+                        {
+                            b1.Property<int>("StudentInterventionEntryId")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTime>("CreatedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("created_at");
+
+                            b1.Property<string>("CreatedBy")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("created_by");
+
+                            b1.Property<DateTime?>("ModifiedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("updated_at");
+
+                            b1.Property<string>("ModifiedBy")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("modified_by");
+
+                            b1.HasKey("StudentInterventionEntryId");
+
+                            b1.ToTable("student_intervention_entries");
+
+                            b1.WithOwner()
+                                .HasForeignKey("StudentInterventionEntryId");
                         });
 
                     b.Navigation("Audit")

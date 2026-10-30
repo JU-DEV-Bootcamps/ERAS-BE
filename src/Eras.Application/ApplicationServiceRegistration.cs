@@ -4,7 +4,9 @@ using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.DTOs.Student;
+using Eras.Application.DTOs.StudentInterventions;
 using Eras.Application.Mappers.AssessmentManagement;
+using Eras.Application.Mappers.StudentInterventions;
 using Eras.Application.Validation;
 using Eras.Domain.Entities;
 using Eras.Domain.Entities.AssessmentManagement;
@@ -46,6 +48,7 @@ namespace Eras.Application.Services
             Services.AddScoped<UserIdentityProvider>();
             Services.AddScoped<IUserIdentityProvider>(Sp => Sp.GetRequiredService<UserIdentityProvider>());
             Services.AddScoped<IInterventionAttachmentMigrationService, InterventionAttachmentMigrationService>();
+            Services.AddScoped<IStudentAccessService, StudentAccessService>();
             Services.AddScoped<IInterventionAttachmentMigrationStartupTask, InterventionAttachmentMigrationStartupTask>();
             Services.ConfigureMappers();
             Services.ConfigureValidators();
@@ -71,6 +74,7 @@ namespace Eras.Application.Services
             services.AddScoped<IMapper<AssessmentDto, Assessment>, AssessmentMapper>();
             services.AddScoped<IMapper<Assessment, AssessmentDto>, AssessmentToDtoMapper>();
             services.AddScoped<IMapper<UpdateInterventionDto, Intervention>, UpdateInterventionMapper>();
+            services.AddScoped<IMapper<StudentInterventionEntry, StudentInterventionDto>, StudentInterventionToDtoMapper>();
 
             return services;
         }
@@ -84,6 +88,7 @@ namespace Eras.Application.Services
             Services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
             Services.AddScoped<IValidator<ErasUser>, ErasUserValidator>();
             Services.AddScoped<IValidator<StudentRegistrationDto>, StudentRegistrationDtoValidator>();
+            Services.AddScoped<IValidator<SaveStudentInterventionDto>, SaveStudentInterventionDtoValidator>();
 
             return Services;
         }

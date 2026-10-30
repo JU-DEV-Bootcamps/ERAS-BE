@@ -32,7 +32,8 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/students")]
-[Authorize(Policy = ErasPolicies.AdminOrOfficer)]
+// Class policy is AnyErasRole; every action states its own policy (ADR-0004), a test enforces it.
+[Authorize(Policy = ErasPolicies.AnyErasRole)]
 public class StudentsController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {
     private const string GetStudentProfileRouteName = "GetStudentProfile";
@@ -41,6 +42,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     private readonly ILogger<StudentsController> _logger = Logger;
 
     [HttpPost]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     public async Task<IActionResult> ImportStudentsAsync([FromBody] StudentImportDto[] Students)
     {
         _logger.LogInformation("Importing {Count} students", Students?.Length ?? 0);
@@ -73,6 +75,8 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> GetAllAsync([FromQuery] Pagination Query, [FromQuery] string? Search = null)
     {
         PagedResult<GetAllStudentsQueryResponse> result = await _mediator.Send(new GetAllStudentsQuery(Query, Search));
@@ -80,6 +84,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("{Id}")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     public async Task<IActionResult> GetStudentDetailsByIdAsync([FromRoute] int Id)
     {
         var getStudentDetailsQuery = new GetStudentDetailsQuery()
@@ -99,6 +104,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
 
 
     [HttpGet("poll/{Uuid}")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetPreviewPollsAsync(
@@ -118,6 +124,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("average")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetAllAvgRiskByCohortAndPollAsync(
@@ -136,6 +143,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("polls/{Uuid}/sum")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     public async Task<IActionResult> GetPollRiskSumStudentsAsync([FromRoute] string Uuid, [FromQuery] int CohortId)
     {
         var getCohortStudentsRiskByPollQuery = new GetCohortStudentsRiskByPollQuery()
@@ -149,6 +157,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("polls/{Uuid}/top")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     public async Task<IActionResult> GetPollTopStudentsAsync(
         [FromRoute] string Uuid, [FromQuery] int CohortId, [FromQuery] bool LastVersion, [FromQuery] Pagination Query)
     {
@@ -165,6 +174,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("polls/{Uuid}/components/top")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     public async Task<IActionResult> GetComponentTopStudentsAsync(
         [FromRoute] string Uuid, [FromQuery] string ComponentName, [FromQuery] int CohortId, [FromQuery] bool LastVersion, [FromQuery] Pagination Query)
     {
@@ -182,6 +192,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("{Id}/polls/{InstanceId}/answers")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     public async Task<IActionResult> GetStudentAnswersByPollAsync(
         [FromRoute] int Id,
         [FromRoute] int InstanceId,
@@ -202,6 +213,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("light")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     public async Task<IActionResult> GetAllLightAsync()
     {
         var result = await _mediator.Send(new GetAllStudentsLightQuery());
@@ -209,6 +221,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpPost("manual")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(typeof(StudentRegistrationDto), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
@@ -219,6 +232,8 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpGet("{Id:int}/profile", Name = GetStudentProfileRouteName)]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(StudentRegistrationDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStudentProfileAsync([FromRoute] int Id)
@@ -228,6 +243,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpPut("{Id:int}/profile")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(typeof(StudentRegistrationDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -241,6 +257,7 @@ public class StudentsController(IMediator Mediator, ILogger<StudentsController> 
     }
 
     [HttpDelete("{Id:int}")]
+    [Authorize(Policy = ErasPolicies.AdminOrOfficer)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
