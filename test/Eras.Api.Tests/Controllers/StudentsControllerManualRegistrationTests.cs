@@ -6,6 +6,7 @@ using Eras.Application.Features.Students.Commands.CreateManualStudent;
 using Eras.Application.Features.Students.Commands.DeleteStudent;
 using Eras.Application.Features.Students.Commands.UpdateStudentProfile;
 using Eras.Application.Features.Students.Queries.GetStudentProfile;
+using Eras.Infrastructure.Authorization;
 
 using MediatR;
 
@@ -160,11 +161,13 @@ public class StudentsControllerManualRegistrationTests
     }
 
     [Fact]
-    public void Controller_IsRestrictedToAdminsAndOfficers()
+    public void Controller_RequiresAnyErasRoleAtClassLevel_AndEachActionRestrictsItself()
     {
+        // ADR-0004: the class lets every ERAS role in; who may call each action is declared (and tested) per action,
+        // see StudentsProfessionalAccessTests.
         AuthorizeAttribute? authorize = typeof(StudentsController).GetCustomAttribute<AuthorizeAttribute>();
 
         Assert.NotNull(authorize);
-        Assert.False(string.IsNullOrWhiteSpace(authorize!.Policy));
+        Assert.Equal(ErasPolicies.AnyErasRole, authorize!.Policy);
     }
 }

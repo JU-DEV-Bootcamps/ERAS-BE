@@ -1,4 +1,5 @@
 ﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Services;
 using Eras.Application.Features.Students.Queries.GetAll;
 using Eras.Application.Models.Response.Controllers.StudentsController;
 using Eras.Application.Utils;
@@ -15,6 +16,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
         private readonly Mock<IStudentRepository> _mockStudentRepository;
         private readonly Mock<IStudentProfileRepository> _mockProfileRepository;
         private readonly Mock<ILogger<GetAllStudentsQueryHandler>> _mockLogger;
+        private readonly Mock<IStudentAccessService> _mockAccess = new();
         private readonly GetAllStudentsQueryHandler _handler;
 
         public GetAllStudentsQueryTest()
@@ -26,7 +28,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
                 .Setup(Repo => Repo.GetStudentIdsWithProfileAsync(It.IsAny<IReadOnlyCollection<int>>()))
                 .ReturnsAsync([]);
             _handler = new GetAllStudentsQueryHandler(
-                _mockStudentRepository.Object, _mockProfileRepository.Object, _mockLogger.Object);
+                _mockStudentRepository.Object, _mockProfileRepository.Object, _mockAccess.Object, _mockLogger.Object);
         }
 
         [Fact]
@@ -38,7 +40,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
                 new() {Id = 2, Email = "manual"}
             };
             _mockStudentRepository
-                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
+                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<IReadOnlyCollection<int>?>()))
                 .ReturnsAsync((students, students.Count));
             _mockProfileRepository
                 .Setup(Repo => Repo.GetStudentIdsWithProfileAsync(It.IsAny<IReadOnlyCollection<int>>()))
@@ -62,7 +64,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
             };
 
             _mockStudentRepository
-                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
+                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<IReadOnlyCollection<int>?>()))
                 .ReturnsAsync((students, students.Count));
 
             PagedResult<GetAllStudentsQueryResponse> result = await _handler.Handle(query, CancellationToken.None);
@@ -80,7 +82,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
         {
             var students = new List<Student>() { new() { Id = 1, Name = "Jose" } };
             _mockStudentRepository
-                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), "jose"))
+                .Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), "jose", It.IsAny<IReadOnlyCollection<int>?>()))
                 .ReturnsAsync((students, 7));
 
             PagedResult<GetAllStudentsQueryResponse> result =
@@ -95,7 +97,7 @@ namespace Eras.Application.Tests.Features.Students.Queries
         {
             var query = new GetAllStudentsQuery(new Pagination());
 
-            _mockStudentRepository.Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>()))
+            _mockStudentRepository.Setup(Repo => Repo.GetPagedAsyncWithJoins(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), It.IsAny<IReadOnlyCollection<int>?>()))
                 .ThrowsAsync(new Exception("DB error."));
 
             PagedResult<GetAllStudentsQueryResponse> result = await _handler.Handle(query, CancellationToken.None);
