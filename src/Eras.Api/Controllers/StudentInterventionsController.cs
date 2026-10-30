@@ -12,7 +12,7 @@ namespace Eras.Api.Controllers;
 /// <summary>
 /// Risks identified and support received for one student. Every user with an ERAS role reads them;
 /// only an Administrator or a Professional changes them, and the handlers apply the ownership
-/// (a Professional changes only their own entries) and the student scope of ADR-0004.
+/// (a Professional changes only their own entries) and the student scope of ADR-0005.
 /// </summary>
 [ApiController]
 [Route("api/v1/students/{studentId:int}/interventions")]

@@ -163,7 +163,7 @@ public class StudentsControllerManualRegistrationTests
     [Fact]
     public void Controller_RequiresAnyErasRoleAtClassLevel_AndEachActionRestrictsItself()
     {
-        // ADR-0004: the class lets every ERAS role in; who may call each action is declared (and tested) per action,
+        // ADR-0005: the class lets every ERAS role in; who may call each action is declared (and tested) per action,
         // see StudentsProfessionalAccessTests.
         AuthorizeAttribute? authorize = typeof(StudentsController).GetCustomAttribute<AuthorizeAttribute>();
 

@@ -1,7 +1,7 @@
 namespace Eras.Application.Contracts.Services;
 
 /// <summary>
-/// Decides which students the current user may reach (ADR-0004): an Administrator or Officer reaches every
+/// Decides which students the current user may reach (ADR-0005): an Administrator or Officer reaches every
 /// student, a Professional only the students of the assessments they are assigned to, a Guest none.
 /// A violation is a <c>BussinessException</c> with status 403.
 /// </summary>

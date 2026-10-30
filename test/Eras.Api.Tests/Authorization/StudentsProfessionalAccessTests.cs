@@ -77,7 +77,7 @@ public class StudentsProfessionalAccessTests
     [Fact]
     public void EveryAction_DeclaresItsOwnPolicy_SoANewActionIsNeverOpenByOmission()
     {
-        // ADR-0004: the class policy is AnyErasRole, so each action must state who may call it.
+        // ADR-0005: the class policy is AnyErasRole, so each action must state who may call it.
         foreach (MethodInfo action in StudentActions())
         {
             AuthorizeAttribute? own = action.GetCustomAttributes<AuthorizeAttribute>(inherit: false).SingleOrDefault();

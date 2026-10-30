@@ -36,7 +36,7 @@ namespace Eras.Application.Features.Students.Queries.GetAll
             CancellationToken CancellationToken
         )
         {
-            // Resolved outside the try below so a forbidden user gets a 403 instead of an empty page (ADR-0004).
+            // Resolved outside the try below so a forbidden user gets a 403 instead of an empty page (ADR-0005).
             IReadOnlyCollection<int>? allowedStudentIds = await _accessService.GetVisibleStudentIdsAsync(CancellationToken);
 
             try

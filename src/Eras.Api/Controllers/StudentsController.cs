@@ -32,7 +32,7 @@ namespace Eras.Api.Controllers;
 
 [ApiController]
 [Route("api/v1/students")]
-// Class policy is AnyErasRole; every action states its own policy (ADR-0004), a test enforces it.
+// Class policy is AnyErasRole; every action states its own policy (ADR-0005), a test enforces it.
 [Authorize(Policy = ErasPolicies.AnyErasRole)]
 public class StudentsController(IMediator Mediator, ILogger<StudentsController> Logger) : ControllerBase
 {
