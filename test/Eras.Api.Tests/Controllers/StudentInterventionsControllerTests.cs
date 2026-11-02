@@ -1,3 +1,5 @@
+using System.Reflection;
+
 using Eras.Api.Controllers;
 using Eras.Application.DTOs.StudentInterventions;
 using Eras.Application.Features.StudentInterventions;
@@ -66,6 +68,25 @@ public class StudentInterventionsControllerTests
         CreatedAtActionResult created = Assert.IsType<CreatedAtActionResult>(result);
         Assert.Equal(201, created.StatusCode);
         Assert.Equal(10, Assert.IsType<StudentInterventionDto>(created.Value).Id);
+    }
+
+    [Fact]
+    public async Task CreateAsync_LocationPointsToAnActionMvcRegistersUnderThatNameAsync()
+    {
+        _mediator
+            .Setup(Mediator => Mediator.Send(It.IsAny<CreateStudentInterventionCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Dto());
+
+        CreatedAtActionResult created = Assert.IsType<CreatedAtActionResult>(
+            await _controller.CreateAsync(1, Body(), CancellationToken.None));
+
+        // MVC drops the "Async" suffix from action names, so the name used for the Location header
+        // must be pinned explicitly or the 201 is turned into "No route matches the supplied values".
+        string? registered = typeof(StudentInterventionsController)
+            .GetMethod(nameof(StudentInterventionsController.GetByStudentAsync))!
+            .GetCustomAttribute<ActionNameAttribute>()?.Name;
+        Assert.Equal(registered, created.ActionName);
+        Assert.Equal(1, created.RouteValues!["studentId"]);
     }
 
     [Fact]
