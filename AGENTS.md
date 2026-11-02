@@ -1,6 +1,6 @@
 # AGENTS.md — ERAS Backend (`ERAS-BE/`)
 
-Backend rules of ERAS. The shared rules (core principles §1.1, conventions §5, cross-cutting contracts §4.3, workflow §8, limits §9) live in the root `AGENTS.md` of the ERAS parent repository and apply in full here too. Section numbers in this file are the same as in the root file, so "`AGENTS.md` §6.1" means this file. A rule lives in exactly one file (ADR-0005 in `openspec/adr/` of the parent repository); Frontend rules are in the `AGENTS.md` of the frontend repository (`ERAS-FE`).
+Backend rules of ERAS. The shared rules (core principles §1.1, conventions §5, cross-cutting contracts §4.3, workflow §8, limits §9) live in the root `AGENTS.md` of the ERAS parent repository and apply in full here too. Section numbers in this file are the same as in the root file, so "`AGENTS.md` §6.1" means this file. A rule lives in exactly one file (ADR-0007 in `openspec/adr/` of the parent repository); Frontend rules are in the `AGENTS.md` of the frontend repository (`ERAS-FE`).
 
 Commands below are written from the parent repository root; when you are already inside `ERAS-BE/`, skip the `cd ERAS-BE` line.
 
