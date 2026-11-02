@@ -212,4 +212,56 @@ public class UpdateStudentProfileCommandHandlerTests
 
         Assert.Equal(400, error.StatusCode);
     }
+
+    [Fact]
+    [Trait("Change", "641-align-student-modal-fields")]
+    [Trait("AC", "641-align-student-modal-fields/AC-15")]
+    public async Task Handle_RequestWithoutProfileViewValues_KeepsTheStoredOnesAsync()
+    {
+        // Arrange (GIVEN): a stored profile with data the edit form does not send
+        _students.Setup(R => R.GetByIdAsync(7)).ReturnsAsync(ManualStudent());
+        StudentProfile stored = new()
+        {
+            Id = 1,
+            StudentId = 7,
+            FirstName = "Ana",
+            LastName = "Pérez",
+            IdPassportNumber = "AB-123456",
+            DateOfBirth = new DateOnly(2001, 5, 4),
+            City = "San José",
+            SisId = "S-3003",
+            Cgpa = 3.4m,
+            SapStatus = "Satisfactory",
+            IsCurrentCourseThirdAttempt = true,
+            PassedCoursesCount = 7,
+            FailedCoursesCount = 1,
+            CurrentCourses = [new StudentCurrentCourse { Name = "Algorithms", Group = "A", Section = "2" }],
+            IdentifiedRisks = ["Low attendance"],
+            SupportReceived = ["Tutoring"],
+            Audit = new AuditInfo { CreatedBy = "creator", CreatedAt = DateTime.UtcNow },
+        };
+        _profiles.Setup(R => R.GetByStudentIdAsync(7)).ReturnsAsync(stored);
+
+        // Act (WHEN): the mobile number is changed and the request carries only the form values
+        StudentRegistrationDto dto = StudentRegistrationTestData.ValidDto();
+        dto.DateOfBirth = new DateOnly(2001, 5, 4);
+        dto.City = "San José";
+        dto.MobileNumber = "+506 8888 0000";
+        await Run(dto);
+
+        // Assert (THEN / AND): the mobile number changes and every value that is not in the form stays
+        _profiles.Verify(R => R.UpdateAsync(It.Is<StudentProfile>(P =>
+            P.MobileNumber == "+506 8888 0000"
+            && P.DateOfBirth == new DateOnly(2001, 5, 4)
+            && P.City == "San José"
+            && P.SisId == "S-3003"
+            && P.Cgpa == 3.4m
+            && P.SapStatus == "Satisfactory"
+            && P.IsCurrentCourseThirdAttempt == true
+            && P.PassedCoursesCount == 7
+            && P.FailedCoursesCount == 1
+            && P.CurrentCourses != null && P.CurrentCourses.Count == 1 && P.CurrentCourses[0].Name == "Algorithms"
+            && P.IdentifiedRisks != null && P.IdentifiedRisks.Single() == "Low attendance"
+            && P.SupportReceived != null && P.SupportReceived.Single() == "Tutoring")), Times.Once);
+    }
 }

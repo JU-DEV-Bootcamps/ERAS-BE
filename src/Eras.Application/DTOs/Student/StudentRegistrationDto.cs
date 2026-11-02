@@ -35,6 +35,7 @@ public sealed class StudentRegistrationDto
     public string? PreviousInstitution { get; set; }
 
     // Student profile view: all optional, null means "not available".
+    /// <summary>In a response, the imported identifier of an imported student or the profile SIS ID of one registered by hand (ADR-0006).</summary>
     public string? SisId { get; set; }
     public decimal? Cgpa { get; set; }
     public string? SapStatus { get; set; }

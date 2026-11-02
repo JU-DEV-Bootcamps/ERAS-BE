@@ -17,6 +17,34 @@ public static class StudentRegistrationMapper
 
     public static void ApplyTo(this StudentRegistrationDto Dto, StudentProfile Profile)
     {
+        Dto.ApplyRegistrationFieldsTo(Profile);
+        Dto.ApplyProfileViewFieldsTo(Profile);
+    }
+
+    /// <summary>
+    /// Update of an existing profile: the form columns are applied as sent, while a profile-view value (SIS ID,
+    /// CGPA, SAP status, courses, risks and support) is applied only when the request carries one, so saving the
+    /// form never clears what it does not show.
+    /// </summary>
+    public static void ApplyUpdateTo(this StudentRegistrationDto Dto, StudentProfile Profile)
+    {
+        Dto.ApplyRegistrationFieldsTo(Profile);
+
+        StudentProfile incoming = new();
+        Dto.ApplyProfileViewFieldsTo(incoming);
+        Profile.SisId = incoming.SisId ?? Profile.SisId;
+        Profile.Cgpa = incoming.Cgpa ?? Profile.Cgpa;
+        Profile.SapStatus = incoming.SapStatus ?? Profile.SapStatus;
+        Profile.IsCurrentCourseThirdAttempt = incoming.IsCurrentCourseThirdAttempt ?? Profile.IsCurrentCourseThirdAttempt;
+        Profile.PassedCoursesCount = incoming.PassedCoursesCount ?? Profile.PassedCoursesCount;
+        Profile.FailedCoursesCount = incoming.FailedCoursesCount ?? Profile.FailedCoursesCount;
+        Profile.CurrentCourses = incoming.CurrentCourses ?? Profile.CurrentCourses;
+        Profile.IdentifiedRisks = incoming.IdentifiedRisks ?? Profile.IdentifiedRisks;
+        Profile.SupportReceived = incoming.SupportReceived ?? Profile.SupportReceived;
+    }
+
+    private static void ApplyRegistrationFieldsTo(this StudentRegistrationDto Dto, StudentProfile Profile)
+    {
         Profile.FirstName = Dto.FirstName.Trim();
         Profile.MiddleName = Clean(Dto.MiddleName);
         Profile.LastName = Dto.LastName.Trim();
@@ -36,6 +64,10 @@ public static class StudentRegistrationMapper
         Profile.FacultySchool = Clean(Dto.FacultySchool);
         Profile.StudyModality = Clean(Dto.StudyModality);
         Profile.PreviousInstitution = Clean(Dto.PreviousInstitution);
+    }
+
+    private static void ApplyProfileViewFieldsTo(this StudentRegistrationDto Dto, StudentProfile Profile)
+    {
         Profile.SisId = Clean(Dto.SisId);
         Profile.Cgpa = Dto.Cgpa;
         Profile.SapStatus = Clean(Dto.SapStatus);
@@ -82,7 +114,7 @@ public static class StudentRegistrationMapper
             FacultySchool = Profile.FacultySchool,
             StudyModality = Profile.StudyModality,
             PreviousInstitution = Profile.PreviousInstitution,
-            SisId = Profile.SisId,
+            SisId = ResolveSisId(Student, Profile),
             Cgpa = Profile.Cgpa,
             SapStatus = Profile.SapStatus,
             IsCurrentCourseThirdAttempt = Profile.IsCurrentCourseThirdAttempt,
@@ -100,6 +132,15 @@ public static class StudentRegistrationMapper
             SupportReceived = Profile.SupportReceived,
         };
     }
+
+    /// <summary>
+    /// SIS ID shown for a student: the identifier the import stored on an imported student, else the SIS ID of the
+    /// profile of a student registered by hand. The identifier ERAS generates is never returned (ADR-0006).
+    /// </summary>
+    public static string? ResolveSisId(Student Student, StudentProfile? Profile) =>
+        Student.IsImported
+            ? Clean(Student.Uuid)
+            : Clean(Profile?.SisId);
 
     public static string NormalizeIdPassport(string Value) => Value.Trim().ToUpperInvariant();
 

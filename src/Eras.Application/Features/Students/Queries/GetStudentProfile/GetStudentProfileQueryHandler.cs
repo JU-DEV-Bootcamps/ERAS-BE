@@ -37,6 +37,7 @@ public sealed class GetStudentProfileQueryHandler(
             FirstName = nameParts.ElementAtOrDefault(0) ?? string.Empty,
             LastName = nameParts.ElementAtOrDefault(1) ?? string.Empty,
             PrimaryEmail = student.Email,
+            SisId = StudentRegistrationMapper.ResolveSisId(student, null),
         };
     }
 }
