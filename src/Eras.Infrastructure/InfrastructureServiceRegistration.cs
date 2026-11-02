@@ -51,6 +51,9 @@ namespace Eras.Infrastructure
 
             Services.Configure<FileStorageSettings>(Configuration.GetSection("FileStorage"));
 
+            Services.Configure<UserManualsSettings>(Configuration.GetSection("UserManuals"));
+            Services.AddSingleton<IUserManualCatalog, UserManuals.FileSystemUserManualCatalog>();
+
             Services.AddSingleton<IFileEncryptionService, AesFileEncryptionService>();
 
             Services.AddSingleton<IFileStorageService>(sp =>

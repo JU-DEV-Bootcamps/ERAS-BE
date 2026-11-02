@@ -195,6 +195,25 @@ public class AttachmentServiceTest
     }
 
     [Fact]
+    [Trait("Change", "640-add-user-manuals-page")]
+    [Trait("AC", "640-add-user-manuals-page/AC-16")]
+    public async Task UploadAttachmentAsync_ManualsEntityType_ThrowsBadRequestAsync()
+    {
+        // Arrange (GIVEN) the generic attachment upload, with "Manuals" not on the entity type whitelist
+
+        // Act (WHEN) a file is uploaded with the entity type "Manuals"
+        var exception = await Assert.ThrowsAsync<BussinessException>(
+            () => _service.UploadAttachmentAsync("Manuals", 1, RealPdfStream(), "guide.pdf", CancellationToken.None));
+
+        // Assert (THEN / AND) the upload is rejected with 400 and nothing is stored
+        Assert.Equal(400, exception.StatusCode);
+        _mockRepository.Verify(X => X.AddAsync(It.IsAny<Attachment>()), Times.Never);
+        _mockFileStorage.Verify(
+            X => X.SaveAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [Fact]
     public async Task UploadAttachmentAsync_Should_ThrowBadRequest_When_ExtensionNotAllowedAsync()
     {
         // Act
