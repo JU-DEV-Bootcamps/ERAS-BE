@@ -19,9 +19,13 @@ namespace Eras.Api.Controllers;
 [Authorize(Policy = ErasPolicies.AnyErasRole)]
 public class StudentInterventionsController(IMediator Mediator) : ControllerBase
 {
+    // MVC drops the "Async" suffix from action names, so the Location header of the 201 needs the name pinned.
+    private const string GetByStudentActionName = "GetByStudent";
+
     private readonly IMediator _mediator = Mediator;
 
     [HttpGet]
+    [ActionName(GetByStudentActionName)]
     [ProducesResponseType(typeof(IReadOnlyList<StudentInterventionDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -45,7 +49,7 @@ public class StudentInterventionsController(IMediator Mediator) : ControllerBase
     {
         StudentInterventionDto created =
             await _mediator.Send(new CreateStudentInterventionCommand(studentId, entry), cancellationToken);
-        return CreatedAtAction(nameof(GetByStudentAsync), new { studentId }, created);
+        return CreatedAtAction(GetByStudentActionName, new { studentId }, created);
     }
 
     [HttpPut("{entryId:int}")]
