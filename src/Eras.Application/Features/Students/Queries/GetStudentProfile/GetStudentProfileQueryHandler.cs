@@ -1,4 +1,5 @@
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Mappers;
 using Eras.Domain.Entities;
@@ -11,7 +12,8 @@ namespace Eras.Application.Features.Students.Queries.GetStudentProfile;
 public sealed class GetStudentProfileQueryHandler(
     IStudentRepository StudentRepository,
     IStudentProfileRepository ProfileRepository,
-    IStudentCohortRepository StudentCohortRepository
+    IStudentCohortRepository StudentCohortRepository,
+    IStudentAccessService AccessService
 ) : IRequestHandler<GetStudentProfileQuery, StudentRegistrationDto>
 {
     public async Task<StudentRegistrationDto> Handle(
@@ -20,6 +22,7 @@ public sealed class GetStudentProfileQueryHandler(
     {
         Student student = await StudentRepository.GetByIdAsync(Request.StudentId)
             ?? throw new NotFoundException($"Student with ID {Request.StudentId} not found.");
+        await AccessService.EnsureCanAccessStudentAsync(student.Id, CancellationToken);
 
         int? cohortId = await StudentCohortRepository.GetCohortIdByStudentIdAsync(student.Id);
         StudentProfile? profile = await ProfileRepository.GetByStudentIdAsync(student.Id);

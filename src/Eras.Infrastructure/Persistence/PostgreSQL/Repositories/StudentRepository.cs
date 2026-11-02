@@ -307,14 +307,27 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Repositories
 
             return Entity;
         }
-        public async Task<(IEnumerable<Student> Students, int TotalCount)> GetPagedAsyncWithJoins(
+        public Task<(IEnumerable<Student> Students, int TotalCount)> GetPagedAsyncWithJoins(
             int Page,
             int PageSize,
             string? Search
+        ) => GetPagedAsyncWithJoins(Page, PageSize, Search, null);
+
+        public async Task<(IEnumerable<Student> Students, int TotalCount)> GetPagedAsyncWithJoins(
+            int Page,
+            int PageSize,
+            string? Search,
+            IReadOnlyCollection<int>? AllowedStudentIds
         )
         {
             string searchText = SearchTextNormalizer.Normalize(Search);
             IQueryable<StudentEntity> students = _context.Set<StudentEntity>().AsNoTracking();
+
+            if (AllowedStudentIds is not null)
+            {
+                List<int> allowedIds = AllowedStudentIds.ToList();
+                students = students.Where(Stu => allowedIds.Contains(Stu.Id));
+            }
 
             if (searchText.Length == 0)
             {

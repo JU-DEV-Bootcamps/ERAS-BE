@@ -15,6 +15,7 @@ public static class ErasPolicies
 {
     public const string AdminOnly = "RequireErasAdmin";
     public const string AdminOrOfficer = "RequireErasAdminOrOfficer";
+    public const string AdminOrProfessional = "RequireErasAdminOrProfessional";
     public const string AnyErasRole = "RequireAnyErasRole";
 
     public static void Configure(AuthorizationOptions Options, string RolesResource, KeycloakRoleNames? RoleNames = null)
@@ -28,6 +29,11 @@ public static class ErasPolicies
             Policy.RequireResourceRolesForClient(
                 RolesResource,
                 [names.Administrator, names.Officer]));
+
+        Options.AddPolicy(AdminOrProfessional, Policy =>
+            Policy.RequireResourceRolesForClient(
+                RolesResource,
+                [names.Administrator, names.Professional]));
 
         Options.AddPolicy(AnyErasRole, Policy =>
             Policy.RequireResourceRolesForClient(

@@ -31,6 +31,9 @@ public interface IAssessmentRepository : IBaseRepository<Assessment>
     Task<IEnumerable<Assessment>> GetByCreatorAsync(string creatorSub);
     Task<IEnumerable<Assessment>> GetByAssignedProfessionalAsync(string assignedProfessionalSub);
 
+    /// <summary>Distinct ids of the students of every assessment whose assigned professionals include the given Keycloak sub.</summary>
+    Task<IReadOnlyCollection<int>> GetStudentIdsByAssignedProfessionalAsync(string assignedProfessionalSub);
+
     /// <summary>
     /// Assessments created by or assigned to the user whose status is not <see cref="AssessmentStatus.Finalized"/>.
     /// </summary>

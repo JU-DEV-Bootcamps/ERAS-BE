@@ -200,6 +200,17 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
             .Include(A => A.Interventions)
             .Where(A => A.CreatedBy == creatorSub)
             .ToListAsync();
+    public async Task<IReadOnlyCollection<int>> GetStudentIdsByAssignedProfessionalAsync(string assignedProfessionalSub)
+    {
+        // StudentIds is an array column (ADR-0002): load the arrays and flatten them in memory.
+        List<int[]> studentIdArrays = await _context.Set<Assessment>()
+            .Where(A => A.AssignedProfessionals.Contains(assignedProfessionalSub))
+            .Select(A => A.StudentIds)
+            .ToListAsync();
+
+        return studentIdArrays.SelectMany(Ids => Ids).Distinct().ToList();
+    }
+
     public async Task<IEnumerable<Assessment>> GetByAssignedProfessionalAsync(string assignedProfessionalSub)
         => await _context.Set<Assessment>()
             .Include(A => A.Interventions)

@@ -1,5 +1,6 @@
 ﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.Student;
 using Eras.Application.Features.Students.Commands.DeleteStudent;
 using Eras.Application.Features.Students.Queries.GetStudentProfile;
@@ -103,7 +104,8 @@ public class GetStudentProfileQueryHandlerTests
     public GetStudentProfileQueryHandlerTests()
     {
         _studentCohorts.Setup(R => R.GetCohortIdByStudentIdAsync(7)).ReturnsAsync(3);
-        _handler = new GetStudentProfileQueryHandler(_students.Object, _profiles.Object, _studentCohorts.Object);
+        _handler = new GetStudentProfileQueryHandler(
+            _students.Object, _profiles.Object, _studentCohorts.Object, new Mock<IStudentAccessService>().Object);
     }
 
     private Task<StudentRegistrationDto> Run() =>
