@@ -576,6 +576,45 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("eras_users", (string)null);
                 });
 
+            modelBuilder.Entity("Eras.Domain.Entities.UserManagement.ProfessionalProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ErasUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("eras_user_id");
+
+                    b.Property<string>("Faculty")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("faculty");
+
+                    b.Property<string>("OfficeHours")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("office_hours");
+
+                    b.PrimitiveCollection<string[]>("SubjectsTaught")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("subjects_taught");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ErasUserId")
+                        .IsUnique()
+                        .HasDatabaseName("ux_professional_profiles_eras_user_id");
+
+                    b.ToTable("professional_profiles", (string)null);
+                });
+
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.AnswerEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -1881,6 +1920,87 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
 
                     b.Navigation("Audit")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Eras.Domain.Entities.UserManagement.ProfessionalProfile", b =>
+                {
+                    b.HasOne("Eras.Domain.Entities.UserManagement.ErasUser", null)
+                        .WithMany()
+                        .HasForeignKey("ErasUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.OwnsOne("Eras.Domain.Common.AuditInfo", "Audit", b1 =>
+                        {
+                            b1.Property<int>("ProfessionalProfileId")
+                                .HasColumnType("integer");
+
+                            b1.Property<DateTime>("CreatedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("created_at");
+
+                            b1.Property<string>("CreatedBy")
+                                .IsRequired()
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("created_by");
+
+                            b1.Property<DateTime?>("ModifiedAt")
+                                .HasColumnType("timestamp with time zone")
+                                .HasColumnName("updated_at");
+
+                            b1.Property<string>("ModifiedBy")
+                                .HasMaxLength(50)
+                                .HasColumnType("character varying(50)")
+                                .HasColumnName("modified_by");
+
+                            b1.HasKey("ProfessionalProfileId");
+
+                            b1.ToTable("professional_profiles");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfessionalProfileId");
+                        });
+
+                    b.OwnsMany("Eras.Domain.Entities.UserManagement.ProfessionalCourse", "Courses", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer")
+                                .HasColumnName("id");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<string>("Code")
+                                .IsRequired()
+                                .HasMaxLength(20)
+                                .HasColumnType("character varying(20)")
+                                .HasColumnName("code");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)")
+                                .HasColumnName("name");
+
+                            b1.Property<int>("professional_profile_id")
+                                .HasColumnType("integer");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("professional_profile_id");
+
+                            b1.ToTable("professional_courses", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("professional_profile_id")
+                                .HasConstraintName("FK_professional_courses_professional_profile");
+                        });
+
+                    b.Navigation("Audit")
+                        .IsRequired();
+
+                    b.Navigation("Courses");
                 });
 
             modelBuilder.Entity("Eras.Infrastructure.Persistence.PostgreSQL.Entities.AnswerEntity", b =>

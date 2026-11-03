@@ -19,3 +19,9 @@ public sealed record GetErasUsersByRoleQuery(string? Role = null) : IRequest<IEn
 /// resolution order.
 /// </summary>
 public sealed record GetMyProfileQuery(string? Sub, string Email) : IRequest<MyProfileDTO>;
+
+/// <summary>
+/// Returns the caller's professional profile, resolved the same way as GetMyProfileQuery.
+/// Position comes from the user record; a profile never saved reads as empty values.
+/// </summary>
+public sealed record GetMyProfessionalProfileQuery(string? Sub, string Email) : IRequest<ProfessionalProfileDTO>;

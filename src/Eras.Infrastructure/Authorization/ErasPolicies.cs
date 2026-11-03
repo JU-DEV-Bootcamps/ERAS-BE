@@ -18,6 +18,12 @@ public static class ErasPolicies
     public const string AdminOrProfessional = "RequireErasAdminOrProfessional";
     public const string AnyErasRole = "RequireAnyErasRole";
 
+    /// <summary>
+    /// Professional only, the Administrator included among the denied roles. Used by the professional
+    /// profile endpoints (ADR-0006), which is the one exception to "Administrator passes every check".
+    /// </summary>
+    public const string ProfessionalOnly = "RequireErasProfessional";
+
     public static void Configure(AuthorizationOptions Options, string RolesResource, KeycloakRoleNames? RoleNames = null)
     {
         var names = RoleNames ?? new KeycloakRoleNames();
@@ -34,6 +40,11 @@ public static class ErasPolicies
             Policy.RequireResourceRolesForClient(
                 RolesResource,
                 [names.Administrator, names.Professional]));
+
+        Options.AddPolicy(ProfessionalOnly, Policy =>
+            Policy.RequireResourceRolesForClient(
+                RolesResource,
+                [names.Professional]));
 
         Options.AddPolicy(AnyErasRole, Policy =>
             Policy.RequireResourceRolesForClient(
