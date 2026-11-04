@@ -82,7 +82,7 @@ public sealed class UpdateStudentProfileCommandHandler(
             }
             else
             {
-                dto.ApplyTo(existing);
+                dto.ApplyUpdateTo(existing);
                 existing.Audit.ModifiedBy = actor;
                 existing.Audit.ModifiedAt = DateTime.UtcNow;
                 saved = await ProfileRepository.UpdateAsync(existing);
