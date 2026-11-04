@@ -2,7 +2,9 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.DTOs.UsersManagement;
 using Eras.Application.Features.ErasUsers;
+using Eras.Application.Features.ErasUsers.Handlers.CommandHandlers;
 using Eras.Application.Features.ErasUsers.Handlers.QueryHandlers;
+using Eras.Application.Features.ErasUsers.Models;
 using Eras.Domain.Common;
 using Eras.Domain.Entities.UserManagement;
 using Eras.Error.Bussiness;
@@ -121,5 +123,54 @@ public class GetMyProfileQueryHandlerTests
         Assert.Equal(0, result.ActiveInterventionsCount);
         _assessmentRepositoryMock.Verify(R => R.CountActiveAssessmentsForUserAsync(It.IsAny<string>()), Times.Never);
         _assessmentRepositoryMock.Verify(R => R.CountActiveInterventionsForUserAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    [Fact]
+    [Trait("Change", "603-persist-professional-profile")]
+    [Trait("AC", "603-persist-professional-profile/AC-18")]
+    public async Task HandleAsync_AfterProfessionalUpdate_ReportsSameActiveInterventionsAsync()
+    {
+        // Arrange (GIVEN) an ERAS Professional who has 2 active interventions they created
+        ErasUserDTO professional = CreateProfile();
+        professional.Role = ErasRole.Professional.Label;
+        professional.Position = "Dean";
+        _repositoryMock.Setup(R => R.GetErasUserBySubAsync("sub-123")).ReturnsAsync(professional);
+        _repositoryMock.Setup(R => R.UpdateAsync(It.IsAny<ErasUser>())).ReturnsAsync((ErasUser Entity) => Entity);
+        _assessmentRepositoryMock.Setup(R => R.CountActiveInterventionsForUserAsync("sub-123")).ReturnsAsync(2);
+
+        var profilesMock = new Mock<IProfessionalProfileRepository>();
+        profilesMock.Setup(R => R.GetByErasUserIdAsync(It.IsAny<int>())).ReturnsAsync((ProfessionalProfile?)null);
+        profilesMock.Setup(R => R.SaveAsync(It.IsAny<ProfessionalProfile>())).ReturnsAsync((ProfessionalProfile Profile) => Profile);
+        var unitOfWorkMock = new Mock<IUnitOfWork>();
+        unitOfWorkMock
+            .Setup(U => U.ExecuteInTransactionAsync(It.IsAny<Func<Task<ProfessionalProfileDTO>>>()))
+            .Returns((Func<Task<ProfessionalProfileDTO>> Work) => Work());
+        var updateHandler = new UpdateMyProfessionalProfileCommandHandler(
+            _repositoryMock.Object,
+            profilesMock.Object,
+            new ProfessionalProfileValidator(),
+            new ErasUserValidator(),
+            unitOfWorkMock.Object);
+
+        var before = await _handler.Handle(new GetMyProfileQuery("sub-123", "user@test.com"), CancellationToken.None);
+
+        // Act (WHEN) they submit a valid professional profile update
+        var update = new UpdateMyProfessionalProfileCommand(
+            "sub-123",
+            "user@test.com",
+            new UpdateProfessionalProfileRequest
+            {
+                Position = "Dean",
+                Faculty = "Science",
+                OfficeHours = "Tue 14:00-16:00",
+                SubjectsTaught = [],
+                Courses = [],
+            });
+        await updateHandler.Handle(update, CancellationToken.None);
+        var after = await _handler.Handle(new GetMyProfileQuery("sub-123", "user@test.com"), CancellationToken.None);
+
+        // Assert (THEN) the general profile still reports 2 active interventions, before and after the update
+        Assert.Equal(2, before.ActiveInterventionsCount);
+        Assert.Equal(2, after.ActiveInterventionsCount);
     }
 }
