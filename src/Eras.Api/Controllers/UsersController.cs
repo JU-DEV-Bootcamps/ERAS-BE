@@ -133,7 +133,7 @@ public class UsersController(
 
     /// <summary>
     /// Returns the authenticated ERAS Professional's own professional profile. Only the Professional
-    /// role may call it (ErasPolicies.ProfessionalOnly, ADR-0006); other roles get 403.
+    /// role may call it (ErasPolicies.ProfessionalOnly, ADR-0009); other roles get 403.
     /// </summary>
     [HttpGet("me/professional-profile")]
     [Authorize(Policy = ErasPolicies.ProfessionalOnly)]
@@ -155,7 +155,7 @@ public class UsersController(
 
     /// <summary>
     /// Saves the authenticated ERAS Professional's own professional profile as a whole, position included.
-    /// Only the Professional role may call it (ErasPolicies.ProfessionalOnly, ADR-0006); other roles get 403.
+    /// Only the Professional role may call it (ErasPolicies.ProfessionalOnly, ADR-0009); other roles get 403.
     /// </summary>
     [HttpPut("me/professional-profile")]
     [Authorize(Policy = ErasPolicies.ProfessionalOnly)]

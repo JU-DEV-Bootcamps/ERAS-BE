@@ -20,7 +20,7 @@ public static class ErasPolicies
 
     /// <summary>
     /// Professional only, the Administrator included among the denied roles. Used by the professional
-    /// profile endpoints (ADR-0006), which is the one exception to "Administrator passes every check".
+    /// profile endpoints (ADR-0009), which is the one exception to "Administrator passes every check".
     /// </summary>
     public const string ProfessionalOnly = "RequireErasProfessional";
 

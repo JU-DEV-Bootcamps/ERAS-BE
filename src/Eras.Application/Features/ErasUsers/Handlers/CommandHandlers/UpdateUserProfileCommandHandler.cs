@@ -31,7 +31,7 @@ public sealed class UpdateUserProfileCommandHandler(
         dto.EmployeeId = request.EmployeeId;
         dto.Department = request.Department;
         dto.Phone = request.Phone;
-        // A professional's position is owned by the professional profile endpoint (ADR-0006 scope, design D4).
+        // A professional's position is owned by the professional profile endpoint (ADR-0009 scope, design D4).
         if (dto.Role != ErasRole.Professional.Label)
             dto.Position = request.Position;
         dto.About = request.About;
