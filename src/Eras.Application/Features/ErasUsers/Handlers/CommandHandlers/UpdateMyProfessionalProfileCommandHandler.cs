@@ -54,8 +54,16 @@ public sealed class UpdateMyProfessionalProfileCommandHandler(
         user.Audit.ModifiedBy = "System";
 
         // Both entities are validated before anything is written, so a rejected update changes nothing.
-        await ValidationHelper.ValidateAndThrowAsync(_profileValidator, profile, cancellationToken);
-        await ValidationHelper.ValidateAndThrowAsync(_userValidator, user, cancellationToken);
+        try
+        {
+            await ValidationHelper.ValidateAndThrowAsync(_profileValidator, profile, cancellationToken);
+            await ValidationHelper.ValidateAndThrowAsync(_userValidator, user, cancellationToken);
+        }
+        catch (ValidationException Ex)
+        {
+            // A validation failure is a client error: 400 with the messages that name the fields.
+            throw new BussinessException(string.Join(" ", Ex.Errors.Select(Failure => Failure.ErrorMessage)), 400);
+        }
 
         return await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {

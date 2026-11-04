@@ -5,8 +5,7 @@ using Eras.Application.Features.ErasUsers.Handlers.CommandHandlers;
 using Eras.Application.Features.ErasUsers.Models;
 using Eras.Domain.Common;
 using Eras.Domain.Entities.UserManagement;
-
-using FluentValidation;
+using Eras.Error.Bussiness;
 
 using Moq;
 
@@ -79,9 +78,10 @@ public class UpdateMyProfessionalProfileCommandHandlerTests
         // Act (WHEN) they submit an update where faculty is empty
         var act = () => _handler.Handle(command, CancellationToken.None);
 
-        // Assert (THEN) a validation error names faculty, and nothing is saved (AND)
-        ValidationException error = await Assert.ThrowsAsync<ValidationException>(act);
-        Assert.Contains(error.Errors, Failure => Failure.PropertyName == "Faculty");
+        // Assert (THEN) the API answers 400 with a message that names faculty, and nothing is saved (AND)
+        BussinessException error = await Assert.ThrowsAsync<BussinessException>(act);
+        Assert.Equal(400, error.StatusCode);
+        Assert.Contains("Faculty", error.FriendlyMessage);
         _profilesMock.Verify(R => R.SaveAsync(It.IsAny<ProfessionalProfile>()), Times.Never);
         _usersMock.Verify(R => R.UpdateAsync(It.IsAny<ErasUser>()), Times.Never);
     }
@@ -232,9 +232,10 @@ public class UpdateMyProfessionalProfileCommandHandlerTests
         // Act (WHEN) they submit a course whose name is empty
         var act = () => _handler.Handle(command, CancellationToken.None);
 
-        // Assert (THEN) a validation error names the courses field, and nothing is saved (AND)
-        ValidationException error = await Assert.ThrowsAsync<ValidationException>(act);
-        Assert.Contains(error.Errors, Failure => Failure.PropertyName.StartsWith("Courses", StringComparison.Ordinal));
+        // Assert (THEN) the API answers 400 with a message that names the course name, and nothing is saved (AND)
+        BussinessException error = await Assert.ThrowsAsync<BussinessException>(act);
+        Assert.Equal(400, error.StatusCode);
+        Assert.Contains("Course name", error.FriendlyMessage);
         _profilesMock.Verify(R => R.SaveAsync(It.IsAny<ProfessionalProfile>()), Times.Never);
     }
 }
