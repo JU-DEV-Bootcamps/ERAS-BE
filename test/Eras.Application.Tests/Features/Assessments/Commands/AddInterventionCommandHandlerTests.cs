@@ -1,4 +1,5 @@
-﻿
+
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
@@ -25,6 +26,8 @@ public class AddInterventionCommandHandlerTests
     private readonly Mock<IAttachmentService> _mockAttachmentService;
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
     private readonly Mock<IUserIdentityProvider> _mockUserIdentityProvider;
+    private readonly Mock<ICurrentUserService> _mockCurrentUser;
+    private readonly Mock<IInterventionActivityRepository> _mockActivityRepository;
     private readonly AddInterventionCommandHandler _handler;
 
     public AddInterventionCommandHandlerTests()
@@ -36,6 +39,10 @@ public class AddInterventionCommandHandlerTests
         _mockUnitOfWork = new Mock<IUnitOfWork>();
         _mockUserIdentityProvider = new Mock<IUserIdentityProvider>();
         _mockUserIdentityProvider.Setup(X => X.UserId).Returns("user-1");
+        _mockCurrentUser = new Mock<ICurrentUserService>();
+        _mockCurrentUser.Setup(X => X.Sub).Returns("user-1");
+        _mockCurrentUser.Setup(X => X.Name).Returns("Ana Pérez");
+        _mockActivityRepository = new Mock<IInterventionActivityRepository>();
 
         // Participate in the "transaction" by simply invoking the passed work, mirroring
         // IUnitOfWork's real join-ambient-transaction behavior for these unit tests.
@@ -49,7 +56,48 @@ public class AddInterventionCommandHandlerTests
             _mockGroupMapper.Object,
             _mockAttachmentService.Object,
             _mockUnitOfWork.Object,
-            _mockUserIdentityProvider.Object);
+            _mockUserIdentityProvider.Object,
+            _mockCurrentUser.Object,
+            _mockActivityRepository.Object);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-1")]
+    public async Task HandleAsync_NewIntervention_RecordsCreatedEventAsync()
+    {
+        // Arrange: an ERAS Professional named "Ana Pérez" creates an intervention
+        var dto = new IndividualInterventionDto
+        {
+            DateUtc = DateTime.UtcNow,
+            Status = InterventionStatus.Remitted,
+            StudentIds = [1],
+            Activity = "Interview"
+        };
+        var mapped = new IndividualIntervention { DateUtc = dto.DateUtc, Status = dto.Status, StudentIds = dto.StudentIds };
+        var persisted = new IndividualIntervention { Id = 10, DateUtc = dto.DateUtc, Status = dto.Status, StudentIds = dto.StudentIds };
+        var assessment = new Assessment { Id = 1, CreatedBy = "", Service = "", Status = AssessmentStatus.Remitted, StudentIds = [1] };
+
+        _mockRepository.Setup(r => r.GetByIdWithInterventionsAsync(1)).ReturnsAsync(assessment);
+        _mockIndividualMapper.Setup(m => m.Map(dto)).Returns(mapped);
+        _mockRepository.Setup(r => r.AddInterventionAsync(1, mapped)).ReturnsAsync(persisted);
+
+        List<InterventionActivity> recorded = new();
+        _mockActivityRepository
+            .Setup(r => r.AddRangeAsync(It.IsAny<IReadOnlyCollection<InterventionActivity>>(), It.IsAny<CancellationToken>()))
+            .Callback<IReadOnlyCollection<InterventionActivity>, CancellationToken>((Items, _) => recorded.AddRange(Items))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _handler.Handle(new AddInterventionCommand(1, dto), CancellationToken.None);
+
+        // Assert: exactly one "Created" event with the user name and a UTC time
+        InterventionActivity activity = Assert.Single(recorded);
+        Assert.Equal(InterventionActivityType.Created, activity.Type);
+        Assert.Equal(10, activity.InterventionId);
+        Assert.Equal("Ana Pérez", activity.ActorName);
+        Assert.Equal("user-1", activity.ActorSub);
+        Assert.Equal(DateTimeKind.Utc, activity.OccurredAtUtc.Kind);
     }
 
     [Fact]

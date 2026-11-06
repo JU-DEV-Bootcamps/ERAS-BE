@@ -1,4 +1,5 @@
-﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AssessmentManagement;
@@ -26,6 +27,9 @@ public sealed class UpdateInterventionCommandHandlerTests
     private readonly Mock<IAssessmentRepository> _assessmentRepository;
     private readonly Mock<IUnitOfWork> _unitOfWork;
     private readonly Mock<IUserIdentityProvider> _userIdentityProvider;
+    private readonly Mock<ICurrentUserService> _currentUser;
+    private readonly Mock<IInterventionActivityRepository> _activityRepository;
+    private readonly List<InterventionActivity> _recordedActivities = new();
     private readonly Mock<ILogger<UpdateInterventionCommandHandler>> _logger;
     private readonly Mock<IMapper<UpdateInterventionDto, Intervention>> _mapper;
     private readonly Mock<IValidator<StatusTransitionRequest<InterventionStatus>>> _statusValidator;
@@ -39,6 +43,14 @@ public sealed class UpdateInterventionCommandHandlerTests
         _assessmentRepository = new Mock<IAssessmentRepository>();
         _unitOfWork = new Mock<IUnitOfWork>();
         _userIdentityProvider = new Mock<IUserIdentityProvider>();
+        _currentUser = new Mock<ICurrentUserService>();
+        _currentUser.Setup(U => U.Sub).Returns("user-1");
+        _currentUser.Setup(U => U.Name).Returns("Luis Gómez");
+        _activityRepository = new Mock<IInterventionActivityRepository>();
+        _activityRepository
+            .Setup(R => R.AddRangeAsync(It.IsAny<IReadOnlyCollection<InterventionActivity>>(), It.IsAny<CancellationToken>()))
+            .Callback<IReadOnlyCollection<InterventionActivity>, CancellationToken>((Items, _) => _recordedActivities.AddRange(Items))
+            .Returns(Task.CompletedTask);
         _logger = new Mock<ILogger<UpdateInterventionCommandHandler>>();
         _mapper = new Mock<IMapper<UpdateInterventionDto, Intervention>>();
         _statusValidator = new Mock<IValidator<StatusTransitionRequest<InterventionStatus>>>();
@@ -53,6 +65,8 @@ public sealed class UpdateInterventionCommandHandlerTests
             _assessmentRepository.Object,
             _unitOfWork.Object,
             _userIdentityProvider.Object,
+            _currentUser.Object,
+            _activityRepository.Object,
             _logger.Object,
             _mapper.Object,
             _statusValidator.Object
@@ -82,13 +96,48 @@ public sealed class UpdateInterventionCommandHandlerTests
         Id: null,
         ProfessionalSub: ProfessionalSub);
 
-    private static Intervention MakeIntervention(int Id, InterventionStatus Status = InterventionStatus.Remitted) => new()
+    private static Intervention MakeIntervention(
+        int Id, InterventionStatus Status = InterventionStatus.Remitted, string? Comments = null) => new()
+        {
+            Id = Id,
+            DateUtc = DateTime.UtcNow,
+            StudentIds = Array.Empty<int>(),
+            Status = Status,
+            Comments = Comments
+        };
+
+    /// <summary>
+    /// Saves intervention 1 and mirrors the real repository, which mutates the tracked entity:
+    /// the handler must read the previous values before saving.
+    /// </summary>
+    private async Task SaveAsync(Intervention Existing, UpdateInterventionDto Dto)
     {
-        Id = Id,
-        DateUtc = DateTime.UtcNow,
-        StudentIds = Array.Empty<int>(),
-        Status = Status
-    };
+        _assessmentRepository
+            .Setup(R => R.GetByIdWithInterventionsAsync(1))
+            .ReturnsAsync(MakeAssessment(Existing));
+        _mapper
+            .Setup(M => M.Map(Dto))
+            .Returns(new IndividualIntervention
+            {
+                DateUtc = Dto.DateUtc,
+                StudentIds = Array.Empty<int>(),
+                Status = Dto.Status,
+                Comments = Dto.Comments
+            });
+        _unitOfWork
+            .Setup(U => U.ExecuteInTransactionAsync(It.IsAny<Func<Task<Intervention>>>()))
+            .Returns<Func<Task<Intervention>>>(F => F());
+        _assessmentRepository
+            .Setup(R => R.UpdateInterventionAsync(1, It.IsAny<Intervention>()))
+            .ReturnsAsync((int _, Intervention Incoming) =>
+            {
+                Existing.Status = Incoming.Status;
+                Existing.Comments = Incoming.Comments;
+                return Existing;
+            });
+
+        await _handler.Handle(new UpdateInterventionCommand(1, 1, Dto, null, null), CancellationToken.None);
+    }
 
     private static Assessment MakeAssessment(params Intervention[] Interventions) => MakeAssessmentWith([], Interventions);
 
@@ -120,6 +169,100 @@ public sealed class UpdateInterventionCommandHandlerTests
         _assessmentRepository
             .Setup(R => R.UpdateInterventionAsync(It.IsAny<int>(), It.IsAny<Intervention>()))
             .ReturnsAsync(Returns);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-3")]
+    public async Task HandleAsync_CommentAdded_RecordsCommentAddedEventAsync()
+    {
+        // Arrange: an intervention with no comments
+        Intervention existing = MakeIntervention(1);
+
+        // Act: the user saves the comments "First session done"
+        await SaveAsync(existing, MakeDto(Comments: "First session done"));
+
+        // Assert: one "Comment added" event with the user name
+        InterventionActivity activity = Assert.Single(_recordedActivities);
+        Assert.Equal(InterventionActivityType.CommentAdded, activity.Type);
+        Assert.Equal(1, activity.InterventionId);
+        Assert.Equal("Luis Gómez", activity.ActorName);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-4")]
+    public async Task HandleAsync_StatusChanged_RecordsPreviousAndNewStatusAsync()
+    {
+        // Arrange: an intervention with status Remitted
+        Intervention existing = MakeIntervention(1, InterventionStatus.Remitted);
+
+        // Act: the user changes the status to InProgress, then to Finalized
+        await SaveAsync(existing, MakeDto(InterventionStatus.InProgress));
+        await SaveAsync(existing, MakeDto(InterventionStatus.Finalized));
+
+        // Assert: two status events with the previous and the new value
+        Assert.Equal(2, _recordedActivities.Count);
+        Assert.All(_recordedActivities, A => Assert.Equal(InterventionActivityType.StatusChanged, A.Type));
+        Assert.Equal(InterventionStatus.Remitted, _recordedActivities[0].PreviousStatus);
+        Assert.Equal(InterventionStatus.InProgress, _recordedActivities[0].NewStatus);
+        Assert.Equal(InterventionStatus.InProgress, _recordedActivities[1].PreviousStatus);
+        Assert.Equal(InterventionStatus.Finalized, _recordedActivities[1].NewStatus);
+        Assert.Equal("Luis Gómez", _recordedActivities[0].ActorName);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-5")]
+    public async Task HandleAsync_NoTrackedChange_RecordsNoEventAsync()
+    {
+        // Arrange: status Remitted and comments "First session done"
+        Intervention existing = MakeIntervention(1, InterventionStatus.Remitted, "First session done");
+
+        // Act: the user saves keeping the same status and comments
+        await SaveAsync(existing, MakeDto(InterventionStatus.Remitted, Comments: "First session done"));
+
+        // Assert: no event is recorded
+        Assert.Empty(_recordedActivities);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-6")]
+    public async Task HandleAsync_RejectedStatusTransition_RecordsNoEventAsync()
+    {
+        // Arrange: a Finalized intervention and a validator that rejects the transition
+        Intervention existing = MakeIntervention(1, InterventionStatus.Finalized);
+        _assessmentRepository.Setup(R => R.GetByIdWithInterventionsAsync(1)).ReturnsAsync(MakeAssessment(existing));
+        _statusValidator
+            .Setup(V => V.ValidateAsync(It.IsAny<StatusTransitionRequest<InterventionStatus>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ValidationResult([new ValidationFailure("Status", "Finalized is final")]));
+
+        // Act
+        Func<Task> act = () => _handler.Handle(
+            new UpdateInterventionCommand(1, 1, MakeDto(InterventionStatus.InProgress), null, null), CancellationToken.None);
+
+        // Assert: the existing rejection happens, the status stays and nothing is recorded
+        await Assert.ThrowsAsync<OperationCanceledException>(act);
+        Assert.Equal(InterventionStatus.Finalized, existing.Status);
+        Assert.Empty(_recordedActivities);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-19")]
+    public async Task HandleAsync_CommentChangedThenCleared_RecordsOnlyTheChangeAsync()
+    {
+        // Arrange: an intervention with the comments "First session done"
+        Intervention existing = MakeIntervention(1, InterventionStatus.Remitted, "First session done");
+
+        // Act: the user changes the comments, then clears them
+        await SaveAsync(existing, MakeDto(Comments: "Second session done"));
+        await SaveAsync(existing, MakeDto(Comments: null));
+
+        // Assert: only the change is recorded
+        InterventionActivity activity = Assert.Single(_recordedActivities);
+        Assert.Equal(InterventionActivityType.CommentAdded, activity.Type);
     }
 
     [Fact]
@@ -367,6 +510,8 @@ public sealed class UpdateInterventionCommandHandlerTests
             _assessmentRepository.Object,
             _unitOfWork.Object,
             _userIdentityProvider.Object,
+            _currentUser.Object,
+            _activityRepository.Object,
             _logger.Object,
             new UpdateInterventionMapper(),
             _statusValidator.Object);

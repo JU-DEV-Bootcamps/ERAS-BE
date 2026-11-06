@@ -53,7 +53,10 @@ internal static class ControllerPolicyEvaluator
 
         foreach (AuthorizeAttribute attribute in attributes)
         {
-            AuthorizationResult result = await service.AuthorizeAsync(user, attribute.Policy!);
+            // A plain [Authorize] (no policy) only requires an authenticated user, which the test principal is.
+            if (attribute.Policy is null) continue;
+
+            AuthorizationResult result = await service.AuthorizeAsync(user, attribute.Policy);
             if (!result.Succeeded) return false;
         }
 

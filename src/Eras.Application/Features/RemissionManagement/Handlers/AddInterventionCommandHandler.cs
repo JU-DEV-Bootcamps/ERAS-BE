@@ -1,3 +1,4 @@
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
@@ -18,6 +19,8 @@ public sealed class AddInterventionCommandHandler
     private readonly IAttachmentService _attachmentService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserIdentityProvider _userIdentityProvider;
+    private readonly ICurrentUserService _currentUser;
+    private readonly IInterventionActivityRepository _activityRepository;
 
     public AddInterventionCommandHandler(
         IAssessmentRepository Repository,
@@ -25,7 +28,9 @@ public sealed class AddInterventionCommandHandler
         IMapper<GroupInterventionDto, GroupIntervention> GroupMapper,
         IAttachmentService AttachmentService,
         IUnitOfWork UnitOfWork,
-        IUserIdentityProvider UserIdentityProvider)
+        IUserIdentityProvider UserIdentityProvider,
+        ICurrentUserService CurrentUser,
+        IInterventionActivityRepository ActivityRepository)
     {
         _repository = Repository;
         _individualMapper = IndividualMapper;
@@ -33,6 +38,8 @@ public sealed class AddInterventionCommandHandler
         _attachmentService = AttachmentService;
         _unitOfWork = UnitOfWork;
         _userIdentityProvider = UserIdentityProvider;
+        _currentUser = CurrentUser;
+        _activityRepository = ActivityRepository;
     }
 
     public async Task<InterventionDto> Handle(
@@ -52,6 +59,10 @@ public sealed class AddInterventionCommandHandler
         Intervention persisted = await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             Intervention created = await _repository.AddInterventionAsync(Request.AssessmentId, newIntervention);
+
+            await _activityRepository.AddRangeAsync(
+                [InterventionActivityFactory.Created(created.Id, ActivityActor.From(_currentUser), DateTime.UtcNow)],
+                CancellationToken);
 
             if (Request.DraftSessionId.HasValue)
             {
