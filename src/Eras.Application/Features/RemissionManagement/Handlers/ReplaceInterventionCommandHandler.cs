@@ -1,5 +1,6 @@
-﻿using System.Windows.Input;
+using System.Windows.Input;
 
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
@@ -28,6 +29,8 @@ public sealed class ReplaceInterventionCommandHandler
     private readonly IAttachmentService _attachmentService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserIdentityProvider _userIdentityProvider;
+    private readonly ICurrentUserService _currentUser;
+    private readonly IInterventionActivityRepository _activityRepository;
     private readonly ILogger<ReplaceInterventionCommandHandler> _logger;
     private readonly IMapper<UpdateInterventionDto, Intervention> _mapper;
     private readonly IValidator<StatusTransitionRequest<InterventionStatus>> _interventionStatusValidator;
@@ -38,6 +41,8 @@ public sealed class ReplaceInterventionCommandHandler
         IAttachmentService AttachmentService,
         IUnitOfWork UnitOfWork,
         IUserIdentityProvider UserIdentityProvider,
+        ICurrentUserService CurrentUser,
+        IInterventionActivityRepository ActivityRepository,
         ILogger<ReplaceInterventionCommandHandler> Logger,
         IMapper<UpdateInterventionDto, Intervention> Mapper,
         IValidator<StatusTransitionRequest<InterventionStatus>> InterventionStatusValidator)
@@ -47,6 +52,8 @@ public sealed class ReplaceInterventionCommandHandler
         _attachmentService = AttachmentService;
         _unitOfWork = UnitOfWork;
         _userIdentityProvider = UserIdentityProvider;
+        _currentUser = CurrentUser;
+        _activityRepository = ActivityRepository;
         _logger = Logger;
         _mapper = Mapper;
         _interventionStatusValidator = InterventionStatusValidator;
@@ -93,12 +100,43 @@ public sealed class ReplaceInterventionCommandHandler
             // the original creator over, since MapIntervention builds a fresh entity with none.
             mapped.CreatedBy = oldIntervention.CreatedBy;
 
+            // Deleting the old row cascades to its activity events, so read them first and re-add them
+            // (as new rows) on the recreated intervention: its history is kept.
+            IReadOnlyList<InterventionActivity> previousActivities =
+                await _activityRepository.GetByInterventionIdAsync(Request.OldInterventionId, CancellationToken);
+            InterventionStatus previousStatus = oldIntervention.Status;
+            string? previousComments = oldIntervention.Comments;
+
             Intervention persisted = await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
                 await _assessmentRepository.DeleteInterventionAsync(Request.AssessmentId, Request.OldInterventionId);
 
                 Intervention created = await _assessmentRepository.AddInterventionAsync(
                     Request.AssessmentId, mapped);
+
+                List<InterventionActivity> activities = previousActivities
+                    .OrderBy(A => A.OccurredAtUtc).ThenBy(A => A.Id)
+                    .Select(A => new InterventionActivity
+                    {
+                        InterventionId = created.Id,
+                        Type = A.Type,
+                        PreviousStatus = A.PreviousStatus,
+                        NewStatus = A.NewStatus,
+                        OccurredAtUtc = A.OccurredAtUtc,
+                        ActorSub = A.ActorSub,
+                        ActorName = A.ActorName
+                    })
+                    .ToList();
+                activities.AddRange(InterventionActivityFactory.FromChange(
+                    created.Id,
+                    previousStatus,
+                    previousComments,
+                    created.Status,
+                    created.Comments,
+                    ActivityActor.From(_currentUser),
+                    DateTime.UtcNow));
+                await _activityRepository.AddRangeAsync(activities, CancellationToken);
+
                 if (idsToRemove.Length > 0)
                     await _attachmentRepository.DeleteByIdsAsync(idsToRemove);
 

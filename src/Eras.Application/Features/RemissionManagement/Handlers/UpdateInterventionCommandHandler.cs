@@ -1,4 +1,5 @@
-﻿using Eras.Application.Contracts.Persistence;
+using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
 using Eras.Application.DTOs.AssessmentManagement;
@@ -26,6 +27,8 @@ public sealed class UpdateInterventionCommandHandler : IRequestHandler<UpdateInt
     private readonly IAssessmentRepository _assessmentRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IUserIdentityProvider _userIdentityProvider;
+    private readonly ICurrentUserService _currentUser;
+    private readonly IInterventionActivityRepository _activityRepository;
     private readonly ILogger<UpdateInterventionCommandHandler> _logger;
     private readonly IMapper<UpdateInterventionDto, Intervention> _mapper;
     private readonly IValidator<StatusTransitionRequest<InterventionStatus>> _interventionStatusValidator;
@@ -37,6 +40,8 @@ public sealed class UpdateInterventionCommandHandler : IRequestHandler<UpdateInt
         IAssessmentRepository AssessmentRepository,
         IUnitOfWork UnitOfWork,
         IUserIdentityProvider Provider,
+        ICurrentUserService CurrentUser,
+        IInterventionActivityRepository ActivityRepository,
         ILogger<UpdateInterventionCommandHandler> Logger,
         IMapper<UpdateInterventionDto, Intervention> Mapper,
         IValidator<StatusTransitionRequest<InterventionStatus>> InterventionStatusValidator)
@@ -46,6 +51,8 @@ public sealed class UpdateInterventionCommandHandler : IRequestHandler<UpdateInt
         _assessmentRepository = AssessmentRepository;
         _unitOfWork = UnitOfWork;
         _userIdentityProvider = Provider;
+        _currentUser = CurrentUser;
+        _activityRepository = ActivityRepository;
         _logger = Logger;
         _mapper = Mapper;
         _interventionStatusValidator = InterventionStatusValidator;
@@ -94,9 +101,23 @@ public sealed class UpdateInterventionCommandHandler : IRequestHandler<UpdateInt
             Intervention mapped = _mapper.Map(Request.Intervention);
             mapped.Id = Request.InterventionId;
 
+            // The repository mutates the tracked entity, so read the previous values before saving.
+            InterventionStatus previousStatus = existingIntervention.Status;
+            string? previousComments = existingIntervention.Comments;
+
             Intervention persisted = await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
                 Intervention updated = await _assessmentRepository.UpdateInterventionAsync(Request.AssessmentId, mapped);
+
+                IReadOnlyList<InterventionActivity> activities = InterventionActivityFactory.FromChange(
+                    Request.InterventionId,
+                    previousStatus,
+                    previousComments,
+                    updated.Status,
+                    updated.Comments,
+                    ActivityActor.From(_currentUser),
+                    DateTime.UtcNow);
+                await _activityRepository.AddRangeAsync(activities.ToList(), CancellationToken);
                 if (idsToRemove.Length > 0)
                     await _attachmentRepository.DeleteByIdsAsync(idsToRemove);
 

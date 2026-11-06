@@ -155,6 +155,21 @@ public class AssessmentsController(
         return Ok(response);
     }
 
+    /// <summary>Activity history of an intervention, oldest event first (read-only).</summary>
+    [HttpGet("{id:int}/interventions/{interventionId:int}/history")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
+    [ProducesResponseType(typeof(IReadOnlyCollection<InterventionActivityDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyCollection<InterventionActivityDto>>> GetInterventionActivity(
+        int id,
+        int interventionId,
+        CancellationToken cancellationToken)
+    {
+        var response = await Mediator.Send(new GetInterventionActivityQuery(id, interventionId), cancellationToken);
+        return Ok(response);
+    }
+
     /// <summary>
     /// Interventions of the assessment, scoped to a Student Services Officer: only returned
     /// when <paramref name="creatorSub"/> is the assessment's own creator (#545).
