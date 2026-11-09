@@ -38,6 +38,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public DbSet<FeatureFlag> FeatureFlags => Set<FeatureFlag>();
         public DbSet<DataMigrationCompletion> DataMigrationCompletions => Set<DataMigrationCompletion>();
         public DbSet<ErasUser> ErasUsers => Set<ErasUser>();
+        public DbSet<ProfessionalProfile> ProfessionalProfiles => Set<ProfessionalProfile>();
         public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
         public DbSet<StudentInterventionEntry> StudentInterventionEntries => Set<StudentInterventionEntry>();
         public DbSet<InterventionActivity> InterventionActivities => Set<InterventionActivity>();

@@ -91,6 +91,7 @@ namespace Eras.Application.Services
             Services.AddScoped<IValidator<StatusTransitionRequest<AssessmentStatus>>, AssessmentStatusTransitionValidator>();
             Services.AddScoped<IValidator<FeatureFlag>, FeatureFlagValidator>();
             Services.AddScoped<IValidator<ErasUser>, ErasUserValidator>();
+            Services.AddScoped<IValidator<ProfessionalProfile>, ProfessionalProfileValidator>();
             Services.AddScoped<IValidator<StudentRegistrationDto>, StudentRegistrationDtoValidator>();
             Services.AddScoped<IValidator<SaveStudentInterventionDto>, SaveStudentInterventionDtoValidator>();
 

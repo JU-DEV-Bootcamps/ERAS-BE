@@ -87,4 +87,45 @@ public class UpdateUserProfileCommandHandlerTests
         await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
         _repositoryMock.Verify(R => R.UpdateAsync(It.IsAny<ErasUser>()), Times.Never);
     }
+
+    [Fact]
+    [Trait("Change", "603-persist-professional-profile")]
+    [Trait("AC", "603-persist-professional-profile/AC-8")]
+    public async Task HandleAsync_ProfessionalPosition_KeepsStoredPositionAsync()
+    {
+        // Arrange (GIVEN) an ERAS Professional whose position is "Dean"
+        ErasUserDTO professional = CreateExistingProfile();
+        professional.Role = ErasRole.Professional.Label;
+        professional.Position = "Dean";
+        _repositoryMock.Setup(R => R.GetErasUserBySubAsync("sub-123")).ReturnsAsync(professional);
+        _repositoryMock.Setup(R => R.UpdateAsync(It.IsAny<ErasUser>())).ReturnsAsync((ErasUser Entity) => Entity);
+
+        // Act (WHEN) they submit a general profile update with position "Associate Dean" and other editable fields
+        var command = new UpdateUserProfileCommand("sub-123", "user@test.com", "E-1", "IT", "555-0100", "Associate Dean", "Bio text");
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert (THEN) their position remains "Dean" (AND) their other editable fields are updated
+        Assert.Equal("Dean", result.Position);
+        Assert.Equal("E-1", result.EmployeeId);
+        Assert.Equal("Bio text", result.About);
+    }
+
+    [Fact]
+    [Trait("Change", "603-persist-professional-profile")]
+    [Trait("AC", "603-persist-professional-profile/AC-9")]
+    public async Task HandleAsync_OfficerPosition_UpdatesPositionAsync()
+    {
+        // Arrange (GIVEN) an ERAS Student Services Officer whose position is "Officer"
+        ErasUserDTO officer = CreateExistingProfile();
+        officer.Position = "Officer";
+        _repositoryMock.Setup(R => R.GetErasUserBySubAsync("sub-123")).ReturnsAsync(officer);
+        _repositoryMock.Setup(R => R.UpdateAsync(It.IsAny<ErasUser>())).ReturnsAsync((ErasUser Entity) => Entity);
+
+        // Act (WHEN) they submit a general profile update with position "Coordinator"
+        var command = new UpdateUserProfileCommand("sub-123", "user@test.com", "E-1", "IT", "555-0100", "Coordinator", "Bio text");
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert (THEN) the API keeps position as "Coordinator"
+        Assert.Equal("Coordinator", result.Position);
+    }
 }

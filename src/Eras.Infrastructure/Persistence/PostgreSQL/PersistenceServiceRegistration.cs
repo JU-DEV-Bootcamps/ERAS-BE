@@ -4,6 +4,7 @@ using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManagement;
+using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.UserManagement;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -71,6 +72,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
             Services.AddScoped<IImportJobRepository, ImportJobRepository>();
             Services.AddScoped<IImportJobItemRepository, ImportJobItemRepository>();
             Services.AddScoped<IErasUsersRepository, ErasUsersRepository>();
+            Services.AddScoped<IProfessionalProfileRepository, ProfessionalProfileRepository>();
             Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
             Services.AddScoped<IStudentInterventionEntryRepository, StudentInterventionEntryRepository>();
             Services.AddScoped<IInterventionActivityRepository, InterventionActivityRepository>();
