@@ -1,5 +1,6 @@
-﻿
 
+
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.DTOs.AssessmentManagement;
@@ -29,6 +30,9 @@ public sealed class UpdateRemissionCommandHandler
     private readonly IAssessmentRepository _repository;
     private readonly ILogger<UpdateRemissionCommandHandler> _logger;
     private readonly IErasUsersRepository _usersRepository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUser;
+    private readonly IAssessmentActivityRepository _activityRepository;
 
     public UpdateRemissionCommandHandler(
         IMapper<AssessmentDto, Assessment> toDomainMapper,
@@ -38,7 +42,10 @@ public sealed class UpdateRemissionCommandHandler
         IValidator<StatusTransitionRequest<InterventionStatus>> interventionStatusValidator,
         IAssessmentRepository repository,
         ILogger<UpdateRemissionCommandHandler> logger,
-        IErasUsersRepository usersRepository)
+        IErasUsersRepository usersRepository,
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUser,
+        IAssessmentActivityRepository activityRepository)
     {
         _toDomainMapper = toDomainMapper;
         _toDtoMapper = toDtoMapper;
@@ -48,6 +55,9 @@ public sealed class UpdateRemissionCommandHandler
         _repository = repository;
         _logger = logger;
         _usersRepository = usersRepository;
+        _unitOfWork = unitOfWork;
+        _currentUser = currentUser;
+        _activityRepository = activityRepository;
     }
 
     public async Task<AssessmentDto> Handle(
@@ -98,7 +108,23 @@ public sealed class UpdateRemissionCommandHandler
                 }
             }
 
-            Assessment persisted = await _repository.UpdateAsync(entity);
+            // Saving the assessment and recording its events are one unit of work.
+            Assessment persisted = await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                Assessment updated = await _repository.UpdateAsync(entity);
+
+                IReadOnlyList<AssessmentActivity> activities = AssessmentActivityFactory.FromChange(
+                    entity.Id,
+                    existing.Status,
+                    existing.Comments,
+                    entity.Status,
+                    entity.Comments,
+                    ActivityActor.From(_currentUser),
+                    DateTime.UtcNow);
+                await _activityRepository.AddRangeAsync(activities, cancellationToken);
+
+                return updated;
+            });
 
             return _toDtoMapper.Map(persisted);
         }

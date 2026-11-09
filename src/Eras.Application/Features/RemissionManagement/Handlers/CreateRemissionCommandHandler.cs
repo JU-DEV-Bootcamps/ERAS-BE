@@ -1,5 +1,7 @@
-﻿
 
+
+using Eras.Application.Contracts.Infrastructure;
+using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.DTOs.AssessmentManagement;
 using Eras.Application.Mappers.AssessmentManagement;
@@ -19,17 +21,26 @@ public sealed class CreateRemissionCommandHandler
     private readonly IMapper<Assessment, AssessmentDto> _toDtoMapper;
     private readonly IValidator<Assessment> _validator;
     private readonly IAssessmentRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly ICurrentUserService _currentUser;
+    private readonly IAssessmentActivityRepository _activityRepository;
 
     public CreateRemissionCommandHandler(
         IMapper<AssessmentDto, Assessment> toDomainMapper,
         IMapper<Assessment, AssessmentDto> toDtoMapper,
         IValidator<Assessment> validator,
-        IAssessmentRepository repository)
+        IAssessmentRepository repository,
+        IUnitOfWork unitOfWork,
+        ICurrentUserService currentUser,
+        IAssessmentActivityRepository activityRepository)
     {
         _toDomainMapper = toDomainMapper;
         _toDtoMapper = toDtoMapper;
         _validator = validator;
         _repository = repository;
+        _unitOfWork = unitOfWork;
+        _currentUser = currentUser;
+        _activityRepository = activityRepository;
     }
 
     public async Task<AssessmentDto> Handle(
@@ -40,7 +51,17 @@ public sealed class CreateRemissionCommandHandler
 
         await ValidationHelper.ValidateAndThrowAsync(_validator, entity, cancellationToken);
 
-        Assessment persisted = await _repository.AddAsync(entity);
+        // Saving the assessment and recording "Assessment created" are one unit of work.
+        Assessment persisted = await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        {
+            Assessment created = await _repository.AddAsync(entity);
+
+            await _activityRepository.AddRangeAsync(
+                [AssessmentActivityFactory.Created(created.Id, ActivityActor.From(_currentUser), DateTime.UtcNow)],
+                cancellationToken);
+
+            return created;
+        });
 
         return _toDtoMapper.Map(persisted);
     }

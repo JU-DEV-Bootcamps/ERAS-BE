@@ -1,4 +1,4 @@
-﻿using Eras.Application.Contracts.Persistence.AssessmentManagement;
+using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Domain.Entities.AssessmentManagement;
 
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +52,12 @@ public sealed class AssessmentRepository(AppDbContext context, ILogger<Assessmen
             .ToListAsync();
 
         _context.Interventions.RemoveRange(interventions);
+
+        List<AssessmentActivity> activities = await _context.Set<AssessmentActivity>()
+            .Where(a => a.AssessmentId == assessmentId)
+            .ToListAsync();
+
+        _context.Set<AssessmentActivity>().RemoveRange(activities);
 
         _context.Set<Assessment>().Remove(assessment);
         await _context.SaveChangesAsync();

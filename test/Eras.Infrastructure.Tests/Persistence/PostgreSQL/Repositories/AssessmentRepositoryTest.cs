@@ -1,4 +1,4 @@
-﻿using Eras.Domain.Entities.AssessmentManagement;
+using Eras.Domain.Entities.AssessmentManagement;
 using Eras.Infrastructure.Persistence.PostgreSQL;
 using Eras.Infrastructure.Persistence.PostgreSQL.Repositories.AssessmentManagement;
 using Eras.Infrastructure.Tests.Persistence.PostgreSQL.Entities;
@@ -621,6 +621,57 @@ public class AssessmentRepositoryTest : RepositoryTestBase
         Assert.Empty(context.Set<Assessment>());
         Assert.Empty(context.Interventions);
     }
+
+    [Fact]
+    [Trait("Change", "681-add-activity-history-to-assessment-details")]
+    [Trait("AC", "681-add-activity-history-to-assessment-details/AC-19")]
+    public async Task DeleteAssessmentAsync_AssessmentWithEvents_RemovesOnlyItsEventsAsync()
+    {
+        // Arrange (GIVEN) an assessment with two events and another assessment with one event
+        using var context = CreateContext();
+        Assessment first = new()
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Service",
+            StudentIds = [1],
+            Status = AssessmentStatus.Remitted
+        };
+        Assessment second = new()
+        {
+            CreatedAtUtc = DateTime.UtcNow,
+            CreatedBy = "Any",
+            Service = "Service",
+            StudentIds = [2],
+            Status = AssessmentStatus.Remitted
+        };
+        context.Set<Assessment>().AddRange(first, second);
+        await context.SaveChangesAsync();
+        context.Set<AssessmentActivity>().AddRange(
+            NewActivity(first.Id, AssessmentActivityType.Created),
+            NewActivity(first.Id, AssessmentActivityType.CommentAdded),
+            NewActivity(second.Id, AssessmentActivityType.Created));
+        await context.SaveChangesAsync();
+        // The delete runs on a context that tracks none of the events, as in a request.
+        context.ChangeTracker.Clear();
+        var repository = new AssessmentRepository(context, _mockLogger.Object);
+
+        // Act (WHEN) the first assessment is deleted
+        await repository.DeleteAssessmentAsync(first.Id);
+
+        // Assert (THEN) its events are gone and the event of the other assessment is unchanged
+        AssessmentActivity remaining = Assert.Single(context.Set<AssessmentActivity>());
+        Assert.Equal(second.Id, remaining.AssessmentId);
+    }
+
+    private static AssessmentActivity NewActivity(int AssessmentId, AssessmentActivityType Type) => new()
+    {
+        AssessmentId = AssessmentId,
+        Type = Type,
+        OccurredAtUtc = DateTime.UtcNow,
+        ActorSub = "sub",
+        ActorName = "Luis Gómez"
+    };
 
     [Fact]
     public async Task DeleteAssessmentAsync_Should_Throw_WhenAssessmentIsNotFoundOrNotRemittedAsync()

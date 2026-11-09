@@ -99,6 +99,59 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.ToTable("remissions", (string)null);
                 });
 
+            modelBuilder.Entity("Eras.Domain.Entities.AssessmentManagement.AssessmentActivity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActorName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("actor_name");
+
+                    b.Property<string>("ActorSub")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("actor_sub");
+
+                    b.Property<int>("AssessmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("assessment_id");
+
+                    b.Property<string>("NewStatus")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("new_status");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at_utc");
+
+                    b.Property<string>("PreviousStatus")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("previous_status");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssessmentId")
+                        .HasDatabaseName("ix_assessment_activities_assessment_id");
+
+                    b.ToTable("assessment_activities", (string)null);
+                });
+
             modelBuilder.Entity("Eras.Domain.Entities.AssessmentManagement.Intervention", b =>
                 {
                     b.Property<int>("Id")
@@ -1810,6 +1863,15 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         });
 
                     b.Navigation("Plan")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Eras.Domain.Entities.AssessmentManagement.AssessmentActivity", b =>
+                {
+                    b.HasOne("Eras.Domain.Entities.AssessmentManagement.Assessment", null)
+                        .WithMany()
+                        .HasForeignKey("AssessmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

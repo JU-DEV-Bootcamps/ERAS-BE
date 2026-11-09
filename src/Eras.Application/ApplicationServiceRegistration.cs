@@ -68,6 +68,7 @@ namespace Eras.Application.Services
             services.AddScoped<IMapper<InterventionPlanDto, InterventionPlan>, InterventionPlanMapper>();
             services.AddScoped<IMapper<InterventionPlan, InterventionPlanDto>, InterventionPlanToDtoMapper>();
             services.AddScoped<IMapper<InterventionActivity, InterventionActivityDto>, InterventionActivityToDtoMapper>();
+            services.AddScoped<IMapper<AssessmentActivity, AssessmentActivityDto>, AssessmentActivityToDtoMapper>();
 
             services.AddScoped<IMapper<IndividualInterventionDto, IndividualIntervention>, IndividualInterventionMapper>();
             services.AddScoped<IMapper<IndividualIntervention, IndividualInterventionDto>, IndividualInterventionToDtoMapper>();
