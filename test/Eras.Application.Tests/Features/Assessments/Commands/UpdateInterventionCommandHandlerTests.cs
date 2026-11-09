@@ -1,4 +1,4 @@
-using Eras.Application.Contracts.Infrastructure;
+﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
@@ -77,7 +77,9 @@ public sealed class UpdateInterventionCommandHandlerTests
         InterventionStatus Status = InterventionStatus.Remitted,
         string? Professional = null,
         string? ProfessionalSub = null,
-        string? Comments = null) => new(
+        string? Comments = null,
+        InterventionLevel RiskLevelName = InterventionLevel.Medium,
+        InterventionLevel? EndRiskLevelName = null) => new(
         DateUtc: DateTime.UtcNow,
         Activity: "activity",
         Area: "area",
@@ -91,14 +93,20 @@ public sealed class UpdateInterventionCommandHandlerTests
         Status: Status,
         Remarks: null,
         RiskLevel: null,
-        RiskLevelName: InterventionLevel.Medium,
-        EndRiskLevelName: null,
+        RiskLevelName: RiskLevelName,
+        EndRiskLevelName: EndRiskLevelName,
         Id: null,
         ProfessionalSub: ProfessionalSub);
 
     private static Intervention MakeIntervention(
-        int Id, InterventionStatus Status = InterventionStatus.Remitted, string? Comments = null) => new()
+        int Id,
+        InterventionStatus Status = InterventionStatus.Remitted,
+        string? Comments = null,
+        InterventionLevel RiskLevelName = InterventionLevel.Medium,
+        InterventionLevel? EndRiskLevelName = null) => new()
         {
+            RiskLevelName = RiskLevelName,
+            EndRiskLevelName = EndRiskLevelName,
             Id = Id,
             DateUtc = DateTime.UtcNow,
             StudentIds = Array.Empty<int>(),
@@ -122,7 +130,9 @@ public sealed class UpdateInterventionCommandHandlerTests
                 DateUtc = Dto.DateUtc,
                 StudentIds = Array.Empty<int>(),
                 Status = Dto.Status,
-                Comments = Dto.Comments
+                Comments = Dto.Comments,
+                RiskLevelName = Dto.RiskLevelName,
+                EndRiskLevelName = Dto.EndRiskLevelName
             });
         _unitOfWork
             .Setup(U => U.ExecuteInTransactionAsync(It.IsAny<Func<Task<Intervention>>>()))
@@ -133,6 +143,8 @@ public sealed class UpdateInterventionCommandHandlerTests
             {
                 Existing.Status = Incoming.Status;
                 Existing.Comments = Incoming.Comments;
+                Existing.RiskLevelName = Incoming.RiskLevelName;
+                Existing.EndRiskLevelName = Incoming.EndRiskLevelName;
                 return Existing;
             });
 
@@ -209,6 +221,72 @@ public sealed class UpdateInterventionCommandHandlerTests
         Assert.Equal(InterventionStatus.InProgress, _recordedActivities[1].PreviousStatus);
         Assert.Equal(InterventionStatus.Finalized, _recordedActivities[1].NewStatus);
         Assert.Equal("Luis Gómez", _recordedActivities[0].ActorName);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-21")]
+    public async Task HandleAsync_RiskLevelChanged_RecordsPreviousAndNewRiskLevelAsync()
+    {
+        // Arrange: an intervention with risk level Medium
+        Intervention existing = MakeIntervention(1, RiskLevelName: InterventionLevel.Medium);
+
+        // Act: the user changes the risk level to High, then saves again with High
+        await SaveAsync(existing, MakeDto(RiskLevelName: InterventionLevel.High));
+        await SaveAsync(existing, MakeDto(RiskLevelName: InterventionLevel.High));
+
+        // Assert: one event with the previous and the new value, and none for the second save
+        InterventionActivity activity = Assert.Single(_recordedActivities);
+        Assert.Equal(InterventionActivityType.RiskLevelChanged, activity.Type);
+        Assert.Equal(InterventionLevel.Medium, activity.PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.High, activity.NewRiskLevel);
+        Assert.Equal("Luis Gómez", activity.ActorName);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-22")]
+    public async Task HandleAsync_EndRiskLevelChanged_RecordsPreviousAndNewEndRiskLevelAsync()
+    {
+        // Arrange: a Finalized intervention with no end risk level
+        Intervention existing = MakeIntervention(1, InterventionStatus.Finalized);
+
+        // Act: the user saves the end risk level Low, then saves again with Low
+        await SaveAsync(existing, MakeDto(InterventionStatus.Finalized, EndRiskLevelName: InterventionLevel.Low));
+        await SaveAsync(existing, MakeDto(InterventionStatus.Finalized, EndRiskLevelName: InterventionLevel.Low));
+
+        // Assert: one event from none to Low, and none for the second save
+        InterventionActivity activity = Assert.Single(_recordedActivities);
+        Assert.Equal(InterventionActivityType.EndRiskLevelChanged, activity.Type);
+        Assert.Null(activity.PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.Low, activity.NewRiskLevel);
+        Assert.Equal("Luis Gómez", activity.ActorName);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-23")]
+    public async Task HandleAsync_BothRiskLevelsChanged_RecordsTwoEventsAsync()
+    {
+        // Arrange: a Finalized intervention with risk level Medium and no end risk level
+        Intervention existing = MakeIntervention(1, InterventionStatus.Finalized);
+
+        // Act: one save changes both risk levels
+        await SaveAsync(existing, MakeDto(
+            InterventionStatus.Finalized,
+            RiskLevelName: InterventionLevel.High,
+            EndRiskLevelName: InterventionLevel.Low));
+
+        // Assert: two separate events, risk level first, with the same time and actor
+        Assert.Equal(2, _recordedActivities.Count);
+        Assert.Equal(InterventionActivityType.RiskLevelChanged, _recordedActivities[0].Type);
+        Assert.Equal(InterventionLevel.Medium, _recordedActivities[0].PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.High, _recordedActivities[0].NewRiskLevel);
+        Assert.Equal(InterventionActivityType.EndRiskLevelChanged, _recordedActivities[1].Type);
+        Assert.Null(_recordedActivities[1].PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.Low, _recordedActivities[1].NewRiskLevel);
+        Assert.Equal(_recordedActivities[0].OccurredAtUtc, _recordedActivities[1].OccurredAtUtc);
+        Assert.Equal(_recordedActivities[0].ActorName, _recordedActivities[1].ActorName);
     }
 
     [Fact]

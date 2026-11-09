@@ -1,4 +1,4 @@
-using System.Windows.Input;
+﻿using System.Windows.Input;
 
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
@@ -106,6 +106,8 @@ public sealed class ReplaceInterventionCommandHandler
                 await _activityRepository.GetByInterventionIdAsync(Request.OldInterventionId, CancellationToken);
             InterventionStatus previousStatus = oldIntervention.Status;
             string? previousComments = oldIntervention.Comments;
+            InterventionLevel previousRiskLevel = oldIntervention.RiskLevelName;
+            InterventionLevel? previousEndRiskLevel = oldIntervention.EndRiskLevelName;
 
             Intervention persisted = await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
@@ -122,6 +124,8 @@ public sealed class ReplaceInterventionCommandHandler
                         Type = A.Type,
                         PreviousStatus = A.PreviousStatus,
                         NewStatus = A.NewStatus,
+                        PreviousRiskLevel = A.PreviousRiskLevel,
+                        NewRiskLevel = A.NewRiskLevel,
                         OccurredAtUtc = A.OccurredAtUtc,
                         ActorSub = A.ActorSub,
                         ActorName = A.ActorName
@@ -134,7 +138,11 @@ public sealed class ReplaceInterventionCommandHandler
                     created.Status,
                     created.Comments,
                     ActivityActor.From(_currentUser),
-                    DateTime.UtcNow));
+                    DateTime.UtcNow,
+                    previousRiskLevel,
+                    created.RiskLevelName,
+                    previousEndRiskLevel,
+                    created.EndRiskLevelName));
                 await _activityRepository.AddRangeAsync(activities, CancellationToken);
 
                 if (idsToRemove.Length > 0)

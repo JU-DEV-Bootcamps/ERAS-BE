@@ -1,4 +1,4 @@
-using Eras.Application.Contracts.Infrastructure;
+﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
@@ -104,6 +104,8 @@ public sealed class UpdateInterventionCommandHandler : IRequestHandler<UpdateInt
             // The repository mutates the tracked entity, so read the previous values before saving.
             InterventionStatus previousStatus = existingIntervention.Status;
             string? previousComments = existingIntervention.Comments;
+            InterventionLevel previousRiskLevel = existingIntervention.RiskLevelName;
+            InterventionLevel? previousEndRiskLevel = existingIntervention.EndRiskLevelName;
 
             Intervention persisted = await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
@@ -116,7 +118,11 @@ public sealed class UpdateInterventionCommandHandler : IRequestHandler<UpdateInt
                     updated.Status,
                     updated.Comments,
                     ActivityActor.From(_currentUser),
-                    DateTime.UtcNow);
+                    DateTime.UtcNow,
+                    previousRiskLevel,
+                    updated.RiskLevelName,
+                    previousEndRiskLevel,
+                    updated.EndRiskLevelName);
                 await _activityRepository.AddRangeAsync(activities.ToList(), CancellationToken);
                 if (idsToRemove.Length > 0)
                     await _attachmentRepository.DeleteByIdsAsync(idsToRemove);

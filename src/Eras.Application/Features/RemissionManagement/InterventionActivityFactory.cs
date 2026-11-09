@@ -1,4 +1,4 @@
-using Eras.Application.Contracts.Infrastructure;
+﻿using Eras.Application.Contracts.Infrastructure;
 using Eras.Domain.Entities.AssessmentManagement;
 
 namespace Eras.Application.Features.RemissionManagement;
@@ -27,7 +27,8 @@ public static class InterventionActivityFactory
 
     /// <summary>
     /// A comment event when the comments go from empty to text or change to a different text (clearing records
-    /// nothing), then a status event when the status differs.
+    /// nothing), then a status event, a risk level event and an end risk level event when each value differs.
+    /// The risk level values are optional: a caller that does not pass them records no risk level event.
     /// </summary>
     public static IReadOnlyList<InterventionActivity> FromChange(
         int InterventionId,
@@ -36,7 +37,11 @@ public static class InterventionActivityFactory
         InterventionStatus NewStatus,
         string? NewComments,
         ActivityActor Actor,
-        DateTime NowUtc)
+        DateTime NowUtc,
+        InterventionLevel? PreviousRiskLevel = null,
+        InterventionLevel? NewRiskLevel = null,
+        InterventionLevel? PreviousEndRiskLevel = null,
+        InterventionLevel? NewEndRiskLevel = null)
     {
         List<InterventionActivity> activities = new();
 
@@ -56,7 +61,30 @@ public static class InterventionActivityFactory
             activities.Add(statusChanged);
         }
 
+        AddRiskLevelChange(
+            activities, InterventionActivityType.RiskLevelChanged, InterventionId, PreviousRiskLevel, NewRiskLevel, Actor, NowUtc);
+        AddRiskLevelChange(
+            activities, InterventionActivityType.EndRiskLevelChanged, InterventionId, PreviousEndRiskLevel, NewEndRiskLevel, Actor, NowUtc);
+
         return activities;
+    }
+
+    private static void AddRiskLevelChange(
+        List<InterventionActivity> Activities,
+        InterventionActivityType Type,
+        int InterventionId,
+        InterventionLevel? Previous,
+        InterventionLevel? New,
+        ActivityActor Actor,
+        DateTime NowUtc)
+    {
+        if (Previous == New)
+            return;
+
+        InterventionActivity change = Build(InterventionId, Type, Actor, NowUtc);
+        change.PreviousRiskLevel = Previous;
+        change.NewRiskLevel = New;
+        Activities.Add(change);
     }
 
     private static InterventionActivity Build(

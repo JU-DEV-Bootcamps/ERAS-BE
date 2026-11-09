@@ -18,6 +18,12 @@ public class InterventionActivity : BaseEntity
     /// <summary>Set only for <see cref="InterventionActivityType.StatusChanged"/>.</summary>
     public InterventionStatus? NewStatus { get; set; }
 
+    /// <summary>Set only for <see cref="InterventionActivityType.RiskLevelChanged"/> and <see cref="InterventionActivityType.EndRiskLevelChanged"/>; null means none.</summary>
+    public InterventionLevel? PreviousRiskLevel { get; set; }
+
+    /// <summary>Set only for <see cref="InterventionActivityType.RiskLevelChanged"/> and <see cref="InterventionActivityType.EndRiskLevelChanged"/>; null means none.</summary>
+    public InterventionLevel? NewRiskLevel { get; set; }
+
     public DateTime OccurredAtUtc { get; set; }
 
     /// <summary>Keycloak sub of the user who acted.</summary>

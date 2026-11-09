@@ -1,4 +1,4 @@
-
+﻿
 
 using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
@@ -167,6 +167,48 @@ public sealed class ReplaceInterventionCommandHandlerTests
         Assert.Equal(commented, _recordedActivities[1].OccurredAtUtc);
         Assert.Equal("Luis Gómez", _recordedActivities[1].ActorName);
         Assert.All(_recordedActivities, A => Assert.Equal(0, A.Id));
+    }
+
+    [Fact]
+    public async Task HandleAsync_TypeAndRiskLevelsChanged_KeepsOldEventsAndRecordsRiskLevelEventsAsync()
+    {
+        // Arrange: an individual intervention (risk level Medium) with an old risk level event Low → Medium
+        DateTime changed = new(2026, 11, 3, 10, 15, 0, DateTimeKind.Utc);
+        _activityRepository
+            .Setup(R => R.GetByInterventionIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<InterventionActivity>
+            {
+                new()
+                {
+                    Id = 7, InterventionId = 1, Type = InterventionActivityType.RiskLevelChanged,
+                    PreviousRiskLevel = InterventionLevel.Low, NewRiskLevel = InterventionLevel.Medium,
+                    OccurredAtUtc = changed, ActorSub = "ana-sub", ActorName = "Ana Pérez"
+                }
+            });
+        _assessmentRepository
+            .Setup(R => R.GetByIdWithInterventionsAsync(1))
+            .ReturnsAsync(MakeAssessment(MakeIntervention(1)));
+        Intervention recreated = MakeIntervention(5);
+        recreated.RiskLevelName = InterventionLevel.High;
+        recreated.EndRiskLevelName = InterventionLevel.Low;
+        SetupTransaction(recreated);
+
+        // Act: the type changes to group in the same save that sets risk level High and end risk level Low
+        await _handler.Handle(
+            new ReplaceInterventionCommand(1, 1, MakeDto() with { Kind = InterventionKind.Group }, null, null),
+            CancellationToken.None);
+
+        // Assert: the old event is kept with its values, then both risk level changes are recorded
+        Assert.Equal(3, _recordedActivities.Count);
+        Assert.Equal(InterventionActivityType.RiskLevelChanged, _recordedActivities[0].Type);
+        Assert.Equal(InterventionLevel.Low, _recordedActivities[0].PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.Medium, _recordedActivities[0].NewRiskLevel);
+        Assert.Equal(InterventionActivityType.RiskLevelChanged, _recordedActivities[1].Type);
+        Assert.Equal(InterventionLevel.Medium, _recordedActivities[1].PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.High, _recordedActivities[1].NewRiskLevel);
+        Assert.Equal(InterventionActivityType.EndRiskLevelChanged, _recordedActivities[2].Type);
+        Assert.Null(_recordedActivities[2].PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.Low, _recordedActivities[2].NewRiskLevel);
     }
 
     [Fact]

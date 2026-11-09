@@ -5,5 +5,7 @@ public enum InterventionActivityType
 {
     Created,
     CommentAdded,
-    StatusChanged
+    StatusChanged,
+    RiskLevelChanged,
+    EndRiskLevelChanged
 }

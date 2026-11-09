@@ -230,6 +230,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("intervention_id");
 
+                    b.Property<string>("NewRiskLevel")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("new_risk_level");
+
                     b.Property<string>("NewStatus")
                         .HasMaxLength(30)
                         .HasColumnType("character varying(30)")
@@ -238,6 +243,11 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL.Migrations
                     b.Property<DateTime>("OccurredAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("occurred_at_utc");
+
+                    b.Property<string>("PreviousRiskLevel")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("previous_risk_level");
 
                     b.Property<string>("PreviousStatus")
                         .HasMaxLength(30)

@@ -35,6 +35,16 @@ public sealed class InterventionActivityConfiguration : IEntityTypeConfiguration
             .HasConversion<string>()
             .HasMaxLength(30);
 
+        Builder.Property(Activity => Activity.PreviousRiskLevel)
+            .HasColumnName("previous_risk_level")
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        Builder.Property(Activity => Activity.NewRiskLevel)
+            .HasColumnName("new_risk_level")
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
         Builder.Property(Activity => Activity.OccurredAtUtc).HasColumnName("occurred_at_utc").IsRequired();
         Builder.Property(Activity => Activity.ActorSub).HasColumnName("actor_sub").HasMaxLength(200).IsRequired();
         Builder.Property(Activity => Activity.ActorName).HasColumnName("actor_name").HasMaxLength(200).IsRequired();
