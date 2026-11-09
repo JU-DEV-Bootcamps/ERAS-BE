@@ -174,4 +174,29 @@ public class ErasPoliciesTests
 
         Assert.False(result.Succeeded);
     }
+
+    [Theory]
+    [InlineData("ERAS Professional", true)]
+    [InlineData("ERAS Administrator", false)]
+    [InlineData("ERAS Student Services Officer", false)]
+    public async Task ProfessionalOnly_Succeeds_OnlyForProfessional(string Role, bool Expected)
+    {
+        var service = BuildAuthorizationService();
+        var user = BuildUser(Role);
+
+        var result = await service.AuthorizeAsync(user, ErasPolicies.ProfessionalOnly);
+
+        Assert.Equal(Expected, result.Succeeded);
+    }
+
+    [Fact]
+    public async Task ProfessionalOnly_Fails_ForGuest()
+    {
+        var service = BuildAuthorizationService();
+        var user = BuildUser();
+
+        var result = await service.AuthorizeAsync(user, ErasPolicies.ProfessionalOnly);
+
+        Assert.False(result.Succeeded);
+    }
 }

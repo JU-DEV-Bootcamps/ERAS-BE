@@ -1,4 +1,5 @@
 using Eras.Application.DTOs.UsersManagement;
+using Eras.Application.Features.ErasUsers.Models;
 
 using MediatR;
 
@@ -22,6 +23,16 @@ public sealed record UpdateUserProfileCommand(
     string? Position,
     string? About
 ) : IRequest<ErasUserDTO>;
+
+/// <summary>
+/// Saves the caller's professional profile (ERAS Professional only, enforced by the endpoint policy).
+/// Replaces the saved profile as a whole and writes the position onto the user record.
+/// </summary>
+public sealed record UpdateMyProfessionalProfileCommand(
+    string? Sub,
+    string Email,
+    UpdateProfessionalProfileRequest Profile
+) : IRequest<ProfessionalProfileDTO>;
 
 /// <summary>
 /// Upserts the local ERAS user profile from the identity's Keycloak claims.

@@ -31,7 +31,8 @@ public sealed class UpdateUserProfileCommandHandler(
         dto.EmployeeId = request.EmployeeId;
         dto.Department = request.Department;
         dto.Phone = request.Phone;
-        dto.Position = request.Position;
+        // A professional's position is owned by the professional profile endpoint (ADR-0009 scope, design D4).
+        dto.Position = dto.Role != ErasRole.Professional.Label ? request.Position : dto.Position;
         dto.About = request.About;
         dto.Audit.ModifiedAt = DateTime.UtcNow;
         dto.Audit.ModifiedBy = "System";
