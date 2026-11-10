@@ -4,6 +4,7 @@ using Eras.Application.Features.RemissionManagement;
 using Eras.Application.Features.RemissionManagement.Handlers;
 using Eras.Application.Mappers.AssessmentManagement;
 using Eras.Domain.Entities.AssessmentManagement;
+using Eras.Error.Bussiness;
 
 using Moq;
 
@@ -120,9 +121,7 @@ public sealed class GetInterventionActivityQueryHandlerTests
     }
 
     [Fact]
-    [Trait("Change", "680-add-activity-history-to-intervention-details")]
-    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-12")]
-    public async Task HandleAsync_UnknownIntervention_ThrowsKeyNotFoundAsync()
+    public async Task HandleAsync_UnknownIntervention_ThrowsNotFoundAsync()
     {
         // Arrange: an assessment without an intervention with id 999999
         _assessmentRepository.Setup(R => R.GetByIdWithInterventionsAsync(1)).ReturnsAsync(MakeAssessment(MakeIntervention(5)));
@@ -130,8 +129,8 @@ public sealed class GetInterventionActivityQueryHandlerTests
         // Act
         Func<Task> act = () => _handler.Handle(new GetInterventionActivityQuery(1, 999999), CancellationToken.None);
 
-        // Assert: not found (404) and no event data read
-        await Assert.ThrowsAsync<KeyNotFoundException>(act);
+        // Assert: not found and no event data read
+        await Assert.ThrowsAsync<NotFoundException>(act);
         _activityRepository.Verify(
             R => R.GetByInterventionIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()), Times.Never);
     }
