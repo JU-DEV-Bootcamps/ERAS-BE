@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.DTOs.AssessmentManagement;
@@ -30,6 +31,10 @@ public class UpdateRemissionCommandHandlerTests
     private readonly UpdateRemissionCommandHandler _handler;
     private readonly Mock<IAssessmentRepository> _mockRepository;
     private readonly Mock<IErasUsersRepository> _usersRepository;
+    private readonly Mock<IUnitOfWork> _unitOfWork;
+    private readonly Mock<ICurrentUserService> _currentUser;
+    private readonly Mock<IAssessmentActivityRepository> _activityRepository;
+    private readonly List<AssessmentActivity> _recordedActivities = new();
 
     public UpdateRemissionCommandHandlerTests()
     {
@@ -51,6 +56,19 @@ public class UpdateRemissionCommandHandlerTests
             .Setup(v => v.ValidateAsync(It.IsAny<StatusTransitionRequest<InterventionStatus>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
+        _unitOfWork = new Mock<IUnitOfWork>();
+        _unitOfWork
+            .Setup(U => U.ExecuteInTransactionAsync(It.IsAny<Func<Task<Assessment>>>()))
+            .Returns<Func<Task<Assessment>>>(F => F());
+        _currentUser = new Mock<ICurrentUserService>();
+        _currentUser.Setup(U => U.Sub).Returns("user-1");
+        _currentUser.Setup(U => U.Name).Returns("Luis Gómez");
+        _activityRepository = new Mock<IAssessmentActivityRepository>();
+        _activityRepository
+            .Setup(R => R.AddRangeAsync(It.IsAny<IReadOnlyCollection<AssessmentActivity>>(), It.IsAny<CancellationToken>()))
+            .Callback<IReadOnlyCollection<AssessmentActivity>, CancellationToken>((Items, _) => _recordedActivities.AddRange(Items))
+            .Returns(Task.CompletedTask);
+
         _handler = new UpdateRemissionCommandHandler(
             _toDomainMapper.Object,
             _toDtoMapper.Object,
@@ -59,7 +77,10 @@ public class UpdateRemissionCommandHandlerTests
             _interventionStatusValidator.Object,
             _mockRepository.Object,
             _mockLogger.Object,
-            _usersRepository.Object);
+            _usersRepository.Object,
+            _unitOfWork.Object,
+            _currentUser.Object,
+            _activityRepository.Object);
     }
 
     [Fact]
@@ -708,5 +729,114 @@ public class UpdateRemissionCommandHandlerTests
         await _handler.Handle(Command(), CancellationToken.None);
 
         _mockRepository.Verify(R => R.UpdateAsync(It.IsAny<Assessment>()), Times.Once);
+    }
+
+    private static Assessment MakeTracked(AssessmentStatus Status, string? Comments) => new()
+    {
+        Id = 1,
+        CreatedBy = "Any",
+        Service = "Smth",
+        Status = Status,
+        Comments = Comments,
+        StudentIds = [1]
+    };
+
+    private async Task SaveAsync(
+        AssessmentStatus PreviousStatus, string? PreviousComments, AssessmentStatus NewStatus, string? NewComments)
+    {
+        SetupUpdate(MakeTracked(PreviousStatus, PreviousComments), MakeTracked(NewStatus, NewComments));
+        await _handler.Handle(
+            new UpdateRemissionCommand(
+                new AssessmentDto { Id = 1, StudentIds = [1], CreatedBy = "", Service = "", Status = NewStatus, Comments = NewComments }),
+            CancellationToken.None);
+    }
+
+    [Fact]
+    [Trait("Change", "681-add-activity-history-to-assessment-details")]
+    [Trait("AC", "681-add-activity-history-to-assessment-details/AC-2")]
+    public async Task HandleAsync_CommentAdded_RecordsCommentAddedEventAsync()
+    {
+        // Arrange (GIVEN) an assessment with no comments and a user named "Luis Gómez"
+        // Act (WHEN) they save the comments "Family contacted"
+        await SaveAsync(AssessmentStatus.Remitted, null, AssessmentStatus.Remitted, "Family contacted");
+
+        // Assert (THEN) one "Comment added" event with the user name
+        AssessmentActivity activity = Assert.Single(_recordedActivities);
+        Assert.Equal(AssessmentActivityType.CommentAdded, activity.Type);
+        Assert.Equal(1, activity.AssessmentId);
+        Assert.Equal("Luis Gómez", activity.ActorName);
+    }
+
+    [Fact]
+    [Trait("Change", "681-add-activity-history-to-assessment-details")]
+    [Trait("AC", "681-add-activity-history-to-assessment-details/AC-3")]
+    public async Task HandleAsync_CommentChangedThenCleared_RecordsOnlyTheChangeAsync()
+    {
+        // Arrange (GIVEN) an assessment with the comments "Family contacted"
+        // Act (WHEN) the user changes the comments to "Family met", then clears them
+        await SaveAsync(AssessmentStatus.Remitted, "Family contacted", AssessmentStatus.Remitted, "Family met");
+        await SaveAsync(AssessmentStatus.Remitted, "Family met", AssessmentStatus.Remitted, null);
+
+        // Assert (THEN) only the change recorded an event
+        AssessmentActivity activity = Assert.Single(_recordedActivities);
+        Assert.Equal(AssessmentActivityType.CommentAdded, activity.Type);
+        Assert.Equal("Luis Gómez", activity.ActorName);
+    }
+
+    [Fact]
+    [Trait("Change", "681-add-activity-history-to-assessment-details")]
+    [Trait("AC", "681-add-activity-history-to-assessment-details/AC-4")]
+    public async Task HandleAsync_StatusChanged_RecordsPreviousAndNewStatusAsync()
+    {
+        // Arrange (GIVEN) an assessment with status Remitted
+        // Act (WHEN) the user changes it to InProgress, then to Finalized
+        await SaveAsync(AssessmentStatus.Remitted, null, AssessmentStatus.InProgress, null);
+        await SaveAsync(AssessmentStatus.InProgress, null, AssessmentStatus.Finalized, null);
+
+        // Assert (THEN) two status events with the previous and the new value
+        Assert.Equal(2, _recordedActivities.Count);
+        Assert.All(_recordedActivities, A => Assert.Equal(AssessmentActivityType.StatusChanged, A.Type));
+        Assert.Equal(AssessmentStatus.Remitted, _recordedActivities[0].PreviousStatus);
+        Assert.Equal(AssessmentStatus.InProgress, _recordedActivities[0].NewStatus);
+        Assert.Equal(AssessmentStatus.InProgress, _recordedActivities[1].PreviousStatus);
+        Assert.Equal(AssessmentStatus.Finalized, _recordedActivities[1].NewStatus);
+        Assert.Equal("Luis Gómez", _recordedActivities[0].ActorName);
+    }
+
+    [Fact]
+    [Trait("Change", "681-add-activity-history-to-assessment-details")]
+    [Trait("AC", "681-add-activity-history-to-assessment-details/AC-5")]
+    public async Task HandleAsync_NoTrackedChange_RecordsNoEventAsync()
+    {
+        // Arrange (GIVEN) status Remitted and comments "Family contacted"
+        // Act (WHEN) the user saves keeping the same status and comments
+        await SaveAsync(AssessmentStatus.Remitted, "Family contacted", AssessmentStatus.Remitted, "Family contacted");
+
+        // Assert (THEN) the assessment is saved and no event is recorded
+        _mockRepository.Verify(R => R.UpdateAsync(It.IsAny<Assessment>()), Times.Once);
+        Assert.Empty(_recordedActivities);
+    }
+
+    [Fact]
+    [Trait("Change", "681-add-activity-history-to-assessment-details")]
+    [Trait("AC", "681-add-activity-history-to-assessment-details/AC-6")]
+    public async Task HandleAsync_RejectedStatusTransition_RecordsNoEventAsync()
+    {
+        // Arrange (GIVEN) a Finalized assessment and a validator that rejects the transition
+        SetupUpdate(MakeTracked(AssessmentStatus.Finalized, null), MakeTracked(AssessmentStatus.InProgress, null));
+        _assessmentStatusValidator
+            .Setup(V => V.ValidateAsync(It.IsAny<StatusTransitionRequest<AssessmentStatus>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new FluentValidation.Results.ValidationResult([new ValidationFailure("Status", "Finalized is final")]));
+
+        // Act (WHEN) a user tries to change it to InProgress
+        Func<Task> act = () => _handler.Handle(
+            new UpdateRemissionCommand(
+                new AssessmentDto { Id = 1, StudentIds = [1], CreatedBy = "", Service = "", Status = AssessmentStatus.InProgress }),
+            CancellationToken.None);
+
+        // Assert (THEN) the existing rejection happens, nothing is saved and no event is recorded
+        await Assert.ThrowsAsync<OperationCanceledException>(act);
+        _mockRepository.Verify(R => R.UpdateAsync(It.IsAny<Assessment>()), Times.Never);
+        Assert.Empty(_recordedActivities);
     }
 }

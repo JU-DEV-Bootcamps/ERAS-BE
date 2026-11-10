@@ -10,3 +10,7 @@ public sealed record GetAssessmentsByAssignedProfessionalQuery(string assignedPr
 /// <summary>The activity history of one intervention of the assessment, oldest event first.</summary>
 public sealed record GetInterventionActivityQuery(int AssessmentId, int InterventionId)
     : IRequest<IReadOnlyCollection<InterventionActivityDto>>;
+
+/// <summary>The activity history of one assessment, oldest event first.</summary>
+public sealed record GetAssessmentActivityQuery(int AssessmentId)
+    : IRequest<IReadOnlyCollection<AssessmentActivityDto>>;

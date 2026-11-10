@@ -155,6 +155,20 @@ public class AssessmentsController(
         return Ok(response);
     }
 
+    /// <summary>Activity history of an assessment, oldest event first (read-only).</summary>
+    [HttpGet("{id:int}/history")]
+    [Authorize(Policy = ErasPolicies.AnyErasRole)]
+    [ProducesResponseType(typeof(IReadOnlyCollection<AssessmentActivityDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IReadOnlyCollection<AssessmentActivityDto>>> GetAssessmentActivity(
+        int id,
+        CancellationToken cancellationToken)
+    {
+        var response = await Mediator.Send(new GetAssessmentActivityQuery(id), cancellationToken);
+        return Ok(response);
+    }
+
     /// <summary>Activity history of an intervention, oldest event first (read-only).</summary>
     [HttpGet("{id:int}/interventions/{interventionId:int}/history")]
     [Authorize(Policy = ErasPolicies.AnyErasRole)]

@@ -42,6 +42,7 @@ namespace Eras.Infrastructure.Persistence.PostgreSQL
         public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
         public DbSet<StudentInterventionEntry> StudentInterventionEntries => Set<StudentInterventionEntry>();
         public DbSet<InterventionActivity> InterventionActivities => Set<InterventionActivity>();
+        public DbSet<AssessmentActivity> AssessmentActivities => Set<AssessmentActivity>();
 
         // Views
         public virtual DbSet<ErasCalculationsByPollEntity> ErasCalculationsByPoll { get; set; }
