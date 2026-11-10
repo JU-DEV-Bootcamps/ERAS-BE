@@ -1,5 +1,6 @@
 ﻿
 
+using Eras.Application.Contracts.Infrastructure;
 using Eras.Application.Contracts.Persistence;
 using Eras.Application.Contracts.Persistence.AssessmentManagement;
 using Eras.Application.Contracts.Services;
@@ -27,6 +28,9 @@ public sealed class ReplaceInterventionCommandHandlerTests
     private readonly Mock<IAssessmentRepository> _assessmentRepository;
     private readonly Mock<IUnitOfWork> _unitOfWork;
     private readonly Mock<IUserIdentityProvider> _userIdentityProvider;
+    private readonly Mock<ICurrentUserService> _currentUser;
+    private readonly Mock<IInterventionActivityRepository> _activityRepository;
+    private readonly List<InterventionActivity> _recordedActivities = new();
     private readonly Mock<ILogger<ReplaceInterventionCommandHandler>> _logger;
     private readonly Mock<IMapper<UpdateInterventionDto, Intervention>> _mapper;
     private readonly Mock<IValidator<StatusTransitionRequest<InterventionStatus>>> _statusValidator;
@@ -40,6 +44,17 @@ public sealed class ReplaceInterventionCommandHandlerTests
         _assessmentRepository = new Mock<IAssessmentRepository>();
         _unitOfWork = new Mock<IUnitOfWork>();
         _userIdentityProvider = new Mock<IUserIdentityProvider>();
+        _currentUser = new Mock<ICurrentUserService>();
+        _currentUser.Setup(U => U.Sub).Returns("user-1");
+        _currentUser.Setup(U => U.Name).Returns("Luis Gómez");
+        _activityRepository = new Mock<IInterventionActivityRepository>();
+        _activityRepository
+            .Setup(R => R.GetByInterventionIdAsync(It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<InterventionActivity>());
+        _activityRepository
+            .Setup(R => R.AddRangeAsync(It.IsAny<IReadOnlyCollection<InterventionActivity>>(), It.IsAny<CancellationToken>()))
+            .Callback<IReadOnlyCollection<InterventionActivity>, CancellationToken>((Items, _) => _recordedActivities.AddRange(Items))
+            .Returns(Task.CompletedTask);
         _logger = new Mock<ILogger<ReplaceInterventionCommandHandler>>();
         _mapper = new Mock<IMapper<UpdateInterventionDto, Intervention>>();
         _statusValidator = new Mock<IValidator<StatusTransitionRequest<InterventionStatus>>>();
@@ -54,6 +69,8 @@ public sealed class ReplaceInterventionCommandHandlerTests
             _attachmentService.Object,
             _unitOfWork.Object,
             _userIdentityProvider.Object,
+            _currentUser.Object,
+            _activityRepository.Object,
             _logger.Object,
             _mapper.Object,
             _statusValidator.Object
@@ -113,6 +130,85 @@ public sealed class ReplaceInterventionCommandHandlerTests
         _assessmentRepository
             .Setup(R => R.AddInterventionAsync(It.IsAny<int>(), It.IsAny<Intervention>()))
             .ReturnsAsync(Returns);
+    }
+
+    [Fact]
+    [Trait("Change", "680-add-activity-history-to-intervention-details")]
+    [Trait("AC", "680-add-activity-history-to-intervention-details/AC-20")]
+    public async Task HandleAsync_TypeChanged_KeepsTheEventsAsync()
+    {
+        // Arrange: an individual intervention (id 1) with two events
+        DateTime created = new(2026, 11, 2, 9, 0, 0, DateTimeKind.Utc);
+        DateTime commented = new(2026, 11, 4, 15, 30, 0, DateTimeKind.Utc);
+        _activityRepository
+            .Setup(R => R.GetByInterventionIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<InterventionActivity>
+            {
+                new() { Id = 7, InterventionId = 1, Type = InterventionActivityType.Created, OccurredAtUtc = created, ActorSub = "ana-sub", ActorName = "Ana Pérez" },
+                new() { Id = 8, InterventionId = 1, Type = InterventionActivityType.CommentAdded, OccurredAtUtc = commented, ActorSub = "luis-sub", ActorName = "Luis Gómez" }
+            });
+        _assessmentRepository
+            .Setup(R => R.GetByIdWithInterventionsAsync(1))
+            .ReturnsAsync(MakeAssessment(MakeIntervention(1)));
+        SetupTransaction(MakeIntervention(5));
+
+        // Act: the user changes the type to group (the intervention is recreated with id 5)
+        await _handler.Handle(
+            new ReplaceInterventionCommand(1, 1, MakeDto() with { Kind = InterventionKind.Group }, null, null),
+            CancellationToken.None);
+
+        // Assert: the two events are kept on the new intervention, same order, users and times, and no new "Created"
+        Assert.Equal(2, _recordedActivities.Count);
+        Assert.All(_recordedActivities, A => Assert.Equal(5, A.InterventionId));
+        Assert.Equal(InterventionActivityType.Created, _recordedActivities[0].Type);
+        Assert.Equal(created, _recordedActivities[0].OccurredAtUtc);
+        Assert.Equal("Ana Pérez", _recordedActivities[0].ActorName);
+        Assert.Equal(InterventionActivityType.CommentAdded, _recordedActivities[1].Type);
+        Assert.Equal(commented, _recordedActivities[1].OccurredAtUtc);
+        Assert.Equal("Luis Gómez", _recordedActivities[1].ActorName);
+        Assert.All(_recordedActivities, A => Assert.Equal(0, A.Id));
+    }
+
+    [Fact]
+    public async Task HandleAsync_TypeAndRiskLevelsChanged_KeepsOldEventsAndRecordsRiskLevelEventsAsync()
+    {
+        // Arrange: an individual intervention (risk level Medium) with an old risk level event Low → Medium
+        DateTime changed = new(2026, 11, 3, 10, 15, 0, DateTimeKind.Utc);
+        _activityRepository
+            .Setup(R => R.GetByInterventionIdAsync(1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<InterventionActivity>
+            {
+                new()
+                {
+                    Id = 7, InterventionId = 1, Type = InterventionActivityType.RiskLevelChanged,
+                    PreviousRiskLevel = InterventionLevel.Low, NewRiskLevel = InterventionLevel.Medium,
+                    OccurredAtUtc = changed, ActorSub = "ana-sub", ActorName = "Ana Pérez"
+                }
+            });
+        _assessmentRepository
+            .Setup(R => R.GetByIdWithInterventionsAsync(1))
+            .ReturnsAsync(MakeAssessment(MakeIntervention(1)));
+        Intervention recreated = MakeIntervention(5);
+        recreated.RiskLevelName = InterventionLevel.High;
+        recreated.EndRiskLevelName = InterventionLevel.Low;
+        SetupTransaction(recreated);
+
+        // Act: the type changes to group in the same save that sets risk level High and end risk level Low
+        await _handler.Handle(
+            new ReplaceInterventionCommand(1, 1, MakeDto() with { Kind = InterventionKind.Group }, null, null),
+            CancellationToken.None);
+
+        // Assert: the old event is kept with its values, then both risk level changes are recorded
+        Assert.Equal(3, _recordedActivities.Count);
+        Assert.Equal(InterventionActivityType.RiskLevelChanged, _recordedActivities[0].Type);
+        Assert.Equal(InterventionLevel.Low, _recordedActivities[0].PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.Medium, _recordedActivities[0].NewRiskLevel);
+        Assert.Equal(InterventionActivityType.RiskLevelChanged, _recordedActivities[1].Type);
+        Assert.Equal(InterventionLevel.Medium, _recordedActivities[1].PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.High, _recordedActivities[1].NewRiskLevel);
+        Assert.Equal(InterventionActivityType.EndRiskLevelChanged, _recordedActivities[2].Type);
+        Assert.Null(_recordedActivities[2].PreviousRiskLevel);
+        Assert.Equal(InterventionLevel.Low, _recordedActivities[2].NewRiskLevel);
     }
 
     [Fact]
