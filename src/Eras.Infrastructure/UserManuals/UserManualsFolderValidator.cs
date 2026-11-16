@@ -68,7 +68,7 @@ public sealed class UserManualsFolderValidator(UserManualsSettings Settings)
         foreach (var path in Directory.EnumerateFiles(Folder))
         {
             var name = Path.GetFileName(path);
-            if (name != UserManualsManifest.FileName && !declaredFiles.Contains(name))
+            if (name is not (UserManualsManifest.FileName or UserManualsManifest.ReadmeFileName) && !declaredFiles.Contains(name))
                 problems.Add($"{name} is in the manuals folder but no manual declares it.");
         }
 

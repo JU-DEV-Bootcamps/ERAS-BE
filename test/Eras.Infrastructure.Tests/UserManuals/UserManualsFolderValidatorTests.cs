@@ -24,8 +24,8 @@ public sealed class UserManualsFolderValidatorTests : IDisposable
     private static byte[] Pdf() => Encoding.ASCII.GetBytes("%PDF-1.4\n%%EOF");
 
     [Fact]
-    [Trait("Change", "640-add-user-manuals-page")]
-    [Trait("AC", "640-add-user-manuals-page/AC-17")]
+    [Trait("Change", "687-distinguish-user-manuals-errors")]
+    [Trait("AC", "687-distinguish-user-manuals-errors/AC-17")]
     public void Validate_DeclaredFileMissing_FailsNamingTheFile()
     {
         // Arrange (GIVEN) a manual declared with the file name "student-guide.pdf" and no such file in the folder
@@ -39,8 +39,8 @@ public sealed class UserManualsFolderValidatorTests : IDisposable
     }
 
     [Fact]
-    [Trait("Change", "640-add-user-manuals-page")]
-    [Trait("AC", "640-add-user-manuals-page/AC-21")]
+    [Trait("Change", "687-distinguish-user-manuals-errors")]
+    [Trait("AC", "687-distinguish-user-manuals-errors/AC-21")]
     public void Validate_FileNotDeclared_FailsNamingTheFile()
     {
         // Arrange (GIVEN) a file "extra.pdf" in the folder that no manual declares
@@ -56,8 +56,8 @@ public sealed class UserManualsFolderValidatorTests : IDisposable
     }
 
     [Fact]
-    [Trait("Change", "640-add-user-manuals-page")]
-    [Trait("AC", "640-add-user-manuals-page/AC-18")]
+    [Trait("Change", "687-distinguish-user-manuals-errors")]
+    [Trait("AC", "687-distinguish-user-manuals-errors/AC-18")]
     public void Validate_PdfWithWrongContent_FailsNamingTheFile()
     {
         // Arrange (GIVEN) a manual declared as PDF whose file content is not a PDF, with a correct extension
@@ -72,8 +72,8 @@ public sealed class UserManualsFolderValidatorTests : IDisposable
     }
 
     [Fact]
-    [Trait("Change", "640-add-user-manuals-page")]
-    [Trait("AC", "640-add-user-manuals-page/AC-19")]
+    [Trait("Change", "687-distinguish-user-manuals-errors")]
+    [Trait("AC", "687-distinguish-user-manuals-errors/AC-19")]
     public void Validate_FileOverMaxSize_FailsNamingTheFile()
     {
         // Arrange (GIVEN) a declared manual whose file is larger than the maximum size of 10 MB
@@ -89,6 +89,23 @@ public sealed class UserManualsFolderValidatorTests : IDisposable
 
         // Assert (THEN) the validation fails and names the file
         Assert.Contains(problems, P => P.Contains("student-guide.pdf"));
+    }
+
+    [Fact]
+    [Trait("Change", "687-distinguish-user-manuals-errors")]
+    [Trait("AC", "687-distinguish-user-manuals-errors/AC-14")]
+    public void Validate_ReadmeNotDeclared_HasNoProblems()
+    {
+        // Arrange (GIVEN) a manifest that declares every file except "README.md", and a "README.md" in the folder
+        WriteManifest(("student-guide", "student-guide.pdf", "pdf"));
+        WriteFile("student-guide.pdf", Pdf());
+        WriteFile("README.md", Encoding.UTF8.GetBytes("# Manuals"));
+
+        // Act (WHEN) the manuals validation runs
+        IReadOnlyList<string> problems = _validator.Validate(_folder);
+
+        // Assert (THEN / AND) the validation passes and no problem names "README.md"
+        Assert.Empty(problems);
     }
 
     [Fact]
