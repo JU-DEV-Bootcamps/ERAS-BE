@@ -15,6 +15,7 @@ namespace Eras.Application.Tests.Features.UserManuals;
 
 public class DownloadUserManualQueryHandlerTests
 {
+
     private readonly Mock<IUserManualCatalog> _catalog = new();
 
     [Fact]
@@ -32,7 +33,7 @@ public class DownloadUserManualQueryHandlerTests
         Func<Task> act = () => handler.Handle(new DownloadUserManualQuery("does-not-exist"), CancellationToken.None);
 
         // Assert (THEN / AND) the manual is reported as not found and no content is returned
-        await act.Should().ThrowAsync<NotFoundException>();
+        (await act.Should().ThrowAsync<UserManualsException>()).Which.StatusCode.Should().Be(404);
     }
 
     [Fact]
@@ -55,5 +56,64 @@ public class DownloadUserManualQueryHandlerTests
         result.Content.Should().BeSameAs(content);
         result.ContentType.Should().Be("application/vnd.oasis.opendocument.text");
         result.FileName.Should().Be("admin-guide.odt");
+    }
+
+    [Fact]
+    [Trait("Change", "687-distinguish-user-manuals-errors")]
+    [Trait("AC", "687-distinguish-user-manuals-errors/AC-4")]
+    public async Task HandleAsync_UndeclaredId_ThrowsNotFoundWithCodeAsync()
+    {
+        // Arrange (GIVEN) no manual is declared with the identifier "does-not-exist"
+        _catalog
+            .Setup(C => C.OpenAsync("does-not-exist", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserManualFile?)null);
+        var handler = new DownloadUserManualQueryHandler(_catalog.Object);
+
+        // Act (WHEN) a signed-in user requests the download of "does-not-exist"
+        Func<Task> act = () => handler.Handle(new DownloadUserManualQuery("does-not-exist"), CancellationToken.None);
+
+        // Assert (THEN / AND) the failure is a 404 with the not-found code and no content is returned
+        UserManualsException error = (await act.Should().ThrowAsync<UserManualsException>()).Which;
+        error.StatusCode.Should().Be(404);
+        error.ErrorCode.Should().Be("manuals_not_found");
+    }
+
+    [Fact]
+    [Trait("Change", "687-distinguish-user-manuals-errors")]
+    [Trait("AC", "687-distinguish-user-manuals-errors/AC-24")]
+    public async Task HandleAsync_UndeclaredId_LogsTheRequestedIdentifierAsync()
+    {
+        // Arrange (GIVEN) no manual is declared with the identifier "does-not-exist"
+        _catalog
+            .Setup(C => C.OpenAsync("does-not-exist", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserManualFile?)null);
+        var handler = new DownloadUserManualQueryHandler(_catalog.Object);
+
+        // Act (WHEN) a signed-in user requests the download of "does-not-exist"
+        Func<Task> act = () => handler.Handle(new DownloadUserManualQuery("does-not-exist"), CancellationToken.None);
+        UserManualsException error = (await act.Should().ThrowAsync<UserManualsException>()).Which;
+        var logged = new List<string>();
+        error.OnLoggingException += (_, Message) => logged.Add(Message);
+        error.LogException();
+
+        // Assert (THEN / AND) the server log names the identifier and says no manual is declared with it
+        logged.Should().ContainSingle().Which.Should().Contain("does-not-exist").And.Contain("No manual is declared");
+    }
+
+    [Fact]
+    public async Task HandleAsync_IdentifierWithLineBreaks_LogsItWithoutThemAsync()
+    {
+        _catalog
+            .Setup(C => C.OpenAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((UserManualFile?)null);
+        var handler = new DownloadUserManualQueryHandler(_catalog.Object);
+
+        Func<Task> act = () => handler.Handle(new DownloadUserManualQuery("a" + Environment.NewLine + "FAKE"), CancellationToken.None);
+        UserManualsException error = (await act.Should().ThrowAsync<UserManualsException>()).Which;
+        var logged = new List<string>();
+        error.OnLoggingException += (_, Message) => logged.Add(Message);
+        error.LogException();
+
+        logged.Should().ContainSingle().Which.Should().NotContainAny("\r", "\n");
     }
 }

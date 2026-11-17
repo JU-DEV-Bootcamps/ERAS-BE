@@ -54,7 +54,9 @@ public class ErrorFilter : IActionFilter
             exception.LogException();
             Context.Result = new ObjectResult(exception)
             {
-                Value = exception.FriendlyMessage,
+                Value = exception is IErrorCodeException coded
+                    ? new ErrorCodeResponse(coded.ErrorCode, exception.FriendlyMessage)
+                    : exception.FriendlyMessage,
                 StatusCode = exception?.StatusCode,
             };
         }

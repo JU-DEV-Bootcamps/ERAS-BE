@@ -1,3 +1,4 @@
+using Eras.Api.Filters;
 using Eras.Application.DTOs.UserManuals;
 using Eras.Application.Features.UserManuals;
 
@@ -22,6 +23,7 @@ public class UserManualsController(IMediator Mediator) : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyCollection<UserManualDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ErrorCodeResponse), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<IReadOnlyCollection<UserManualDto>>> GetUserManualsAsync(
         CancellationToken CancellationToken)
     {
@@ -32,7 +34,8 @@ public class UserManualsController(IMediator Mediator) : ControllerBase
     [HttpGet("{Id}/download")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorCodeResponse), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(ErrorCodeResponse), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DownloadUserManualAsync([FromRoute] string Id, CancellationToken CancellationToken)
     {
         UserManualFileDto file = await _mediator.Send(new DownloadUserManualQuery(Id), CancellationToken);

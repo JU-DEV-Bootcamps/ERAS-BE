@@ -1,4 +1,6 @@
-﻿using Eras.Api.Filters;
+﻿using System.Text.Json;
+
+using Eras.Api.Filters;
 using Eras.Error;
 using Eras.Error.Bussiness;
 
@@ -95,6 +97,32 @@ public class ErrorFilterTests
 
         // Assert
         Assert.True(true);
+    }
+
+    [Fact]
+    [Trait("Change", "687-distinguish-user-manuals-errors")]
+    [Trait("AC", "687-distinguish-user-manuals-errors/AC-5")]
+    public void OnActionExecuted_ErrorCodeException_ReturnsCodeAndMessageWithoutDetails()
+    {
+        // Arrange (GIVEN) a declared manual whose file is not in the manuals folder
+        UserManualsException exception =
+            UserManualsException.FileMissing("manual-de-usuario-eras-v2-pdf", "manual-de-usuario-eras-v2.pdf", "/app/manuals");
+        var context = CreateActionExecutedContext();
+        context.Exception = exception;
+
+        // Act (WHEN) a signed-in user requests the download and the action fails
+        _filter.OnActionExecuted(context);
+
+        // Assert (THEN / AND) the body holds the code and a fixed message, with no path and no stack trace
+        var result = Assert.IsType<ObjectResult>(context.Result);
+        Assert.Equal(500, result.StatusCode);
+        var body = Assert.IsType<ErrorCodeResponse>(result.Value);
+        Assert.Equal("manuals_file_missing", body.Code);
+        var json = JsonSerializer.Serialize(body);
+        Assert.DoesNotContain("/app/manuals", json);
+        Assert.DoesNotContain("manual-de-usuario-eras-v2.pdf", json);
+        Assert.DoesNotContain("StackTrace", json);
+        Assert.DoesNotContain(" at ", json);
     }
 
     private static ActionExecutedContext CreateActionExecutedContext()

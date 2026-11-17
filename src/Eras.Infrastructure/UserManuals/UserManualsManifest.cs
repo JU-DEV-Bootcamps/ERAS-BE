@@ -9,6 +9,9 @@ internal static class UserManualsManifest
 {
     public const string FileName = "manifest.json";
 
+    /// <summary>The guide for developers that lives in the manuals folder; it is documentation, not a manual.</summary>
+    public const string ReadmeFileName = "README.md";
+
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     internal sealed record Entry(string? Id, string? Title, string? Language, string? Version, string? FileName, string? Format);

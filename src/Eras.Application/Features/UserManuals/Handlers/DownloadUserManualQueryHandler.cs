@@ -17,7 +17,7 @@ public sealed class DownloadUserManualQueryHandler(IUserManualCatalog Catalog)
         CancellationToken CancellationToken)
     {
         UserManualFile file = await _catalog.OpenAsync(Request.Id, CancellationToken)
-            ?? throw new NotFoundException($"User manual '{Request.Id}' was not found.");
+            ?? throw UserManualsException.NotFound(Request.Id);
 
         return new UserManualFileDto(file.Content, ContentTypeOf(file.Manual.Format), file.Manual.FileName);
     }
