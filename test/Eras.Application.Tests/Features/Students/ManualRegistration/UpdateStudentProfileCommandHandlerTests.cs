@@ -214,8 +214,8 @@ public class UpdateStudentProfileCommandHandlerTests
     }
 
     [Fact]
-    [Trait("Change", "641-align-student-modal-fields")]
-    [Trait("AC", "641-align-student-modal-fields/AC-15")]
+    [Trait("Change", "686-edit-focused-student-profile-modal")]
+    [Trait("AC", "686-edit-focused-student-profile-modal/AC-14")]
     public async Task Handle_RequestWithoutProfileViewValues_KeepsTheStoredOnesAsync()
     {
         // Arrange (GIVEN): a stored profile with data the edit form does not send
